@@ -1,1 +1,4 @@
 *.dll
+*.cache
+*.json
+*.props
