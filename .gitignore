@@ -2,3 +2,4 @@
 *.cache
 *.json
 *.props
+*.editorconfig
