@@ -4,7 +4,6 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using Rewired;
 using UnityEngine;
-using NuclearOption.MissionEditorScripts;
 using System.Collections.Generic;
 
 namespace MyFirstPlugin;
@@ -16,7 +15,7 @@ public class Plugin : BaseUnityPlugin
     public static ConfigEntry<int> configButtonNumber;
     public static Controller matchedController;
     public static CombatHUD combatHUD;
-    
+    public static AudioClip selectAudio;
     public static List<Unit> units;
     internal static new ManualLogSource Logger;
         
@@ -38,7 +37,6 @@ public class Plugin : BaseUnityPlugin
     }
 
 }
-//
 
 [HarmonyPatch(typeof(Rewired.Controller), "Connected")]
 class RegisterPatch
@@ -61,7 +59,8 @@ class ButtonPatch
 {
     private static bool previousButtonState = false;
     private static float buttonPressTime = 0f;
-    private const float LONG_PRESS_THRESHOLD = 0.2f; // 500ms
+    private static bool longPressHandled = false;
+    private const float LONG_PRESS_THRESHOLD = 0.2f; // 200ms
 
     static bool Prefix(Controller __instance)
     {
@@ -74,47 +73,53 @@ class ButtonPatch
             {
                 // Button just pressed
                 buttonPressTime = Time.time;
+                longPressHandled = false;
+            }
+            else if (previousButtonState && currentButtonState)
+            {
+                // Button is being held down
+                float holdDuration = Time.time - buttonPressTime;
+                if (holdDuration >= LONG_PRESS_THRESHOLD && !longPressHandled)
+                {
+                    Plugin.Logger.LogInfo("LONG PRESS !");
+                    HandleLongPress();
+                    longPressHandled = true;
+                }
             }
             else if (previousButtonState && !currentButtonState)
             {
                 // Button just released
-                HandleButtonRelease();
+                if (!longPressHandled)
+                {
+                    Plugin.Logger.LogInfo("CLICK !");
+                    HandleClick();
+                }
+                longPressHandled = false;
             }
-
             previousButtonState = currentButtonState;
         }
         return true;
     }
 
-    private static void HandleButtonRelease()
+    private static void HandleLongPress()
     {
-        float pressDuration = Time.time - buttonPressTime;
-
-        if (pressDuration >= LONG_PRESS_THRESHOLD)
+        if (Plugin.combatHUD != null)
         {
-            Plugin.Logger.LogInfo("LONG PRESS !");
-            HandleRemember();
-        }
-        else
-        {
-            Plugin.Logger.LogInfo("CLICK !");
-            HandleRecall();
-        }
-    }
-
-    private static void HandleRemember(){
-        if (Plugin.combatHUD != null){
             Plugin.Logger.LogInfo($"ZOB");
             Plugin.units = [.. (List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()];
+            SoundManager.PlayInterfaceOneShot(Plugin.selectAudio);
         }
-    }
-
-    private static void HandleRecall(){
-        if (Plugin.combatHUD != null && Plugin.units != null){
-            if (Plugin.units.Count > 0){
+        }
+    private static void HandleClick()
+    {
+        if (Plugin.combatHUD != null && Plugin.units != null)
+        {
+            if (Plugin.units.Count > 0)
+            {
                 Plugin.Logger.LogInfo(Plugin.units.Count);
-                Plugin.combatHUD.DeselectAll(true);
-                foreach (Unit t_unit in Plugin.units){
+                Plugin.combatHUD.DeselectAll(false);
+                foreach (Unit t_unit in Plugin.units)
+                {
                     Plugin.combatHUD.SelectUnit(t_unit);
                 }
             }
@@ -129,5 +134,6 @@ class TargetRegisterPatch
     {
         Plugin.Logger.LogInfo("COMBAT HUD REGISTERED !");
         Plugin.combatHUD = __instance;
+        Plugin.selectAudio = (AudioClip)Traverse.Create(Plugin.combatHUD).Field("selectSound").GetValue();
     }
 }
