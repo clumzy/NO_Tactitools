@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyFirstPlugin", "MyFirstPlugin\MyFirstPlugin.csproj", "{5ACBB2D0-CAB9-BECB-6D9B-C928A13BF819}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NO_Tactitools", "NO_Tactitools\NO_Tactitools.csproj", "{5ACBB2D0-CAB9-BECB-6D9B-C928A13BF819}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

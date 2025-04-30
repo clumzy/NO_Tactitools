@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <AssemblyName>MyFirstPlugin</AssemblyName>
+    <AssemblyName>NO_Tactitools</AssemblyName>
     <Product>My first plugin</Product>
     <Version>1.0.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -12,7 +12,7 @@
       https://nuget.bepinex.dev/v3/index.json;
       https://nuget.samboy.dev/v3/index.json
     </RestoreAdditionalProjectSources>
-    <RootNamespace>MyFirstPlugin</RootNamespace>
+    <RootNamespace>NO_Tactitools</RootNamespace>
     <GameDirectory>F:/SteamLibrary/steamapps/common/Nuclear Option</GameDirectory>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
