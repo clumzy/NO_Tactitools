@@ -15,8 +15,11 @@ namespace NO_Tactitools
         public static ConfigEntry<int> configButtonNumber;
         public static Controller matchedController;
         public static CombatHUD combatHUD;
+        public static FactionHQ playerFactionHQ;
+        public static Unit targetUnit;
         public static AudioClip selectAudio;
         public static List<Unit> units;
+        public static FuelGauge fuelGauge;
         internal static new ManualLogSource Logger;
             
         private void Awake()
@@ -37,4 +40,26 @@ namespace NO_Tactitools
         }
 
     }
+
+    [HarmonyPatch(typeof(CombatHUD), "Awake")]
+    class CombatHUDRegisterPatch
+    {
+        static void Postfix(CombatHUD __instance)
+        {
+            Plugin.Logger.LogInfo("COMBAT HUD REGISTERED !");
+            Plugin.combatHUD = __instance;
+            Plugin.selectAudio = (AudioClip)Traverse.Create(Plugin.combatHUD).Field("selectSound").GetValue();
+        }
+    }
+
+    [HarmonyPatch(typeof(FuelGauge), "Initialize")]
+    class FuelGaugeRegisterPatch
+    {
+        static void Postfix(FuelGauge __instance)
+        {
+            Plugin.Logger.LogInfo("FUEL GAUGE REGISTERED !");
+            Plugin.fuelGauge = __instance;
+        }
+    }
 }
+

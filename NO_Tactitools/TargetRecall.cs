@@ -10,7 +10,7 @@ namespace NO_Tactitools;
 
 
     [HarmonyPatch(typeof(Rewired.Controller), "Connected")]
-    class RegisterPatch
+    class RegisterControllerPatch
     {
         static void Postfix(Controller __instance)
         {
@@ -76,7 +76,6 @@ namespace NO_Tactitools;
         {
             if (Plugin.combatHUD != null)
             {
-                Plugin.Logger.LogInfo($"ZOB");
                 Plugin.units = [.. (List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()];
                 SoundManager.PlayInterfaceOneShot(Plugin.selectAudio);
             }
@@ -95,17 +94,6 @@ namespace NO_Tactitools;
                     }
                 }
             }
-        }
-    }
-
-    [HarmonyPatch(typeof(CombatHUD), "Awake")]
-    class TargetRegisterPatch
-    {
-        static void Postfix(CombatHUD __instance)
-        {
-            Plugin.Logger.LogInfo("COMBAT HUD REGISTERED !");
-            Plugin.combatHUD = __instance;
-            Plugin.selectAudio = (AudioClip)Traverse.Create(Plugin.combatHUD).Field("selectSound").GetValue();
         }
     }
 
