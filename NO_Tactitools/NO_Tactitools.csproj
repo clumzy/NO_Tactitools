@@ -52,4 +52,8 @@
     </ItemGroup>
     <Delete Files="@(FilesToDelete)" />
   </Target>
+
+  <Target Name="RunGameAfterBuild" AfterTargets="Build">
+    <Exec Command="&quot;$(GameDirectory)\NuclearOption.exe&quot;" />
+  </Target>
 </Project>

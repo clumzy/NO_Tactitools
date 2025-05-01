@@ -15,13 +15,12 @@ namespace NO_Tactitools
         public static ConfigEntry<int> configButtonNumber;
         public static Controller matchedController;
         public static CombatHUD combatHUD;
-        public static FactionHQ playerFactionHQ;
-        public static Unit targetUnit;
         public static AudioClip selectAudio;
         public static List<Unit> units;
         public static FuelGauge fuelGauge;
         public static CameraStateManager cameraStateManager;
         public static FlightHud flightHud;
+        public static float pan;
         internal static new ManualLogSource Logger;
             
         private void Awake()
