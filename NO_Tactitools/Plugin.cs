@@ -20,6 +20,8 @@ namespace NO_Tactitools
         public static AudioClip selectAudio;
         public static List<Unit> units;
         public static FuelGauge fuelGauge;
+        public static CameraStateManager cameraStateManager;
+        public static FlightHud flightHud;
         internal static new ManualLogSource Logger;
             
         private void Awake()
@@ -61,5 +63,22 @@ namespace NO_Tactitools
             Plugin.fuelGauge = __instance;
         }
     }
+    [HarmonyPatch(typeof(CameraStateManager), "Start")]
+    class CameraStateManagerRegisterPatch
+    {
+        static void Postfix(CameraStateManager __instance)
+        {
+            Plugin.Logger.LogInfo("CAMERA STATE MANAGER REGISTERED !");
+            Plugin.cameraStateManager = __instance;
+        }
+    }
+    [HarmonyPatch(typeof(FlightHud), "ResetAircraft")]
+    class FlightHudUpdatePatch
+    {
+        static void Postfix(FlightHud __instance)
+        {
+            Plugin.Logger.LogInfo("FLIGHT HUD REGISTERED !");
+            Plugin.flightHud = __instance;
+        }
+    }
 }
-

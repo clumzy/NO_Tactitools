@@ -30,6 +30,7 @@ class VelocityUpdate
     static int interceptBearing;
     static int interceptHeight;
     static int interceptionTimeInSeconds;
+    static Vector3 interceptScreen;
     static GameObject bearingLabel;
     static GameObject heightLabel;
     static GameObject indicatorLabel;
@@ -304,11 +305,13 @@ class VelocityUpdate
             interceptionTimeLabel = interceptionTimeObj;
             interceptionTimeLabel.GetComponent<Text>().text = "";
 
-            interceptVector = interceptPosition - Plugin.combatHUD.aircraft.rb.transform.position;
+            interceptVector = interceptPosition - Plugin.cameraStateManager.mainCamera.transform.position;
             interceptionTimeInSeconds = (int)(interceptVector.magnitude / playerVelocity.magnitude);
-            Vector3 interceptScreen = Camera.main.WorldToScreenPoint(interceptPosition);
-            //log notchScreen
-            Plugin.Logger.LogInfo($"NOTCH SCREEN: {interceptScreen.ToString()}");
+            interceptScreen = Plugin.cameraStateManager.mainCamera.WorldToScreenPoint(interceptPosition);
+            interceptScreen.x -= Screen.width / 2;
+            interceptScreen.y -= Screen.height / 2;
+            //log SCREEN COORDS
+            Plugin.Logger.LogInfo($"SCREEN COORDS: {interceptScreen.ToString()}");
             if (tracked)
             {
                 // set the color of the labels to green
@@ -330,8 +333,8 @@ class VelocityUpdate
                 bearingLabel.GetComponent<Text>().text = $"({interceptBearing.ToString()}°)";
                 heightLabel.GetComponent<Text>().text = $"({interceptHeight.ToString()}°)";
                 indicatorObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(
-                    interceptScreen.x - Screen.width / 2,
-                    interceptScreen.y - Screen.height / 2
+                    interceptScreen.x,
+                    interceptScreen.y
                 );
                 interceptionTimeLabel.GetComponent<Text>().text = $"({interceptionTimeInSeconds.ToString()}s)";
             }
