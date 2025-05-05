@@ -5,6 +5,7 @@ using HarmonyLib;
 using Rewired;
 using UnityEngine;
 using System.Collections.Generic;
+using NuclearOption.SavedMission.ObjectiveV2;
 
 namespace NO_Tactitools
 {

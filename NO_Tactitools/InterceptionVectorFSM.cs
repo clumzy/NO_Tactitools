@@ -39,10 +39,16 @@ class InterceptionFSM
     static int interceptBearing;
     static int interceptionTimeInSeconds;
     static Vector3 interceptScreen;
-    static GameObject FindOrCreateLabel(string name, Vector2 position, FontStyle fontStyle = FontStyle.Normal)
+    static GameObject FindOrCreateLabel(
+        string name, 
+        Vector2 position,  
+        Transform parent = null, 
+        FontStyle fontStyle = FontStyle.Normal,
+        Color? color = null, 
+        int fontSize = 24)
     {
         // Check if the label already exists
-        foreach (Transform child in Plugin.fuelGauge.transform)
+        foreach (Transform child in parent)
         {
             if (child.name == name)
             {
@@ -50,35 +56,25 @@ class InterceptionFSM
             }
         }
 
-        // Find the fuelLabel to clone
-        GameObject fuelLabel = null;
-        foreach (Transform child in Plugin.fuelGauge.transform)
-        {
-            if (child.name == "fuelLabel")
-            {
-                fuelLabel = child.gameObject;
-                break;
-            }
-        }
+        // Create a new GameObject for the label
+        GameObject newLabel = new GameObject(name);
+        newLabel.transform.SetParent(parent, false);
 
-        if (fuelLabel == null)
-        {
-            Plugin.Logger.LogError($"Could not find fuelLabel to create {name}");
-            return null;
-        }
-
-        // Clone the fuelLabel and configure it
-        GameObject newLabel = GameObject.Instantiate(fuelLabel, Plugin.fuelGauge.transform);
-        newLabel.name = name;
-        var rectTransform = newLabel.GetComponent<RectTransform>();
+        // Add RectTransform and set position
+        var rectTransform = newLabel.AddComponent<RectTransform>();
         rectTransform.anchoredPosition = position;
 
-        // Set font style if specified
-        var textComponent = newLabel.GetComponent<Text>();
-        if (textComponent != null)
-        {
-            textComponent.fontStyle = fontStyle;
-        }
+        // Add Text component and configure it
+        var textComponent = newLabel.AddComponent<Text>();
+        textComponent.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        textComponent.fontSize = fontSize;
+        textComponent.fontStyle = fontStyle;
+        textComponent.color = color ?? Color.white;
+        textComponent.alignment = TextAnchor.MiddleCenter;
+        textComponent.text = "";
+
+        // Optionally, set size and other properties
+        rectTransform.sizeDelta = new Vector2(200, 40);
 
         return newLabel;
     }
@@ -106,9 +102,30 @@ class InterceptionFSM
         
         playerFactionHQ = Plugin.combatHUD.aircraft.NetworkHQ;
         // Create or find the labels
-        bearingLabel = FindOrCreateLabel("bearing", new Vector2(0, Screen.height / 2 * 7 / 12));
-        timerLabel = FindOrCreateLabel("timer", new Vector2(0, -100));
-        indicatorLabel = FindOrCreateLabel("indicator", new Vector2(0, 0), FontStyle.Bold);
+        bearingLabel = FindOrCreateLabel(
+            "bearing",
+            new Vector2(0, Screen.height / 2 * 7 / 12),
+            Plugin.fuelGauge.transform,
+            FontStyle.Normal,
+            Color.green,
+            fontSize: 14
+        );
+        timerLabel = FindOrCreateLabel(
+            "timer",
+            new Vector2(0, -100),
+            Plugin.fuelGauge.transform,
+            FontStyle.Normal,
+            Color.green,
+            fontSize: 14
+        );
+        indicatorLabel = FindOrCreateLabel(
+            "indicator",
+            new Vector2(0, 0),
+            Plugin.combatHUD.transform,
+            FontStyle.Bold,
+            Color.magenta,
+            fontSize: 18
+        );
         bearingLabel.GetComponent<Text>().text = "";
         timerLabel.GetComponent<Text>().text = "";
         indicatorLabel.GetComponent<Text>().text = "";
@@ -184,14 +201,12 @@ class InterceptionFSM
             indicatorLabel.GetComponent<Text>().text = "";
         }
         bearingLabel.GetComponent<Text>().text = $"({interceptBearing.ToString()}°)";
-        timerLabel.GetComponent<Text>().text = $"({interceptionTimeInSeconds.ToString()}s)";
-        indicatorLabel.GetComponent<Text>().text = $"X";
+        timerLabel.GetComponent<Text>().text = $"(Time to intercept : {interceptionTimeInSeconds.ToString()}s)";
+        indicatorLabel.GetComponent<Text>().text = $"+";
         indicatorLabel.GetComponent<RectTransform>().anchoredPosition = new Vector2(
             interceptScreen.x,
             interceptScreen.y
         );
-        Plugin.Logger.LogInfo($"PanCAM: {Plugin.cameraStateManager.mainCamera.transform.rotation.eulerAngles.ToString()}");
-        Plugin.Logger.LogInfo($"PanPLANE: {Plugin.combatHUD.aircraft.transform.rotation.eulerAngles.ToString()}");
     }
     static void HandleTargetUnreachable()
     {
