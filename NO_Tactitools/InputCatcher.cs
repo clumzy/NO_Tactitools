@@ -26,8 +26,10 @@ public class InputCatcherPlugin
             {
                 controllerStructure[controller].Add(button);
                 Plugin.Logger.LogInfo($"[IC] Registered button {button.buttonNumber.ToString()} on controller {controllerName.ToString()}");
+                return;
             }
         }
+        Plugin.Logger.LogInfo($"[IC] Couldn't register {button.buttonNumber.ToString()} on controller {controllerName.ToString()}");
     }
 }
 

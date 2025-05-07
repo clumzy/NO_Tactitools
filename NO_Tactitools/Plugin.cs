@@ -46,36 +46,5 @@ namespace NO_Tactitools
             Logger = base.Logger;
             Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         }
-
-    }
-
-    [HarmonyPatch(typeof(CombatHUD), "Awake")]
-    class CombatHUDRegisterPatch
-    {
-        static void Postfix(CombatHUD __instance)
-        {
-            Plugin.Logger.LogInfo("COMBAT HUD REGISTERED !");
-            Plugin.combatHUD = __instance;
-            Plugin.selectAudio = (AudioClip)Traverse.Create(Plugin.combatHUD).Field("selectSound").GetValue();
-        }
-    }
-
-    [HarmonyPatch(typeof(FuelGauge), "Initialize")]
-    class FuelGaugeRegisterPatch
-    {
-        static void Postfix(FuelGauge __instance)
-        {
-            Plugin.Logger.LogInfo("FUEL GAUGE REGISTERED !");
-            Plugin.fuelGauge = __instance;
-        }
-    }
-    [HarmonyPatch(typeof(CameraStateManager), "Start")]
-    class CameraStateManagerRegisterPatch
-    {
-        static void Postfix(CameraStateManager __instance)
-        {
-            Plugin.Logger.LogInfo("CAMERA STATE MANAGER REGISTERED !");
-            Plugin.cameraStateManager = __instance;
-        }
     }
 }

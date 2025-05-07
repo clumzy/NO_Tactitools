@@ -28,23 +28,27 @@ class InterceptionVectorPlugin
                 0.2f,
                 HandleClick
                 ));
+            initialized = true;
             Plugin.Logger.LogInfo("[IV] Interception Vector plugin succesfully started !");
         }
-        initialized = true;
+        //RESET FSM STATE
+        InterceptionVectorTask.currentState = InterceptionVectorTask.State.Init;
     }
     private static void HandleClick()
     {
         Plugin.Logger.LogInfo($"[IV] HandleClick");
+        SoundManager.PlayInterfaceOneShot(Plugin.selectAudio);
         activated = !activated;
     }
 }
 
 [HarmonyPatch(typeof(CombatHUD), "FixedUpdate")]
-class InterceptionVectorFSM
+class InterceptionVectorTask
 {
     public enum State
     {
         Init,
+        Reset,
         Idle,
         TargetInitiallyUntracked,
         Intercepting
@@ -82,6 +86,9 @@ class InterceptionVectorFSM
         {
             case State.Init:
                 HandleInitState();
+                break;
+            case State.Reset:
+                HandleResetState();
                 break;
             case State.Idle:
                 HandleIdleState();
@@ -164,6 +171,12 @@ class InterceptionVectorFSM
             Color.magenta,
             fontSize: 18
         );
+        currentState = State.Reset;
+        Plugin.Logger.LogInfo("[IV] Transitioning to Reset state");
+        return;
+    }
+    static void HandleResetState()
+    {
         bearingLabel.GetComponent<Text>().text = "";
         timerLabel.GetComponent<Text>().text = "";
         indicatorLabel.GetComponent<Text>().text = "";
@@ -198,8 +211,8 @@ class InterceptionVectorFSM
     {
         if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1)
         {
-            currentState = State.Init;
-            Plugin.Logger.LogInfo("[IV] Selected more than one target, returning to Init state");
+            currentState = State.Reset;
+            Plugin.Logger.LogInfo("[IV] Selected more than one target, returning to Reset state");
             return;
         }
         if (playerFactionHQ.IsTargetBeingTracked(targetUnit))
@@ -233,7 +246,7 @@ class InterceptionVectorFSM
         interceptScreen.y -= Screen.height / 2;
         if (interceptScreen.z > 0)
         {
-            indicatorLabel.GetComponent<Text>().text = "X";
+            indicatorLabel.GetComponent<Text>().text = "+";
         }
         else
         {
@@ -241,7 +254,6 @@ class InterceptionVectorFSM
         }
         bearingLabel.GetComponent<Text>().text = $"({interceptBearing.ToString()}°)";
         timerLabel.GetComponent<Text>().text = $"(Time to intercept : {interceptionTimeInSeconds.ToString()}s)";
-        indicatorLabel.GetComponent<Text>().text = $"+";
         indicatorLabel.GetComponent<RectTransform>().anchoredPosition = new Vector2(
             interceptScreen.x,
             interceptScreen.y
@@ -262,8 +274,8 @@ class InterceptionVectorFSM
     {
         if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1)
         {
-            currentState = State.Init;
-            Plugin.Logger.LogInfo("[IV] Selected more than one target, returning to Init state");
+            currentState = State.Reset;
+            Plugin.Logger.LogInfo("[IV] Selected more than one target, returning to Reset state");
             return;
         }
         playerPosition = Plugin.combatHUD.aircraft.rb.transform.position;
@@ -353,6 +365,6 @@ class OnHUDResetPatch
     static void Postfix()
     {
         // Reset the FSM state when the aircraft is destroyed
-        InterceptionVectorFSM.currentState = InterceptionVectorFSM.State.Init;
+        InterceptionVectorTask.currentState = InterceptionVectorTask.State.Init;
     }
 }
