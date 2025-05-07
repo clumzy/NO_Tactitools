@@ -25,7 +25,6 @@ class InterceptionFSM
     static GameObject bearingLabel;
     static GameObject timerLabel;
     static GameObject indicatorLabel;
-
     static FactionHQ playerFactionHQ;
     static Unit targetUnit;
     static float solutionTime;
@@ -40,11 +39,11 @@ class InterceptionFSM
     static int interceptionTimeInSeconds;
     static Vector3 interceptScreen;
     static GameObject FindOrCreateLabel(
-        string name, 
-        Vector2 position,  
-        Transform parent = null, 
+        string name,
+        Vector2 position,
+        Transform parent = null,
         FontStyle fontStyle = FontStyle.Normal,
-        Color? color = null, 
+        Color? color = null,
         int fontSize = 24)
     {
         // Check if the label already exists
@@ -98,8 +97,8 @@ class InterceptionFSM
     }
     static void HandleInitState()
     {
-        Plugin.Logger.LogInfo("Init state");
-        
+        Plugin.Logger.LogInfo("[IV] Init state");
+
         playerFactionHQ = Plugin.combatHUD.aircraft.NetworkHQ;
         // Create or find the labels
         bearingLabel = FindOrCreateLabel(
@@ -132,7 +131,7 @@ class InterceptionFSM
         targetUnit = null;
         solutionTime = 0f;
         currentState = State.Idle;
-        Plugin.Logger.LogInfo("Transitioning to Idle state");
+        Plugin.Logger.LogInfo("[IV] Transitioning to Idle state");
         return;
     }
 
@@ -141,15 +140,16 @@ class InterceptionFSM
         if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count == 1)
         {
             targetUnit = ((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue())[0];
-            if (playerFactionHQ.IsTargetBeingTracked(targetUnit)){
+            if (playerFactionHQ.IsTargetBeingTracked(targetUnit))
+            {
                 currentState = State.Intercepting;
-                Plugin.Logger.LogInfo("Target is being tracked");
+                Plugin.Logger.LogInfo("[IV] Target is being tracked");
                 return;
             }
             else
             {
                 currentState = State.TargetInitiallyUntracked;
-                Plugin.Logger.LogInfo("Target is initially untracked");
+                Plugin.Logger.LogInfo("[IV] Target is initially untracked");
                 return;
             }
         }
@@ -160,13 +160,13 @@ class InterceptionFSM
         if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1)
         {
             currentState = State.Init;
-            Plugin.Logger.LogInfo("Selected more than one target, returning to Init state");
+            Plugin.Logger.LogInfo("[IV] Selected more than one target, returning to Init state");
             return;
         }
         if (playerFactionHQ.IsTargetBeingTracked(targetUnit))
         {
             currentState = State.Intercepting;
-            Plugin.Logger.LogInfo("Target is being tracked, going to TargetTracked state");
+            Plugin.Logger.LogInfo("[IV] Target is being tracked, going to TargetTracked state");
             return;
         }
     }
@@ -192,7 +192,7 @@ class InterceptionFSM
         interceptScreen = Plugin.cameraStateManager.mainCamera.WorldToScreenPoint(interceptPosition);
         interceptScreen.x -= Screen.width / 2;
         interceptScreen.y -= Screen.height / 2;
-        if(interceptScreen.z >0)
+        if (interceptScreen.z > 0)
         {
             indicatorLabel.GetComponent<Text>().text = "X";
         }
@@ -224,7 +224,7 @@ class InterceptionFSM
         if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1)
         {
             currentState = State.Init;
-            Plugin.Logger.LogInfo("Selected more than one target, returning to Init state");
+            Plugin.Logger.LogInfo("[IV] Selected more than one target, returning to Init state");
             return;
         }
         playerPosition = Plugin.combatHUD.aircraft.rb.transform.position;
@@ -233,8 +233,8 @@ class InterceptionFSM
         {
             HandleTracked();
             solutionTime = FindSolutionTime(targetUnit);
-            if(solutionTime>0)
-            {   
+            if (solutionTime > 0)
+            {
                 UpdateInterceptionPosition();
             }
         }
@@ -242,8 +242,8 @@ class InterceptionFSM
         {
             HandleUntracked();
         }
-        if(solutionTime>0)
-        {   
+        if (solutionTime > 0)
+        {
             HandleTargetReachable();
         }
         else
@@ -251,7 +251,7 @@ class InterceptionFSM
             HandleTargetUnreachable();
         }
         // TODO: Implement logic for when the target is being tracked
-    }    
+    }
 
     static float FindSolutionTime(Unit targetUnit)
     {
@@ -317,14 +317,3 @@ class OnHUDResetPatch
         InterceptionFSM.currentState = InterceptionFSM.State.Init;
     }
 }
-
-[HarmonyPatch(typeof(CameraCockpitState), "EnterState")]
-class OnCockpitState
-{
-    static void Postfix(CameraCockpitState __instance)
-    {
-        Plugin.Logger.LogInfo("Cockpit ENTER");
-        Plugin.pan = (float)Traverse.Create(__instance).Field("panView").GetValue();
-    }
-}
-

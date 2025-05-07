@@ -5,7 +5,6 @@ using HarmonyLib;
 using Rewired;
 using UnityEngine;
 using System.Collections.Generic;
-using NuclearOption.SavedMission.ObjectiveV2;
 
 namespace NO_Tactitools
 {
@@ -14,14 +13,11 @@ namespace NO_Tactitools
     {
         public static ConfigEntry<string> configControllerName;
         public static ConfigEntry<int> configButtonNumber;
-        public static Controller matchedController;
         public static CombatHUD combatHUD;
         public static AudioClip selectAudio;
-        public static List<Unit> units;
         public static FuelGauge fuelGauge;
         public static CameraStateManager cameraStateManager;
-        public static FlightHud flightHud;
-        public static float pan;
+        public static InputCatcherPlugin inputCatcherPlugin = new InputCatcherPlugin();
         internal static new ManualLogSource Logger;
             
         private void Awake()
@@ -29,16 +25,16 @@ namespace NO_Tactitools
             configControllerName = Config.Bind("General",      // The section under which the option is shown
                 "configControllerName",  // The key of the configuration option in the configuration file
                 "S-TECS MODERN THROTTLE MINI PLUS", // The default value
-                "Name of the perihperal"); // Description of the option to show in the config file
+                "Name of the peripheral"); // Description of the option to show in the config file
             configButtonNumber = Config.Bind("General",      // The section under which the option is shown
                 "configButtonNumber",  // The key of the configuration option in the configuration file
                 37, // The default value
                 "Number of the button");
             // Plugin startup logic
-            var harmony = new Harmony("george.no_time");
+            var harmony = new Harmony("george.no_tactitools");
             harmony.PatchAll();
             Logger = base.Logger;
-            Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded! 420 blaze it");
+            Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         }
 
     }
@@ -70,15 +66,6 @@ namespace NO_Tactitools
         {
             Plugin.Logger.LogInfo("CAMERA STATE MANAGER REGISTERED !");
             Plugin.cameraStateManager = __instance;
-        }
-    }
-    [HarmonyPatch(typeof(FlightHud), "ResetAircraft")]
-    class FlightHudUpdatePatch
-    {
-        static void Postfix(FlightHud __instance)
-        {
-            Plugin.Logger.LogInfo("FLIGHT HUD REGISTERED !");
-            Plugin.flightHud = __instance;
         }
     }
 }
