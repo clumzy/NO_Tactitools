@@ -11,8 +11,36 @@ using Unity.Audio;
 
 namespace NO_Tactitools;
 
+[HarmonyPatch(typeof(MainMenu), "Start")]
+class InterceptionVectorPlugin
+{
+    private static bool initialized = false;
+    public static bool activated = true;
+    static void Postfix()
+    {
+        if (!initialized)
+        {
+            Plugin.Logger.LogInfo($"[IV] Interception Vector plugin starting !");
+            Plugin.inputCatcherPlugin.RegisterControllerButton(
+                Plugin.configControllerName2.Value, 
+                new ControllerButton(
+                (int)Plugin.configButtonNumber2.Value, 
+                0.2f,
+                HandleClick
+                ));
+            Plugin.Logger.LogInfo("[IV] Interception Vector plugin succesfully started !");
+        }
+        initialized = true;
+    }
+    private static void HandleClick()
+    {
+        Plugin.Logger.LogInfo($"[IV] HandleClick");
+        activated = !activated;
+    }
+}
+
 [HarmonyPatch(typeof(CombatHUD), "FixedUpdate")]
-class InterceptionFSM
+class InterceptionVectorFSM
 {
     public enum State
     {
@@ -38,6 +66,35 @@ class InterceptionFSM
     static int interceptBearing;
     static int interceptionTimeInSeconds;
     static Vector3 interceptScreen;
+
+
+    static void Postfix()
+    {
+        if (!InterceptionVectorPlugin.activated)
+        {
+            currentState = State.Init;
+            bearingLabel.GetComponent<Text>().text = "";
+            timerLabel.GetComponent<Text>().text = "";
+            indicatorLabel.GetComponent<Text>().text = "";
+            return;
+        }
+        switch (currentState)
+        {
+            case State.Init:
+                HandleInitState();
+                break;
+            case State.Idle:
+                HandleIdleState();
+                break;
+            case State.TargetInitiallyUntracked:
+                HandleTargetInitiallyUntracked();
+                break;
+            case State.Intercepting:
+                HandleInterception();
+                break;
+        }
+    }
+
     static GameObject FindOrCreateLabel(
         string name,
         Vector2 position,
@@ -76,24 +133,6 @@ class InterceptionFSM
         rectTransform.sizeDelta = new Vector2(200, 40);
 
         return newLabel;
-    }
-    static void Postfix()
-    {
-        switch (currentState)
-        {
-            case State.Init:
-                HandleInitState();
-                break;
-            case State.Idle:
-                HandleIdleState();
-                break;
-            case State.TargetInitiallyUntracked:
-                HandleTargetInitiallyUntracked();
-                break;
-            case State.Intercepting:
-                HandleInterception();
-                break;
-        }
     }
     static void HandleInitState()
     {
@@ -314,6 +353,6 @@ class OnHUDResetPatch
     static void Postfix()
     {
         // Reset the FSM state when the aircraft is destroyed
-        InterceptionFSM.currentState = InterceptionFSM.State.Init;
+        InterceptionVectorFSM.currentState = InterceptionVectorFSM.State.Init;
     }
 }

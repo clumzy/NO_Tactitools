@@ -11,7 +11,7 @@ namespace NO_Tactitools;
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class TargetRecallPlugin
 {
-    static bool initialized = false;
+    private static bool initialized = false;
     public static List<Unit> units; 
     static void Postfix()
         {
@@ -19,9 +19,9 @@ class TargetRecallPlugin
             {
                 Plugin.Logger.LogInfo($"[TR] Target Recall plugin starting !");
                 Plugin.inputCatcherPlugin.RegisterControllerButton(
-                    Plugin.configControllerName.Value, 
+                    Plugin.configControllerName1.Value, 
                     new ControllerButton(
-                    (int)Plugin.configButtonNumber.Value, 
+                    (int)Plugin.configButtonNumber1.Value, 
                     0.2f,
                     HandleClick,
                     HandleLongPress
