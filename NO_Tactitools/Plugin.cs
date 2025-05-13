@@ -28,35 +28,35 @@ namespace NO_Tactitools
             
         private void Awake()
         {
-            targetRecallControllerName = Config.Bind("General",      // The section under which the option is shown
+            targetRecallControllerName = Config.Bind("Target Recall",      // The section under which the option is shown
                 "Target Recall Controller Name",  // The key of the configuration option in the configuration file
-                "S-TECS MODERN THROTTLE MINI PLUS", // The default value
+                "", // The default value
                 "Name of the peripheral"); // Description of the option to show in the config file
-            targetRecallButtonNumber = Config.Bind("General",      // The section under which the option is shown
+            targetRecallButtonNumber = Config.Bind("Target Recall",      // The section under which the option is shown
                 "Target Recall Button Number",  // The key of the configuration option in the configuration file
                 37, // The default value
                 "Number of the button");
-            interceptionVectorControllerName = Config.Bind("General",      // The section under which the option is shown
+            interceptionVectorControllerName = Config.Bind("Interception Vector",      // The section under which the option is shown
                 "Interception Vector Controller Name",  // The key of the configuration option in the configuration file
-                "S-TECS MODERN THROTTLE MINI PLUS", // The default value
+                "", // The default value
                 "Name of the peripheral"); // Description of the option to show in the config file
-            interceptionVectorButtonNumber = Config.Bind("General",      // The section under which the option is shown
+            interceptionVectorButtonNumber = Config.Bind("Interception Vector",      // The section under which the option is shown
                 "Interception Vector Button Number",  // The key of the configuration option in the configuration file
                 38, // The default value
                 "Number of the button");
-            countermeasureControlsFlareControllerName = Config.Bind("General",      // The section under which the option is shown
+            countermeasureControlsFlareControllerName = Config.Bind("Countermeasure - Flare",      // The section under which the option is shown
                 "Countermeasure Controls Controller Name",  // The key of the configuration option in the configuration file
-                "S-TECS MODERN THROTTLE MINI PLUS", // The default value
+                "", // The default value
                 "Name of the peripheral"); // Description of the option to show in the config file
-            countermeasureControlsFlareButtonNumber = Config.Bind("General",      // The section under which the option is shown
+            countermeasureControlsFlareButtonNumber = Config.Bind("Countermeasure - Flare",      // The section under which the option is shown
                 "Countermeasure Controls - Flares - Button Number",  // The key of the configuration option in the configuration file
                 39, // The default value
                 "Number of the button");
-            countermeasureControlsJammerControllerName = Config.Bind("General",      // The section under which the option is shown
+            countermeasureControlsJammerControllerName = Config.Bind("Countermeasure - Jammer",      // The section under which the option is shown
                 "Countermeasure Controls Controller Name",  // The key of the configuration option in the configuration file
-                "S-TECS MODERN THROTTLE MINI PLUS", // The default value
+                "", // The default value
                 "Name of the peripheral"); // Description of the option to show in the config file
-            countermeasureControlsJammerButtonNumber = Config.Bind("General",      // The section under which the option is shown
+            countermeasureControlsJammerButtonNumber = Config.Bind("Countermeasure - Jammer",      // The section under which the option is shown
                 "Countermeasure Controls - Jammer - Button Number",  // The key of the configuration option in the configuration file
                 40, // The default value
                 "Number of the button");
