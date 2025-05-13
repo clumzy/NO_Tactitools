@@ -37,6 +37,8 @@ class TargetRecallPlugin
         {
             units = [.. (List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()];
             SoundManager.PlayInterfaceOneShot(Plugin.selectAudio);
+            string report = $"Saved <b>{units.Count.ToString()}</b> targets";
+            SceneSingleton<AircraftActionsReport>.i.ReportText(report, 3f);
         }
         }
     private static void HandleClick()
@@ -53,6 +55,8 @@ class TargetRecallPlugin
                     Plugin.combatHUD.SelectUnit(t_unit);
                 }
                 units = [.. (List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()];
+                string report = $"Recalled <b>{units.Count.ToString()}</b> targets";
+                SceneSingleton<AircraftActionsReport>.i.ReportText(report, 2f);
             }
         }
     }

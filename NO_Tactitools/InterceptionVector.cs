@@ -33,6 +33,17 @@ class InterceptionVectorPlugin
         Plugin.Logger.LogInfo($"[IV] HandleClick");
         SoundManager.PlayInterfaceOneShot(Plugin.selectAudio);
         activated = !activated;
+        string report;
+        if (activated)
+        {
+            report = "Interception Vector <b>activated</b>";
+        }
+        else
+        {
+            report = "Interception Vector <b>deactivated</b>";
+        }
+        Plugin.Logger.LogInfo($"[IV] {report}");
+        SceneSingleton<AircraftActionsReport>.i.ReportText(report, 2f);
     }
 }
 
