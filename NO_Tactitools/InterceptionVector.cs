@@ -126,7 +126,7 @@ class InterceptionVectorTask
 
         // Add Text component and configure it
         var textComponent = newLabel.AddComponent<Text>();
-        textComponent.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        textComponent.font = SceneSingleton<CombatHUD>.i.weaponName.font;
         textComponent.fontSize = fontSize;
         textComponent.fontStyle = fontStyle;
         textComponent.color = color ?? Color.white;
