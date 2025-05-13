@@ -13,6 +13,10 @@ public class InputCatcherPlugin
     // Dictionary mapping each controller to its list of buttons
     public Dictionary<Rewired.Controller, List<ControllerButton>> controllerStructure =
         new Dictionary<Rewired.Controller, List<ControllerButton>>();
+
+    // Dictionary mapping controller names to pending buttons
+    public Dictionary<string, List<ControllerButton>> pendingButtons = new();
+
     public InputCatcherPlugin()
     {
     }
@@ -20,16 +24,24 @@ public class InputCatcherPlugin
     public void RegisterControllerButton(string controllerName, ControllerButton button)
     {
         Plugin.Logger.LogInfo($"[IC] Registering button {button.buttonNumber.ToString()} on controller {controllerName.ToString()}");
+        bool found = false;
         foreach(Controller controller in controllerStructure.Keys)
         {
             if (controller.name.Trim() == controllerName)
             {
                 controllerStructure[controller].Add(button);
                 Plugin.Logger.LogInfo($"[IC] Registered button {button.buttonNumber.ToString()} on controller {controllerName.ToString()}");
-                return;
+                found = true;
+                break;
             }
         }
-        Plugin.Logger.LogInfo($"[IC] Couldn't register {button.buttonNumber.ToString()} on controller {controllerName.ToString()}");
+        if (!found)
+        {
+            if (!pendingButtons.ContainsKey(controllerName))
+                pendingButtons[controllerName] = new List<ControllerButton>();
+            pendingButtons[controllerName].Add(button);
+            Plugin.Logger.LogInfo($"[IC] Controller not connected, button {button.buttonNumber.ToString()} added to pending list for {controllerName}");
+        }
     }
 }
 
@@ -124,16 +136,20 @@ class RegisterControllerPatch
         string cleanedName = __instance.name.Trim();
         Plugin.Logger.LogInfo($"[IC] Controller connected: {cleanedName}");
 
-        if (string.Equals(cleanedName, Plugin.targetRecallControllerName.Value) || string.Equals(cleanedName, Plugin.interceptionVectorControllerName.Value))
+        if (!Plugin.inputCatcherPlugin.controllerStructure.ContainsKey(__instance))
         {
-            // Register the controller and initialize its button list
             Plugin.inputCatcherPlugin.controllerStructure[__instance] = new List<ControllerButton>();
-            Plugin.Logger.LogInfo($"[IC] Controller match: {cleanedName}");
+            Plugin.Logger.LogInfo($"[IC] Controller structure initialized for: {cleanedName}");
         }
-        else if (Plugin.inputCatcherPlugin.controllerStructure.ContainsKey(__instance))
+
+        if (Plugin.inputCatcherPlugin.pendingButtons.ContainsKey(cleanedName))
         {
-            Plugin.inputCatcherPlugin.controllerStructure[__instance] = new List<ControllerButton>();
-            Plugin.Logger.LogInfo($"[IC] Controller match: {cleanedName}");
+            foreach (var btn in Plugin.inputCatcherPlugin.pendingButtons[cleanedName])
+            {
+                Plugin.inputCatcherPlugin.controllerStructure[__instance].Add(btn);
+                Plugin.Logger.LogInfo($"[IC] Registered pending button {btn.buttonNumber.ToString()} on controller {cleanedName}");
+            }
+            Plugin.inputCatcherPlugin.pendingButtons.Remove(cleanedName);
         }
     }
 }
