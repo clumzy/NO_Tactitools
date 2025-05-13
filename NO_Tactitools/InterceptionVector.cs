@@ -106,7 +106,7 @@ class InterceptionVectorTask
         }
 
         // Create a new GameObject for the label
-        GameObject newLabel = new GameObject(name);
+        GameObject newLabel = new(name);
         newLabel.transform.SetParent(parent, false);
 
         // Add RectTransform and set position
@@ -175,7 +175,8 @@ class InterceptionVectorTask
 
     static void HandleIdleState()
     {
-        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count == 1 && InterceptionVectorPlugin.activated)
+        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count == 1 
+            && InterceptionVectorPlugin.activated)
         {
             targetUnit = ((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue())[0];
             if (playerFactionHQ.IsTargetBeingTracked(targetUnit))
@@ -196,14 +197,20 @@ class InterceptionVectorTask
 
     static void HandleTargetInitiallyUntracked()
     {
-        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1
+        if (!InterceptionVectorPlugin.activated)
+        {
+            currentState = State.Reset;
+            Plugin.Logger.LogInfo("[IV] Interception Vector deactivated, returning to Reset state");
+            return;
+        }
+        else if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1
             || ((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue())[0] != targetUnit)
         {
             currentState = State.Reset;
             Plugin.Logger.LogInfo("[IV] Switched target, returning to Reset state");
             return;
         }
-        if (playerFactionHQ.IsTargetBeingTracked(targetUnit))
+        else if (playerFactionHQ.IsTargetBeingTracked(targetUnit))
         {
             currentState = State.Intercepting;
             Plugin.Logger.LogInfo("[IV] Target is being tracked, going to TargetTracked state");
@@ -260,7 +267,13 @@ class InterceptionVectorTask
     }
     static void HandleInterception()
     {
-        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1
+        if (!InterceptionVectorPlugin.activated)
+        {
+            currentState = State.Reset;
+            Plugin.Logger.LogInfo("[IV] Interception Vector deactivated, returning to Reset state");
+            return;
+        }
+        else if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1
             || ((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue())[0] != targetUnit)
         {
             currentState = State.Reset;
