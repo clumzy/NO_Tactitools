@@ -26,7 +26,7 @@ class InterceptionVectorPlugin
             Plugin.Logger.LogInfo("[IV] Interception Vector plugin succesfully started !");
         }
         //RESET FSM STATE
-        InterceptionVectorTask.currentState = InterceptionVectorTask.State.Init;
+        InterceptionVectorTask.ResetState();
     }
     private static void HandleClick()
     {
@@ -58,7 +58,7 @@ class InterceptionVectorTask
         TargetInitiallyUntracked,
         Intercepting
     }
-    public static State currentState = State.Init;
+    static State currentState = State.Init;
     static GameObject bearingLabel;
     static GameObject timerLabel;
     static GameObject indicatorLabel;
@@ -75,7 +75,6 @@ class InterceptionVectorTask
     static int interceptBearing;
     static int interceptionTimeInSeconds;
     static Vector3 interceptScreen;
-
 
     static void Postfix()
     {
@@ -141,7 +140,6 @@ class InterceptionVectorTask
     static void HandleInitState()
     {
         Plugin.Logger.LogInfo("[IV] Init state");
-
         playerFactionHQ = Plugin.combatHUD.aircraft.NetworkHQ;
         // Create or find the labels
         bearingLabel = FindOrCreateLabel(
@@ -168,6 +166,7 @@ class InterceptionVectorTask
             Color.magenta,
             fontSize: 18
         );
+
         currentState = State.Reset;
         Plugin.Logger.LogInfo("[IV] Transitioning to Reset state");
         return;
@@ -317,6 +316,11 @@ class InterceptionVectorTask
         // TODO: Implement logic for when the target is being tracked
     }
 
+    public static void ResetState()
+    {
+        currentState = State.Init;
+    }
+
     static float FindSolutionTime(Unit targetUnit)
     {
         //Get target vectors
@@ -372,12 +376,13 @@ class InterceptionVectorTask
     }
 
 }
+
 [HarmonyPatch(typeof(FlightHud), "ResetAircraft")]
 class OnHUDResetPatch
 {
     static void Postfix()
     {
         // Reset the FSM state when the aircraft is destroyed
-        InterceptionVectorTask.currentState = InterceptionVectorTask.State.Init;
+        InterceptionVectorTask.ResetState();
     }
 }
