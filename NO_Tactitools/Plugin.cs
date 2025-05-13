@@ -11,10 +11,14 @@ namespace NO_Tactitools
     [BepInPlugin("NO_Tactitools", "Nuclear Option Tactical Tools!", "1.0.0")]
     public class Plugin : BaseUnityPlugin
     {
-        public static ConfigEntry<string> configControllerName1;
-        public static ConfigEntry<int> configButtonNumber1;
-        public static ConfigEntry<string> configControllerName2;
-        public static ConfigEntry<int> configButtonNumber2;
+        public static ConfigEntry<string> targetRecallControllerName;
+        public static ConfigEntry<int> targetRecallButtonNumber;
+        public static ConfigEntry<string> interceptionVectorControllerName;
+        public static ConfigEntry<int> interceptionVectorButtonNumber;
+        public static ConfigEntry<string> countermeasureControlsFlareControllerName;
+        public static ConfigEntry<int> countermeasureControlsFlareButtonNumber;
+        public static ConfigEntry<string> countermeasureControlsJammerControllerName;
+        public static ConfigEntry<int> countermeasureControlsJammerButtonNumber;
         public static CombatHUD combatHUD;
         public static AudioClip selectAudio;
         public static FuelGauge fuelGauge;
@@ -24,21 +28,37 @@ namespace NO_Tactitools
             
         private void Awake()
         {
-            configControllerName1 = Config.Bind("General",      // The section under which the option is shown
+            targetRecallControllerName = Config.Bind("General",      // The section under which the option is shown
                 "Target Recall Controller Name",  // The key of the configuration option in the configuration file
                 "S-TECS MODERN THROTTLE MINI PLUS", // The default value
                 "Name of the peripheral"); // Description of the option to show in the config file
-            configButtonNumber1 = Config.Bind("General",      // The section under which the option is shown
+            targetRecallButtonNumber = Config.Bind("General",      // The section under which the option is shown
                 "Target Recall Button Number",  // The key of the configuration option in the configuration file
                 37, // The default value
                 "Number of the button");
-            configControllerName2 = Config.Bind("General",      // The section under which the option is shown
+            interceptionVectorControllerName = Config.Bind("General",      // The section under which the option is shown
                 "Interception Vector Controller Name",  // The key of the configuration option in the configuration file
                 "S-TECS MODERN THROTTLE MINI PLUS", // The default value
                 "Name of the peripheral"); // Description of the option to show in the config file
-            configButtonNumber2 = Config.Bind("General",      // The section under which the option is shown
+            interceptionVectorButtonNumber = Config.Bind("General",      // The section under which the option is shown
                 "Interception Vector Button Number",  // The key of the configuration option in the configuration file
                 38, // The default value
+                "Number of the button");
+            countermeasureControlsFlareControllerName = Config.Bind("General",      // The section under which the option is shown
+                "Countermeasure Controls Controller Name",  // The key of the configuration option in the configuration file
+                "S-TECS MODERN THROTTLE MINI PLUS", // The default value
+                "Name of the peripheral"); // Description of the option to show in the config file
+            countermeasureControlsFlareButtonNumber = Config.Bind("General",      // The section under which the option is shown
+                "Countermeasure Controls - Flares - Button Number",  // The key of the configuration option in the configuration file
+                39, // The default value
+                "Number of the button");
+            countermeasureControlsJammerControllerName = Config.Bind("General",      // The section under which the option is shown
+                "Countermeasure Controls Controller Name",  // The key of the configuration option in the configuration file
+                "S-TECS MODERN THROTTLE MINI PLUS", // The default value
+                "Name of the peripheral"); // Description of the option to show in the config file
+            countermeasureControlsJammerButtonNumber = Config.Bind("General",      // The section under which the option is shown
+                "Countermeasure Controls - Jammer - Button Number",  // The key of the configuration option in the configuration file
+                40, // The default value
                 "Number of the button");
             // Plugin startup logic
             var harmony = new Harmony("george.no_tactitools");

@@ -14,22 +14,22 @@ class TargetRecallPlugin
     private static bool initialized = false;
     public static List<Unit> units; 
     static void Postfix()
+    {
+        if (!initialized)
         {
-            if (!initialized)
-            {
-                Plugin.Logger.LogInfo($"[TR] Target Recall plugin starting !");
-                Plugin.inputCatcherPlugin.RegisterControllerButton(
-                    Plugin.configControllerName1.Value, 
-                    new ControllerButton(
-                    (int)Plugin.configButtonNumber1.Value, 
-                    0.2f,
-                    HandleClick,
-                    HandleLongPress
-                    ));
-                Plugin.Logger.LogInfo("[TR] Target Recall plugin succesfully started !");
-            }
-            initialized = true;
-        }    
+            Plugin.Logger.LogInfo($"[TR] Target Recall plugin starting !");
+            Plugin.inputCatcherPlugin.RegisterControllerButton(
+                Plugin.targetRecallControllerName.Value, 
+                new ControllerButton(
+                (int)Plugin.targetRecallButtonNumber.Value, 
+                0.2f,
+                HandleClick,
+                HandleLongPress
+                ));
+            Plugin.Logger.LogInfo("[TR] Target Recall plugin succesfully started !");
+        }
+        initialized = true;
+    }    
     private static void HandleLongPress()
     {
         Plugin.Logger.LogInfo($"[TR] HandleLongPress");
@@ -42,11 +42,11 @@ class TargetRecallPlugin
     private static void HandleClick()
     {
         Plugin.Logger.LogInfo($"[TR] HandleClick");
+        Plugin.Logger.LogInfo($"{Plugin.combatHUD.aircraft.countermeasureManager.activeIndex.ToString()}");
         if (Plugin.combatHUD != null && units != null)
         {
             if (units.Count > 0)
             {
-                Plugin.Logger.LogInfo(units.Count);
                 Plugin.combatHUD.DeselectAll(false);
                 foreach (Unit t_unit in units)
                 {

@@ -1,13 +1,7 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
 using HarmonyLib;
-using Rewired;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using Rewired.Utils.Classes.Data;
-using Unity.Audio;
 
 namespace NO_Tactitools;
 
@@ -22,9 +16,9 @@ class InterceptionVectorPlugin
         {
             Plugin.Logger.LogInfo($"[IV] Interception Vector plugin starting !");
             Plugin.inputCatcherPlugin.RegisterControllerButton(
-                Plugin.configControllerName2.Value, 
+                Plugin.interceptionVectorControllerName.Value, 
                 new ControllerButton(
-                (int)Plugin.configButtonNumber2.Value, 
+                (int)Plugin.interceptionVectorButtonNumber.Value, 
                 0.2f,
                 HandleClick
                 ));
@@ -74,14 +68,6 @@ class InterceptionVectorTask
 
     static void Postfix()
     {
-        if (!InterceptionVectorPlugin.activated)
-        {
-            currentState = State.Init;
-            bearingLabel.GetComponent<Text>().text = "";
-            timerLabel.GetComponent<Text>().text = "";
-            indicatorLabel.GetComponent<Text>().text = "";
-            return;
-        }
         switch (currentState)
         {
             case State.Init:
@@ -189,7 +175,7 @@ class InterceptionVectorTask
 
     static void HandleIdleState()
     {
-        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count == 1)
+        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count == 1 && InterceptionVectorPlugin.activated)
         {
             targetUnit = ((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue())[0];
             if (playerFactionHQ.IsTargetBeingTracked(targetUnit))
@@ -205,14 +191,16 @@ class InterceptionVectorTask
                 return;
             }
         }
+        return;
     }
 
     static void HandleTargetInitiallyUntracked()
     {
-        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1)
+        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1
+            || ((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue())[0] != targetUnit)
         {
             currentState = State.Reset;
-            Plugin.Logger.LogInfo("[IV] Selected more than one target, returning to Reset state");
+            Plugin.Logger.LogInfo("[IV] Switched target, returning to Reset state");
             return;
         }
         if (playerFactionHQ.IsTargetBeingTracked(targetUnit))
@@ -238,7 +226,7 @@ class InterceptionVectorTask
     static void HandleTargetReachable()
     {
         interceptVector = interceptPosition - playerPosition;
-        interceptVectorXZ = new Vector3(interceptVector.x, 0, interceptVector.z).normalized;
+        interceptVectorXZ = Vector3.Scale(interceptVector, new Vector3(1f,0f,1f)).normalized;
         interceptBearing = (int)(Vector3.SignedAngle(Vector3.forward, interceptVectorXZ, Vector3.up) + 360) % 360;
         interceptionTimeInSeconds = (int)(interceptVector.magnitude / playerVelocity.magnitude);
         interceptScreen = Plugin.cameraStateManager.mainCamera.WorldToScreenPoint(interceptPosition);
@@ -272,10 +260,11 @@ class InterceptionVectorTask
     }
     static void HandleInterception()
     {
-        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1)
+        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1
+            || ((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue())[0] != targetUnit)
         {
             currentState = State.Reset;
-            Plugin.Logger.LogInfo("[IV] Selected more than one target, returning to Reset state");
+            Plugin.Logger.LogInfo("[IV] Switched target, returning to Reset state");
             return;
         }
         playerPosition = Plugin.combatHUD.aircraft.rb.transform.position;

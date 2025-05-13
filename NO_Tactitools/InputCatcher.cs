@@ -124,7 +124,7 @@ class RegisterControllerPatch
         string cleanedName = __instance.name.Trim();
         Plugin.Logger.LogInfo($"[IC] Controller connected: {cleanedName}");
 
-        if (string.Equals(cleanedName, Plugin.configControllerName1.Value) || string.Equals(cleanedName, Plugin.configControllerName2.Value))
+        if (string.Equals(cleanedName, Plugin.targetRecallControllerName.Value) || string.Equals(cleanedName, Plugin.interceptionVectorControllerName.Value))
         {
             // Register the controller and initialize its button list
             Plugin.inputCatcherPlugin.controllerStructure[__instance] = new List<ControllerButton>();
