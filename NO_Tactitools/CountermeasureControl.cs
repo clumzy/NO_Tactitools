@@ -12,18 +12,24 @@ using Unity.Audio;
 namespace NO_Tactitools;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
-class CountermeasureControlsPlugin
-{
+class CountermeasureControlsPlugin {
     private static bool initialized = false;
 
-    static void Postfix()
-    {
-        if (!initialized)
-        {
+    static void Postfix() {
+        if (!initialized) {
             Plugin.Logger.LogInfo($"[CC] Countermeasure Controls plugin starting !");
-
+            Plugin.inputCatcherPlugin.RegisterControllerButton(
+                Plugin.countermeasureControlsFlareControllerName.Value,
+                new ControllerButton(
+                (int)Plugin.countermeasureControlsFlareButtonNumber.Value,
+                0.2f,
+                onHold: HandleOnHoldFlare
+                ));
             initialized = true;
             Plugin.Logger.LogInfo("[CC] Countermeasure Controls plugin succesfully started !");
         }
+    }
+    private static void HandleOnHoldFlare() {
+        Plugin.Logger.LogInfo($"[CC] HandleOnHoldFlare");
     }
 }
