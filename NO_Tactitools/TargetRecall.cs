@@ -1,9 +1,4 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
 using HarmonyLib;
-using Rewired;
-using UnityEngine;
 using System.Collections.Generic;
 
 namespace NO_Tactitools;

@@ -60,10 +60,9 @@ class InterceptionVectorTask
     }
     static State currentState = State.Init;
     static GameObject bearingLabel;
-    public static GameObject timerLabel;
-    public static GameObject indicatorScreenLabel;
-    public static GameObject indicatorTargetLabel;
-
+    static GameObject timerLabel;
+    static GameObject indicatorScreenLabel;
+    static GameObject indicatorTargetLabel;
     static FactionHQ playerFactionHQ;
     static Unit targetUnit;
     static float solutionTime;
@@ -121,7 +120,7 @@ class InterceptionVectorTask
             true,
             FontStyle.Normal,
             Color.green,
-            fontSize: 14
+            fontSize: 22
         );
         timerLabel = UIUtils.FindOrCreateLabel(
             "timerLabel",
@@ -130,7 +129,7 @@ class InterceptionVectorTask
             true,
             FontStyle.Normal,
             Color.green,
-            fontSize: 14
+            fontSize: 22
         );
         indicatorTargetLabel = UIUtils.FindOrCreateLabel(
             "indicatorTargetLabel",
@@ -251,7 +250,7 @@ class InterceptionVectorTask
             indicatorTargetLabel.GetComponent<Text>().text = "";
         }
         bearingLabel.GetComponent<Text>().text = $"({interceptBearing.ToString()}°)";
-        timerLabel.GetComponent<Text>().text = $"(Time to intercept : {interceptionTimeInSeconds.ToString()}s)";
+        timerLabel.GetComponent<Text>().text = $"ETA : {interceptionTimeInSeconds.ToString()}s";
         indicatorScreenLabel.GetComponent<RectTransform>().anchoredPosition = new Vector2(
             interceptScreen.x,
             interceptScreen.y
