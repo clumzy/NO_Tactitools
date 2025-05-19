@@ -36,11 +36,11 @@ class InterceptionVectorPlugin
         string report;
         if (activated)
         {
-            report = "Interception Vector <b>activated</b>";
+            report = "Interception Vector <b>Enabled</b>";
         }
         else
         {
-            report = "Interception Vector <b>deactivated</b>";
+            report = "Interception Vector <b>Disabled</b>";
         }
         Plugin.Logger.LogInfo($"[IV] {report}");
         SceneSingleton<AircraftActionsReport>.i.ReportText(report, 2f);
@@ -60,8 +60,10 @@ class InterceptionVectorTask
     }
     static State currentState = State.Init;
     static GameObject bearingLabel;
-    static GameObject timerLabel;
-    static GameObject indicatorLabel;
+    public static GameObject timerLabel;
+    public static GameObject indicatorScreenLabel;
+    public static GameObject indicatorTargetLabel;
+
     static FactionHQ playerFactionHQ;
     static Unit targetUnit;
     static float solutionTime;
@@ -98,73 +100,46 @@ class InterceptionVectorTask
         }
     }
 
-    static GameObject FindOrCreateLabel(
-        string name,
-        Vector2 position,
-        Transform parent = null,
-        FontStyle fontStyle = FontStyle.Normal,
-        Color? color = null,
-        int fontSize = 24)
-    {
-        // Check if the label already exists
-        foreach (Transform child in parent)
-        {
-            if (child.name == name)
-            {
-                return child.gameObject;
-            }
-        }
-
-        // Create a new GameObject for the label
-        GameObject newLabel = new(name);
-        newLabel.transform.SetParent(parent, false);
-
-        // Add RectTransform and set position
-        var rectTransform = newLabel.AddComponent<RectTransform>();
-        rectTransform.anchoredPosition = position;
-
-        // Add Text component and configure it
-        var textComponent = newLabel.AddComponent<Text>();
-        textComponent.font = SceneSingleton<CombatHUD>.i.weaponName.font;
-        textComponent.fontSize = fontSize;
-        textComponent.fontStyle = fontStyle;
-        textComponent.color = color ?? Color.white;
-        textComponent.alignment = TextAnchor.MiddleCenter;
-        textComponent.text = "";
-
-        // Optionally, set size and other properties
-        rectTransform.sizeDelta = new Vector2(200, 40);
-
-        return newLabel;
-    }
     static void HandleInitState()
     {
         Plugin.Logger.LogInfo("[IV] Init state");
         playerFactionHQ = Plugin.combatHUD.aircraft.NetworkHQ;
         // Create or find the labels
-        bearingLabel = FindOrCreateLabel(
-            "bearing",
-            new Vector2(0, Screen.height / 2 * 7 / 12),
-            Plugin.fuelGauge.transform,
-            FontStyle.Normal,
-            Color.green,
-            fontSize: 14
-        );
-        timerLabel = FindOrCreateLabel(
-            "timer",
-            new Vector2(0, -100),
-            Plugin.fuelGauge.transform,
-            FontStyle.Normal,
-            Color.green,
-            fontSize: 14
-        );
-        indicatorLabel = FindOrCreateLabel(
-            "indicator",
+        indicatorScreenLabel = UIUtils.FindOrCreateLabel(
+            "indicatorScreenLabel",
             new Vector2(0, 0),
             Plugin.combatHUD.transform,
+            false,
             FontStyle.Bold,
-            Color.magenta,
+            Color.green,
             fontSize: 18
+        );
+        bearingLabel = UIUtils.FindOrCreateLabel(
+            "bearingLabel",
+            new Vector2(0, 100),
+            Plugin.fuelGauge.transform,
+            true,
+            FontStyle.Normal,
+            Color.green,
+            fontSize: 14
+        );
+        timerLabel = UIUtils.FindOrCreateLabel(
+            "timerLabel",
+            new Vector2(0, -100),
+            Plugin.fuelGauge.transform,
+            true,
+            FontStyle.Normal,
+            Color.green,
+            fontSize: 14
+        );
+        indicatorTargetLabel = UIUtils.FindOrCreateLabel(
+            "indicatorTargetLabel",
+            new Vector2(0, 0),
+            Plugin.combatHUD.transform,
+            true,
+            FontStyle.Normal,
+            Color.magenta,
+            fontSize: 36
         );
 
         currentState = State.Reset;
@@ -175,7 +150,7 @@ class InterceptionVectorTask
     {
         bearingLabel.GetComponent<Text>().text = "";
         timerLabel.GetComponent<Text>().text = "";
-        indicatorLabel.GetComponent<Text>().text = "";
+        indicatorScreenLabel.GetComponent<Text>().text = "";
         targetUnit = null;
         solutionTime = 0f;
         currentState = State.Idle;
@@ -243,32 +218,55 @@ class InterceptionVectorTask
     static void HandleTargetReachable()
     {
         interceptVector = interceptPosition - playerPosition;
-        interceptVectorXZ = Vector3.Scale(interceptVector, new Vector3(1f,0f,1f)).normalized;
+        interceptVectorXZ = Vector3.Scale(interceptVector, new Vector3(1f, 0f, 1f)).normalized;
         interceptBearing = (int)(Vector3.SignedAngle(Vector3.forward, interceptVectorXZ, Vector3.up) + 360) % 360;
         interceptionTimeInSeconds = (int)(interceptVector.magnitude / playerVelocity.magnitude);
         interceptScreen = Plugin.cameraStateManager.mainCamera.WorldToScreenPoint(interceptPosition);
         interceptScreen.x -= Screen.width / 2;
         interceptScreen.y -= Screen.height / 2;
+        int relativeHeight = (int)-(
+            Vector3.SignedAngle(
+                Vector3.ProjectOnPlane(interceptVector, Plugin.combatHUD.aircraft.rb.transform.up),
+                interceptVector,
+                Plugin.combatHUD.aircraft.rb.transform.right) + 0);
+        int relativeBearing = (int)(
+            Vector3.SignedAngle(
+                Vector3.ProjectOnPlane(interceptVector, Plugin.combatHUD.aircraft.rb.transform.right),
+                interceptVector,
+                Plugin.combatHUD.aircraft.rb.transform.up) + 0);
+        Plugin.Logger.LogInfo($"[IV] relativeHeight : {relativeBearing.ToString()}");
+        Vector3 interceptTarget = new(
+            (int)Mathf.Clamp(relativeBearing / 60f* 170f,-170,170), //180 = width of the canvas
+            (int)Mathf.Clamp(relativeHeight / 60f * 110f,-110,110), //115 = height of the canvas
+            0
+        );
         if (interceptScreen.z > 0)
         {
-            indicatorLabel.GetComponent<Text>().text = "+";
+            indicatorScreenLabel.GetComponent<Text>().text = "+";
+            indicatorTargetLabel.GetComponent<Text>().text = "+";
         }
         else
         {
-            indicatorLabel.GetComponent<Text>().text = "";
+            indicatorScreenLabel.GetComponent<Text>().text = "";
+            indicatorTargetLabel.GetComponent<Text>().text = "";
         }
         bearingLabel.GetComponent<Text>().text = $"({interceptBearing.ToString()}°)";
         timerLabel.GetComponent<Text>().text = $"(Time to intercept : {interceptionTimeInSeconds.ToString()}s)";
-        indicatorLabel.GetComponent<RectTransform>().anchoredPosition = new Vector2(
+        indicatorScreenLabel.GetComponent<RectTransform>().anchoredPosition = new Vector2(
             interceptScreen.x,
             interceptScreen.y
+        );
+        indicatorTargetLabel.GetComponent<RectTransform>().anchoredPosition = new Vector2(
+            interceptTarget.x,
+            interceptTarget.y
         );
     }
     static void HandleTargetUnreachable()
     {
         bearingLabel.GetComponent<Text>().text = "";
         timerLabel.GetComponent<Text>().text = "";
-        indicatorLabel.GetComponent<Text>().text = "";
+        indicatorScreenLabel.GetComponent<Text>().text = "";
+        indicatorTargetLabel.GetComponent<Text>().text = "";
     }
 
     static void UpdateInterceptionPosition()
