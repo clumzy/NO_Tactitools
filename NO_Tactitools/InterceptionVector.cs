@@ -63,6 +63,7 @@ class InterceptionVectorTask
     static GameObject timerLabel;
     static GameObject indicatorScreenLabel;
     static GameObject indicatorTargetLabel;
+    static GameObject indicatorTargetLine;
     static FactionHQ playerFactionHQ;
     static Unit targetUnit;
     static float solutionTime;
@@ -120,7 +121,7 @@ class InterceptionVectorTask
             true,
             FontStyle.Normal,
             Color.green,
-            fontSize: 22
+            fontSize: 20
         );
         timerLabel = UIUtils.FindOrCreateLabel(
             "timerLabel",
@@ -129,7 +130,7 @@ class InterceptionVectorTask
             true,
             FontStyle.Normal,
             Color.green,
-            fontSize: 22
+            fontSize: 20
         );
         indicatorTargetLabel = UIUtils.FindOrCreateLabel(
             "indicatorTargetLabel",
@@ -139,6 +140,15 @@ class InterceptionVectorTask
             FontStyle.Normal,
             Color.magenta,
             fontSize: 36
+        );
+        indicatorTargetLine = UIUtils.FindOrCreateLine(
+            "indicatorTargetLine",
+            new Vector2(0, 0),
+            new Vector2(0, 0),
+            Plugin.combatHUD.transform,
+            true,
+            Color.magenta,
+            2f
         );
 
         currentState = State.Reset;
@@ -150,6 +160,12 @@ class InterceptionVectorTask
         bearingLabel.GetComponent<Text>().text = "";
         timerLabel.GetComponent<Text>().text = "";
         indicatorScreenLabel.GetComponent<Text>().text = "";
+        indicatorTargetLabel.GetComponent<Text>().text = "";
+        UIUtils.SetLineCoordinates(
+                indicatorTargetLine,
+                new Vector2(0, 0),
+                new Vector2(0, 0)
+            );
         targetUnit = null;
         solutionTime = 0f;
         currentState = State.Idle;
@@ -233,22 +249,11 @@ class InterceptionVectorTask
                 Vector3.ProjectOnPlane(interceptVector, Plugin.combatHUD.aircraft.rb.transform.right),
                 interceptVector,
                 Plugin.combatHUD.aircraft.rb.transform.up) + 0);
-        Plugin.Logger.LogInfo($"[IV] relativeHeight : {relativeBearing.ToString()}");
         Vector3 interceptTarget = new(
-            (int)Mathf.Clamp(relativeBearing / 60f* 170f,-170,170), //180 = width of the canvas
-            (int)Mathf.Clamp(relativeHeight / 60f * 110f,-110,110), //115 = height of the canvas
+            (int)Mathf.Clamp(relativeBearing / 60f * 170f, -170, 170), //180 = width of the canvas
+            (int)Mathf.Clamp(relativeHeight / 60f * 110f, -110, 110), //115 = height of the canvas
             0
         );
-        if (interceptScreen.z > 0)
-        {
-            indicatorScreenLabel.GetComponent<Text>().text = "+";
-            indicatorTargetLabel.GetComponent<Text>().text = "+";
-        }
-        else
-        {
-            indicatorScreenLabel.GetComponent<Text>().text = "";
-            indicatorTargetLabel.GetComponent<Text>().text = "";
-        }
         bearingLabel.GetComponent<Text>().text = $"({interceptBearing.ToString()}°)";
         timerLabel.GetComponent<Text>().text = $"ETA : {interceptionTimeInSeconds.ToString()}s";
         indicatorScreenLabel.GetComponent<RectTransform>().anchoredPosition = new Vector2(
@@ -259,6 +264,24 @@ class InterceptionVectorTask
             interceptTarget.x,
             interceptTarget.y
         );
+        indicatorTargetLabel.GetComponent<Text>().text = "+";
+        UIUtils.SetLineCoordinates(
+            indicatorTargetLine,
+            new Vector2(0, 0),
+            new Vector2(interceptTarget.x, interceptTarget.y)
+        );
+        // if z < 0, the target is behind the player
+        if (interceptScreen.z > 0 && Plugin.onScreenVectorEnabled.Value)
+        {
+            //FOR NOW WE ONLY SHOW THE TARGET LABEL
+            indicatorScreenLabel.GetComponent<Text>().text = "+";
+
+        }
+        else
+        {
+            indicatorScreenLabel.GetComponent<Text>().text = "";
+        }
+        
     }
     static void HandleTargetUnreachable()
     {
@@ -266,6 +289,11 @@ class InterceptionVectorTask
         timerLabel.GetComponent<Text>().text = "";
         indicatorScreenLabel.GetComponent<Text>().text = "";
         indicatorTargetLabel.GetComponent<Text>().text = "";
+        UIUtils.SetLineCoordinates(
+            indicatorTargetLine,
+            new Vector2(0, 0),
+            new Vector2(0, 0)
+        );
     }
 
     static void UpdateInterceptionPosition()

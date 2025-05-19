@@ -52,7 +52,59 @@ public class UIUtils
         }
         return newLabel;
     }
+    public static GameObject FindOrCreateLine(
+        string name,
+        Vector2 start,
+        Vector2 end,
+        Transform UIParent = null,
+        bool targetScreenCanvas = false,
+        Color? color = null,
+        float thickness = 2f)
+    {
+        // Check if the line already exists
+        foreach (Transform child in UIParent)
+        {
+            if (child.name == name)
+            {
+                return child.gameObject;
+            }
+        }
 
+        // Create a new GameObject for the line
+        GameObject lineObj = new(name);
+        lineObj.transform.SetParent(UIParent, false);
+
+        var image = lineObj.AddComponent<UnityEngine.UI.Image>();
+        image.color = color ?? Color.white;
+
+        var rectTransform = lineObj.GetComponent<RectTransform>();
+        Vector2 direction = end - start;
+        float length = direction.magnitude;
+        rectTransform.sizeDelta = new Vector2(length, thickness);
+        rectTransform.anchoredPosition = start + direction / 2f;
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        rectTransform.rotation = Quaternion.Euler(0, 0, angle);
+        if(targetScreenCanvas)
+        {
+            canvasLabels.Add(lineObj);
+        }
+        return lineObj;
+    }
+    
+    public static void SetLineCoordinates(GameObject lineObj, Vector2 start, Vector2 end)
+    {
+        var rectTransform = lineObj.GetComponent<RectTransform>();
+        if (rectTransform == null) return;
+
+        Vector2 direction = end - start;
+        float length = direction.magnitude;
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.sizeDelta = new Vector2(length, rectTransform.sizeDelta.y);
+        rectTransform.anchoredPosition = start + direction / 2f;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        rectTransform.localRotation = Quaternion.Euler(0, 0, angle);
+    }
     public static Canvas GetTargetScreenCanvas()
     {
         return TargetScreenCanvas;
@@ -77,6 +129,7 @@ public class UIUtils
         }
         return false;
     }
+
 }
 
 [HarmonyPatch(typeof(TargetScreenUI), "LateUpdate")]
@@ -96,5 +149,16 @@ class TargetScreenUIPatch
             }
             Plugin.Logger.LogInfo("[IV] TargetScreenCanvas registered");
         }
+    }
+}
+
+[HarmonyPatch(typeof(TargetScreenUI), "OnDestroy")]
+class TargetScreenUIOnDestroyPatch
+{
+    static void Postfix(TargetScreenUI __instance)
+    {
+        UIUtils.SetTargetScreenCanvas(null);
+        UIUtils.GetCanvasLabels().Clear();
+        Plugin.Logger.LogInfo("[IV] TargetScreenCanvas cleared");
     }
 }

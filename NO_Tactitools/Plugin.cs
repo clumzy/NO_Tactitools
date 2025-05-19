@@ -15,6 +15,7 @@ namespace NO_Tactitools
         public static ConfigEntry<int> targetRecallButtonNumber;
         public static ConfigEntry<string> interceptionVectorControllerName;
         public static ConfigEntry<int> interceptionVectorButtonNumber;
+        public static ConfigEntry<bool> onScreenVectorEnabled;
         public static ConfigEntry<string> countermeasureControlsFlareControllerName;
         public static ConfigEntry<int> countermeasureControlsFlareButtonNumber;
         public static ConfigEntry<string> countermeasureControlsJammerControllerName;
@@ -44,6 +45,10 @@ namespace NO_Tactitools
                 "Interception Vector Button Number",  // The key of the configuration option in the configuration file
                 38, // The default value
                 "Number of the button");
+            onScreenVectorEnabled = Config.Bind("Interception Vector",      // The section under which the option is shown
+                "On-Screen Vector Enabled",  // The key of the configuration option in the configuration file
+                true, // The default value
+                "Enable or disable the on-screen vector display");
             countermeasureControlsFlareControllerName = Config.Bind("Countermeasure - Flare",      // The section under which the option is shown
                 "Countermeasure Controls Controller Name",  // The key of the configuration option in the configuration file
                 "", // The default value
