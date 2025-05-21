@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NO_Tactitools")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b17d21ef26a7b49e8ef943e7d0f85a22f919a240")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6bae774ceee741d44a460b23fe658df8961a4da3")]
 [assembly: System.Reflection.AssemblyProductAttribute("My first plugin")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NO_Tactitools")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

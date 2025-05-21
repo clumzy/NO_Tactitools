@@ -106,7 +106,7 @@ class InterceptionVectorTask {
         );
         bearingLabel = UIUtils.FindOrCreateLabel(
             "bearingLabel",
-            new Vector2(0, 100),
+            new Vector2(0, -70),
             Plugin.fuelGauge.transform,
             true,
             FontStyle.Normal,
