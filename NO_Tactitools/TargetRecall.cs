@@ -15,8 +15,8 @@ class TargetRecallPlugin {
                 new ControllerButton(
                 (int)Plugin.targetRecallButtonNumber.Value,
                 0.2f,
-                HandleClick,
-                HandleLongPress
+                onShortPress: HandleClick,
+                onLongPress: HandleLongPress
                 ));
             initialized = true;
             Plugin.Logger.LogInfo("[TR] Target Recall plugin succesfully started !");

@@ -17,7 +17,7 @@ class InterceptionVectorPlugin {
                 new ControllerButton(
                 (int)Plugin.interceptionVectorButtonNumber.Value,
                 0.2f,
-                HandleClick
+                onShortPress: HandleClick
                 ));
             initialized = true;
             Plugin.Logger.LogInfo("[IV] Interception Vector plugin succesfully started !");
@@ -364,5 +364,8 @@ class OnHUDResetPatch {
     static void Postfix() {
         // Reset the FSM state when the aircraft is destroyed
         InterceptionVectorTask.ResetState();
+        // Temporary fix, to check if resetting the Canvas on AircraftReset fixes the bug where the UI
+        //that is supposed to appear on the canvas appears on the HUD
+        TargetScreenUIOnDestroyPatch.ClearCanvasLabels();
     }
 }

@@ -5,9 +5,8 @@ using System.Collections.Generic;
 
 namespace NO_Tactitools;
 
-public class UIUtils
-{
-    static List<GameObject> canvasLabels = new();
+public class UIUtils {
+    static List<GameObject> canvasLabels = [];
     static Canvas TargetScreenCanvas;
     public static GameObject FindOrCreateLabel(
         string name,
@@ -16,13 +15,10 @@ public class UIUtils
         bool targetScreenCanvas = false,
         FontStyle fontStyle = FontStyle.Normal,
         Color? color = null,
-        int fontSize = 24)
-    {
+        int fontSize = 24) {
         // Check if the label already exists
-        foreach (Transform child in UIParent)
-        {
-            if (child.name == name)
-            {
+        foreach (Transform child in UIParent) {
+            if (child.name == name) {
                 return child.gameObject;
             }
         }
@@ -46,8 +42,7 @@ public class UIUtils
 
         // Optionally, set size and other properties
         rectTransform.sizeDelta = new Vector2(200, 40);
-        if (targetScreenCanvas)
-        {
+        if (targetScreenCanvas) {
             canvasLabels.Add(newLabel);
         }
         return newLabel;
@@ -59,13 +54,10 @@ public class UIUtils
         Transform UIParent = null,
         bool targetScreenCanvas = false,
         Color? color = null,
-        float thickness = 2f)
-    {
+        float thickness = 2f) {
         // Check if the line already exists
-        foreach (Transform child in UIParent)
-        {
-            if (child.name == name)
-            {
+        foreach (Transform child in UIParent) {
+            if (child.name == name) {
                 return child.gameObject;
             }
         }
@@ -85,15 +77,13 @@ public class UIUtils
         rectTransform.pivot = new Vector2(0.5f, 0.5f);
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         rectTransform.rotation = Quaternion.Euler(0, 0, angle);
-        if(targetScreenCanvas)
-        {
+        if (targetScreenCanvas) {
             canvasLabels.Add(lineObj);
         }
         return lineObj;
     }
-    
-    public static void SetLineCoordinates(GameObject lineObj, Vector2 start, Vector2 end)
-    {
+
+    public static void SetLineCoordinates(GameObject lineObj, Vector2 start, Vector2 end) {
         var rectTransform = lineObj.GetComponent<RectTransform>();
         if (rectTransform == null) return;
 
@@ -105,25 +95,20 @@ public class UIUtils
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         rectTransform.localRotation = Quaternion.Euler(0, 0, angle);
     }
-    public static Canvas GetTargetScreenCanvas()
-    {
+    public static Canvas GetTargetScreenCanvas() {
         return TargetScreenCanvas;
     }
 
-    public static void SetTargetScreenCanvas(Canvas canvas)
-    {
+    public static void SetTargetScreenCanvas(Canvas canvas) {
         TargetScreenCanvas = canvas;
     }
 
-    public static List<GameObject> GetCanvasLabels()
-    {
+    public static List<GameObject> GetCanvasLabels() {
         return canvasLabels;
     }
 
-    public static bool RemoveCanvasLabel(GameObject label)
-    {
-        if (canvasLabels.Contains(label))
-        {
+    public static bool RemoveCanvasLabel(GameObject label) {
+        if (canvasLabels.Contains(label)) {
             canvasLabels.Remove(label);
             return true;
         }
@@ -133,17 +118,13 @@ public class UIUtils
 }
 
 [HarmonyPatch(typeof(TargetScreenUI), "LateUpdate")]
-class TargetScreenUIPatch
-{
-    static void Postfix(TargetScreenUI __instance)
-    {
+class TargetScreenUIPatch {
+    static void Postfix(TargetScreenUI __instance) {
         // Check if the target screen canvas is null
-        if (UIUtils.GetTargetScreenCanvas() == null)
-        {
+        if (UIUtils.GetTargetScreenCanvas() == null) {
             // Assign the target screen canvas from the instance
             UIUtils.SetTargetScreenCanvas((Canvas)Traverse.Create(__instance).Field("displayCanvas").GetValue());
-            foreach (GameObject label in UIUtils.GetCanvasLabels())
-            {
+            foreach (GameObject label in UIUtils.GetCanvasLabels()) {
                 // Set the parent of the label to the target screen canvas
                 label.transform.SetParent(UIUtils.GetTargetScreenCanvas().transform, false);
             }
@@ -153,10 +134,12 @@ class TargetScreenUIPatch
 }
 
 [HarmonyPatch(typeof(TargetScreenUI), "OnDestroy")]
-class TargetScreenUIOnDestroyPatch
-{
-    static void Postfix(TargetScreenUI __instance)
-    {
+class TargetScreenUIOnDestroyPatch {
+    static void Postfix() {
+        ClearCanvasLabels();
+    }
+
+    public static void ClearCanvasLabels() {
         UIUtils.SetTargetScreenCanvas(null);
         UIUtils.GetCanvasLabels().Clear();
         Plugin.Logger.LogInfo("[IV] TargetScreenCanvas cleared");

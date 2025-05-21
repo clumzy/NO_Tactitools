@@ -1,13 +1,5 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
+using System;
 using HarmonyLib;
-using Rewired;
-using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
-using Rewired.Utils.Classes.Data;
-using Unity.Audio;
 
 namespace NO_Tactitools;
 
@@ -22,14 +14,29 @@ class CountermeasureControlsPlugin {
                 Plugin.countermeasureControlsFlareControllerName.Value,
                 new ControllerButton(
                 (int)Plugin.countermeasureControlsFlareButtonNumber.Value,
-                0.2f,
+                1000f,
                 onHold: HandleOnHoldFlare
+                ));
+            Plugin.inputCatcherPlugin.RegisterControllerButton(
+                Plugin.countermeasureControlsJammerControllerName.Value,
+                new ControllerButton(
+                (int)Plugin.countermeasureControlsJammerButtonNumber.Value,
+                1000f,
+                onHold: HandleOnHoldJammer
                 ));
             initialized = true;
             Plugin.Logger.LogInfo("[CC] Countermeasure Controls plugin succesfully started !");
         }
     }
     private static void HandleOnHoldFlare() {
-        Plugin.Logger.LogInfo($"[CC] HandleOnHoldFlare");
+        Plugin.combatHUD.aircraft.countermeasureManager.activeIndex = 0;
+        //Plugin.combatHUD.aircraft.countermeasureManager.DeployCountermeasure(Plugin.combatHUD.aircraft);
+    }
+
+    private static void HandleOnHoldJammer() {
+        try {
+            Plugin.combatHUD.aircraft.countermeasureManager.activeIndex = 1;
+            //Plugin.combatHUD.aircraft.countermeasureManager.DeployCountermeasure(Plugin.combatHUD.aircraft);
+        } catch (IndexOutOfRangeException) {} // This is to prevent the logger from going insane² if the player has no jammers
     }
 }

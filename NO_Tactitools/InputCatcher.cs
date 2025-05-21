@@ -1,6 +1,3 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
 using HarmonyLib;
 using Rewired;
 using UnityEngine;
@@ -11,10 +8,10 @@ namespace NO_Tactitools;
 public class InputCatcherPlugin {
     // Dictionary mapping each controller to its list of buttons
     public Dictionary<Rewired.Controller, List<ControllerButton>> controllerStructure =
-        new Dictionary<Rewired.Controller, List<ControllerButton>>();
+        [];
 
     // Dictionary mapping controller names to pending buttons
-    public Dictionary<string, List<ControllerButton>> pendingButtons = new();
+    public Dictionary<string, List<ControllerButton>> pendingButtons = [];
 
     public InputCatcherPlugin() {
     }
@@ -32,7 +29,7 @@ public class InputCatcherPlugin {
         }
         if (!found) {
             if (!pendingButtons.ContainsKey(controllerName))
-                pendingButtons[controllerName] = new List<ControllerButton>();
+                pendingButtons[controllerName] = [];
             pendingButtons[controllerName].Add(button);
             Plugin.Logger.LogInfo($"[IC] Controller not connected, button {button.buttonNumber.ToString()} added to pending list for {controllerName}");
         }
@@ -95,7 +92,7 @@ class InputInterceptionPatch {
                             button.OnLongPress?.Invoke();
                             button.longPressHandled = true;
                         }
-                        else if (holdDuration < button.longPressThreshold && !button.longPressHandled && button.OnHold != null) {
+                        else if (holdDuration < button.longPressThreshold && button.OnHold != null) {
                             Plugin.Logger.LogInfo($"[IC] Hold detected on button {button.buttonNumber.ToString()}");
                             button.OnHold?.Invoke();
                         }
@@ -106,7 +103,6 @@ class InputInterceptionPatch {
                             Plugin.Logger.LogInfo($"[IC] Short press detected on button {button.buttonNumber.ToString()}");
                             button.OnShortPress?.Invoke();
                         }
-                        button.longPressHandled = false;
                     }
                     button.previousButtonState = button.currentButtonState;
                 }
@@ -123,7 +119,7 @@ class RegisterControllerPatch {
         Plugin.Logger.LogInfo($"[IC] Controller connected: {cleanedName}");
 
         if (!Plugin.inputCatcherPlugin.controllerStructure.ContainsKey(__instance)) {
-            Plugin.inputCatcherPlugin.controllerStructure[__instance] = new List<ControllerButton>();
+            Plugin.inputCatcherPlugin.controllerStructure[__instance] = [];
             Plugin.Logger.LogInfo($"[IC] Controller structure initialized for: {cleanedName}");
         }
 
