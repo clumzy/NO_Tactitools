@@ -8,105 +8,223 @@ namespace NO_Tactitools;
 public class UIUtils {
     static List<GameObject> canvasLabels = [];
     static Canvas TargetScreenCanvas;
-    public static GameObject FindOrCreateLabel(
-        string name,
-        Vector2 position,
-        Transform UIParent = null,
-        bool targetScreenCanvas = false,
-        FontStyle fontStyle = FontStyle.Normal,
-        Color? color = null,
-        int fontSize = 24,
-        float backgroundOpacity = 0.8f) {
-        // Check if the label already exists
-        foreach (Transform child in UIParent) {
-            if (child.name == name) {
-                return child.gameObject;
+
+    public class UILabel {
+        private GameObject labelObject;
+        private RectTransform rectTransform;
+        private Text textComponent;
+
+        public UILabel(
+            string name,
+            Vector2 position,
+            Transform UIParent = null,
+            bool targetScreenCanvas = false,
+            FontStyle fontStyle = FontStyle.Normal,
+            Color? color = null,
+            int fontSize = 24,
+            float backgroundOpacity = 0.8f)
+        {
+            // Check if the label already exists
+            if (UIParent != null) {
+                foreach (Transform child in UIParent) {
+                    if (child.name == name) {
+                        labelObject = child.gameObject;
+                        break;
+                    }
+                }
+            }
+            if (labelObject == null) {
+                // Create a new GameObject for the label
+                labelObject = new GameObject(name);
+                labelObject.transform.SetParent(UIParent, false);
+                var rect = labelObject.AddComponent<RectTransform>();
+                rect.anchoredPosition = position;
+                rect.sizeDelta = new Vector2(200, 40);
+                var imageComponent = labelObject.AddComponent<Image>();
+                imageComponent.color = new Color(0, 0, 0, backgroundOpacity);
+                GameObject textObj = new("LabelText");
+                textObj.transform.SetParent(labelObject.transform, false);
+                var textRect = textObj.AddComponent<RectTransform>();
+                textRect.anchorMin = Vector2.zero;
+                textRect.anchorMax = Vector2.one;
+                textRect.offsetMin = Vector2.zero;
+                textRect.offsetMax = Vector2.zero;
+                var textComp = textObj.AddComponent<Text>();
+                textComp.font = SceneSingleton<CombatHUD>.i.weaponName.font;
+                textComp.fontSize = fontSize;
+                textComp.fontStyle = fontStyle;
+                textComp.color = color ?? Color.white;
+                textComp.alignment = TextAnchor.MiddleCenter;
+                textComp.text = "Yo";
+                rect.sizeDelta = new Vector2(textComp.preferredWidth, textComp.preferredHeight);
+                if (targetScreenCanvas) {
+                    canvasLabels.Add(labelObject);
+                }
+            }
+            rectTransform = labelObject.GetComponent<RectTransform>();
+            var textTransform = labelObject.transform.Find("LabelText");
+            if (textTransform != null)
+                textComponent = textTransform.GetComponent<Text>();
+        }
+
+        public void SetText(string text) {
+            if (textComponent != null) {
+                textComponent.text = text;
+                if (rectTransform != null) {
+                    rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
+                }
             }
         }
 
-        // Create a new GameObject for the label
-        GameObject newLabel = new(name);
-        newLabel.transform.SetParent(UIParent, false);
-
-        // Add RectTransform and set position
-        var rectTransform = newLabel.AddComponent<RectTransform>();
-        rectTransform.anchoredPosition = position;
-        rectTransform.sizeDelta = new Vector2(200, 40);
-
-        var imageComponent = newLabel.AddComponent<Image>();
-        imageComponent.color = new Color(0, 0, 0, backgroundOpacity);
-
-        GameObject textObj = new("LabelText");
-        textObj.transform.SetParent(newLabel.transform, false);
-        var textRect = textObj.AddComponent<RectTransform>();
-        textRect.anchorMin = Vector2.zero;
-        textRect.anchorMax = Vector2.one;
-        textRect.offsetMin = Vector2.zero;
-        textRect.offsetMax = Vector2.zero;
-
-        // Add Text component and configure it
-        var textComponent = textObj.AddComponent<Text>();
-        textComponent.font = SceneSingleton<CombatHUD>.i.weaponName.font;
-        textComponent.fontSize = fontSize;
-        textComponent.fontStyle = fontStyle;
-        textComponent.color = color ?? Color.white;
-        textComponent.alignment = TextAnchor.MiddleCenter;
-        textComponent.text = "Yo";
-        rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
-        
-        if (targetScreenCanvas) {
-            canvasLabels.Add(newLabel);
-        }
-        return newLabel;
-    }
-    public static GameObject FindOrCreateLine(
-        string name,
-        Vector2 start,
-        Vector2 end,
-        Transform UIParent = null,
-        bool targetScreenCanvas = false,
-        Color? color = null,
-        float thickness = 2f) {
-        // Check if the line already exists
-        foreach (Transform child in UIParent) {
-            if (child.name == name) {
-                return child.gameObject;
+        public void SetColor(Color color) {
+            if (textComponent != null) {
+                textComponent.color = color;
             }
         }
 
-        // Create a new GameObject for the line
-        GameObject lineObj = new(name);
-        lineObj.transform.SetParent(UIParent, false);
-
-        var image = lineObj.AddComponent<UnityEngine.UI.Image>();
-        image.color = color ?? Color.white;
-
-        var rectTransform = lineObj.GetComponent<RectTransform>();
-        Vector2 direction = end - start;
-        float length = direction.magnitude;
-        rectTransform.sizeDelta = new Vector2(length, thickness);
-        rectTransform.anchoredPosition = start + direction / 2f;
-        rectTransform.pivot = new Vector2(0.5f, 0.5f);
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        rectTransform.rotation = Quaternion.Euler(0, 0, angle);
-        if (targetScreenCanvas) {
-            canvasLabels.Add(lineObj);
+        public void SetPosition(Vector2 position) {
+            if (rectTransform != null) {
+                rectTransform.anchoredPosition = position;
+            }
         }
-        return lineObj;
     }
 
-    public static void SetLineCoordinates(GameObject lineObj, Vector2 start, Vector2 end) {
-        var rectTransform = lineObj.GetComponent<RectTransform>();
-        if (rectTransform == null) return;
+    public class UILine {
+        private GameObject lineObject;
+        private RectTransform rectTransform;
+        private Image imageComponent;
 
-        Vector2 direction = end - start;
-        float length = direction.magnitude;
-        rectTransform.pivot = new Vector2(0.5f, 0.5f);
-        rectTransform.sizeDelta = new Vector2(length, rectTransform.sizeDelta.y);
-        rectTransform.anchoredPosition = start + direction / 2f;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        rectTransform.localRotation = Quaternion.Euler(0, 0, angle);
+        public UILine(
+            string name,
+            Vector2 start,
+            Vector2 end,
+            Transform UIParent = null,
+            bool targetScreenCanvas = false,
+            Color? color = null,
+            float thickness = 2f)
+        {
+            // Check if the line already exists
+            if (UIParent != null) {
+                foreach (Transform child in UIParent) {
+                    if (child.name == name) {
+                        lineObject = child.gameObject;
+                        break;
+                    }
+                }
+            }
+            if (lineObject == null) {
+                // Create a new GameObject for the line
+                lineObject = new GameObject(name);
+                lineObject.transform.SetParent(UIParent, false);
+                var image = lineObject.AddComponent<UnityEngine.UI.Image>();
+                image.color = color ?? Color.white;
+                var rect = lineObject.GetComponent<RectTransform>();
+                Vector2 direction = end - start;
+                float length = direction.magnitude;
+                rect.sizeDelta = new Vector2(length, thickness);
+                rect.anchoredPosition = start + direction / 2f;
+                rect.pivot = new Vector2(0.5f, 0.5f);
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                rect.rotation = Quaternion.Euler(0, 0, angle);
+                if (targetScreenCanvas) {
+                    canvasLabels.Add(lineObject);
+                }
+            }
+            rectTransform = lineObject.GetComponent<RectTransform>();
+            imageComponent = lineObject.GetComponent<Image>();
+        }
+
+        public void SetCoordinates(Vector2 start, Vector2 end) {
+            if (rectTransform == null) return;
+            Vector2 direction = end - start;
+            float length = direction.magnitude;
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            rectTransform.sizeDelta = new Vector2(length, rectTransform.sizeDelta.y);
+            rectTransform.anchoredPosition = start + direction / 2f;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            rectTransform.localRotation = Quaternion.Euler(0, 0, angle);
+        }
+
+        public void SetColor(Color color) {
+            if (imageComponent != null) {
+                imageComponent.color = color;
+            }
+        }
     }
+
+    public class UIRectangle {
+        private GameObject rectObject;
+        private RectTransform rectTransform;
+        private Image imageComponent;
+
+        private Vector2 cornerA;
+        private Vector2 cornerB;
+        private Color fillColor;
+
+        public UIRectangle(
+            string name,
+            Vector2 cornerA,
+            Vector2 cornerB,
+            Transform UIParent = null,
+            bool targetScreenCanvas = false,
+            Color? fillColor = null)
+        {
+            this.cornerA = cornerA;
+            this.cornerB = cornerB;
+            this.fillColor = fillColor ?? new Color(1, 1, 1, 0.1f);
+
+            rectObject = new GameObject(name);
+            rectObject.transform.SetParent(UIParent, false);
+            rectTransform = rectObject.AddComponent<RectTransform>();
+            imageComponent = rectObject.AddComponent<Image>();
+            imageComponent.color = this.fillColor;
+
+            UpdateRect();
+
+            if (targetScreenCanvas) {
+                canvasLabels.Add(rectObject);
+            }
+        }
+
+        private void UpdateRect() {
+            Vector2 min = Vector2.Min(cornerA, cornerB);
+            Vector2 max = Vector2.Max(cornerA, cornerB);
+            Vector2 size = max - min;
+            Vector2 center = (min + max) / 2f;
+
+            rectTransform.anchoredPosition = center;
+            rectTransform.sizeDelta = size;
+        }
+
+        public void SetCorners(Vector2 a, Vector2 b) {
+            cornerA = a;
+            cornerB = b;
+            UpdateRect();
+        }
+
+        public void SetFillColor(Color color) {
+            fillColor = color;
+            imageComponent.color = fillColor;
+        }
+
+        public void SetCenter(Vector2 center) {
+            Vector2 size = rectTransform.sizeDelta;
+            Vector2 half = size / 2f;
+            cornerA = center - half;
+            cornerB = center + half;
+            UpdateRect();
+        }
+
+        public void MoveCenter(Vector2 delta) {
+            SetCenter(rectTransform.anchoredPosition + delta);
+        }
+
+        public Vector2 GetCornerA() => cornerA;
+        public Vector2 GetCornerB() => cornerB;
+        public Vector2 GetCenter() => rectTransform.anchoredPosition;
+        public Color GetFillColor() => fillColor;
+    }
+
     public static Canvas GetTargetScreenCanvas() {
         return TargetScreenCanvas;
     }
@@ -125,31 +243,6 @@ public class UIUtils {
             return true;
         }
         return false;
-    }
-
-    public static void SetLabelText(GameObject label, string text) {
-        var textTransform = label.transform.Find("LabelText");
-        if (textTransform != null) {
-            var textComponent = textTransform.GetComponent<Text>();
-            if (textComponent != null) {
-                textComponent.text = text;
-                // Force update of the Text component to get correct preferred size
-                var rectTransform = label.GetComponent<RectTransform>();
-                if (rectTransform != null) {
-                    rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
-                }
-            }
-        }
-    }
-
-    public static void SetLabelColor(GameObject label, Color color) {
-        var textTransform = label.transform.Find("LabelText");
-        if (textTransform != null) {
-            var textComponent = textTransform.GetComponent<Text>();
-            if (textComponent != null) {
-                textComponent.color = color;
-            }
-        }
     }
 }
 
