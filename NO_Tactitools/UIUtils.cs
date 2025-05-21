@@ -15,7 +15,8 @@ public class UIUtils {
         bool targetScreenCanvas = false,
         FontStyle fontStyle = FontStyle.Normal,
         Color? color = null,
-        int fontSize = 24) {
+        int fontSize = 24,
+        float backgroundOpacity = 0.8f) {
         // Check if the label already exists
         foreach (Transform child in UIParent) {
             if (child.name == name) {
@@ -30,18 +31,29 @@ public class UIUtils {
         // Add RectTransform and set position
         var rectTransform = newLabel.AddComponent<RectTransform>();
         rectTransform.anchoredPosition = position;
+        rectTransform.sizeDelta = new Vector2(200, 40);
+
+        var imageComponent = newLabel.AddComponent<Image>();
+        imageComponent.color = new Color(0, 0, 0, backgroundOpacity);
+
+        GameObject textObj = new("LabelText");
+        textObj.transform.SetParent(newLabel.transform, false);
+        var textRect = textObj.AddComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = Vector2.zero;
+        textRect.offsetMax = Vector2.zero;
 
         // Add Text component and configure it
-        var textComponent = newLabel.AddComponent<Text>();
+        var textComponent = textObj.AddComponent<Text>();
         textComponent.font = SceneSingleton<CombatHUD>.i.weaponName.font;
         textComponent.fontSize = fontSize;
         textComponent.fontStyle = fontStyle;
         textComponent.color = color ?? Color.white;
         textComponent.alignment = TextAnchor.MiddleCenter;
-        textComponent.text = "";
-
-        // Optionally, set size and other properties
-        rectTransform.sizeDelta = new Vector2(200, 40);
+        textComponent.text = "Yo";
+        rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
+        
         if (targetScreenCanvas) {
             canvasLabels.Add(newLabel);
         }
@@ -115,6 +127,30 @@ public class UIUtils {
         return false;
     }
 
+    public static void SetLabelText(GameObject label, string text) {
+        var textTransform = label.transform.Find("LabelText");
+        if (textTransform != null) {
+            var textComponent = textTransform.GetComponent<Text>();
+            if (textComponent != null) {
+                textComponent.text = text;
+                // Force update of the Text component to get correct preferred size
+                var rectTransform = label.GetComponent<RectTransform>();
+                if (rectTransform != null) {
+                    rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
+                }
+            }
+        }
+    }
+
+    public static void SetLabelColor(GameObject label, Color color) {
+        var textTransform = label.transform.Find("LabelText");
+        if (textTransform != null) {
+            var textComponent = textTransform.GetComponent<Text>();
+            if (textComponent != null) {
+                textComponent.color = color;
+            }
+        }
+    }
 }
 
 [HarmonyPatch(typeof(TargetScreenUI), "LateUpdate")]

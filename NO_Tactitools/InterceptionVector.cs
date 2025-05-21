@@ -101,7 +101,8 @@ class InterceptionVectorTask {
             false,
             FontStyle.Bold,
             Color.green,
-            fontSize: 18
+            fontSize: 18,
+            backgroundOpacity:0f
         );
         bearingLabel = UIUtils.FindOrCreateLabel(
             "bearingLabel",
@@ -128,7 +129,8 @@ class InterceptionVectorTask {
             true,
             FontStyle.Normal,
             Color.magenta,
-            fontSize: 36
+            fontSize: 36,
+            backgroundOpacity:0f
         );
         indicatorTargetLine = UIUtils.FindOrCreateLine(
             "indicatorTargetLine",
@@ -145,10 +147,10 @@ class InterceptionVectorTask {
         return;
     }
     static void HandleResetState() {
-        bearingLabel.GetComponent<Text>().text = "";
-        timerLabel.GetComponent<Text>().text = "";
-        indicatorScreenLabel.GetComponent<Text>().text = "";
-        indicatorTargetLabel.GetComponent<Text>().text = "";
+        UIUtils.SetLabelText(bearingLabel,"");
+        UIUtils.SetLabelText(timerLabel,"");
+        UIUtils.SetLabelText(indicatorScreenLabel,"");
+        UIUtils.SetLabelText(indicatorTargetLabel,"");
         UIUtils.SetLineCoordinates(
                 indicatorTargetLine,
                 new Vector2(0, 0),
@@ -199,13 +201,13 @@ class InterceptionVectorTask {
     }
 
     static void HandleTracked() {
-        bearingLabel.GetComponent<Text>().color = Color.green;
-        timerLabel.GetComponent<Text>().color = Color.green;
+        UIUtils.SetLabelColor(bearingLabel, Color.green);
+        UIUtils.SetLabelColor(timerLabel, Color.green);
     }
 
     static void HandleUntracked() {
-        bearingLabel.GetComponent<Text>().color = Color.red;
-        timerLabel.GetComponent<Text>().color = Color.red;
+        UIUtils.SetLabelColor(bearingLabel, Color.red);
+        UIUtils.SetLabelColor(timerLabel, Color.red);
     }
 
     static void HandleTargetReachable() {
@@ -231,8 +233,8 @@ class InterceptionVectorTask {
             (int)Mathf.Clamp(relativeHeight / 60f * 110f, -110, 110), //115 = height of the canvas
             0
         );
-        bearingLabel.GetComponent<Text>().text = $"({interceptBearing.ToString()}°)";
-        timerLabel.GetComponent<Text>().text = $"ETA : {interceptionTimeInSeconds.ToString()}s";
+        UIUtils.SetLabelText(bearingLabel, $"({interceptBearing.ToString()}°)");
+        UIUtils.SetLabelText(timerLabel, $"ETA : {interceptionTimeInSeconds.ToString()}s");
         indicatorScreenLabel.GetComponent<RectTransform>().anchoredPosition = new Vector2(
             interceptScreen.x,
             interceptScreen.y
@@ -241,7 +243,7 @@ class InterceptionVectorTask {
             interceptTarget.x,
             interceptTarget.y
         );
-        indicatorTargetLabel.GetComponent<Text>().text = "+";
+        UIUtils.SetLabelText(indicatorTargetLabel, "+");
         UIUtils.SetLineCoordinates(
             indicatorTargetLine,
             new Vector2(0, 0),
@@ -249,19 +251,19 @@ class InterceptionVectorTask {
         );
         // if z < 0, the target is behind the player
         if (interceptScreen.z > 0 && Plugin.onScreenVectorEnabled.Value) {
-            indicatorScreenLabel.GetComponent<Text>().text = "+";
+            UIUtils.SetLabelText(indicatorScreenLabel, "+");
 
         }
         else {
-            indicatorScreenLabel.GetComponent<Text>().text = "";
+            UIUtils.SetLabelText(indicatorScreenLabel, "");
         }
 
     }
     static void HandleTargetUnreachable() {
-        bearingLabel.GetComponent<Text>().text = "";
-        timerLabel.GetComponent<Text>().text = "";
-        indicatorScreenLabel.GetComponent<Text>().text = "";
-        indicatorTargetLabel.GetComponent<Text>().text = "";
+        UIUtils.SetLabelText(bearingLabel,"");
+        UIUtils.SetLabelText(timerLabel,"");
+        UIUtils.SetLabelText(indicatorScreenLabel,"");
+        UIUtils.SetLabelText(indicatorTargetLabel,"");
         UIUtils.SetLineCoordinates(
             indicatorTargetLine,
             new Vector2(0, 0),
