@@ -57,8 +57,6 @@ class InterceptionVectorTask {
     static UIUtils.UILabel indicatorTargetLabel;
     static UIUtils.UILine indicatorTargetLine;
 
-    public static UIUtils.UIRectangle testSquare { get; private set; }
-
     static FactionHQ playerFactionHQ;
     static Unit targetUnit;
     static float solutionTime;
@@ -144,19 +142,11 @@ class InterceptionVectorTask {
             Color.magenta,
             2f
         );
-        testSquare = new UIUtils.UIRectangle(
-            "testSquare",
-            new Vector2(0, 0),
-            new Vector2(10, 10),
-            Plugin.combatHUD.transform,
-            true,
-            Color.green
-        );
-        testSquare.SetCenter(new Vector2(0, 0));
         currentState = State.Reset;
         Plugin.Logger.LogInfo("[IV] Transitioning to Reset state");
         return;
     }
+
     static void HandleResetState() {
         bearingLabel.SetText("");
         timerLabel.SetText("");
@@ -364,7 +354,7 @@ class InterceptionVectorTask {
 }
 
 [HarmonyPatch(typeof(FlightHud), "ResetAircraft")]
-class OnHUDResetPatch {
+class ResetInterceptionVectorOnRespawnPatch {
     static void Postfix() {
         // Reset the FSM state when the aircraft is destroyed
         InterceptionVectorTask.ResetState();
