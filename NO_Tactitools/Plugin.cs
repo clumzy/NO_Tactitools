@@ -11,8 +11,6 @@ namespace NO_Tactitools {
     public class Plugin : BaseUnityPlugin {
         public static ConfigEntry<string> targetRecallControllerName;
         public static ConfigEntry<int> targetRecallButtonNumber;
-        public static ConfigEntry<string> interceptionVectorControllerName;
-        public static ConfigEntry<int> interceptionVectorButtonNumber;
         public static ConfigEntry<bool> onScreenVectorEnabled;
         public static ConfigEntry<string> countermeasureControlsFlareControllerName;
         public static ConfigEntry<int> countermeasureControlsFlareButtonNumber;
@@ -39,14 +37,6 @@ namespace NO_Tactitools {
             targetRecallButtonNumber = Config.Bind("Target Recall",      // The section under which the option is shown
                 "Target Recall Button Number",  // The key of the configuration option in the configuration file
                 37, // The default value
-                "Number of the button");
-            interceptionVectorControllerName = Config.Bind("Interception Vector",      // The section under which the option is shown
-                "Interception Vector Controller Name",  // The key of the configuration option in the configuration file
-                "", // The default value
-                "Name of the peripheral"); // Description of the option to show in the config file
-            interceptionVectorButtonNumber = Config.Bind("Interception Vector",      // The section under which the option is shown
-                "Interception Vector Button Number",  // The key of the configuration option in the configuration file
-                38, // The default value
                 "Number of the button");
             onScreenVectorEnabled = Config.Bind("Interception Vector",      // The section under which the option is shown
                 "On-Screen Vector Enabled",  // The key of the configuration option in the configuration file

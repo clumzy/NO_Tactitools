@@ -96,6 +96,7 @@ public class UIUtils {
         private GameObject lineObject;
         private RectTransform rectTransform;
         private Image imageComponent;
+        public float thickness;
 
         public UILine(
             string name,
@@ -106,6 +107,7 @@ public class UIUtils {
             Color? color = null,
             float thickness = 2f)
         {
+            this.thickness = thickness;
             // Check if the line already exists
             if (UIParent != null) {
                 foreach (Transform child in UIParent) {
@@ -156,6 +158,19 @@ public class UIUtils {
                 imageComponent.color = color;
             }
         }
+
+        public void SetThickness(float thickness) {
+            if (rectTransform != null) {
+                rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, thickness);
+            }
+        }
+
+        public void ResetThickness() {
+            if (rectTransform != null) {
+                rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, thickness);
+            }
+        }
+
     }
 
     public class UIRectangle {

@@ -8,36 +8,14 @@ namespace NO_Tactitools;
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class InterceptionVectorPlugin {
     private static bool initialized = false;
-    public static bool activated = true;
     static void Postfix() {
         if (!initialized) {
             Plugin.Logger.LogInfo($"[IV] Interception Vector plugin starting !");
-            Plugin.inputCatcherPlugin.RegisterControllerButton(
-                Plugin.interceptionVectorControllerName.Value,
-                new ControllerButton(
-                (int)Plugin.interceptionVectorButtonNumber.Value,
-                0.2f,
-                onShortPress: HandleClick
-                ));
             initialized = true;
             Plugin.Logger.LogInfo("[IV] Interception Vector plugin succesfully started !");
         }
         //RESET FSM STATE
         InterceptionVectorTask.ResetState();
-    }
-    private static void HandleClick() {
-        Plugin.Logger.LogInfo($"[IV] HandleClick");
-        SoundManager.PlayInterfaceOneShot(Plugin.selectAudio);
-        activated = !activated;
-        string report;
-        if (activated) {
-            report = "Interception Vector <b>Enabled</b>";
-        }
-        else {
-            report = "Interception Vector <b>Disabled</b>";
-        }
-        Plugin.Logger.LogInfo($"[IV] {report}");
-        SceneSingleton<AircraftActionsReport>.i.ReportText(report, 2f);
     }
 }
 
@@ -70,6 +48,7 @@ class InterceptionVectorTask {
     static int interceptBearing;
     static int interceptionTimeInSeconds;
     static Vector3 interceptScreen;
+    static bool previousInterceptScreenVisible = false;
 
     static void Postfix() {
         switch (currentState) {
@@ -142,6 +121,7 @@ class InterceptionVectorTask {
             Color.magenta,
             2f
         );
+
         currentState = State.Reset;
         Plugin.Logger.LogInfo("[IV] Transitioning to Reset state");
         return;
@@ -155,14 +135,14 @@ class InterceptionVectorTask {
         indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(0, 0));
         targetUnit = null;
         solutionTime = 0f;
+        previousInterceptScreenVisible = false;
         currentState = State.Idle;
         Plugin.Logger.LogInfo("[IV] Transitioning to Idle state");
         return;
     }
 
     static void HandleIdleState() {
-        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count == 1
-            && InterceptionVectorPlugin.activated) {
+        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count == 1) {
             targetUnit = ((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue())[0];
             if (playerFactionHQ.IsTargetBeingTracked(targetUnit)) {
                 currentState = State.Intercepting;
@@ -179,12 +159,7 @@ class InterceptionVectorTask {
     }
 
     static void HandleTargetInitiallyUntracked() {
-        if (!InterceptionVectorPlugin.activated) {
-            currentState = State.Reset;
-            Plugin.Logger.LogInfo("[IV] Interception Vector deactivated, returning to Reset state");
-            return;
-        }
-        else if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1
+        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1
             || ((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue())[0] != targetUnit) {
             currentState = State.Reset;
             Plugin.Logger.LogInfo("[IV] Switched target, returning to Reset state");
@@ -232,28 +207,28 @@ class InterceptionVectorTask {
         );
         bearingLabel.SetText($"({interceptBearing.ToString()}°)");
         timerLabel.SetText($"ETA : {interceptionTimeInSeconds.ToString()}s");
-        // indicatorScreenLabel.GetComponent<RectTransform>().anchoredPosition = new Vector2(
-        //     interceptScreen.x,
-        //     interceptScreen.y
-        // );
+        bool currentInterceptScreenVisible = interceptScreen.z > 0;
+        if (currentInterceptScreenVisible != previousInterceptScreenVisible) {
+            if (currentInterceptScreenVisible) {
+                if(Plugin.onScreenVectorEnabled.Value) indicatorScreenLabel.SetText("+");
+                indicatorTargetLabel.SetText("+");
+                indicatorTargetLine.ResetThickness();
+            }
+            else {
+                indicatorScreenLabel.SetText("");
+                indicatorTargetLabel.SetText("↶");
+                indicatorTargetLabel.SetPosition(new Vector2(0, -40));
+                indicatorTargetLine.SetThickness(0f);
+            }
+            previousInterceptScreenVisible = currentInterceptScreenVisible;
+        }
         indicatorScreenLabel.SetPosition(new Vector2(interceptScreen.x, interceptScreen.y));
-        // indicatorTargetLabel.GetComponent<RectTransform>().anchoredPosition = new Vector2(
-        //     interceptTarget.x,
-        //     interceptTarget.y
-        // );
-        indicatorTargetLabel.SetPosition(new Vector2(interceptTarget.x, interceptTarget.y));
+        if (currentInterceptScreenVisible) {
+            indicatorTargetLabel.SetPosition(new Vector2(interceptTarget.x, interceptTarget.y));
+        }
         // indicatorTargetLabel.GetComponent<Text>().text = "+";
-        indicatorTargetLabel.SetText("+");
         indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(interceptTarget.x, interceptTarget.y));
-        // if z < 0, the target is behind the player
-        if (interceptScreen.z > 0 && Plugin.onScreenVectorEnabled.Value) {
-            indicatorScreenLabel.SetText("+");
-
-        }
-        else {
-            indicatorScreenLabel.SetText("");
-        }
-
+        
     }
     static void HandleTargetUnreachable() {
         bearingLabel.SetText("");
@@ -267,12 +242,7 @@ class InterceptionVectorTask {
         interceptPosition = targetPosition + targetVelocity * solutionTime;
     }
     static void HandleInterception() {
-        if (!InterceptionVectorPlugin.activated) {
-            currentState = State.Reset;
-            Plugin.Logger.LogInfo("[IV] Interception Vector deactivated, returning to Reset state");
-            return;
-        }
-        else if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1
+        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1
             || ((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue())[0] != targetUnit) {
             currentState = State.Reset;
             Plugin.Logger.LogInfo("[IV] Switched target, returning to Reset state");

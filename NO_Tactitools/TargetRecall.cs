@@ -13,7 +13,7 @@ class TargetRecallPlugin {
             Plugin.inputCatcherPlugin.RegisterControllerButton(
                 Plugin.targetRecallControllerName.Value,
                 new ControllerButton(
-                (int)Plugin.targetRecallButtonNumber.Value,
+                Plugin.targetRecallButtonNumber.Value,
                 0.2f,
                 onShortPress: HandleClick,
                 onLongPress: HandleLongPress

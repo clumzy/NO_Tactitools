@@ -13,35 +13,35 @@ class WeaponSwitcherPlugin {
             Plugin.inputCatcherPlugin.RegisterControllerButton(
                 Plugin.weaponSwitcherControllerName.Value,
                 new ControllerButton(
-                (int)Plugin.weaponSwitcherButton0.Value,
+                Plugin.weaponSwitcherButton0.Value,
                 0.2f,
                 onShortPress: HandleClick0
                 ));
             Plugin.inputCatcherPlugin.RegisterControllerButton(
                 Plugin.weaponSwitcherControllerName.Value,
                 new ControllerButton(
-                (int)Plugin.weaponSwitcherButton1.Value,
+                Plugin.weaponSwitcherButton1.Value,
                 0.2f,
                 onShortPress: HandleClick1
                 ));
             Plugin.inputCatcherPlugin.RegisterControllerButton(
                 Plugin.weaponSwitcherControllerName.Value,
                 new ControllerButton(
-                (int)Plugin.weaponSwitcherButton2.Value,
+                Plugin.weaponSwitcherButton2.Value,
                 0.2f,
                 onShortPress: HandleClick2
                 ));
             Plugin.inputCatcherPlugin.RegisterControllerButton(
                 Plugin.weaponSwitcherControllerName.Value,
                 new ControllerButton(
-                (int)Plugin.weaponSwitcherButton3.Value,
+                Plugin.weaponSwitcherButton3.Value,
                 0.2f,
                 onShortPress: HandleClick3
                 ));
             Plugin.inputCatcherPlugin.RegisterControllerButton(
                 Plugin.weaponSwitcherControllerName.Value,
                 new ControllerButton(
-                (int)Plugin.weaponSwitcherButton4.Value,
+                Plugin.weaponSwitcherButton4.Value,
                 0.2f,
                 onShortPress: HandleClick4
                 ));
