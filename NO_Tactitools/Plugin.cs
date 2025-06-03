@@ -28,7 +28,6 @@ namespace NO_Tactitools {
         public static ConfigEntry<int> weaponSwitcherButton3;
         public static ConfigEntry<int> weaponSwitcherButton4;
         public static ConfigEntry<bool> debugModeEnabled;
-        public static InputCatcherPlugin inputCatcherPlugin = new();
         internal static new ManualLogSource Logger;
 
         private void Awake() {
@@ -113,12 +112,8 @@ namespace NO_Tactitools {
             harmony = new Harmony("george.no_tactitools");
             Logger = base.Logger;
             // Patch UI Utils
-            harmony.PatchAll(typeof(HMDRegisterPatch));
-            harmony.PatchAll(typeof(HUDRegisterPatch));
-            harmony.PatchAll(typeof(CameraStateManagerRegisterPatch));
-            harmony.PatchAll(typeof(MFD_TargetRegisterPatch));
-            harmony.PatchAll(typeof(MFD_TargetOnDestroyPatch));
-            // Patch Input Catcher
+            harmony.PatchAll(typeof(UIUtilsPlugin));
+            // Patch Input Catcher - We do the patches manually here instead of in the "master class" like the other plugins because Rewired is a bit special as my mother would say
             harmony.PatchAll(typeof(InputInterceptionPatch));
             harmony.PatchAll(typeof(RegisterControllerPatch));
             // Patch Interception Vector

@@ -10,7 +10,7 @@ class TargetRecallPlugin {
     static void Postfix() {
         if (!initialized) {
             Plugin.Log($"[TR] Target Recall plugin starting !");
-            Plugin.inputCatcherPlugin.RegisterControllerButton(
+            InputCatcher.RegisterControllerButton(
                 Plugin.targetRecallControllerName.Value,
                 new ControllerButton(
                 Plugin.targetRecallButtonNumber.Value,

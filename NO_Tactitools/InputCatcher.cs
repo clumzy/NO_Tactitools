@@ -5,18 +5,15 @@ using System.Collections.Generic;
 
 namespace NO_Tactitools;
 
-public class InputCatcherPlugin {
+public class InputCatcher {
     // Dictionary mapping each controller to its list of buttons
-    public Dictionary<Rewired.Controller, List<ControllerButton>> controllerStructure =
+    public static Dictionary<Rewired.Controller, List<ControllerButton>> controllerStructure =
         [];
 
     // Dictionary mapping controller names to pending buttons
-    public Dictionary<string, List<ControllerButton>> pendingButtons = [];
+    public static Dictionary<string, List<ControllerButton>> pendingButtons = [];
 
-    public InputCatcherPlugin() {
-    }
-
-    public void RegisterControllerButton(string controllerName, ControllerButton button) {
+    public static void RegisterControllerButton(string controllerName, ControllerButton button) {
         Plugin.Log($"[IC] Registering button {button.buttonNumber.ToString()} on controller {controllerName.ToString()}");
         bool found = false;
         foreach (Controller controller in controllerStructure.Keys) {
@@ -75,9 +72,9 @@ public class ControllerButton {
 [HarmonyPatch(typeof(Rewired.Controller), "pBrAJYWOGkILyqjLrMpmCdajATI")]
 class InputInterceptionPatch {
     static bool Prefix(Controller __instance) {
-        foreach (Controller controller in Plugin.inputCatcherPlugin.controllerStructure.Keys) {
+        foreach (Controller controller in InputCatcher.controllerStructure.Keys) {
             if (__instance == controller) {
-                foreach (ControllerButton button in Plugin.inputCatcherPlugin.controllerStructure[controller]) {
+                foreach (ControllerButton button in InputCatcher.controllerStructure[controller]) {
                     button.currentButtonState = __instance.Buttons[button.buttonNumber].value;
                     if (!button.previousButtonState && button.currentButtonState) {
                         // Button just pressed
@@ -118,17 +115,17 @@ class RegisterControllerPatch {
         string cleanedName = __instance.name.Trim();
         Plugin.Log($"[IC] Controller connected: {cleanedName}");
 
-        if (!Plugin.inputCatcherPlugin.controllerStructure.ContainsKey(__instance)) {
-            Plugin.inputCatcherPlugin.controllerStructure[__instance] = [];
+        if (!InputCatcher.controllerStructure.ContainsKey(__instance)) {
+            InputCatcher.controllerStructure[__instance] = [];
             Plugin.Log($"[IC] Controller structure initialized for: {cleanedName}");
         }
 
-        if (Plugin.inputCatcherPlugin.pendingButtons.ContainsKey(cleanedName)) {
-            foreach (var btn in Plugin.inputCatcherPlugin.pendingButtons[cleanedName]) {
-                Plugin.inputCatcherPlugin.controllerStructure[__instance].Add(btn);
+        if (InputCatcher.pendingButtons.ContainsKey(cleanedName)) {
+            foreach (var btn in InputCatcher.pendingButtons[cleanedName]) {
+                InputCatcher.controllerStructure[__instance].Add(btn);
                 Plugin.Log($"[IC] Registered pending button {btn.buttonNumber.ToString()} on controller {cleanedName}");
             }
-            Plugin.inputCatcherPlugin.pendingButtons.Remove(cleanedName);
+            InputCatcher.pendingButtons.Remove(cleanedName);
         }
     }
 }

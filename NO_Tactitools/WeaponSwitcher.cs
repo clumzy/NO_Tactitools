@@ -10,35 +10,35 @@ class WeaponSwitcherPlugin {
     static void Postfix() {
         if (!initialized) {
             Plugin.Log($"[WS] Weapon Switcher plugin starting !");
-            Plugin.inputCatcherPlugin.RegisterControllerButton(
+            InputCatcher.RegisterControllerButton(
                 Plugin.weaponSwitcherControllerName.Value,
                 new ControllerButton(
                 Plugin.weaponSwitcherButton0.Value,
                 0.2f,
                 onShortPress: HandleClick0
                 ));
-            Plugin.inputCatcherPlugin.RegisterControllerButton(
+            InputCatcher.RegisterControllerButton(
                 Plugin.weaponSwitcherControllerName.Value,
                 new ControllerButton(
                 Plugin.weaponSwitcherButton1.Value,
                 0.2f,
                 onShortPress: HandleClick1
                 ));
-            Plugin.inputCatcherPlugin.RegisterControllerButton(
+            InputCatcher.RegisterControllerButton(
                 Plugin.weaponSwitcherControllerName.Value,
                 new ControllerButton(
                 Plugin.weaponSwitcherButton2.Value,
                 0.2f,
                 onShortPress: HandleClick2
                 ));
-            Plugin.inputCatcherPlugin.RegisterControllerButton(
+            InputCatcher.RegisterControllerButton(
                 Plugin.weaponSwitcherControllerName.Value,
                 new ControllerButton(
                 Plugin.weaponSwitcherButton3.Value,
                 0.2f,
                 onShortPress: HandleClick3
                 ));
-            Plugin.inputCatcherPlugin.RegisterControllerButton(
+            InputCatcher.RegisterControllerButton(
                 Plugin.weaponSwitcherControllerName.Value,
                 new ControllerButton(
                 Plugin.weaponSwitcherButton4.Value,
