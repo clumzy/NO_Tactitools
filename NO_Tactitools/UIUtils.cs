@@ -14,9 +14,57 @@ public class UIUtils {
     public static AudioClip selectAudio;
     public static CameraStateManager cameraStateManager;
 
-    public class UILabel {
-        private GameObject labelObject;
-        private RectTransform rectTransform;
+    public abstract class UIElement {
+        protected GameObject gameObject;
+        protected RectTransform rectTransform;
+        protected Image imageComponent;
+
+        protected UIElement(string name, Transform UIParent = null, bool MFD_Target_Canvas = false) {
+            // Check if the element already exists
+            if (UIParent != null) {
+                foreach (Transform child in UIParent) {
+                    if (child.name == name) {
+                        gameObject = child.gameObject;
+                        rectTransform = gameObject.GetComponent<RectTransform>();
+                        imageComponent = gameObject.GetComponent<Image>();
+                        return;
+                    }
+                }
+            }
+
+            bool isMFD_Target_Canvas = UIUtils.GetTargetScreenCanvas() != null;
+            if (isMFD_Target_Canvas) {
+                UIParent = UIUtils.GetTargetScreenCanvas().transform;
+            }
+
+            // Create a new GameObject for the element
+            gameObject = new GameObject(name);
+            gameObject.transform.SetParent(UIParent, false);
+            rectTransform = gameObject.AddComponent<RectTransform>();
+            imageComponent = gameObject.AddComponent<Image>();
+
+            if (MFD_Target_Canvas && !isMFD_Target_Canvas) {
+                canvasLabels.Add(gameObject);
+                gameObject.SetActive(false);
+            }
+        }
+
+        public virtual void SetPosition(Vector2 position) {
+            if (rectTransform != null) {
+                rectTransform.anchoredPosition = position;
+            }
+        }
+
+        public virtual void SetColor(Color color) {
+            if (imageComponent != null) {
+                imageComponent.color = color;
+            }
+        }
+
+        public GameObject GetGameObject() => gameObject;
+        public RectTransform GetRectTransform() => rectTransform;
+        public Image GetImageComponent() => imageComponent;
+    }    public class UILabel : UIElement {
         private Text textComponent;
 
         public UILabel(
@@ -27,30 +75,14 @@ public class UIUtils {
             FontStyle fontStyle = FontStyle.Normal,
             Color? color = null,
             int fontSize = 24,
-            float backgroundOpacity = 0.8f) {
-            // Check if the label already exists
-            if (UIParent != null) {
-                foreach (Transform child in UIParent) {
-                    if (child.name == name) {
-                        labelObject = child.gameObject;
-                        break;
-                    }
-                }
-            }
-            bool isMFD_Target_Canvas = UIUtils.GetTargetScreenCanvas() != null;
-            if (isMFD_Target_Canvas) {
-                UIParent = UIUtils.GetTargetScreenCanvas().transform;
-            }
-            // Create a new GameObject for the label
-            labelObject = new GameObject(name);
-            labelObject.transform.SetParent(UIParent, false);
-            var rect = labelObject.AddComponent<RectTransform>();
-            rect.anchoredPosition = position;
-            rect.sizeDelta = new Vector2(200, 40);
-            var imageComponent = labelObject.AddComponent<Image>();
+            float backgroundOpacity = 0.8f) : base(name, UIParent, MFD_Target_Canvas) {
+            
+            rectTransform.anchoredPosition = position;
+            rectTransform.sizeDelta = new Vector2(200, 40);
             imageComponent.color = new Color(0, 0, 0, backgroundOpacity);
+
             GameObject textObj = new("LabelText");
-            textObj.transform.SetParent(labelObject.transform, false);
+            textObj.transform.SetParent(gameObject.transform, false);
             var textRect = textObj.AddComponent<RectTransform>();
             textRect.anchorMin = Vector2.zero;
             textRect.anchorMax = Vector2.one;
@@ -63,14 +95,10 @@ public class UIUtils {
             textComp.color = color ?? Color.white;
             textComp.alignment = TextAnchor.MiddleCenter;
             textComp.text = "Yo";
-            rect.sizeDelta = new Vector2(textComp.preferredWidth, textComp.preferredHeight);
-            if (MFD_Target_Canvas && !isMFD_Target_Canvas) {
-                canvasLabels.Add(labelObject);
-                labelObject.SetActive(false);
-            }
-            rectTransform = labelObject.GetComponent<RectTransform>();
-            var textTransform = labelObject.transform.Find("LabelText");
-            if (textTransform != null && !isMFD_Target_Canvas)
+            rectTransform.sizeDelta = new Vector2(textComp.preferredWidth, textComp.preferredHeight);
+            
+            var textTransform = gameObject.transform.Find("LabelText");
+            if (textTransform != null && UIUtils.GetTargetScreenCanvas() == null)
                 textComponent = textTransform.GetComponent<Text>();
         }
 
@@ -83,23 +111,12 @@ public class UIUtils {
             }
         }
 
-        public void SetColor(Color color) {
+        public override void SetColor(Color color) {
             if (textComponent != null) {
                 textComponent.color = color;
             }
         }
-
-        public void SetPosition(Vector2 position) {
-            if (rectTransform != null) {
-                rectTransform.anchoredPosition = position;
-            }
-        }
-    }
-
-    public class UILine {
-        private GameObject lineObject;
-        private RectTransform rectTransform;
-        private Image imageComponent;
+    }    public class UILine : UIElement {
         public float thickness;
 
         public UILine(
@@ -109,40 +126,18 @@ public class UIUtils {
             Transform UIParent = null,
             bool MFD_Target_Canvas = false,
             Color? color = null,
-            float thickness = 2f) {
+            float thickness = 2f) : base(name, UIParent, MFD_Target_Canvas) {
+            
             this.thickness = thickness;
-            // Check if the line already exists
-            if (UIParent != null) {
-                foreach (Transform child in UIParent) {
-                    if (child.name == name) {
-                        lineObject = child.gameObject;
-                        break;
-                    }
-                }
-            }
-            bool isMFD_Target_Canvas = UIUtils.GetTargetScreenCanvas() != null;
-            if (isMFD_Target_Canvas) {
-                UIParent = UIUtils.GetTargetScreenCanvas().transform;
-            }
-            // Create a new GameObject for the line
-            lineObject = new GameObject(name);
-            lineObject.transform.SetParent(UIParent, false);
-            var image = lineObject.AddComponent<UnityEngine.UI.Image>();
-            image.color = color ?? Color.white;
-            var rect = lineObject.GetComponent<RectTransform>();
+            imageComponent.color = color ?? Color.white;
+            
             Vector2 direction = end - start;
             float length = direction.magnitude;
-            rect.sizeDelta = new Vector2(length, thickness);
-            rect.anchoredPosition = start + direction / 2f;
-            rect.pivot = new Vector2(0.5f, 0.5f);
+            rectTransform.sizeDelta = new Vector2(length, thickness);
+            rectTransform.anchoredPosition = start + direction / 2f;
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            rect.rotation = Quaternion.Euler(0, 0, angle);
-            if (MFD_Target_Canvas && !isMFD_Target_Canvas) {
-                canvasLabels.Add(lineObject);
-                lineObject.SetActive(false);
-            }
-            rectTransform = lineObject.GetComponent<RectTransform>();
-            imageComponent = lineObject.GetComponent<Image>();
+            rectTransform.rotation = Quaternion.Euler(0, 0, angle);
         }
 
         public void SetCoordinates(Vector2 start, Vector2 end) {
@@ -156,12 +151,6 @@ public class UIUtils {
             rectTransform.localRotation = Quaternion.Euler(0, 0, angle);
         }
 
-        public void SetColor(Color color) {
-            if (imageComponent != null) {
-                imageComponent.color = color;
-            }
-        }
-
         public void SetThickness(float thickness) {
             if (rectTransform != null) {
                 rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, thickness);
@@ -173,14 +162,7 @@ public class UIUtils {
                 rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, thickness);
             }
         }
-
-    }
-
-    public class UIRectangle {
-        private GameObject rectObject;
-        private RectTransform rectTransform;
-        private Image imageComponent;
-
+    }    public class UIRectangle : UIElement {
         private Vector2 cornerA;
         private Vector2 cornerB;
         private Color fillColor;
@@ -191,34 +173,14 @@ public class UIUtils {
             Vector2 cornerB,
             Transform UIParent = null,
             bool MFD_Target_Canvas = false,
-            Color? fillColor = null) {
-            if (UIParent != null) {
-                foreach (Transform child in UIParent) {
-                    if (child.name == name) {
-                        rectObject = child.gameObject;
-                        break;
-                    }
-                }
-            }
-            bool isMFD_Target_Canvas = UIUtils.GetTargetScreenCanvas() != null;
-            if (isMFD_Target_Canvas) {
-                UIParent = UIUtils.GetTargetScreenCanvas().transform;
-            }
+            Color? fillColor = null) : base(name, UIParent, MFD_Target_Canvas) {
+            
             this.cornerA = cornerA;
             this.cornerB = cornerB;
             this.fillColor = fillColor ?? new Color(1, 1, 1, 0.1f);
-            rectObject = new GameObject(name);
-            rectObject.transform.SetParent(UIParent, false);
-            rectTransform = rectObject.AddComponent<RectTransform>();
-            imageComponent = rectObject.AddComponent<Image>();
             imageComponent.color = this.fillColor;
 
             UpdateRect();
-
-            if (MFD_Target_Canvas && !isMFD_Target_Canvas) {
-                canvasLabels.Add(rectObject);
-                rectObject.SetActive(false);
-            }
         }
 
         private void UpdateRect() {
@@ -258,7 +220,7 @@ public class UIUtils {
         public Vector2 GetCornerB() => cornerB;
         public Vector2 GetCenter() => rectTransform.anchoredPosition;
         public Color GetFillColor() => fillColor;
-        public GameObject GetRectObject() => rectObject;
+        public GameObject GetRectObject() => gameObject;
     }
 
     public static Canvas GetTargetScreenCanvas() {
