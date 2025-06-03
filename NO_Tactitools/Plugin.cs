@@ -27,6 +27,7 @@ namespace NO_Tactitools {
         public static ConfigEntry<int> weaponSwitcherButton2;
         public static ConfigEntry<int> weaponSwitcherButton3;
         public static ConfigEntry<int> weaponSwitcherButton4;
+        public static ConfigEntry<bool> weaponDisplayEnabled;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
 
@@ -103,6 +104,11 @@ namespace NO_Tactitools {
                 "Weapon Switcher Button 4",
                 45,
                 "Button number for weapon slot 4");
+            // Weapon Display settings
+            weaponDisplayEnabled = Config.Bind("Weapon Display",
+                "Weapon Display Enabled",
+                true,
+                "Enable or disable the Weapon Display feature");
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",
                 "Debug Mode Enabled",
@@ -137,8 +143,11 @@ namespace NO_Tactitools {
                 harmony.PatchAll(typeof(WeaponSwitcherPlugin));
             }
             // Patch Weapon Display
-            harmony.PatchAll(typeof(WeaponDisplayPlugin));
-            
+            if (weaponDisplayEnabled.Value) {
+                Logger.LogInfo($"Weapon Display is enabled, patching...");
+                harmony.PatchAll(typeof(WeaponDisplayPlugin));
+            }
+
             Logger.LogInfo($"Plugin NO_Tactitools is loaded!");
         }
 

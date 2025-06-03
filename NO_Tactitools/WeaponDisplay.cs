@@ -10,6 +10,7 @@ class WeaponDisplayPlugin {
         if (!initialized) {
             Plugin.Log($"[WD] Weapon Display plugin starting !");
             Plugin.harmony.PatchAll(typeof(WeaponDisplayPatch));
+            Plugin.harmony.PatchAll(typeof(WeaponDisplayOnDestroyPatch));
             initialized = true;
             Plugin.Log("[WD] Weapon Display plugin succesfully started !");
         }
@@ -18,13 +19,13 @@ class WeaponDisplayPlugin {
 
 [HarmonyPatch(typeof(SystemStatusDisplay), "Initialize")]
 class WeaponDisplayPatch {
-    private static bool initialized = false;
+    public static bool initialized = false;
     static void Postfix(SystemStatusDisplay __instance) {
         if (!initialized) {
             foreach (Transform child in UIUtils.MFD_List["systems"].GetMFDTransform()) {
                 Object.Destroy(child.gameObject);
             }
-            UIUtils.UILabel indicatorScreenLabel = new UIUtils.UILabel(
+            UIUtils.UILabel indicatorScreenLabel = new(
                 "indicatorScreenLabel",
                 new Vector2(0, 0),
                 UIUtils.HMD,
@@ -37,5 +38,12 @@ class WeaponDisplayPatch {
             indicatorScreenLabel.SetText("TEST");
             initialized = true;
         }
+    }
+}
+
+[HarmonyPatch(typeof(SystemStatusDisplay), "OnDestroy")]
+class WeaponDisplayOnDestroyPatch {
+    static void Postfix(SystemStatusDisplay __instance) {
+        WeaponDisplayPatch.initialized = false;
     }
 }
