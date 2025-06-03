@@ -80,7 +80,7 @@ class InterceptionVectorTask {
             "indicatorScreenLabel",
             new Vector2(0, 0),
             UIUtils.HMD,
-            false,
+            null,
             FontStyle.Bold,
             Color.green,
             18,
@@ -90,7 +90,7 @@ class InterceptionVectorTask {
             "bearingLabel",
             new Vector2(0, -70),
             UIUtils.HMD,
-            true,
+            "target",
             FontStyle.Normal,
             Color.green,
             20
@@ -99,7 +99,7 @@ class InterceptionVectorTask {
             "timerLabel",
             new Vector2(0, -100),
             UIUtils.HMD,
-            true,
+            "target",
             FontStyle.Normal,
             Color.green,
             20
@@ -108,7 +108,7 @@ class InterceptionVectorTask {
             "indicatorTargetLabel",
             new Vector2(0, 0),
             UIUtils.HMD,
-            true,
+            "target",
             FontStyle.Normal,
             Color.magenta,
             36,
@@ -119,7 +119,7 @@ class InterceptionVectorTask {
             new Vector2(0, 0),
             new Vector2(0, 0),
             UIUtils.HMD,
-            true,
+            "target",
             Color.magenta,
             2f
         );
@@ -330,6 +330,6 @@ class ResetInterceptionVectorOnRespawnPatch {
         InterceptionVectorTask.ResetState();
         // Temporary fix, to check if resetting the Canvas on AircraftReset fixes the bug where the UI
         //that is supposed to appear on the canvas appears on the HUD
-        MFD_TargetOnDestroyPatch.ClearMFD_Target_Labels();
+        MFD_TargetOnDestroyPatch.ClearMFD_Labels("target");
     }
 }
