@@ -11,6 +11,9 @@ class InterceptionVectorPlugin {
     static void Postfix() {
         if (!initialized) {
             Plugin.Log($"[IV] Interception Vector plugin starting !");
+            // APPLY SUB PATCHES
+            Plugin.harmony.PatchAll(typeof(InterceptionVectorTask));
+            Plugin.harmony.PatchAll(typeof(ResetInterceptionVectorOnRespawnPatch));
             initialized = true;
             Plugin.Log("[IV] Interception Vector plugin succesfully started !");
         }
@@ -34,7 +37,6 @@ class InterceptionVectorTask {
     static UIUtils.UILabel indicatorScreenLabel;
     static UIUtils.UILabel indicatorTargetLabel;
     static UIUtils.UILine indicatorTargetLine;
-    static UIUtils.UILabel testLabel;
     static FactionHQ playerFactionHQ;
     static Unit targetUnit;
     static float solutionTime;
@@ -328,6 +330,6 @@ class ResetInterceptionVectorOnRespawnPatch {
         InterceptionVectorTask.ResetState();
         // Temporary fix, to check if resetting the Canvas on AircraftReset fixes the bug where the UI
         //that is supposed to appear on the canvas appears on the HUD
-        TargetScreenOnDestroyPatch.ClearMFD_Target_Labels();
+        MFD_TargetOnDestroyPatch.ClearMFD_Target_Labels();
     }
 }

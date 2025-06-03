@@ -8,11 +8,33 @@ namespace NO_Tactitools;
 
 public class UIUtils {
     static List<GameObject> MFD_TargetLabels = [];
+    public static Dictionary<string, MFD> MFD_List = new() {
+        { "target", new MFD() },
+        { "systems", new MFD() }};
     public static Transform MFD_Target;
     public static Transform HMD;
     public static Transform HUD;
     public static AudioClip selectAudio;
     public static CameraStateManager cameraStateManager;
+
+    public class MFD {
+        private List<GameObject> MFD_Labels = [];
+        private Transform MFD_transform;
+        public MFD() {
+        }
+
+        public Transform GetMFDTransform() {
+            return MFD_transform;
+        }
+
+        public void SetMFDTransform(Transform transform) {
+            MFD_transform = transform;
+        }
+
+        public List<GameObject> GetMFDLabels() {
+            return MFD_Labels;
+        }
+    }
 
     public abstract class UIElement {
         protected GameObject gameObject;
@@ -282,7 +304,7 @@ class CameraStateManagerRegisterPatch {
 // PARENTS ARE SET FOR THE ELEMENTS ONCE IT IS INSTANCIATED, BEFORE THAT THEY TEMPORARILY STAY ON THE COMBAT HUD
 // WHILE INACTIVATED
 [HarmonyPatch(typeof(TargetScreenUI), "LateUpdate")]
-class TargetScreenRegisterPatch {
+class MFD_TargetRegisterPatch {
     static void Postfix(TargetScreenUI __instance) {
         // Check if the target screen is null
         if (UIUtils.GetMFD_TargetTransform() == null) {
@@ -299,7 +321,7 @@ class TargetScreenRegisterPatch {
 }
 
 [HarmonyPatch(typeof(TargetScreenUI), "OnDestroy")]
-class TargetScreenOnDestroyPatch {
+class MFD_TargetOnDestroyPatch {
     static void Postfix() {
         ClearMFD_Target_Labels();
     }

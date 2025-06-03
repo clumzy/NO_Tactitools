@@ -9,6 +9,7 @@ using System.Collections.Generic;
 namespace NO_Tactitools {
     [BepInPlugin("NO_Tactitools", "NO Tactical Tools!", "0.4.20")]
     public class Plugin : BaseUnityPlugin {
+        public static Harmony harmony;
         public static ConfigEntry<bool> targetRecallEnabled;
         public static ConfigEntry<string> targetRecallControllerName;
         public static ConfigEntry<int> targetRecallButtonNumber;
@@ -109,14 +110,14 @@ namespace NO_Tactitools {
                 true,
                 "Enable or disable the debug mode for logging");
             // Plugin startup logic
-            var harmony = new Harmony("george.no_tactitools");
+            harmony = new Harmony("george.no_tactitools");
             Logger = base.Logger;
             // Patch UI Utils
             harmony.PatchAll(typeof(HMDRegisterPatch));
             harmony.PatchAll(typeof(HUDRegisterPatch));
             harmony.PatchAll(typeof(CameraStateManagerRegisterPatch));
-            harmony.PatchAll(typeof(TargetScreenRegisterPatch));
-            harmony.PatchAll(typeof(TargetScreenOnDestroyPatch));
+            harmony.PatchAll(typeof(MFD_TargetRegisterPatch));
+            harmony.PatchAll(typeof(MFD_TargetOnDestroyPatch));
             // Patch Input Catcher
             harmony.PatchAll(typeof(InputInterceptionPatch));
             harmony.PatchAll(typeof(RegisterControllerPatch));
@@ -124,8 +125,6 @@ namespace NO_Tactitools {
             if (interceptionVectorEnabled.Value) {
                 Logger.LogInfo($"Interception Vector is enabled, patching...");
                 harmony.PatchAll(typeof(InterceptionVectorPlugin));
-                harmony.PatchAll(typeof(InterceptionVectorTask));
-                harmony.PatchAll(typeof(ResetInterceptionVectorOnRespawnPatch));
             }
             // Patch Target Recall
             if (targetRecallEnabled.Value) {
