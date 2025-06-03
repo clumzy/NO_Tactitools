@@ -30,13 +30,11 @@ class CountermeasureControlsPlugin {
     }
     private static void HandleOnHoldFlare() {
         SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 0;
-        //Plugin.combatHUD.aircraft.countermeasureManager.DeployCountermeasure(Plugin.combatHUD.aircraft);
     }
 
     private static void HandleOnHoldJammer() {
         try {
             SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 1;
-            //Plugin.combatHUD.aircraft.countermeasureManager.DeployCountermeasure(Plugin.combatHUD.aircraft);
         } catch (IndexOutOfRangeException) {} // This is to prevent the logger from going insane² if the player has no jammers
     }
 }

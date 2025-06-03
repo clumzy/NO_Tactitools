@@ -2,15 +2,16 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 namespace NO_Tactitools;
 
 public class UIUtils {
     static List<GameObject> canvasLabels = [];
-    static Canvas targetScreenCanvas;
-    public static CombatHUD combatHUD;
+    static Canvas MFD_Target;
+    public static CombatHUD HMD;
+    public static FuelGauge HUD;
     public static AudioClip selectAudio;
-    public static FuelGauge mainHUD;
     public static CameraStateManager cameraStateManager;
 
     public class UILabel {
@@ -22,7 +23,7 @@ public class UIUtils {
             string name,
             Vector2 position,
             Transform UIParent = null,
-            bool targetScreenCanvas = false,
+            bool MFD_Target_Canvas = false,
             FontStyle fontStyle = FontStyle.Normal,
             Color? color = null,
             int fontSize = 24,
@@ -36,8 +37,8 @@ public class UIUtils {
                     }
                 }
             }
-            bool isScreenCanvas = UIUtils.GetTargetScreenCanvas() != null;
-            if (isScreenCanvas) {
+            bool isMFD_Target_Canvas = UIUtils.GetTargetScreenCanvas() != null;
+            if (isMFD_Target_Canvas) {
                 UIParent = UIUtils.GetTargetScreenCanvas().transform;
             }
             // Create a new GameObject for the label
@@ -63,13 +64,13 @@ public class UIUtils {
             textComp.alignment = TextAnchor.MiddleCenter;
             textComp.text = "Yo";
             rect.sizeDelta = new Vector2(textComp.preferredWidth, textComp.preferredHeight);
-            if (targetScreenCanvas && !isScreenCanvas) {
+            if (MFD_Target_Canvas && !isMFD_Target_Canvas) {
                 canvasLabels.Add(labelObject);
                 labelObject.SetActive(false);
             }
             rectTransform = labelObject.GetComponent<RectTransform>();
             var textTransform = labelObject.transform.Find("LabelText");
-            if (textTransform != null && !isScreenCanvas)
+            if (textTransform != null && !isMFD_Target_Canvas)
                 textComponent = textTransform.GetComponent<Text>();
         }
 
@@ -106,7 +107,7 @@ public class UIUtils {
             Vector2 start,
             Vector2 end,
             Transform UIParent = null,
-            bool targetScreenCanvas = false,
+            bool MFD_Target_Canvas = false,
             Color? color = null,
             float thickness = 2f) {
             this.thickness = thickness;
@@ -119,8 +120,8 @@ public class UIUtils {
                     }
                 }
             }
-            bool isScreenCanvas = UIUtils.GetTargetScreenCanvas() != null;
-            if (isScreenCanvas) {
+            bool isMFD_Target_Canvas = UIUtils.GetTargetScreenCanvas() != null;
+            if (isMFD_Target_Canvas) {
                 UIParent = UIUtils.GetTargetScreenCanvas().transform;
             }
             // Create a new GameObject for the line
@@ -136,7 +137,7 @@ public class UIUtils {
             rect.pivot = new Vector2(0.5f, 0.5f);
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             rect.rotation = Quaternion.Euler(0, 0, angle);
-            if (targetScreenCanvas && !isScreenCanvas) {
+            if (MFD_Target_Canvas && !isMFD_Target_Canvas) {
                 canvasLabels.Add(lineObject);
                 lineObject.SetActive(false);
             }
@@ -189,7 +190,7 @@ public class UIUtils {
             Vector2 cornerA,
             Vector2 cornerB,
             Transform UIParent = null,
-            bool targetScreenCanvas = false,
+            bool MFD_Target_Canvas = false,
             Color? fillColor = null) {
             if (UIParent != null) {
                 foreach (Transform child in UIParent) {
@@ -199,8 +200,8 @@ public class UIUtils {
                     }
                 }
             }
-            bool isScreenCanvas = UIUtils.GetTargetScreenCanvas() != null;
-            if (isScreenCanvas) {
+            bool isMFD_Target_Canvas = UIUtils.GetTargetScreenCanvas() != null;
+            if (isMFD_Target_Canvas) {
                 UIParent = UIUtils.GetTargetScreenCanvas().transform;
             }
             this.cornerA = cornerA;
@@ -214,7 +215,7 @@ public class UIUtils {
 
             UpdateRect();
 
-            if (targetScreenCanvas && !isScreenCanvas) {
+            if (MFD_Target_Canvas && !isMFD_Target_Canvas) {
                 canvasLabels.Add(rectObject);
                 rectObject.SetActive(false);
             }
@@ -261,11 +262,11 @@ public class UIUtils {
     }
 
     public static Canvas GetTargetScreenCanvas() {
-        return targetScreenCanvas;
+        return MFD_Target;
     }
 
     public static void SetTargetScreenCanvas(Canvas canvas) {
-        targetScreenCanvas = canvas;
+        MFD_Target = canvas;
     }
 
     public static List<GameObject> GetCanvasLabels() {
@@ -281,23 +282,26 @@ public class UIUtils {
     }
 }
 
+
+// THIS IS THE HMD
 [HarmonyPatch(typeof(CombatHUD), "Awake")]
 class CombatHUDRegisterPatch {
     static void Postfix(CombatHUD __instance) {
         Plugin.Log("[UU] CombatHUD Registered !");
-        UIUtils.combatHUD = __instance;
-        UIUtils.selectAudio = (AudioClip)Traverse.Create(UIUtils.combatHUD).Field("selectSound").GetValue();
+        UIUtils.HMD = __instance;
+        UIUtils.selectAudio = (AudioClip)Traverse.Create(UIUtils.HMD).Field("selectSound").GetValue();
     }
 }
 
 
 // UNUSED FOR NOW, WE'LL KEEP IT FOR LATER SO AS TO BE ABLE TO DISPLAY
 // ELEMENTS ON THE MAIN HUD
+// THIS IS THE HUD
 [HarmonyPatch(typeof(FuelGauge), "Initialize")]
 class MainHUDRegisterPatch {
     static void Postfix(FuelGauge __instance) {
         Plugin.Log("[UU] MainHUD Registered !");
-        UIUtils.mainHUD = __instance;
+        UIUtils.HUD = __instance;
     }
 }
 
@@ -309,6 +313,7 @@ class CameraStateManagerRegisterPatch {
     }
 }
 
+// THIS IS THE TARGET MFD
 [HarmonyPatch(typeof(TargetScreenUI), "LateUpdate")]
 class TargetScreenUIPatch {
     static void Postfix(TargetScreenUI __instance) {

@@ -34,7 +34,7 @@ class InterceptionVectorTask {
     static UIUtils.UILabel indicatorScreenLabel;
     static UIUtils.UILabel indicatorTargetLabel;
     static UIUtils.UILine indicatorTargetLine;
-
+    static UIUtils.UILabel testLabel;
     static FactionHQ playerFactionHQ;
     static Unit targetUnit;
     static float solutionTime;
@@ -77,7 +77,7 @@ class InterceptionVectorTask {
         indicatorScreenLabel = new UIUtils.UILabel(
             "indicatorScreenLabel",
             new Vector2(0, 0),
-            UIUtils.combatHUD.transform,
+            UIUtils.HMD.transform,
             false,
             FontStyle.Bold,
             Color.green,
@@ -87,7 +87,7 @@ class InterceptionVectorTask {
         bearingLabel = new UIUtils.UILabel(
             "bearingLabel",
             new Vector2(0, -70),
-            UIUtils.combatHUD.transform,
+            UIUtils.HMD.transform,
             true,
             FontStyle.Normal,
             Color.green,
@@ -96,7 +96,7 @@ class InterceptionVectorTask {
         timerLabel = new UIUtils.UILabel(
             "timerLabel",
             new Vector2(0, -100),
-            UIUtils.combatHUD.transform,
+            UIUtils.HMD.transform,
             true,
             FontStyle.Normal,
             Color.green,
@@ -105,7 +105,7 @@ class InterceptionVectorTask {
         indicatorTargetLabel = new UIUtils.UILabel(
             "indicatorTargetLabel",
             new Vector2(0, 0),
-            UIUtils.combatHUD.transform,
+            UIUtils.HMD.transform,
             true,
             FontStyle.Normal,
             Color.magenta,
@@ -116,7 +116,7 @@ class InterceptionVectorTask {
             "indicatorTargetLine",
             new Vector2(0, 0),
             new Vector2(0, 0),
-            UIUtils.combatHUD.transform,
+            UIUtils.HMD.transform,
             true,
             Color.magenta,
             2f
@@ -226,7 +226,6 @@ class InterceptionVectorTask {
         if (currentInterceptScreenVisible) {
             indicatorTargetLabel.SetPosition(new Vector2(interceptTarget.x, interceptTarget.y));
         }
-        // indicatorTargetLabel.GetComponent<Text>().text = "+";
         indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(interceptTarget.x, interceptTarget.y));
         
     }
@@ -266,7 +265,6 @@ class InterceptionVectorTask {
         else {
             HandleTargetUnreachable();
         }
-        // TODO: Implement logic for when the target is being tracked
     }
 
     public static void ResetState() {
