@@ -30,7 +30,7 @@ namespace NO_Tactitools {
         internal static new ManualLogSource Logger;
 
         private void Awake() {
-            
+
             targetRecallControllerName = Config.Bind("Target Recall",      // The section under which the option is shown
                 "Target Recall Controller Name",  // The key of the configuration option in the configuration file
                 "", // The default value
@@ -95,7 +95,7 @@ namespace NO_Tactitools {
             // Patch Input Catcher
             harmony.PatchAll(typeof(InputInterceptionPatch));
             harmony.PatchAll(typeof(RegisterControllerPatch));
-            Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
+            Logger.LogInfo($"Plugin NO_Tactitools is loaded!");
         }
     }
 
