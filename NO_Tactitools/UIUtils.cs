@@ -7,10 +7,10 @@ using UnityEngine.SceneManagement;
 namespace NO_Tactitools;
 
 public class UIUtils {
-    static List<GameObject> canvasLabels = [];
-    static Canvas MFD_Target;
-    public static CombatHUD HMD;
-    public static FuelGauge HUD;
+    static List<GameObject> MFD_TargetLabels = [];
+    public static Transform MFD_Target;
+    public static Transform HMD;
+    public static Transform HUD;
     public static AudioClip selectAudio;
     public static CameraStateManager cameraStateManager;
 
@@ -19,7 +19,7 @@ public class UIUtils {
         protected RectTransform rectTransform;
         protected Image imageComponent;
 
-        protected UIElement(string name, Transform UIParent = null, bool MFD_Target_Canvas = false) {
+        protected UIElement(string name, Transform UIParent = null, bool DisplayOnMFD_Target = false) {
             // Check if the element already exists
             if (UIParent != null) {
                 foreach (Transform child in UIParent) {
@@ -32,9 +32,9 @@ public class UIUtils {
                 }
             }
 
-            bool isMFD_Target_Canvas = UIUtils.GetTargetScreenCanvas() != null;
+            bool isMFD_Target_Canvas = UIUtils.GetMFD_TargetTransform() != null;
             if (isMFD_Target_Canvas) {
-                UIParent = UIUtils.GetTargetScreenCanvas().transform;
+                UIParent = UIUtils.GetMFD_TargetTransform();
             }
 
             // Create a new GameObject for the element
@@ -43,8 +43,8 @@ public class UIUtils {
             rectTransform = gameObject.AddComponent<RectTransform>();
             imageComponent = gameObject.AddComponent<Image>();
 
-            if (MFD_Target_Canvas && !isMFD_Target_Canvas) {
-                canvasLabels.Add(gameObject);
+            if (DisplayOnMFD_Target && !isMFD_Target_Canvas) {
+                MFD_TargetLabels.Add(gameObject);
                 gameObject.SetActive(false);
             }
         }
@@ -99,7 +99,7 @@ public class UIUtils {
             rectTransform.sizeDelta = new Vector2(textComp.preferredWidth, textComp.preferredHeight);
 
             var textTransform = gameObject.transform.Find("LabelText");
-            if (textTransform != null && UIUtils.GetTargetScreenCanvas() == null)
+            if (textTransform != null && UIUtils.GetMFD_TargetTransform() == null)
                 textComponent = textTransform.GetComponent<Text>();
         }
 
@@ -226,21 +226,21 @@ public class UIUtils {
         public GameObject GetRectObject() => gameObject;
     }
 
-    public static Canvas GetTargetScreenCanvas() {
+    public static Transform GetMFD_TargetTransform() {
         return MFD_Target;
     }
 
-    public static void SetTargetScreenCanvas(Canvas canvas) {
+    public static void SetMFD_TargetTransform(Transform canvas) {
         MFD_Target = canvas;
     }
 
-    public static List<GameObject> GetCanvasLabels() {
-        return canvasLabels;
+    public static List<GameObject> GetMFD_TargetLabels() {
+        return MFD_TargetLabels;
     }
 
-    public static bool RemoveCanvasLabel(GameObject label) {
-        if (canvasLabels.Contains(label)) {
-            canvasLabels.Remove(label);
+    public static bool RemoveMFD_TargetLabels(GameObject label) {
+        if (MFD_TargetLabels.Contains(label)) {
+            MFD_TargetLabels.Remove(label);
             return true;
         }
         return false;
@@ -250,10 +250,10 @@ public class UIUtils {
 
 // THIS IS THE HMD
 [HarmonyPatch(typeof(CombatHUD), "Awake")]
-class CombatHUDRegisterPatch {
+class HMDRegisterPatch {
     static void Postfix(CombatHUD __instance) {
-        Plugin.Log("[UU] CombatHUD Registered !");
-        UIUtils.HMD = __instance;
+        Plugin.Log("[UU] HMD Registered !");
+        UIUtils.HMD = __instance.transform;
         UIUtils.selectAudio = (AudioClip)Traverse.Create(UIUtils.HMD).Field("selectSound").GetValue();
     }
 }
@@ -262,11 +262,11 @@ class CombatHUDRegisterPatch {
 // UNUSED FOR NOW, WE'LL KEEP IT FOR LATER SO AS TO BE ABLE TO DISPLAY
 // ELEMENTS ON THE MAIN HUD
 // THIS IS THE HUD
-[HarmonyPatch(typeof(FuelGauge), "Initialize")]
-class MainHUDRegisterPatch {
-    static void Postfix(FuelGauge __instance) {
-        Plugin.Log("[UU] MainHUD Registered !");
-        UIUtils.HUD = __instance;
+[HarmonyPatch(typeof(FlightHud), "Awake")]
+class HUDRegisterPatch {
+    static void Postfix(FlightHud __instance) {
+        Plugin.Log("[UU] HUD Registered !");
+        UIUtils.HUD = Traverse.Create(__instance).Field("HUDCenter").GetValue<Transform>();
     }
 }
 
@@ -280,15 +280,15 @@ class CameraStateManagerRegisterPatch {
 
 // THIS IS THE TARGET MFD
 [HarmonyPatch(typeof(TargetScreenUI), "LateUpdate")]
-class TargetScreenUIPatch {
+class TargetScreenRegisterPatch {
     static void Postfix(TargetScreenUI __instance) {
         // Check if the target screen canvas is null
-        if (UIUtils.GetTargetScreenCanvas() == null) {
+        if (UIUtils.GetMFD_TargetTransform() == null) {
             // Assign the target screen canvas from the instance
-            UIUtils.SetTargetScreenCanvas((Canvas)Traverse.Create(__instance).Field("displayCanvas").GetValue());
-            foreach (GameObject label in UIUtils.GetCanvasLabels()) {
+            UIUtils.SetMFD_TargetTransform(Traverse.Create(__instance).Field("displayCanvas").GetValue<Canvas>().transform);
+            foreach (GameObject label in UIUtils.GetMFD_TargetLabels()) {
                 // Set the parent of the label to the target screen canvas
-                label.transform.SetParent(UIUtils.GetTargetScreenCanvas().transform, false);
+                label.transform.SetParent(UIUtils.GetMFD_TargetTransform().transform, false);
                 label.SetActive(true);
             }
             Plugin.Log("[UU] TargetScreenCanvas registered");
@@ -297,14 +297,14 @@ class TargetScreenUIPatch {
 }
 
 [HarmonyPatch(typeof(TargetScreenUI), "OnDestroy")]
-class TargetScreenUIOnDestroyPatch {
+class TargetScreenOnDestroyPatch {
     static void Postfix() {
-        ClearCanvasLabels();
+        ClearMFD_Target_Labels();
     }
 
-    public static void ClearCanvasLabels() {
-        UIUtils.SetTargetScreenCanvas(null);
-        UIUtils.GetCanvasLabels().Clear();
+    public static void ClearMFD_Target_Labels() {
+        UIUtils.SetMFD_TargetTransform(null);
+        UIUtils.GetMFD_TargetLabels().Clear();
         Plugin.Log("[UU] TargetScreenCanvas cleared");
     }
 }

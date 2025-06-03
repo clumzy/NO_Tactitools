@@ -77,7 +77,7 @@ class InterceptionVectorTask {
         indicatorScreenLabel = new UIUtils.UILabel(
             "indicatorScreenLabel",
             new Vector2(0, 0),
-            UIUtils.HMD.transform,
+            UIUtils.HMD,
             false,
             FontStyle.Bold,
             Color.green,
@@ -87,7 +87,7 @@ class InterceptionVectorTask {
         bearingLabel = new UIUtils.UILabel(
             "bearingLabel",
             new Vector2(0, -70),
-            UIUtils.HMD.transform,
+            UIUtils.HMD,
             true,
             FontStyle.Normal,
             Color.green,
@@ -96,7 +96,7 @@ class InterceptionVectorTask {
         timerLabel = new UIUtils.UILabel(
             "timerLabel",
             new Vector2(0, -100),
-            UIUtils.HMD.transform,
+            UIUtils.HMD,
             true,
             FontStyle.Normal,
             Color.green,
@@ -105,7 +105,7 @@ class InterceptionVectorTask {
         indicatorTargetLabel = new UIUtils.UILabel(
             "indicatorTargetLabel",
             new Vector2(0, 0),
-            UIUtils.HMD.transform,
+            UIUtils.HMD,
             true,
             FontStyle.Normal,
             Color.magenta,
@@ -116,11 +116,22 @@ class InterceptionVectorTask {
             "indicatorTargetLine",
             new Vector2(0, 0),
             new Vector2(0, 0),
-            UIUtils.HMD.transform,
+            UIUtils.HMD,
             true,
             Color.magenta,
             2f
         );
+
+        testLabel = new UIUtils.UILabel(
+            "testLabel",
+            new Vector2(0, 0),
+            UIUtils.HUD,
+            false,
+            FontStyle.Normal,
+            Color.white,
+            20
+        );
+
 
         currentState = State.Reset;
         Plugin.Log("[IV] Transitioning to Reset state");
@@ -328,6 +339,6 @@ class ResetInterceptionVectorOnRespawnPatch {
         InterceptionVectorTask.ResetState();
         // Temporary fix, to check if resetting the Canvas on AircraftReset fixes the bug where the UI
         //that is supposed to appear on the canvas appears on the HUD
-        TargetScreenUIOnDestroyPatch.ClearCanvasLabels();
+        TargetScreenOnDestroyPatch.ClearMFD_Target_Labels();
     }
 }

@@ -112,10 +112,11 @@ namespace NO_Tactitools {
             var harmony = new Harmony("george.no_tactitools");
             Logger = base.Logger;
             // Patch UI Utils
-            harmony.PatchAll(typeof(CombatHUDRegisterPatch));
+            harmony.PatchAll(typeof(HMDRegisterPatch));
+            harmony.PatchAll(typeof(HUDRegisterPatch));
             harmony.PatchAll(typeof(CameraStateManagerRegisterPatch));
-            harmony.PatchAll(typeof(TargetScreenUIPatch));
-            harmony.PatchAll(typeof(TargetScreenUIOnDestroyPatch));
+            harmony.PatchAll(typeof(TargetScreenRegisterPatch));
+            harmony.PatchAll(typeof(TargetScreenOnDestroyPatch));
             // Patch Input Catcher
             harmony.PatchAll(typeof(InputInterceptionPatch));
             harmony.PatchAll(typeof(RegisterControllerPatch));
