@@ -5,6 +5,4 @@
 *.editorconfig
 *.txt
 *.pdb
-
-!/obj/
-!/bin/
+/obj/*
