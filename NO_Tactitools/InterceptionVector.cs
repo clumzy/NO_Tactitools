@@ -122,7 +122,6 @@ class InterceptionVectorTask {
             2f
         );
 
-
         currentState = State.Reset;
         Plugin.Log("[IV] Transitioning to Reset state");
         return;

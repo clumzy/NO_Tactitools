@@ -32,8 +32,8 @@ public class UIUtils {
                 }
             }
 
-            bool isMFD_Target_Canvas = UIUtils.GetMFD_TargetTransform() != null;
-            if (isMFD_Target_Canvas) {
+            bool isMFD_TargetExists = UIUtils.GetMFD_TargetTransform() != null;
+            if (isMFD_TargetExists) {
                 UIParent = UIUtils.GetMFD_TargetTransform();
             }
 
@@ -43,7 +43,7 @@ public class UIUtils {
             rectTransform = gameObject.AddComponent<RectTransform>();
             imageComponent = gameObject.AddComponent<Image>();
 
-            if (DisplayOnMFD_Target && !isMFD_Target_Canvas) {
+            if (DisplayOnMFD_Target && !isMFD_TargetExists) {
                 MFD_TargetLabels.Add(gameObject);
                 gameObject.SetActive(false);
             }
@@ -72,11 +72,11 @@ public class UIUtils {
             string name,
             Vector2 position,
             Transform UIParent = null,
-            bool MFD_Target_Canvas = false,
+            bool DisplayOnMFD_Target = false,
             FontStyle fontStyle = FontStyle.Normal,
             Color? color = null,
             int fontSize = 24,
-            float backgroundOpacity = 0.8f) : base(name, UIParent, MFD_Target_Canvas) {
+            float backgroundOpacity = 0.8f) : base(name, UIParent, DisplayOnMFD_Target) {
 
             rectTransform.anchoredPosition = position;
             rectTransform.sizeDelta = new Vector2(200, 40);
@@ -126,9 +126,9 @@ public class UIUtils {
             Vector2 start,
             Vector2 end,
             Transform UIParent = null,
-            bool MFD_Target_Canvas = false,
+            bool DisplayOnMFD_Target = false,
             Color? color = null,
-            float thickness = 2f) : base(name, UIParent, MFD_Target_Canvas) {
+            float thickness = 2f) : base(name, UIParent, DisplayOnMFD_Target) {
 
             this.thickness = thickness;
             imageComponent.color = color ?? Color.white;
@@ -175,8 +175,8 @@ public class UIUtils {
             Vector2 cornerA,
             Vector2 cornerB,
             Transform UIParent = null,
-            bool MFD_Target_Canvas = false,
-            Color? fillColor = null) : base(name, UIParent, MFD_Target_Canvas) {
+            bool DisplayOnMFD_Target = false,
+            Color? fillColor = null) : base(name, UIParent, DisplayOnMFD_Target) {
 
             this.cornerA = cornerA;
             this.cornerB = cornerB;
@@ -230,8 +230,8 @@ public class UIUtils {
         return MFD_Target;
     }
 
-    public static void SetMFD_TargetTransform(Transform canvas) {
-        MFD_Target = canvas;
+    public static void SetMFD_TargetTransform(Transform transform) {
+        MFD_Target = transform;
     }
 
     public static List<GameObject> GetMFD_TargetLabels() {
@@ -279,19 +279,21 @@ class CameraStateManagerRegisterPatch {
 }
 
 // THIS IS THE TARGET MFD
+// PARENTS ARE SET FOR THE ELEMENTS ONCE IT IS INSTANCIATED, BEFORE THAT THEY TEMPORARILY STAY ON THE COMBAT HUD
+// WHILE INACTIVATED
 [HarmonyPatch(typeof(TargetScreenUI), "LateUpdate")]
 class TargetScreenRegisterPatch {
     static void Postfix(TargetScreenUI __instance) {
-        // Check if the target screen canvas is null
+        // Check if the target screen is null
         if (UIUtils.GetMFD_TargetTransform() == null) {
-            // Assign the target screen canvas from the instance
-            UIUtils.SetMFD_TargetTransform(Traverse.Create(__instance).Field("displayCanvas").GetValue<Canvas>().transform);
+            // Assign the target screen transform from the instance
+            UIUtils.SetMFD_TargetTransform(__instance.transform);
             foreach (GameObject label in UIUtils.GetMFD_TargetLabels()) {
-                // Set the parent of the label to the target screen canvas
-                label.transform.SetParent(UIUtils.GetMFD_TargetTransform().transform, false);
+                // Set the parent of the label to the target screen transform
+                label.transform.SetParent(UIUtils.GetMFD_TargetTransform(), false);
                 label.SetActive(true);
             }
-            Plugin.Log("[UU] TargetScreenCanvas registered");
+            Plugin.Log("[UU] MFD_Target registered");
         }
     }
 }
@@ -305,6 +307,6 @@ class TargetScreenOnDestroyPatch {
     public static void ClearMFD_Target_Labels() {
         UIUtils.SetMFD_TargetTransform(null);
         UIUtils.GetMFD_TargetLabels().Clear();
-        Plugin.Log("[UU] TargetScreenCanvas cleared");
+        Plugin.Log("[UU] MFD_Target labels cleared");
     }
 }
