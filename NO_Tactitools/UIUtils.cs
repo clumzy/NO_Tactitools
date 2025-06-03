@@ -18,6 +18,8 @@ class UIUtilsPlugin {
             Plugin.harmony.PatchAll(typeof(CameraStateManagerRegisterPatch));
             Plugin.harmony.PatchAll(typeof(MFD_TargetRegisterPatch));
             Plugin.harmony.PatchAll(typeof(MFD_TargetOnDestroyPatch));
+            Plugin.harmony.PatchAll(typeof(MFD_SystemsRegisterPatch));
+            Plugin.harmony.PatchAll(typeof(MFD_SystemsOnDestroyPatch));
             initialized = true;
             Plugin.Log("[UU] UIUtils plugin succesfully started !");
         }
@@ -41,6 +43,12 @@ public class UIUtils {
         public void SetMFDTransform(Transform transform) => MFD_transform = transform;
         public List<GameObject> GetMFDLabels() => MFD_Labels;
         public void ClearLabels() => MFD_Labels.Clear();
+    }
+
+    public static void ClearMFD_Labels(string mfdKey) {
+        MFD_List[mfdKey].SetMFDTransform(null);
+        MFD_List[mfdKey].ClearLabels();
+        Plugin.Log($"[UU] MFD '{mfdKey}' labels cleared");
     }
 
     public abstract class UIElement {
@@ -293,20 +301,15 @@ class MFD_TargetRegisterPatch {
 [HarmonyPatch(typeof(TargetScreenUI), "OnDestroy")]
 class MFD_TargetOnDestroyPatch {
     static void Postfix() {
-        ClearMFD_Labels("target");
-    }
-    public static void ClearMFD_Labels(string mfdKey) {
-        UIUtils.MFD_List[mfdKey].SetMFDTransform(null);
-        UIUtils.MFD_List[mfdKey].ClearLabels();
-        Plugin.Log($"[UU] MFD '{mfdKey}' labels cleared");
+        UIUtils.ClearMFD_Labels("target");
     }
 }
 
 // THIS IS THE SYSTEMS PANEL
-[HarmonyPatch(typeof(TargetScreenUI), "LateUpdate")]
+[HarmonyPatch(typeof(SystemStatusDisplay), "Initialize")]
 class MFD_SystemsRegisterPatch {
-    static void Postfix(TargetScreenUI __instance) {
-        string mfdKey = "target";
+    static void Postfix(SystemStatusDisplay __instance) {
+        string mfdKey = "systems";
         if (UIUtils.MFD_List[mfdKey].GetMFDTransform() == null) {
             UIUtils.MFD_List[mfdKey].SetMFDTransform(__instance.transform);
             foreach (GameObject label in UIUtils.MFD_List[mfdKey].GetMFDLabels()) {
@@ -318,14 +321,9 @@ class MFD_SystemsRegisterPatch {
     }
 }
 
-[HarmonyPatch(typeof(TargetScreenUI), "OnDestroy")]
+[HarmonyPatch(typeof(SystemStatusDisplay), "OnDestroy")]
 class MFD_SystemsOnDestroyPatch {
     static void Postfix() {
-        ClearMFD_Labels("target");
-    }
-    public static void ClearMFD_Labels(string mfdKey) {
-        UIUtils.MFD_List[mfdKey].SetMFDTransform(null);
-        UIUtils.MFD_List[mfdKey].ClearLabels();
-        Plugin.Log($"[UU] MFD '{mfdKey}' labels cleared");
+        UIUtils.ClearMFD_Labels("systems");
     }
 }

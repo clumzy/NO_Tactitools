@@ -111,11 +111,11 @@ namespace NO_Tactitools {
             // Plugin startup logic
             harmony = new Harmony("george.no_tactitools");
             Logger = base.Logger;
-            // Patch UI Utils
-            harmony.PatchAll(typeof(UIUtilsPlugin));
             // Patch Input Catcher - We do the patches manually here instead of in the "master class" like the other plugins because Rewired is a bit special as my mother would say
             harmony.PatchAll(typeof(InputInterceptionPatch));
             harmony.PatchAll(typeof(RegisterControllerPatch));
+            // Patch UI Utils
+            harmony.PatchAll(typeof(UIUtilsPlugin));
             // Patch Interception Vector
             if (interceptionVectorEnabled.Value) {
                 Logger.LogInfo($"Interception Vector is enabled, patching...");
@@ -136,6 +136,9 @@ namespace NO_Tactitools {
                 Logger.LogInfo($"Weapon Switcher is enabled, patching...");
                 harmony.PatchAll(typeof(WeaponSwitcherPlugin));
             }
+            // Patch Weapon Display
+            harmony.PatchAll(typeof(WeaponDisplayPlugin));
+            
             Logger.LogInfo($"Plugin NO_Tactitools is loaded!");
         }
 

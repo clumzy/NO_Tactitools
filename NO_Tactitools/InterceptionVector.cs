@@ -45,11 +45,6 @@ class InterceptionVectorTask {
     static Vector3 targetPosition;
     static Vector3 targetVelocity;
     static Vector3 interceptPosition;
-    static Vector3 interceptVector;
-    static Vector3 interceptVectorXZ;
-    static int interceptBearing;
-    static int interceptionTimeInSeconds;
-    static Vector3 interceptScreen;
     static bool previousInterceptScreenVisible = false;
 
     static void Postfix() {
@@ -183,13 +178,12 @@ class InterceptionVectorTask {
         bearingLabel.SetColor(Color.red);
         timerLabel.SetColor(Color.red);
     }
-
     static void HandleTargetReachable() {
-        interceptVector = interceptPosition - playerPosition;
-        interceptVectorXZ = Vector3.Scale(interceptVector, new Vector3(1f, 0f, 1f)).normalized;
-        interceptBearing = (int)(Vector3.SignedAngle(Vector3.forward, interceptVectorXZ, Vector3.up) + 360) % 360;
-        interceptionTimeInSeconds = (int)(interceptVector.magnitude / playerVelocity.magnitude);
-        interceptScreen = UIUtils.cameraStateManager.mainCamera.WorldToScreenPoint(interceptPosition);
+        Vector3 interceptVector = interceptPosition - playerPosition;
+        Vector3 interceptVectorXZ = Vector3.Scale(interceptVector, new Vector3(1f, 0f, 1f)).normalized;
+        int interceptBearing = (int)(Vector3.SignedAngle(Vector3.forward, interceptVectorXZ, Vector3.up) + 360) % 360;
+        int interceptionTimeInSeconds = (int)(interceptVector.magnitude / playerVelocity.magnitude);
+        Vector3 interceptScreen = UIUtils.cameraStateManager.mainCamera.WorldToScreenPoint(interceptPosition);
         interceptScreen.x -= Screen.width / 2;
         interceptScreen.y -= Screen.height / 2;
         int relativeHeight = (int)-(
@@ -212,7 +206,7 @@ class InterceptionVectorTask {
         bool currentInterceptScreenVisible = interceptScreen.z > 0;
         if (currentInterceptScreenVisible != previousInterceptScreenVisible) {
             if (currentInterceptScreenVisible) {
-                if(Plugin.onScreenVectorEnabled.Value) indicatorScreenLabel.SetText("+");
+                if (Plugin.onScreenVectorEnabled.Value) indicatorScreenLabel.SetText("+");
                 indicatorTargetLabel.SetText("+");
                 indicatorTargetLine.ResetThickness();
             }
@@ -229,7 +223,7 @@ class InterceptionVectorTask {
             indicatorTargetLabel.SetPosition(new Vector2(interceptTarget.x, interceptTarget.y));
         }
         indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(interceptTarget.x, interceptTarget.y));
-        
+
     }
     static void HandleTargetUnreachable() {
         bearingLabel.SetText("");
@@ -272,21 +266,20 @@ class InterceptionVectorTask {
     public static void ResetState() {
         currentState = State.Init;
     }
-
     static float FindSolutionTime(Unit targetUnit) {
         //Get target vectors
-        targetPosition = targetUnit.rb.transform.position;
-        targetVelocity = targetUnit.rb.velocity;
+        Vector3 localTargetPosition = targetUnit.rb.transform.position;
+        Vector3 localTargetVelocity = targetUnit.rb.velocity;
         //Create vector from player to target
-        Vector3 calcLine = targetPosition - playerPosition;
+        Vector3 calcLine = localTargetPosition - playerPosition;
         //angle between the two vectors
-        float angle = Vector3.Angle(calcLine.normalized, targetVelocity.normalized);
+        float angle = Vector3.Angle(calcLine.normalized, localTargetVelocity.normalized);
         float solution1;
         float solution2;
         float bestSolution = 0f;
-        if (playerVelocity.magnitude == targetVelocity.magnitude) {
+        if (playerVelocity.magnitude == localTargetVelocity.magnitude) {
             //solution is dist / 2 / sqrt((v_T cos(α_{TX}))²)
-            solution1 = calcLine.magnitude / 2 * Mathf.Sqrt(Mathf.Pow(targetVelocity.magnitude * Mathf.Cos(angle * Mathf.Deg2Rad), 2));
+            solution1 = calcLine.magnitude / 2 * Mathf.Sqrt(Mathf.Pow(localTargetVelocity.magnitude * Mathf.Cos(angle * Mathf.Deg2Rad), 2));
             solution2 = solution1;
         }
         else {
@@ -295,18 +288,18 @@ class InterceptionVectorTask {
             // α_{TX} is the angle between the two vectors and dist is the distance between the player and the target
             solution1 =
             (calcLine.magnitude *
-                (targetVelocity.magnitude * Mathf.Cos(angle * Mathf.Deg2Rad) +
+                (localTargetVelocity.magnitude * Mathf.Cos(angle * Mathf.Deg2Rad) +
                 Mathf.Sqrt(
-                    -Mathf.Pow(targetVelocity.magnitude, 2) * Mathf.Pow(Mathf.Sin(angle * Mathf.Deg2Rad), 2) +
+                    -Mathf.Pow(localTargetVelocity.magnitude, 2) * Mathf.Pow(Mathf.Sin(angle * Mathf.Deg2Rad), 2) +
                     Mathf.Pow(playerVelocity.magnitude, 2)))) /
-            (Mathf.Pow(playerVelocity.magnitude, 2) - Mathf.Pow(targetVelocity.magnitude, 2));
+            (Mathf.Pow(playerVelocity.magnitude, 2) - Mathf.Pow(localTargetVelocity.magnitude, 2));
             solution2 =
             (calcLine.magnitude *
-                (targetVelocity.magnitude * Mathf.Cos(angle * Mathf.Deg2Rad) -
+                (localTargetVelocity.magnitude * Mathf.Cos(angle * Mathf.Deg2Rad) -
                 Mathf.Sqrt(
-                    -Mathf.Pow(targetVelocity.magnitude, 2) * Mathf.Pow(Mathf.Sin(angle * Mathf.Deg2Rad), 2) +
+                    -Mathf.Pow(localTargetVelocity.magnitude, 2) * Mathf.Pow(Mathf.Sin(angle * Mathf.Deg2Rad), 2) +
                     Mathf.Pow(playerVelocity.magnitude, 2)))) /
-            (Mathf.Pow(playerVelocity.magnitude, 2) - Mathf.Pow(targetVelocity.magnitude, 2));
+            (Mathf.Pow(playerVelocity.magnitude, 2) - Mathf.Pow(localTargetVelocity.magnitude, 2));
         }
         //best solution needs to be positive also
         if (solution1 > 0 && solution2 > 0) {
@@ -318,6 +311,11 @@ class InterceptionVectorTask {
         else if (solution2 > 0) {
             bestSolution = solution2;
         }
+
+        // Update the static variables for use in UpdateInterceptionPosition
+        targetPosition = localTargetPosition;
+        targetVelocity = localTargetVelocity;
+
         return bestSolution;
     }
 
@@ -330,6 +328,6 @@ class ResetInterceptionVectorOnRespawnPatch {
         InterceptionVectorTask.ResetState();
         // Temporary fix, to check if resetting the Canvas on AircraftReset fixes the bug where the UI
         //that is supposed to appear on the canvas appears on the HUD
-        MFD_TargetOnDestroyPatch.ClearMFD_Labels("target");
+        UIUtils.ClearMFD_Labels("target");
     }
 }
