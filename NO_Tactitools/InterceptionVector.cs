@@ -122,16 +122,6 @@ class InterceptionVectorTask {
             2f
         );
 
-        testLabel = new UIUtils.UILabel(
-            "testLabel",
-            new Vector2(0, 0),
-            UIUtils.HUD,
-            false,
-            FontStyle.Normal,
-            Color.white,
-            20
-        );
-
 
         currentState = State.Reset;
         Plugin.Log("[IV] Transitioning to Reset state");
