@@ -22,11 +22,7 @@ namespace NO_Tactitools {
         public static ConfigEntry<int> weaponSwitcherButton2;
         public static ConfigEntry<int> weaponSwitcherButton3;
         public static ConfigEntry<int> weaponSwitcherButton4;
-        public static CombatHUD combatHUD;
-        public static AudioClip selectAudio;
-        public static FuelGauge mainHUD;
-        public static CameraStateManager cameraStateManager;
-        public static InputCatcherPlugin inputCatcherPlugin = new InputCatcherPlugin();
+        public static InputCatcherPlugin inputCatcherPlugin = new();
         internal static new ManualLogSource Logger;
 
         private void Awake() {

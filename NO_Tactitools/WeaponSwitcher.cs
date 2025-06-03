@@ -50,50 +50,69 @@ class WeaponSwitcherPlugin {
         }
     }
     private static void HandleClick0() {
-        if (Plugin.combatHUD != null && Plugin.combatHUD.aircraft != null && Plugin.combatHUD.aircraft.weaponManager != null && Plugin.combatHUD.aircraft.weaponStations != null && Plugin.combatHUD.aircraft.weaponStations.Count > 0) {
+        if (SceneSingleton<CombatHUD>.i != null && 
+            SceneSingleton<CombatHUD>.i.aircraft != null && 
+            SceneSingleton<CombatHUD>.i.aircraft.weaponManager != null && 
+            SceneSingleton<CombatHUD>.i.aircraft.weaponStations != null && 
+            SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count > 0) {
             try {
-                Plugin.combatHUD.aircraft.weaponManager.SetActiveStation((byte)0);
-                Plugin.combatHUD.ShowWeaponStation(Plugin.combatHUD.aircraft.weaponManager.currentWeaponStation);
+                SceneSingleton<CombatHUD>.i.aircraft.weaponManager.SetActiveStation((byte)0);
+                SceneSingleton<CombatHUD>.i.ShowWeaponStation(SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation);
             }
             catch (Exception) { }
         }
     }
-
     private static void HandleClick1() {
-        if (Plugin.combatHUD != null && Plugin.combatHUD.aircraft != null && Plugin.combatHUD.aircraft.weaponManager != null && Plugin.combatHUD.aircraft.weaponStations != null && Plugin.combatHUD.aircraft.weaponStations.Count > 1) {
+        if (SceneSingleton<CombatHUD>.i != null &&
+            SceneSingleton<CombatHUD>.i.aircraft != null &&
+            SceneSingleton<CombatHUD>.i.aircraft.weaponManager != null &&
+            SceneSingleton<CombatHUD>.i.aircraft.weaponStations != null &&
+            SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count > 1) {
             try {
-                Plugin.combatHUD.aircraft.weaponManager.SetActiveStation((byte)1);
-                Plugin.combatHUD.ShowWeaponStation(Plugin.combatHUD.aircraft.weaponManager.currentWeaponStation);
+                SceneSingleton<CombatHUD>.i.aircraft.weaponManager.SetActiveStation((byte)1);
+                SceneSingleton<CombatHUD>.i.ShowWeaponStation(SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation);
             }
             catch (Exception) { }
         }
     }
 
     private static void HandleClick2() {
-        if (Plugin.combatHUD != null && Plugin.combatHUD.aircraft != null && Plugin.combatHUD.aircraft.weaponManager != null && Plugin.combatHUD.aircraft.weaponStations != null && Plugin.combatHUD.aircraft.weaponStations.Count > 2) {
+        if (SceneSingleton<CombatHUD>.i != null &&
+            SceneSingleton<CombatHUD>.i.aircraft != null &&
+            SceneSingleton<CombatHUD>.i.aircraft.weaponManager != null &&
+            SceneSingleton<CombatHUD>.i.aircraft.weaponStations != null &&
+            SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count > 2) {
             try {
-                Plugin.combatHUD.aircraft.weaponManager.SetActiveStation((byte)2);
-                Plugin.combatHUD.ShowWeaponStation(Plugin.combatHUD.aircraft.weaponManager.currentWeaponStation);
+                SceneSingleton<CombatHUD>.i.aircraft.weaponManager.SetActiveStation((byte)2);
+                SceneSingleton<CombatHUD>.i.ShowWeaponStation(SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation);
             }
             catch (Exception) { }
         }
     }
 
     private static void HandleClick3() {
-        if (Plugin.combatHUD != null && Plugin.combatHUD.aircraft != null && Plugin.combatHUD.aircraft.weaponManager != null && Plugin.combatHUD.aircraft.weaponStations != null && Plugin.combatHUD.aircraft.weaponStations.Count > 3) {
+        if (SceneSingleton<CombatHUD>.i != null &&
+            SceneSingleton<CombatHUD>.i.aircraft != null &&
+            SceneSingleton<CombatHUD>.i.aircraft.weaponManager != null &&
+            SceneSingleton<CombatHUD>.i.aircraft.weaponStations != null &&
+            SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count > 3) {
             try {
-                Plugin.combatHUD.aircraft.weaponManager.SetActiveStation((byte)3);
-                Plugin.combatHUD.ShowWeaponStation(Plugin.combatHUD.aircraft.weaponManager.currentWeaponStation);
+                SceneSingleton<CombatHUD>.i.aircraft.weaponManager.SetActiveStation((byte)3);
+                SceneSingleton<CombatHUD>.i.ShowWeaponStation(SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation);
             }
             catch (Exception) { }
         }
     }
 
     private static void HandleClick4() {
-        if (Plugin.combatHUD != null && Plugin.combatHUD.aircraft != null && Plugin.combatHUD.aircraft.weaponManager != null && Plugin.combatHUD.aircraft.weaponStations != null && Plugin.combatHUD.aircraft.weaponStations.Count > 4) {
+        if (SceneSingleton<CombatHUD>.i != null &&
+            SceneSingleton<CombatHUD>.i.aircraft != null &&
+            SceneSingleton<CombatHUD>.i.aircraft.weaponManager != null &&
+            SceneSingleton<CombatHUD>.i.aircraft.weaponStations != null &&
+            SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count > 4) {
             try {
-                Plugin.combatHUD.aircraft.weaponManager.SetActiveStation((byte)4);
-                Plugin.combatHUD.ShowWeaponStation(Plugin.combatHUD.aircraft.weaponManager.currentWeaponStation);
+                SceneSingleton<CombatHUD>.i.aircraft.weaponManager.SetActiveStation((byte)4);
+                SceneSingleton<CombatHUD>.i.ShowWeaponStation(SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation);
             }
             catch (Exception) { }
         }

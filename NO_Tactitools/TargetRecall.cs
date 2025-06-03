@@ -24,23 +24,22 @@ class TargetRecallPlugin {
     }
     private static void HandleLongPress() {
         Plugin.Logger.LogInfo($"[TR] HandleLongPress");
-        if (Plugin.combatHUD != null) {
-            units = [.. (List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()];
-            SoundManager.PlayInterfaceOneShot(Plugin.selectAudio);
+        if (SceneSingleton<CombatHUD>.i != null) {
+            units = [.. (List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()];
+            SoundManager.PlayInterfaceOneShot(UIUtils.selectAudio);
             string report = $"Saved <b>{units.Count.ToString()}</b> targets";
             SceneSingleton<AircraftActionsReport>.i.ReportText(report, 3f);
         }
     }
     private static void HandleClick() {
         Plugin.Logger.LogInfo($"[TR] HandleClick");
-        Plugin.Logger.LogInfo($"{Plugin.combatHUD.aircraft.countermeasureManager.activeIndex.ToString()}");
-        if (Plugin.combatHUD != null && units != null) {
+        if (SceneSingleton<CombatHUD>.i != null && units != null) {
             if (units.Count > 0) {
-                Plugin.combatHUD.DeselectAll(false);
+                SceneSingleton<CombatHUD>.i.DeselectAll(false);
                 foreach (Unit t_unit in units) {
-                    Plugin.combatHUD.SelectUnit(t_unit);
+                    SceneSingleton<CombatHUD>.i.SelectUnit(t_unit);
                 }
-                units = [.. (List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()];
+                units = [.. (List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()];
                 string report = $"Recalled <b>{units.Count.ToString()}</b> targets";
                 SceneSingleton<AircraftActionsReport>.i.ReportText(report, 2f);
             }

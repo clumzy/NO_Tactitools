@@ -7,7 +7,11 @@ namespace NO_Tactitools;
 
 public class UIUtils {
     static List<GameObject> canvasLabels = [];
-    static Canvas TargetScreenCanvas;
+    static Canvas targetScreenCanvas;
+    public static CombatHUD combatHUD;
+    public static AudioClip selectAudio;
+    public static FuelGauge mainHUD;
+    public static CameraStateManager cameraStateManager;
 
     public class UILabel {
         private GameObject labelObject;
@@ -260,11 +264,11 @@ public class UIUtils {
     }
 
     public static Canvas GetTargetScreenCanvas() {
-        return TargetScreenCanvas;
+        return targetScreenCanvas;
     }
 
     public static void SetTargetScreenCanvas(Canvas canvas) {
-        TargetScreenCanvas = canvas;
+        targetScreenCanvas = canvas;
     }
 
     public static List<GameObject> GetCanvasLabels() {
@@ -284,8 +288,8 @@ public class UIUtils {
 class CombatHUDRegisterPatch {
     static void Postfix(CombatHUD __instance) {
         Plugin.Logger.LogInfo("[TR] CombatHUD Registered !");
-        Plugin.combatHUD = __instance;
-        Plugin.selectAudio = (AudioClip)Traverse.Create(Plugin.combatHUD).Field("selectSound").GetValue();
+        UIUtils.combatHUD = __instance;
+        UIUtils.selectAudio = (AudioClip)Traverse.Create(UIUtils.combatHUD).Field("selectSound").GetValue();
     }
 }
 
@@ -293,7 +297,7 @@ class CombatHUDRegisterPatch {
 class MainHUDRegisterPatch {
     static void Postfix(FuelGauge __instance) {
         Plugin.Logger.LogInfo("[TR] MainHUD Registered !");
-        Plugin.mainHUD = __instance;
+        UIUtils.mainHUD = __instance;
     }
 }
 
@@ -301,7 +305,7 @@ class MainHUDRegisterPatch {
 class CameraStateManagerRegisterPatch {
     static void Postfix(CameraStateManager __instance) {
         Plugin.Logger.LogInfo("[TR] CameraStateManager Registered !");
-        Plugin.cameraStateManager = __instance;
+        UIUtils.cameraStateManager = __instance;
     }
 }
 

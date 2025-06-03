@@ -72,12 +72,12 @@ class InterceptionVectorTask {
 
     static void HandleInitState() {
         Plugin.Logger.LogInfo("[IV] Init state");
-        playerFactionHQ = Plugin.combatHUD.aircraft.NetworkHQ;
+        playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
         // Create or find the labels
         indicatorScreenLabel = new UIUtils.UILabel(
             "indicatorScreenLabel",
             new Vector2(0, 0),
-            Plugin.combatHUD.transform,
+            UIUtils.combatHUD.transform,
             false,
             FontStyle.Bold,
             Color.green,
@@ -87,7 +87,7 @@ class InterceptionVectorTask {
         bearingLabel = new UIUtils.UILabel(
             "bearingLabel",
             new Vector2(0, -70),
-            Plugin.combatHUD.transform,
+            UIUtils.combatHUD.transform,
             true,
             FontStyle.Normal,
             Color.green,
@@ -96,7 +96,7 @@ class InterceptionVectorTask {
         timerLabel = new UIUtils.UILabel(
             "timerLabel",
             new Vector2(0, -100),
-            Plugin.combatHUD.transform,
+            UIUtils.combatHUD.transform,
             true,
             FontStyle.Normal,
             Color.green,
@@ -105,7 +105,7 @@ class InterceptionVectorTask {
         indicatorTargetLabel = new UIUtils.UILabel(
             "indicatorTargetLabel",
             new Vector2(0, 0),
-            Plugin.combatHUD.transform,
+            UIUtils.combatHUD.transform,
             true,
             FontStyle.Normal,
             Color.magenta,
@@ -116,7 +116,7 @@ class InterceptionVectorTask {
             "indicatorTargetLine",
             new Vector2(0, 0),
             new Vector2(0, 0),
-            Plugin.combatHUD.transform,
+            UIUtils.combatHUD.transform,
             true,
             Color.magenta,
             2f
@@ -142,8 +142,8 @@ class InterceptionVectorTask {
     }
 
     static void HandleIdleState() {
-        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count == 1) {
-            targetUnit = ((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue())[0];
+        if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count == 1) {
+            targetUnit = ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0];
             if (playerFactionHQ.IsTargetBeingTracked(targetUnit)) {
                 currentState = State.Intercepting;
                 Plugin.Logger.LogInfo("[IV] Target is being tracked");
@@ -159,8 +159,8 @@ class InterceptionVectorTask {
     }
 
     static void HandleTargetInitiallyUntracked() {
-        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1
-            || ((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue())[0] != targetUnit) {
+        if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count != 1
+            || ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0] != targetUnit) {
             currentState = State.Reset;
             Plugin.Logger.LogInfo("[IV] Switched target, returning to Reset state");
             return;
@@ -187,19 +187,19 @@ class InterceptionVectorTask {
         interceptVectorXZ = Vector3.Scale(interceptVector, new Vector3(1f, 0f, 1f)).normalized;
         interceptBearing = (int)(Vector3.SignedAngle(Vector3.forward, interceptVectorXZ, Vector3.up) + 360) % 360;
         interceptionTimeInSeconds = (int)(interceptVector.magnitude / playerVelocity.magnitude);
-        interceptScreen = Plugin.cameraStateManager.mainCamera.WorldToScreenPoint(interceptPosition);
+        interceptScreen = UIUtils.cameraStateManager.mainCamera.WorldToScreenPoint(interceptPosition);
         interceptScreen.x -= Screen.width / 2;
         interceptScreen.y -= Screen.height / 2;
         int relativeHeight = (int)-(
             Vector3.SignedAngle(
-                Vector3.ProjectOnPlane(interceptVector, Plugin.combatHUD.aircraft.rb.transform.up),
+                Vector3.ProjectOnPlane(interceptVector, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.up),
                 interceptVector,
-                Plugin.combatHUD.aircraft.rb.transform.right) + 0);
+                SceneSingleton<CombatHUD>.i.aircraft.rb.transform.right));
         int relativeBearing = (int)(
             Vector3.SignedAngle(
-                Vector3.ProjectOnPlane(interceptVector, Plugin.combatHUD.aircraft.rb.transform.right),
+                Vector3.ProjectOnPlane(interceptVector, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.right),
                 interceptVector,
-                Plugin.combatHUD.aircraft.rb.transform.up) + 0);
+                SceneSingleton<CombatHUD>.i.aircraft.rb.transform.up));
         Vector3 interceptTarget = new(
             (int)Mathf.Clamp(relativeBearing / 60f * 170f, -170, 170), //180 = width of the canvas
             (int)Mathf.Clamp(relativeHeight / 60f * 110f, -110, 110), //115 = height of the canvas
@@ -242,14 +242,14 @@ class InterceptionVectorTask {
         interceptPosition = targetPosition + targetVelocity * solutionTime;
     }
     static void HandleInterception() {
-        if (((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue()).Count != 1
-            || ((List<Unit>)Traverse.Create(Plugin.combatHUD).Field("targetList").GetValue())[0] != targetUnit) {
+        if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count != 1
+            || ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0] != targetUnit) {
             currentState = State.Reset;
             Plugin.Logger.LogInfo("[IV] Switched target, returning to Reset state");
             return;
         }
-        playerPosition = Plugin.combatHUD.aircraft.rb.transform.position;
-        playerVelocity = Plugin.combatHUD.aircraft.rb.velocity;
+        playerPosition = SceneSingleton<CombatHUD>.i.aircraft.rb.transform.position;
+        playerVelocity = SceneSingleton<CombatHUD>.i.aircraft.rb.velocity;
         if (playerFactionHQ.IsTargetBeingTracked(targetUnit)) {
             HandleTracked();
             solutionTime = FindSolutionTime(targetUnit);
