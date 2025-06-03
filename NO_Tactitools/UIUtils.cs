@@ -64,7 +64,8 @@ public class UIUtils {
         public GameObject GetGameObject() => gameObject;
         public RectTransform GetRectTransform() => rectTransform;
         public Image GetImageComponent() => imageComponent;
-    }    public class UILabel : UIElement {
+    }
+    public class UILabel : UIElement {
         private Text textComponent;
 
         public UILabel(
@@ -76,7 +77,7 @@ public class UIUtils {
             Color? color = null,
             int fontSize = 24,
             float backgroundOpacity = 0.8f) : base(name, UIParent, MFD_Target_Canvas) {
-            
+
             rectTransform.anchoredPosition = position;
             rectTransform.sizeDelta = new Vector2(200, 40);
             imageComponent.color = new Color(0, 0, 0, backgroundOpacity);
@@ -96,7 +97,7 @@ public class UIUtils {
             textComp.alignment = TextAnchor.MiddleCenter;
             textComp.text = "Yo";
             rectTransform.sizeDelta = new Vector2(textComp.preferredWidth, textComp.preferredHeight);
-            
+
             var textTransform = gameObject.transform.Find("LabelText");
             if (textTransform != null && UIUtils.GetTargetScreenCanvas() == null)
                 textComponent = textTransform.GetComponent<Text>();
@@ -116,7 +117,8 @@ public class UIUtils {
                 textComponent.color = color;
             }
         }
-    }    public class UILine : UIElement {
+    }
+    public class UILine : UIElement {
         public float thickness;
 
         public UILine(
@@ -127,10 +129,10 @@ public class UIUtils {
             bool MFD_Target_Canvas = false,
             Color? color = null,
             float thickness = 2f) : base(name, UIParent, MFD_Target_Canvas) {
-            
+
             this.thickness = thickness;
             imageComponent.color = color ?? Color.white;
-            
+
             Vector2 direction = end - start;
             float length = direction.magnitude;
             rectTransform.sizeDelta = new Vector2(length, thickness);
@@ -162,7 +164,8 @@ public class UIUtils {
                 rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, thickness);
             }
         }
-    }    public class UIRectangle : UIElement {
+    }
+    public class UIRectangle : UIElement {
         private Vector2 cornerA;
         private Vector2 cornerB;
         private Color fillColor;
@@ -174,7 +177,7 @@ public class UIUtils {
             Transform UIParent = null,
             bool MFD_Target_Canvas = false,
             Color? fillColor = null) : base(name, UIParent, MFD_Target_Canvas) {
-            
+
             this.cornerA = cornerA;
             this.cornerB = cornerB;
             this.fillColor = fillColor ?? new Color(1, 1, 1, 0.1f);
