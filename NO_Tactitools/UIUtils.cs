@@ -26,8 +26,7 @@ public class UIUtils {
             FontStyle fontStyle = FontStyle.Normal,
             Color? color = null,
             int fontSize = 24,
-            float backgroundOpacity = 0.8f)
-        {
+            float backgroundOpacity = 0.8f) {
             // Check if the label already exists
             if (UIParent != null) {
                 foreach (Transform child in UIParent) {
@@ -109,8 +108,7 @@ public class UIUtils {
             Transform UIParent = null,
             bool targetScreenCanvas = false,
             Color? color = null,
-            float thickness = 2f)
-        {
+            float thickness = 2f) {
             this.thickness = thickness;
             // Check if the line already exists
             if (UIParent != null) {
@@ -192,8 +190,7 @@ public class UIUtils {
             Vector2 cornerB,
             Transform UIParent = null,
             bool targetScreenCanvas = false,
-            Color? fillColor = null)
-        {
+            Color? fillColor = null) {
             if (UIParent != null) {
                 foreach (Transform child in UIParent) {
                     if (child.name == name) {
@@ -287,16 +284,19 @@ public class UIUtils {
 [HarmonyPatch(typeof(CombatHUD), "Awake")]
 class CombatHUDRegisterPatch {
     static void Postfix(CombatHUD __instance) {
-        Plugin.Logger.LogInfo("[TR] CombatHUD Registered !");
+        Plugin.Log("[UU] CombatHUD Registered !");
         UIUtils.combatHUD = __instance;
         UIUtils.selectAudio = (AudioClip)Traverse.Create(UIUtils.combatHUD).Field("selectSound").GetValue();
     }
 }
 
+
+// UNUSED FOR NOW, WE'LL KEEP IT FOR LATER SO AS TO BE ABLE TO DISPLAY
+// ELEMENTS ON THE MAIN HUD
 [HarmonyPatch(typeof(FuelGauge), "Initialize")]
 class MainHUDRegisterPatch {
     static void Postfix(FuelGauge __instance) {
-        Plugin.Logger.LogInfo("[TR] MainHUD Registered !");
+        Plugin.Log("[UU] MainHUD Registered !");
         UIUtils.mainHUD = __instance;
     }
 }
@@ -304,7 +304,7 @@ class MainHUDRegisterPatch {
 [HarmonyPatch(typeof(CameraStateManager), "Start")]
 class CameraStateManagerRegisterPatch {
     static void Postfix(CameraStateManager __instance) {
-        Plugin.Logger.LogInfo("[TR] CameraStateManager Registered !");
+        Plugin.Log("[UU] CameraStateManager Registered !");
         UIUtils.cameraStateManager = __instance;
     }
 }
@@ -321,7 +321,7 @@ class TargetScreenUIPatch {
                 label.transform.SetParent(UIUtils.GetTargetScreenCanvas().transform, false);
                 label.SetActive(true);
             }
-            Plugin.Logger.LogInfo("[IV] TargetScreenCanvas registered");
+            Plugin.Log("[UU] TargetScreenCanvas registered");
         }
     }
 }
@@ -335,6 +335,6 @@ class TargetScreenUIOnDestroyPatch {
     public static void ClearCanvasLabels() {
         UIUtils.SetTargetScreenCanvas(null);
         UIUtils.GetCanvasLabels().Clear();
-        Plugin.Logger.LogInfo("[IV] TargetScreenCanvas cleared");
+        Plugin.Log("[UU] TargetScreenCanvas cleared");
     }
 }

@@ -17,12 +17,12 @@ public class InputCatcherPlugin {
     }
 
     public void RegisterControllerButton(string controllerName, ControllerButton button) {
-        Plugin.Logger.LogInfo($"[IC] Registering button {button.buttonNumber.ToString()} on controller {controllerName.ToString()}");
+        Plugin.Log($"[IC] Registering button {button.buttonNumber.ToString()} on controller {controllerName.ToString()}");
         bool found = false;
         foreach (Controller controller in controllerStructure.Keys) {
             if (controller.name.Trim() == controllerName) {
                 controllerStructure[controller].Add(button);
-                Plugin.Logger.LogInfo($"[IC] Registered button {button.buttonNumber.ToString()} on controller {controllerName.ToString()}");
+                Plugin.Log($"[IC] Registered button {button.buttonNumber.ToString()} on controller {controllerName.ToString()}");
                 found = true;
                 break;
             }
@@ -31,7 +31,7 @@ public class InputCatcherPlugin {
             if (!pendingButtons.ContainsKey(controllerName))
                 pendingButtons[controllerName] = [];
             pendingButtons[controllerName].Add(button);
-            Plugin.Logger.LogInfo($"[IC] Controller not connected, button {button.buttonNumber.ToString()} added to pending list for {controllerName}");
+            Plugin.Log($"[IC] Controller not connected, button {button.buttonNumber.ToString()} added to pending list for {controllerName}");
         }
     }
 }
@@ -64,7 +64,7 @@ public class ControllerButton {
             this.OnLongPress = () => { Plugin.Logger.LogError("[IC] No actions provided for button " + buttonNumber.ToString()); };
         }
         else {
-            Plugin.Logger.LogInfo($"[IC] Creating button {buttonNumber.ToString()} with actions");
+            Plugin.Log($"[IC] Creating button {buttonNumber.ToString()} with actions");
             this.OnShortPress = onShortPress;
             this.OnHold = onHold;
             this.OnLongPress = onLongPress;
@@ -88,19 +88,19 @@ class InputInterceptionPatch {
                         // Button is being held down
                         float holdDuration = Time.time - button.buttonPressTime;
                         if (holdDuration >= button.longPressThreshold && !button.longPressHandled && button.OnLongPress != null) {
-                            Plugin.Logger.LogInfo($"[IC] Long press detected on button {button.buttonNumber.ToString()}");
+                            Plugin.Log($"[IC] Long press detected on button {button.buttonNumber.ToString()}");
                             button.OnLongPress?.Invoke();
                             button.longPressHandled = true;
                         }
                         else if (holdDuration < button.longPressThreshold && button.OnHold != null) {
-                            Plugin.Logger.LogInfo($"[IC] Hold detected on button {button.buttonNumber.ToString()}");
+                            Plugin.Log($"[IC] Hold detected on button {button.buttonNumber.ToString()}");
                             button.OnHold?.Invoke();
                         }
                     }
                     else if (button.previousButtonState && !button.currentButtonState && button.OnShortPress != null) {
                         // Button just released
                         if (!button.longPressHandled) {
-                            Plugin.Logger.LogInfo($"[IC] Short press detected on button {button.buttonNumber.ToString()}");
+                            Plugin.Log($"[IC] Short press detected on button {button.buttonNumber.ToString()}");
                             button.OnShortPress?.Invoke();
                         }
                     }
@@ -116,17 +116,17 @@ class InputInterceptionPatch {
 class RegisterControllerPatch {
     static void Postfix(Controller __instance) {
         string cleanedName = __instance.name.Trim();
-        Plugin.Logger.LogInfo($"[IC] Controller connected: {cleanedName}");
+        Plugin.Log($"[IC] Controller connected: {cleanedName}");
 
         if (!Plugin.inputCatcherPlugin.controllerStructure.ContainsKey(__instance)) {
             Plugin.inputCatcherPlugin.controllerStructure[__instance] = [];
-            Plugin.Logger.LogInfo($"[IC] Controller structure initialized for: {cleanedName}");
+            Plugin.Log($"[IC] Controller structure initialized for: {cleanedName}");
         }
 
         if (Plugin.inputCatcherPlugin.pendingButtons.ContainsKey(cleanedName)) {
             foreach (var btn in Plugin.inputCatcherPlugin.pendingButtons[cleanedName]) {
                 Plugin.inputCatcherPlugin.controllerStructure[__instance].Add(btn);
-                Plugin.Logger.LogInfo($"[IC] Registered pending button {btn.buttonNumber.ToString()} on controller {cleanedName}");
+                Plugin.Log($"[IC] Registered pending button {btn.buttonNumber.ToString()} on controller {cleanedName}");
             }
             Plugin.inputCatcherPlugin.pendingButtons.Remove(cleanedName);
         }

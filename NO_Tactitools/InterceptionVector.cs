@@ -10,9 +10,9 @@ class InterceptionVectorPlugin {
     private static bool initialized = false;
     static void Postfix() {
         if (!initialized) {
-            Plugin.Logger.LogInfo($"[IV] Interception Vector plugin starting !");
+            Plugin.Log($"[IV] Interception Vector plugin starting !");
             initialized = true;
-            Plugin.Logger.LogInfo("[IV] Interception Vector plugin succesfully started !");
+            Plugin.Log("[IV] Interception Vector plugin succesfully started !");
         }
         //RESET FSM STATE
         InterceptionVectorTask.ResetState();
@@ -71,7 +71,7 @@ class InterceptionVectorTask {
     }
 
     static void HandleInitState() {
-        Plugin.Logger.LogInfo("[IV] Init state");
+        Plugin.Log("[IV] Init state");
         playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
         // Create or find the labels
         indicatorScreenLabel = new UIUtils.UILabel(
@@ -123,7 +123,7 @@ class InterceptionVectorTask {
         );
 
         currentState = State.Reset;
-        Plugin.Logger.LogInfo("[IV] Transitioning to Reset state");
+        Plugin.Log("[IV] Transitioning to Reset state");
         return;
     }
 
@@ -137,7 +137,7 @@ class InterceptionVectorTask {
         solutionTime = 0f;
         previousInterceptScreenVisible = false;
         currentState = State.Idle;
-        Plugin.Logger.LogInfo("[IV] Transitioning to Idle state");
+        Plugin.Log("[IV] Transitioning to Idle state");
         return;
     }
 
@@ -146,12 +146,12 @@ class InterceptionVectorTask {
             targetUnit = ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0];
             if (playerFactionHQ.IsTargetBeingTracked(targetUnit)) {
                 currentState = State.Intercepting;
-                Plugin.Logger.LogInfo("[IV] Target is being tracked");
+                Plugin.Log("[IV] Target is being tracked");
                 return;
             }
             else {
                 currentState = State.TargetInitiallyUntracked;
-                Plugin.Logger.LogInfo("[IV] Target is initially untracked");
+                Plugin.Log("[IV] Target is initially untracked");
                 return;
             }
         }
@@ -162,12 +162,12 @@ class InterceptionVectorTask {
         if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count != 1
             || ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0] != targetUnit) {
             currentState = State.Reset;
-            Plugin.Logger.LogInfo("[IV] Switched target, returning to Reset state");
+            Plugin.Log("[IV] Switched target, returning to Reset state");
             return;
         }
         else if (playerFactionHQ.IsTargetBeingTracked(targetUnit)) {
             currentState = State.Intercepting;
-            Plugin.Logger.LogInfo("[IV] Target is being tracked, going to TargetTracked state");
+            Plugin.Log("[IV] Target is being tracked, going to TargetTracked state");
             return;
         }
     }
@@ -245,7 +245,7 @@ class InterceptionVectorTask {
         if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count != 1
             || ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0] != targetUnit) {
             currentState = State.Reset;
-            Plugin.Logger.LogInfo("[IV] Switched target, returning to Reset state");
+            Plugin.Log("[IV] Switched target, returning to Reset state");
             return;
         }
         playerPosition = SceneSingleton<CombatHUD>.i.aircraft.rb.transform.position;

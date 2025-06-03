@@ -9,7 +9,7 @@ class CountermeasureControlsPlugin {
 
     static void Postfix() {
         if (!initialized) {
-            Plugin.Logger.LogInfo($"[CC] Countermeasure Controls plugin starting !");
+            Plugin.Log($"[CC] Countermeasure Controls plugin starting !");
             Plugin.inputCatcherPlugin.RegisterControllerButton(
                 Plugin.countermeasureControlsFlareControllerName.Value,
                 new ControllerButton(
@@ -25,7 +25,7 @@ class CountermeasureControlsPlugin {
                 onHold: HandleOnHoldJammer
                 ));
             initialized = true;
-            Plugin.Logger.LogInfo("[CC] Countermeasure Controls plugin succesfully started !");
+            Plugin.Log("[CC] Countermeasure Controls plugin succesfully started !");
         }
     }
     private static void HandleOnHoldFlare() {

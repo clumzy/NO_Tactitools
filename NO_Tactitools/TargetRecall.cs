@@ -9,7 +9,7 @@ class TargetRecallPlugin {
     public static List<Unit> units;
     static void Postfix() {
         if (!initialized) {
-            Plugin.Logger.LogInfo($"[TR] Target Recall plugin starting !");
+            Plugin.Log($"[TR] Target Recall plugin starting !");
             Plugin.inputCatcherPlugin.RegisterControllerButton(
                 Plugin.targetRecallControllerName.Value,
                 new ControllerButton(
@@ -19,11 +19,11 @@ class TargetRecallPlugin {
                 onLongPress: HandleLongPress
                 ));
             initialized = true;
-            Plugin.Logger.LogInfo("[TR] Target Recall plugin succesfully started !");
+            Plugin.Log("[TR] Target Recall plugin succesfully started !");
         }
     }
     private static void HandleLongPress() {
-        Plugin.Logger.LogInfo($"[TR] HandleLongPress");
+        Plugin.Log($"[TR] HandleLongPress");
         if (SceneSingleton<CombatHUD>.i != null) {
             units = [.. (List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()];
             SoundManager.PlayInterfaceOneShot(UIUtils.selectAudio);
@@ -32,7 +32,7 @@ class TargetRecallPlugin {
         }
     }
     private static void HandleClick() {
-        Plugin.Logger.LogInfo($"[TR] HandleClick");
+        Plugin.Log($"[TR] HandleClick");
         if (SceneSingleton<CombatHUD>.i != null && units != null) {
             if (units.Count > 0) {
                 SceneSingleton<CombatHUD>.i.DeselectAll(false);

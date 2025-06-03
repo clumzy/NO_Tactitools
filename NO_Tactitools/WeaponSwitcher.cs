@@ -9,7 +9,7 @@ class WeaponSwitcherPlugin {
 
     static void Postfix() {
         if (!initialized) {
-            Plugin.Logger.LogInfo($"[WS] Weapon Switcher plugin starting !");
+            Plugin.Log($"[WS] Weapon Switcher plugin starting !");
             Plugin.inputCatcherPlugin.RegisterControllerButton(
                 Plugin.weaponSwitcherControllerName.Value,
                 new ControllerButton(
@@ -46,7 +46,7 @@ class WeaponSwitcherPlugin {
                 onShortPress: HandleClick4
                 ));
             initialized = true;
-            Plugin.Logger.LogInfo("[WS] Weapon Switcher plugin succesfully started !");
+            Plugin.Log("[WS] Weapon Switcher plugin succesfully started !");
         }
     }
     private static void HandleClick0() {
