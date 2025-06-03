@@ -47,11 +47,3 @@ class TargetRecallPlugin {
         }
     }
 }
-
-[HarmonyPatch(typeof(FuelGauge), "Initialize")]
-class FuelGaugeRegisterPatch {
-    static void Postfix(FuelGauge __instance) {
-        Plugin.Logger.LogInfo("[TR] FuelGauge Registered !");
-        Plugin.fuelGauge = __instance;
-    }
-}

@@ -7,7 +7,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 namespace NO_Tactitools {
-    [BepInPlugin("NO_Tactitools", "Nuclear Option Tactical Tools!", "1.0.0")]
+    [BepInPlugin("NO_Tactitools", "NO Tactical Tools!", "0.4.20")]
     public class Plugin : BaseUnityPlugin {
         public static ConfigEntry<string> targetRecallControllerName;
         public static ConfigEntry<int> targetRecallButtonNumber;
@@ -24,12 +24,13 @@ namespace NO_Tactitools {
         public static ConfigEntry<int> weaponSwitcherButton4;
         public static CombatHUD combatHUD;
         public static AudioClip selectAudio;
-        public static FuelGauge fuelGauge;
+        public static FuelGauge mainHUD;
         public static CameraStateManager cameraStateManager;
         public static InputCatcherPlugin inputCatcherPlugin = new InputCatcherPlugin();
         internal static new ManualLogSource Logger;
 
         private void Awake() {
+            
             targetRecallControllerName = Config.Bind("Target Recall",      // The section under which the option is shown
                 "Target Recall Controller Name",  // The key of the configuration option in the configuration file
                 "", // The default value
@@ -42,19 +43,19 @@ namespace NO_Tactitools {
                 "On-Screen Vector Enabled",  // The key of the configuration option in the configuration file
                 true, // The default value
                 "Enable or disable the on-screen vector display");
-            countermeasureControlsFlareControllerName = Config.Bind("Countermeasure - Flare",      // The section under which the option is shown
+            countermeasureControlsFlareControllerName = Config.Bind("Countermeasures",      // The section under which the option is shown
                 "Countermeasure Controls Controller Name",  // The key of the configuration option in the configuration file
                 "", // The default value
                 "Name of the peripheral"); // Description of the option to show in the config file
-            countermeasureControlsFlareButtonNumber = Config.Bind("Countermeasure - Flare",      // The section under which the option is shown
+            countermeasureControlsFlareButtonNumber = Config.Bind("Countermeasures",      // The section under which the option is shown
                 "Countermeasure Controls - Flares - Button Number",  // The key of the configuration option in the configuration file
                 39, // The default value
                 "Number of the button");
-            countermeasureControlsJammerControllerName = Config.Bind("Countermeasure - Jammer",      // The section under which the option is shown
+            countermeasureControlsJammerControllerName = Config.Bind("Countermeasures",      // The section under which the option is shown
                 "Countermeasure Controls Controller Name",  // The key of the configuration option in the configuration file
                 "", // The default value
                 "Name of the peripheral"); // Description of the option to show in the config file
-            countermeasureControlsJammerButtonNumber = Config.Bind("Countermeasure - Jammer",      // The section under which the option is shown
+            countermeasureControlsJammerButtonNumber = Config.Bind("Countermeasures",      // The section under which the option is shown
                 "Countermeasure Controls - Jammer - Button Number",  // The key of the configuration option in the configuration file
                 40, // The default value
                 "Number of the button");
@@ -84,26 +85,18 @@ namespace NO_Tactitools {
                 "Button number for weapon slot 4");
             // Plugin startup logic
             var harmony = new Harmony("george.no_tactitools");
-            harmony.PatchAll();
             Logger = base.Logger;
+            // Patch UI Utils
+            harmony.PatchAll(typeof(CombatHUDRegisterPatch));
+            harmony.PatchAll(typeof(MainHUDRegisterPatch));
+            harmony.PatchAll(typeof(CameraStateManagerRegisterPatch));
+            harmony.PatchAll(typeof(TargetScreenUIPatch));
+            harmony.PatchAll(typeof(TargetScreenUIOnDestroyPatch));
+            // Patch Input Catcher
+            harmony.PatchAll(typeof(InputInterceptionPatch));
+            harmony.PatchAll(typeof(RegisterControllerPatch));
             Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         }
     }
 
-    [HarmonyPatch(typeof(CombatHUD), "Awake")]
-    class CombatHUDRegisterPatch {
-        static void Postfix(CombatHUD __instance) {
-            Plugin.Logger.LogInfo("[TR] CombatHUD Registered !");
-            Plugin.combatHUD = __instance;
-            Plugin.selectAudio = (AudioClip)Traverse.Create(Plugin.combatHUD).Field("selectSound").GetValue();
-        }
-    }
-
-    [HarmonyPatch(typeof(CameraStateManager), "Start")]
-    class CameraStateManagerRegisterPatch {
-        static void Postfix(CameraStateManager __instance) {
-            Plugin.Logger.LogInfo("[TR] CameraStateManager Registered !");
-            Plugin.cameraStateManager = __instance;
-        }
-    }
 }

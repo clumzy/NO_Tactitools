@@ -87,7 +87,7 @@ class InterceptionVectorTask {
         bearingLabel = new UIUtils.UILabel(
             "bearingLabel",
             new Vector2(0, -70),
-            Plugin.fuelGauge.transform,
+            Plugin.combatHUD.transform,
             true,
             FontStyle.Normal,
             Color.green,
@@ -96,7 +96,7 @@ class InterceptionVectorTask {
         timerLabel = new UIUtils.UILabel(
             "timerLabel",
             new Vector2(0, -100),
-            Plugin.fuelGauge.transform,
+            Plugin.combatHUD.transform,
             true,
             FontStyle.Normal,
             Color.green,
