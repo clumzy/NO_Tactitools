@@ -73,6 +73,9 @@ public class UIUtils {
             bool isMFD = mfdKey != null && MFD_List.ContainsKey(mfdKey) && MFD_List[mfdKey].GetMFDTransform() != null;
             if (isMFD) {
                 UIParent = MFD_List[mfdKey].GetMFDTransform();
+                if (!MFD_List[mfdKey].GetMFDLabels().Contains(gameObject)) {
+                    MFD_List[mfdKey].GetMFDLabels().Add(gameObject);
+                }
             }
             // Create a new GameObject for the element
             gameObject = new GameObject(name);
@@ -84,6 +87,7 @@ public class UIUtils {
                 MFD_List[mfdKey].GetMFDLabels().Add(gameObject);
                 gameObject.SetActive(false);
             }
+            return;
         }
 
         public virtual void SetPosition(Vector2 position) {
@@ -128,11 +132,12 @@ public class UIUtils {
             textComp.fontStyle = fontStyle;
             textComp.color = color ?? Color.white;
             textComp.alignment = TextAnchor.MiddleCenter;
-            textComp.text = "Yo";
+            textComp.text = "";
             rectTransform.sizeDelta = new Vector2(textComp.preferredWidth, textComp.preferredHeight);
 
             var textTransform = gameObject.transform.Find("LabelText");
             textComponent = textTransform.GetComponent<Text>();
+            return;
         }
 
         public void SetText(string text) {
@@ -166,6 +171,7 @@ public class UIUtils {
             rectTransform.pivot = new Vector2(0.5f, 0.5f);
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             rectTransform.rotation = Quaternion.Euler(0, 0, angle);
+            return;
         }
 
         public void SetCoordinates(Vector2 start, Vector2 end) {
@@ -206,6 +212,7 @@ public class UIUtils {
             imageComponent.color = this.fillColor;
 
             UpdateRect();
+            return;
         }
 
         private void UpdateRect() {

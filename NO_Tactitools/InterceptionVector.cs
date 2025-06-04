@@ -321,7 +321,7 @@ class InterceptionVectorTask {
 
 }
 
-[HarmonyPatch(typeof(FlightHud), "ResetAircraft")]
+[HarmonyPatch(typeof(Aircraft), "OnStartClient")]
 class ResetInterceptionVectorOnRespawnPatch {
     static void Postfix() {
         // Reset the FSM state when the aircraft is destroyed
