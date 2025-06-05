@@ -43,6 +43,17 @@ public class UIUtils {
         public void SetMFDTransform(Transform transform) => MFD_transform = transform;
         public List<GameObject> GetMFDLabels() => MFD_Labels;
         public void ClearLabels() => MFD_Labels.Clear();
+        public void KillLayout(){
+            var layoutGroup = MFD_transform.GetComponent<UnityEngine.UI.LayoutGroup>();
+            if (layoutGroup != null) layoutGroup.enabled = false;
+            var contentFitter = MFD_transform.GetComponent<UnityEngine.UI.ContentSizeFitter>();
+            if (contentFitter != null) contentFitter.enabled = false;
+        }
+        public void HideChildren() {
+            foreach (Transform child in MFD_transform) {
+                child.gameObject.SetActive(false);
+            }
+        }
     }
 
     public static void ClearMFD_Labels(string mfdKey) {
@@ -332,10 +343,6 @@ class MFD_SystemsRegisterPatch {
         string mfdKey = "systems";
         if (UIUtils.MFD_List[mfdKey].GetMFDTransform() == null) {
             UIUtils.MFD_List[mfdKey].SetMFDTransform(__instance.transform);
-            var layoutGroup = __instance.transform.GetComponent<UnityEngine.UI.LayoutGroup>();
-            if (layoutGroup != null) layoutGroup.enabled = false;
-            var contentFitter = __instance.transform.GetComponent<UnityEngine.UI.ContentSizeFitter>();
-                    if (contentFitter != null) contentFitter.enabled = false;
             foreach (GameObject label in UIUtils.MFD_List[mfdKey].GetMFDLabels()) {
                 label.transform.SetParent(UIUtils.MFD_List[mfdKey].GetMFDTransform(), false);
                 label.SetActive(true);

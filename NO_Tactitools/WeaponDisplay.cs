@@ -35,6 +35,7 @@ class WeaponDisplayTask {
     private static UIUtils.UILine MFD_systemsLine;
     private static UIUtils.UILabel weaponNameLabel;
     private static UIUtils.UILabel weaponAmmoLabel;
+    private static GameObject weaponImageClone;
 
     static void Postfix() {
         // The Cricket is a special case, it has no systems screen to display on
@@ -44,11 +45,11 @@ class WeaponDisplayTask {
             SceneSingleton<CombatHUD>.i.aircraft.GetAircraftParameters().aircraftName == "VL-49 Tarantula")
             return;
         if (!initialized) {
+            Plugin.Log("[WD] Weapon Display Task starting for airplane " + SceneSingleton<CombatHUD>.i.aircraft.GetAircraftParameters().aircraftName);
             if (flareEjector != null || radarJammer != null) {
-                // Remove the existing MFD content, maybe I should add that to a UIUtils method
-                foreach (Transform child in UIUtils.MFD_List["systems"].GetMFDTransform()) {
-                    UnityEngine.Object.Destroy(child.gameObject);
-                }
+                // Remove the existing MFD content and kill the layout
+                UIUtils.MFD_List["systems"]?.HideChildren();
+                UIUtils.MFD_List["systems"]?.KillLayout();
                 flareLabel = new(
                     "flareLabel",
                     new Vector2(0, -40),
@@ -106,21 +107,15 @@ class WeaponDisplayTask {
                 GameObject topRightPanel = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("topRightPanel").GetValue();
                 countermeasureBackground.SetActive(false);
                 weaponBackground.SetActive(false);
-                CanvasGroup cg = topRightPanel.GetComponent<CanvasGroup>();
-                if (cg == null) {
-                    cg = topRightPanel.AddComponent<CanvasGroup>();
-                }
+                CanvasGroup cg = topRightPanel.GetComponent<CanvasGroup>() ?? topRightPanel.AddComponent<CanvasGroup>();
                 cg.alpha = 0f;
                 cg.interactable = false;
                 cg.blocksRaycasts = false;
                 //set weapon image as child to the systems MFD
-                Image weaponImage = SceneSingleton<CombatHUD>.i.weaponImage;
-                weaponImage.transform.SetParent(UIUtils.MFD_List["systems"].GetMFDTransform(), false);
-                // divide the size of the image by 2 to center it
-                weaponImage.rectTransform.sizeDelta = new Vector2(weaponImage.rectTransform.sizeDelta.x * 0.6f, weaponImage.rectTransform.sizeDelta.y * 0.6f);
-                // move image 80 pixels up
-                weaponImage.rectTransform.anchoredPosition = new Vector2(0, 80);
-
+                weaponImageClone = GameObject.Instantiate(SceneSingleton<CombatHUD>.i.weaponImage.gameObject, UIUtils.MFD_List["systems"].GetMFDTransform());
+                var cloneImg = weaponImageClone.GetComponent<Image>();
+                cloneImg.rectTransform.sizeDelta = new Vector2(cloneImg.rectTransform.sizeDelta.x * 0.6f, cloneImg.rectTransform.sizeDelta.y * 0.6f);
+                cloneImg.rectTransform.anchoredPosition = new Vector2(0, 80);
                 initialized = true;
             }
             else return;
@@ -130,6 +125,10 @@ class WeaponDisplayTask {
         weaponNameLabel.SetText(SceneSingleton<CombatHUD>.i.weaponName.text);
         weaponAmmoLabel.SetText(SceneSingleton<CombatHUD>.i.ammoCount.text);
         weaponAmmoLabel.SetColor(SceneSingleton<CombatHUD>.i.ammoCount.color);
+        // Update weapon image clone to match the current weapon image
+        var image = weaponImageClone.GetComponent<Image>();
+        var srcImg = SceneSingleton<CombatHUD>.i.weaponImage;
+        image.sprite = srcImg.sprite;
         if (flareEjector == null && radarJammer == null) {
             Plugin.Log("[WD] FlareEjector or RadarJammer is null, aborting update.");
         }
@@ -187,11 +186,40 @@ class WeaponDisplayTask {
     public static void SetRadarJammer(RadarJammer jammer) {
         radarJammer = jammer;
     }
+
+    public static void ResetUI() {
+        // Réactive les éléments d'UI d'orgine
+        GameObject countermeasureBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("countermeasureBackground").GetValue();
+        GameObject weaponBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("weaponBackground").GetValue();
+        GameObject topRightPanel = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("topRightPanel").GetValue();
+        countermeasureBackground.SetActive(true);
+        weaponBackground.SetActive(true);
+        CanvasGroup cg = topRightPanel.GetComponent<CanvasGroup>();
+        if (cg != null) {
+            cg.alpha = 1f;
+            cg.interactable = true;
+            cg.blocksRaycasts = true;
+        }
+
+        // Supprime les labels et lignes custom
+        if (flareLabel != null) GameObject.Destroy(flareLabel.GetGameObject());
+        if (radarLabel != null) GameObject.Destroy(radarLabel.GetGameObject());
+        if (MFD_systemsLine != null) GameObject.Destroy(MFD_systemsLine.GetGameObject());
+        if (weaponNameLabel != null) GameObject.Destroy(weaponNameLabel.GetGameObject());
+        if (weaponAmmoLabel != null) GameObject.Destroy(weaponAmmoLabel.GetGameObject());
+
+        // Supprime l'image d'arme clonée
+        if (weaponImageClone != null) {
+            GameObject.Destroy(weaponImageClone);
+            weaponImageClone = null;
+        }
+    }
 }
 
 [HarmonyPatch(typeof(FlightHud), "ResetAircraft")]
 class ResetWeaponDisplayOnRespawnPatch {
     static void Postfix() {
+        WeaponDisplayTask.ResetUI();
         WeaponDisplayTask.initialized = false;
     }
 }
