@@ -82,7 +82,7 @@ class InterceptionVectorTask {
         bearingLabel = new UIUtils.UILabel(
             "bearingLabel",
             new Vector2(0, -70),
-            UIUtils.HMD,
+            null,
             "target",
             FontStyle.Normal,
             Color.green,
@@ -91,7 +91,7 @@ class InterceptionVectorTask {
         timerLabel = new UIUtils.UILabel(
             "timerLabel",
             new Vector2(0, -100),
-            UIUtils.HMD,
+            null,
             "target",
             FontStyle.Normal,
             Color.green,
@@ -100,7 +100,7 @@ class InterceptionVectorTask {
         indicatorTargetLabel = new UIUtils.UILabel(
             "indicatorTargetLabel",
             new Vector2(0, 0),
-            UIUtils.HMD,
+            null,
             "target",
             FontStyle.Normal,
             Color.magenta,
@@ -111,7 +111,7 @@ class InterceptionVectorTask {
             "indicatorTargetLine",
             new Vector2(0, 0),
             new Vector2(0, 0),
-            UIUtils.HMD,
+            null,
             "target",
             Color.magenta,
             2f

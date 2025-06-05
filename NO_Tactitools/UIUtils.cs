@@ -38,17 +38,19 @@ public class UIUtils {
     public class MFD {
         private List<GameObject> MFD_Labels = [];
         private Transform MFD_transform;
-        public MFD() {}
+        public MFD() { }
         public Transform GetMFDTransform() => MFD_transform;
         public void SetMFDTransform(Transform transform) => MFD_transform = transform;
         public List<GameObject> GetMFDLabels() => MFD_Labels;
         public void ClearLabels() => MFD_Labels.Clear();
-        public void KillLayout(){
+
+        public void KillLayout() {
             var layoutGroup = MFD_transform.GetComponent<UnityEngine.UI.LayoutGroup>();
             if (layoutGroup != null) layoutGroup.enabled = false;
             var contentFitter = MFD_transform.GetComponent<UnityEngine.UI.ContentSizeFitter>();
             if (contentFitter != null) contentFitter.enabled = false;
         }
+
         public void HideChildren() {
             foreach (Transform child in MFD_transform) {
                 child.gameObject.SetActive(false);
@@ -69,8 +71,8 @@ public class UIUtils {
         protected string mfdKey;
 
         protected UIElement(
-            string name, 
-            Transform UIParent = null, 
+            string name,
+            Transform UIParent = null,
             string mfdKey = null) {
             this.mfdKey = mfdKey;
             // Check if the element already exists
@@ -164,7 +166,7 @@ public class UIUtils {
         public override void SetColor(Color color) {
             textComponent.color = color;
         }
-
+        
         public void SetFontSize(int size) {
             textComponent.fontSize = size;
             rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
@@ -217,6 +219,7 @@ public class UIUtils {
             rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, thickness);
         }
     }
+
     public class UIRectangle : UIElement {
         private Vector2 cornerA;
         private Vector2 cornerB;
@@ -277,6 +280,34 @@ public class UIUtils {
         public Vector2 GetCenter() => rectTransform.anchoredPosition;
         public Color GetFillColor() => fillColor;
         public GameObject GetRectObject() => gameObject;
+    }
+
+    public static void HideWeaponPanel() {
+        GameObject countermeasureBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("countermeasureBackground").GetValue();
+        GameObject weaponBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("weaponBackground").GetValue();
+        GameObject topRightPanel = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("topRightPanel").GetValue();
+        countermeasureBackground.SetActive(false);
+        weaponBackground.SetActive(false);
+        CanvasGroup cg = topRightPanel.GetComponent<CanvasGroup>() ?? topRightPanel.AddComponent<CanvasGroup>();
+        if (cg != null) {
+            cg.alpha = 0f;
+            cg.interactable = false;
+            cg.blocksRaycasts = false;
+        }
+    }
+
+    public static void RestoreWeaponPanel() {
+        GameObject countermeasureBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("countermeasureBackground").GetValue();
+        GameObject weaponBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("weaponBackground").GetValue();
+        GameObject topRightPanel = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("topRightPanel").GetValue();
+        countermeasureBackground.SetActive(true);
+        weaponBackground.SetActive(true);
+        CanvasGroup cg = topRightPanel.GetComponent<CanvasGroup>() ?? topRightPanel.AddComponent<CanvasGroup>();
+        if (cg != null) {
+            cg.alpha = 1f;
+            cg.interactable = true;
+            cg.blocksRaycasts = true;
+        }
     }
 }
 
