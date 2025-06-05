@@ -9,7 +9,6 @@ public class InputCatcher {
     // Dictionary mapping each controller to its list of buttons
     public static Dictionary<Rewired.Controller, List<ControllerButton>> controllerStructure =
         [];
-
     // Dictionary mapping controller names to pending buttons
     public static Dictionary<string, List<ControllerButton>> pendingButtons = [];
 

@@ -57,9 +57,19 @@ public class UIUtils {
         protected Image imageComponent;
         protected string mfdKey;
 
-        protected UIElement(string name, Transform UIParent = null, string mfdKey = null) {
+        protected UIElement(
+            string name, 
+            Transform UIParent = null, 
+            string mfdKey = null) {
             this.mfdKey = mfdKey;
             // Check if the element already exists
+            bool isMFD = mfdKey != null && MFD_List.ContainsKey(mfdKey) && MFD_List[mfdKey].GetMFDTransform() != null;
+            if (isMFD) {
+                UIParent = MFD_List[mfdKey].GetMFDTransform();
+                if (!MFD_List[mfdKey].GetMFDLabels().Contains(gameObject)) {
+                    MFD_List[mfdKey].GetMFDLabels().Add(gameObject);
+                }
+            }
             if (UIParent != null) {
                 foreach (Transform child in UIParent) {
                     if (child.name == name) {
@@ -68,13 +78,6 @@ public class UIUtils {
                         imageComponent = gameObject.GetComponent<Image>();
                         return;
                     }
-                }
-            }
-            bool isMFD = mfdKey != null && MFD_List.ContainsKey(mfdKey) && MFD_List[mfdKey].GetMFDTransform() != null;
-            if (isMFD) {
-                UIParent = MFD_List[mfdKey].GetMFDTransform();
-                if (!MFD_List[mfdKey].GetMFDLabels().Contains(gameObject)) {
-                    MFD_List[mfdKey].GetMFDLabels().Add(gameObject);
                 }
             }
             // Create a new GameObject for the element
@@ -102,6 +105,7 @@ public class UIUtils {
         public RectTransform GetRectTransform() => rectTransform;
         public Image GetImageComponent() => imageComponent;
     }
+
     public class UILabel : UIElement {
         private Text textComponent;
 
@@ -133,8 +137,9 @@ public class UIUtils {
             textComp.color = color ?? Color.white;
             textComp.alignment = TextAnchor.MiddleCenter;
             textComp.text = "";
+            textComp.horizontalOverflow = HorizontalWrapMode.Overflow;
+            textComp.verticalOverflow = VerticalWrapMode.Overflow;
             rectTransform.sizeDelta = new Vector2(textComp.preferredWidth, textComp.preferredHeight);
-
             var textTransform = gameObject.transform.Find("LabelText");
             textComponent = textTransform.GetComponent<Text>();
             return;
@@ -148,9 +153,19 @@ public class UIUtils {
         public override void SetColor(Color color) {
             textComponent.color = color;
         }
+
+        public void SetFontSize(int size) {
+            textComponent.fontSize = size;
+            rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
+        }
+
+        public void SetFontStyle(FontStyle style) {
+            textComponent.fontStyle = style;
+        }
     }
+
     public class UILine : UIElement {
-        public float thickness;
+        private float thickness;
 
         public UILine(
             string name,
@@ -160,10 +175,8 @@ public class UIUtils {
             string mfdKey = null,
             Color? color = null,
             float thickness = 2f) : base(name, UIParent, mfdKey) {
-
             this.thickness = thickness;
             imageComponent.color = color ?? Color.white;
-
             Vector2 direction = end - start;
             float length = direction.magnitude;
             rectTransform.sizeDelta = new Vector2(length, thickness);
@@ -319,6 +332,10 @@ class MFD_SystemsRegisterPatch {
         string mfdKey = "systems";
         if (UIUtils.MFD_List[mfdKey].GetMFDTransform() == null) {
             UIUtils.MFD_List[mfdKey].SetMFDTransform(__instance.transform);
+            var layoutGroup = __instance.transform.GetComponent<UnityEngine.UI.LayoutGroup>();
+            if (layoutGroup != null) layoutGroup.enabled = false;
+            var contentFitter = __instance.transform.GetComponent<UnityEngine.UI.ContentSizeFitter>();
+                    if (contentFitter != null) contentFitter.enabled = false;
             foreach (GameObject label in UIUtils.MFD_List[mfdKey].GetMFDLabels()) {
                 label.transform.SetParent(UIUtils.MFD_List[mfdKey].GetMFDTransform(), false);
                 label.SetActive(true);

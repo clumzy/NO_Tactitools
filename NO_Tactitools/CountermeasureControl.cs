@@ -28,6 +28,7 @@ class CountermeasureControlsPlugin {
             Plugin.Log("[CC] Countermeasure Controls plugin succesfully started !");
         }
     }
+    
     private static void HandleOnHoldFlare() {
         SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 0;
     }

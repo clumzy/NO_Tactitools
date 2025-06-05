@@ -17,8 +17,6 @@ class InterceptionVectorPlugin {
             initialized = true;
             Plugin.Log("[IV] Interception Vector plugin succesfully started !");
         }
-        //RESET FSM STATE
-        InterceptionVectorTask.ResetState();
     }
 }
 
@@ -178,6 +176,7 @@ class InterceptionVectorTask {
         bearingLabel.SetColor(Color.red);
         timerLabel.SetColor(Color.red);
     }
+
     static void HandleTargetReachable() {
         Vector3 interceptVector = interceptPosition - playerPosition;
         Vector3 interceptVectorXZ = Vector3.Scale(interceptVector, new Vector3(1f, 0f, 1f)).normalized;
@@ -225,6 +224,7 @@ class InterceptionVectorTask {
         indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(interceptTarget.x, interceptTarget.y));
 
     }
+
     static void HandleTargetUnreachable() {
         bearingLabel.SetText("");
         timerLabel.SetText("");
@@ -236,6 +236,7 @@ class InterceptionVectorTask {
     static void UpdateInterceptionPosition() {
         interceptPosition = targetPosition + targetVelocity * solutionTime;
     }
+
     static void HandleInterception() {
         if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count != 1
             || ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0] != targetUnit) {
@@ -266,6 +267,7 @@ class InterceptionVectorTask {
     public static void ResetState() {
         currentState = State.Init;
     }
+
     static float FindSolutionTime(Unit targetUnit) {
         //Get target vectors
         Vector3 localTargetPosition = targetUnit.rb.transform.position;
@@ -318,16 +320,15 @@ class InterceptionVectorTask {
 
         return bestSolution;
     }
-
 }
 
-[HarmonyPatch(typeof(Aircraft), "OnStartClient")]
+[HarmonyPatch(typeof(FlightHud), "ResetAircraft")]
 class ResetInterceptionVectorOnRespawnPatch {
     static void Postfix() {
         // Reset the FSM state when the aircraft is destroyed
         InterceptionVectorTask.ResetState();
         // Temporary fix, to check if resetting the Canvas on AircraftReset fixes the bug where the UI
         //that is supposed to appear on the canvas appears on the HUD
-        UIUtils.ClearMFD_Labels("target");
+        //UIUtils.ClearMFD_Labels("target");
     }
 }

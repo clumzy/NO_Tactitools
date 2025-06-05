@@ -6,7 +6,8 @@ namespace NO_Tactitools;
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class TargetRecallPlugin {
     private static bool initialized = false;
-    public static List<Unit> units;
+    private static List<Unit> units;
+
     static void Postfix() {
         if (!initialized) {
             Plugin.Log($"[TR] Target Recall plugin starting !");
@@ -22,6 +23,7 @@ class TargetRecallPlugin {
             Plugin.Log("[TR] Target Recall plugin succesfully started !");
         }
     }
+
     private static void HandleLongPress() {
         Plugin.Log($"[TR] HandleLongPress");
         if (SceneSingleton<CombatHUD>.i != null) {
@@ -31,6 +33,7 @@ class TargetRecallPlugin {
             SceneSingleton<AircraftActionsReport>.i.ReportText(report, 3f);
         }
     }
+    
     private static void HandleClick() {
         Plugin.Log($"[TR] HandleClick");
         if (SceneSingleton<CombatHUD>.i != null && units != null) {
