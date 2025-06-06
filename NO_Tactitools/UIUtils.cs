@@ -27,42 +27,13 @@ class UIUtilsPlugin {
 }
 
 public class UIUtils {
-    public static Dictionary<string, MFD> MFD_List = new() {
-        { "target", new MFD() },
-        { "systems", new MFD() }};
     public static Transform HMD;
     public static Transform HUD;
+    public static Transform targetScreen;
+    public static Transform systemsPanel;
+    public static Transform enginePanel;
     public static AudioClip selectAudio;
     public static CameraStateManager cameraStateManager;
-
-    public class MFD {
-        private List<GameObject> MFD_Labels = [];
-        private Transform MFD_transform;
-        public MFD() { }
-        public Transform GetMFDTransform() => MFD_transform;
-        public void SetMFDTransform(Transform transform) => MFD_transform = transform;
-        public List<GameObject> GetMFDLabels() => MFD_Labels;
-        public void ClearLabels() => MFD_Labels.Clear();
-
-        public void KillLayout() {
-            var layoutGroup = MFD_transform.GetComponent<UnityEngine.UI.LayoutGroup>();
-            if (layoutGroup != null) layoutGroup.enabled = false;
-            var contentFitter = MFD_transform.GetComponent<UnityEngine.UI.ContentSizeFitter>();
-            if (contentFitter != null) contentFitter.enabled = false;
-        }
-
-        public void HideChildren() {
-            foreach (Transform child in MFD_transform) {
-                child.gameObject.SetActive(false);
-            }
-        }
-    }
-
-    public static void ClearMFD_Labels(string mfdKey) {
-        MFD_List[mfdKey].SetMFDTransform(null);
-        MFD_List[mfdKey].ClearLabels();
-        Plugin.Log($"[UU] MFD '{mfdKey}' labels cleared");
-    }
 
     public abstract class UIElement {
         protected GameObject gameObject;
@@ -75,14 +46,6 @@ public class UIUtils {
             Transform UIParent = null,
             string mfdKey = null) {
             this.mfdKey = mfdKey;
-            // Check if the element already exists
-            bool isMFD = mfdKey != null && MFD_List.ContainsKey(mfdKey) && MFD_List[mfdKey].GetMFDTransform() != null;
-            if (isMFD) {
-                UIParent = MFD_List[mfdKey].GetMFDTransform();
-                if (!MFD_List[mfdKey].GetMFDLabels().Contains(gameObject)) {
-                    MFD_List[mfdKey].GetMFDLabels().Add(gameObject);
-                }
-            }
             if (UIParent != null) {
                 foreach (Transform child in UIParent) {
                     if (child.name == name) {
@@ -98,11 +61,6 @@ public class UIUtils {
             gameObject.transform.SetParent(UIParent, false);
             rectTransform = gameObject.AddComponent<RectTransform>();
             imageComponent = gameObject.AddComponent<Image>();
-
-            if (mfdKey != null && !isMFD) {
-                MFD_List[mfdKey].GetMFDLabels().Add(gameObject);
-                gameObject.SetActive(false);
-            }
             return;
         }
 
@@ -126,11 +84,10 @@ public class UIUtils {
             string name,
             Vector2 position,
             Transform UIParent = null,
-            string mfdKey = null,
             FontStyle fontStyle = FontStyle.Normal,
             Color? color = null,
             int fontSize = 24,
-            float backgroundOpacity = 0.8f) : base(name, UIParent, mfdKey) {
+            float backgroundOpacity = 0.8f) : base(name, UIParent) {
 
             rectTransform.anchoredPosition = position;
             rectTransform.sizeDelta = new Vector2(200, 40);
@@ -166,7 +123,7 @@ public class UIUtils {
         public override void SetColor(Color color) {
             textComponent.color = color;
         }
-        
+
         public void SetFontSize(int size) {
             textComponent.fontSize = size;
             rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
@@ -185,9 +142,8 @@ public class UIUtils {
             Vector2 start,
             Vector2 end,
             Transform UIParent = null,
-            string mfdKey = null,
             Color? color = null,
-            float thickness = 2f) : base(name, UIParent, mfdKey) {
+            float thickness = 2f) : base(name, UIParent) {
             this.thickness = thickness;
             imageComponent.color = color ?? Color.white;
             Vector2 direction = end - start;
@@ -230,8 +186,7 @@ public class UIUtils {
             Vector2 cornerA,
             Vector2 cornerB,
             Transform UIParent = null,
-            string mfdKey = null,
-            Color? fillColor = null) : base(name, UIParent, mfdKey) {
+            Color? fillColor = null) : base(name, UIParent) {
 
             this.cornerA = cornerA;
             this.cornerB = cornerB;
@@ -309,6 +264,19 @@ public class UIUtils {
             cg.blocksRaycasts = true;
         }
     }
+
+    public static void KillLayout(Transform target) {
+        var layoutGroup = target.GetComponent<UnityEngine.UI.LayoutGroup>();
+        if (layoutGroup != null) layoutGroup.enabled = false;
+        var contentFitter = target.GetComponent<UnityEngine.UI.ContentSizeFitter>();
+        if (contentFitter != null) contentFitter.enabled = false;
+    }
+
+    public static void HideChildren(Transform target) {
+        foreach (Transform child in target) {
+            child.gameObject.SetActive(false);
+        }
+    }
 }
 
 
@@ -316,9 +284,9 @@ public class UIUtils {
 [HarmonyPatch(typeof(CombatHUD), "Awake")]
 class HMDRegisterPatch {
     static void Postfix(CombatHUD __instance) {
-        Plugin.Log("[UU] HMD Registered !");
         UIUtils.HMD = __instance.transform;
         UIUtils.selectAudio = (AudioClip)Traverse.Create(UIUtils.HMD).Field("selectSound").GetValue();
+        Plugin.Log("[UU] HMD Registered !");
     }
 }
 
@@ -329,16 +297,16 @@ class HMDRegisterPatch {
 [HarmonyPatch(typeof(FlightHud), "Awake")]
 class HUDRegisterPatch {
     static void Postfix(FlightHud __instance) {
-        Plugin.Log("[UU] HUD Registered !");
         UIUtils.HUD = Traverse.Create(__instance).Field("HUDCenter").GetValue<Transform>();
+        Plugin.Log("[UU] HUD Registered !");
     }
 }
 
 [HarmonyPatch(typeof(CameraStateManager), "Start")]
 class CameraStateManagerRegisterPatch {
     static void Postfix(CameraStateManager __instance) {
-        Plugin.Log("[UU] CameraStateManager Registered !");
         UIUtils.cameraStateManager = __instance;
+        Plugin.Log("[UU] CameraStateManager Registered !");
     }
 }
 
@@ -348,14 +316,9 @@ class CameraStateManagerRegisterPatch {
 [HarmonyPatch(typeof(TargetScreenUI), "LateUpdate")]
 class MFD_TargetRegisterPatch {
     static void Postfix(TargetScreenUI __instance) {
-        string mfdKey = "target";
-        if (UIUtils.MFD_List[mfdKey].GetMFDTransform() == null) {
-            UIUtils.MFD_List[mfdKey].SetMFDTransform(__instance.transform);
-            foreach (GameObject label in UIUtils.MFD_List[mfdKey].GetMFDLabels()) {
-                label.transform.SetParent(UIUtils.MFD_List[mfdKey].GetMFDTransform(), false);
-                label.SetActive(true);
-            }
-            Plugin.Log($"[UU] MFD '{mfdKey}' registered !");
+        if (UIUtils.targetScreen == null) {
+            UIUtils.targetScreen = __instance.transform;
+            Plugin.Log($"[UU] Target Screen registered !");
         }
     }
 }
@@ -363,8 +326,7 @@ class MFD_TargetRegisterPatch {
 [HarmonyPatch(typeof(TargetScreenUI), "OnDestroy")]
 class MFD_TargetOnDestroyPatch {
     static void Postfix() {
-        UIUtils.MFD_List["target"].SetMFDTransform(null);
-        UIUtils.ClearMFD_Labels("target");
+        UIUtils.targetScreen = null;
     }
 }
 
@@ -372,22 +334,17 @@ class MFD_TargetOnDestroyPatch {
 [HarmonyPatch(typeof(SystemStatusDisplay), "Initialize")]
 class MFD_SystemsRegisterPatch {
     static void Postfix(SystemStatusDisplay __instance) {
-        string mfdKey = "systems";
-        if (UIUtils.MFD_List[mfdKey].GetMFDTransform() == null) {
-            UIUtils.MFD_List[mfdKey].SetMFDTransform(__instance.transform);
-            foreach (GameObject label in UIUtils.MFD_List[mfdKey].GetMFDLabels()) {
-                label.transform.SetParent(UIUtils.MFD_List[mfdKey].GetMFDTransform(), false);
-                label.SetActive(true);
-            }
-            Plugin.Log($"[UU] MFD '{mfdKey}' registered !");
+        if (UIUtils.systemsPanel == null) {
+            UIUtils.systemsPanel = __instance.transform;
+            Plugin.Log($"[UU] Systems Panel registered !");
         }
+
     }
 }
 
 [HarmonyPatch(typeof(SystemStatusDisplay), "OnDestroy")]
 class MFD_SystemsOnDestroyPatch {
     static void Postfix() {
-        UIUtils.MFD_List["systems"].SetMFDTransform(null);
-        UIUtils.ClearMFD_Labels("systems");
+        UIUtils.systemsPanel = null;
     }
 }

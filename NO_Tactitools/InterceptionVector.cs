@@ -45,6 +45,7 @@ class InterceptionVectorTask {
     static Vector3 interceptPosition;
 
     static void Postfix() {
+        if (UIUtils.targetScreen == null) return; // Ensure targetScreen is initialized before proceeding
         switch (currentState) {
             case State.Init:
                 HandleInitState();
@@ -72,7 +73,6 @@ class InterceptionVectorTask {
             "indicatorScreenLabel",
             new Vector2(0, 0),
             UIUtils.HMD,
-            null,
             FontStyle.Bold,
             Color.green,
             18,
@@ -81,8 +81,7 @@ class InterceptionVectorTask {
         bearingLabel = new UIUtils.UILabel(
             "bearingLabel",
             new Vector2(0, -70),
-            UIUtils.HMD, // I don't understand why but if don't specify a parent, it doesn't show on the canvas, to investigate
-            "target",
+            UIUtils.targetScreen,
             FontStyle.Normal,
             Color.green,
             20
@@ -90,8 +89,7 @@ class InterceptionVectorTask {
         timerLabel = new UIUtils.UILabel(
             "timerLabel",
             new Vector2(0, -100),
-            UIUtils.HMD, // I don't understand why but if don't specify a parent, it doesn't show on the canvas, to investigate
-            "target",
+            UIUtils.targetScreen,
             FontStyle.Normal,
             Color.green,
             20
@@ -99,8 +97,7 @@ class InterceptionVectorTask {
         indicatorTargetLabel = new UIUtils.UILabel(
             "indicatorTargetLabel",
             new Vector2(0, 0),
-            null,
-            "target",
+            UIUtils.targetScreen,
             FontStyle.Normal,
             Color.magenta,
             36,
@@ -110,8 +107,7 @@ class InterceptionVectorTask {
             "indicatorTargetLine",
             new Vector2(0, 0),
             new Vector2(0, 0),
-            null,
-            "target",
+            UIUtils.targetScreen,
             Color.magenta,
             2f
         );
@@ -322,8 +318,5 @@ class ResetInterceptionVectorOnRespawnPatch {
     static void Postfix() {
         // Reset the FSM state when the aircraft is destroyed
         InterceptionVectorTask.ResetState();
-        // Temporary fix, to check if resetting the Canvas on AircraftReset fixes the bug where the UI
-        //that is supposed to appear on the canvas appears on the HUD
-        //UIUtils.ClearMFD_Labels("target");
     }
 }
