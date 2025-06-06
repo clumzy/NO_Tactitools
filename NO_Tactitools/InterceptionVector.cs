@@ -43,7 +43,6 @@ class InterceptionVectorTask {
     static Vector3 targetPosition;
     static Vector3 targetVelocity;
     static Vector3 interceptPosition;
-    static bool previousInterceptScreenVisible = false;
 
     static void Postfix() {
         switch (currentState) {
@@ -82,7 +81,7 @@ class InterceptionVectorTask {
         bearingLabel = new UIUtils.UILabel(
             "bearingLabel",
             new Vector2(0, -70),
-            null,
+            UIUtils.HMD, // I don't understand why but if don't specify a parent, it doesn't show on the canvas, to investigate
             "target",
             FontStyle.Normal,
             Color.green,
@@ -91,7 +90,7 @@ class InterceptionVectorTask {
         timerLabel = new UIUtils.UILabel(
             "timerLabel",
             new Vector2(0, -100),
-            null,
+            UIUtils.HMD, // I don't understand why but if don't specify a parent, it doesn't show on the canvas, to investigate
             "target",
             FontStyle.Normal,
             Color.green,
@@ -130,7 +129,6 @@ class InterceptionVectorTask {
         indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(0, 0));
         targetUnit = null;
         solutionTime = 0f;
-        previousInterceptScreenVisible = false;
         currentState = State.Idle;
         Plugin.Log("[IV] Transitioning to Idle state");
         return;
@@ -203,7 +201,6 @@ class InterceptionVectorTask {
         bearingLabel.SetText($"({interceptBearing.ToString()}°)");
         timerLabel.SetText($"ETA : {interceptionTimeInSeconds.ToString()}s");
         bool currentInterceptScreenVisible = interceptScreen.z > 0;
-        if (currentInterceptScreenVisible != previousInterceptScreenVisible) {
             if (currentInterceptScreenVisible) {
                 if (Plugin.onScreenVectorEnabled.Value) indicatorScreenLabel.SetText("+");
                 indicatorTargetLabel.SetText("+");
@@ -215,8 +212,6 @@ class InterceptionVectorTask {
                 indicatorTargetLabel.SetPosition(new Vector2(0, -40));
                 indicatorTargetLine.SetThickness(0f);
             }
-            previousInterceptScreenVisible = currentInterceptScreenVisible;
-        }
         indicatorScreenLabel.SetPosition(new Vector2(interceptScreen.x, interceptScreen.y));
         if (currentInterceptScreenVisible) {
             indicatorTargetLabel.SetPosition(new Vector2(interceptTarget.x, interceptTarget.y));

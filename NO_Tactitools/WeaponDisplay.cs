@@ -47,6 +47,8 @@ class WeaponDisplayTask {
 
         public WeaponDisplay(string platformName) {
             string destination;
+            bool rotateWeaponImage = false;
+            float imageScaleFactor = 0.6f;
             // Layout settings for each supported platform
             Vector2 flarePos, radarPos, lineStart, lineEnd, weaponNamePos, weaponAmmoPos, weaponImagePos;
             int flareFont, radarFont, weaponNameFont, weaponAmmoFont;
@@ -63,21 +65,52 @@ class WeaponDisplayTask {
                     flareFont = 30;
                     radarFont = 30;
                     weaponNameFont = 18;
-                    weaponAmmoFont = 30;
+                    weaponAmmoFont = 40;
                     break;
                 case "FS-12 Revoker":
                     destination = "systems";
                     flarePos = new Vector2(0, -40);
                     radarPos = new Vector2(0, -80);
-                    lineStart = new Vector2(-40, 0);
-                    lineEnd = new Vector2(40, 0);
-                    weaponNamePos = new Vector2(0, 60);
-                    weaponAmmoPos = new Vector2(0, 30);
+                    lineStart = new Vector2(-80, -10);
+                    lineEnd = new Vector2(80, -10);
+                    weaponNamePos = new Vector2(0, 50);
+                    weaponAmmoPos = new Vector2(0, 20);
                     weaponImagePos = new Vector2(0, 80);
                     flareFont = 30;
                     radarFont = 30;
-                    weaponNameFont = 18;
-                    weaponAmmoFont = 30;
+                    weaponNameFont = 25;
+                    weaponAmmoFont = 35;
+                    imageScaleFactor = 0.8f; // Scale the image for FS-12 Revoker
+                    break;
+                case "FS-20 Vortex":
+                    destination = "systems";
+                    flarePos = new Vector2(-70, -70);
+                    radarPos = new Vector2(70, -70);
+                    lineStart = new Vector2(-200, -20);
+                    lineEnd = new Vector2(200, -20);
+                    weaponNamePos = new Vector2(0, 70);
+                    weaponAmmoPos = new Vector2(70, 20);
+                    weaponImagePos = new Vector2(-70, 20);
+                    flareFont = 40;
+                    radarFont = 40;
+                    weaponNameFont = 30;
+                    weaponAmmoFont = 55;
+                    imageScaleFactor = 0.6f; // Scale the image for KR-67 Ifrit
+                    break;
+                case "KR-67 Ifrit":
+                    destination = "systems";
+                    flarePos = new Vector2(-70, -70);
+                    radarPos = new Vector2(70, -70);
+                    lineStart = new Vector2(-200, -20);
+                    lineEnd = new Vector2(200, -20);
+                    weaponNamePos = new Vector2(0, 70);
+                    weaponAmmoPos = new Vector2(80, 20);
+                    weaponImagePos = new Vector2(-70, 20);
+                    flareFont = 45;
+                    radarFont = 45;
+                    weaponNameFont = 45;
+                    weaponAmmoFont = 55;
+                    imageScaleFactor = 0.8f; // Scale the image for KR-67 Ifrit
                     break;
                 default:
                     destination = "systems";
@@ -157,8 +190,12 @@ class WeaponDisplayTask {
             // Clone the weapon image and set it as a child of the systems MFD
             weaponImageClone = GameObject.Instantiate(SceneSingleton<CombatHUD>.i.weaponImage.gameObject, UIUtils.MFD_List[destination].GetMFDTransform());
             var cloneImg = weaponImageClone.GetComponent<Image>();
-            cloneImg.rectTransform.sizeDelta = new Vector2(cloneImg.rectTransform.sizeDelta.x * 0.6f, cloneImg.rectTransform.sizeDelta.y * 0.6f);
+            cloneImg.rectTransform.sizeDelta = new Vector2(
+                cloneImg.rectTransform.sizeDelta.x * imageScaleFactor, 
+                cloneImg.rectTransform.sizeDelta.y * imageScaleFactor);
             cloneImg.rectTransform.anchoredPosition = weaponImagePos;
+            //rotate the image 90 degrees clockwise
+            if (rotateWeaponImage) cloneImg.rectTransform.localRotation = Quaternion.Euler(0, 0, -90);
         }
 
         public void RefreshWeapon() {
@@ -176,7 +213,7 @@ class WeaponDisplayTask {
             int ammo = flareEjector.GetAmmo();
             flareLabel.SetText("IR:" + ammo.ToString());
 
-            int font = highlight ? originalFlareFont + 5 : originalFlareFont;
+            int font = highlight ? originalFlareFont + 10 : originalFlareFont;
             flareLabel.SetFontStyle(highlight ? FontStyle.Bold : FontStyle.Normal);
             flareLabel.SetFontSize(Mathf.Max(1, font));
 
@@ -191,7 +228,7 @@ class WeaponDisplayTask {
             int charge = (int)(powerSupply.GetCharge() * 100f);
             radarLabel.SetText("EW:" + charge.ToString() + "%");
 
-            int font = highlight ? originalRadarFont + 5 : originalRadarFont;
+            int font = highlight ? originalRadarFont + 10 : originalRadarFont;
             radarLabel.SetFontStyle(highlight ? FontStyle.Bold : FontStyle.Normal);
             radarLabel.SetFontSize(Mathf.Max(1, font));
 
@@ -204,10 +241,11 @@ class WeaponDisplayTask {
         string platformName = SceneSingleton<CombatHUD>.i.aircraft.GetAircraftParameters().aircraftName;
         if (
             platformName != "T/A-30 Compass" && 
-            platformName != "FS-12 Revoker") {
+            platformName != "FS-12 Revoker" &&
+            platformName != "FS-20 Vortex" &&
+            platformName != "KR-67 Ifrit")
             // If the platform is not supported, do nothing
             return;
-        }
         if (!initialized) {
             Plugin.Log("[WD] Weapon Display Task starting for airplane " + platformName);
             if (flareEjector != null) {
