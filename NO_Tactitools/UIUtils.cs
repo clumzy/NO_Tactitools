@@ -17,9 +17,7 @@ class UIUtilsPlugin {
             Plugin.harmony.PatchAll(typeof(HUDRegisterPatch));
             Plugin.harmony.PatchAll(typeof(CameraStateManagerRegisterPatch));
             Plugin.harmony.PatchAll(typeof(MFD_TargetRegisterPatch));
-            Plugin.harmony.PatchAll(typeof(MFD_TargetOnDestroyPatch));
-            Plugin.harmony.PatchAll(typeof(MFD_SystemsRegisterPatch));
-            Plugin.harmony.PatchAll(typeof(MFD_SystemsOnDestroyPatch));
+            Plugin.harmony.PatchAll(typeof(MFD_TacticalRegisterPatch));
             initialized = true;
             Plugin.Log("[UU] UIUtils plugin succesfully started !");
         }
@@ -30,8 +28,7 @@ public class UIUtils {
     public static Transform HMD;
     public static Transform HUD;
     public static Transform targetScreen;
-    public static Transform systemsPanel;
-    public static Transform enginePanel;
+    public static Transform tacticalScreen;
     public static AudioClip selectAudio;
     public static CameraStateManager cameraStateManager;
 
@@ -153,6 +150,7 @@ public class UIUtils {
             rectTransform.pivot = new Vector2(0.5f, 0.5f);
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             rectTransform.rotation = Quaternion.Euler(0, 0, angle);
+
             return;
         }
 
@@ -277,8 +275,13 @@ public class UIUtils {
             child.gameObject.SetActive(false);
         }
     }
-}
 
+    public static void DestroyChildren(Transform target) {
+        foreach (Transform child in target) {
+            GameObject.Destroy(child.gameObject);
+        }
+    }
+}
 
 // THIS IS THE HMD
 [HarmonyPatch(typeof(CombatHUD), "Awake")]
@@ -289,7 +292,6 @@ class HMDRegisterPatch {
         Plugin.Log("[UU] HMD Registered !");
     }
 }
-
 
 // UNUSED FOR NOW, WE'LL KEEP IT FOR LATER SO AS TO BE ABLE TO DISPLAY
 // ELEMENTS ON THE MAIN HUD
@@ -310,41 +312,20 @@ class CameraStateManagerRegisterPatch {
     }
 }
 
-// THIS IS THE TARGET MFD
-// PARENTS ARE SET FOR THE ELEMENTS ONCE IT IS INSTANCIATED, BEFORE THAT THEY TEMPORARILY STAY ON THE COMBAT HUD
-// WHILE INACTIVATED
 [HarmonyPatch(typeof(TargetScreenUI), "LateUpdate")]
 class MFD_TargetRegisterPatch {
     static void Postfix(TargetScreenUI __instance) {
-        if (UIUtils.targetScreen == null) {
+        if (UIUtils.targetScreen == null) { // we cehck for null to avoid registering multiple times
             UIUtils.targetScreen = __instance.transform;
             Plugin.Log($"[UU] Target Screen registered !");
         }
     }
 }
 
-[HarmonyPatch(typeof(TargetScreenUI), "OnDestroy")]
-class MFD_TargetOnDestroyPatch {
-    static void Postfix() {
-        UIUtils.targetScreen = null;
-    }
-}
-
-// THIS IS THE SYSTEMS PANEL
-[HarmonyPatch(typeof(SystemStatusDisplay), "Initialize")]
-class MFD_SystemsRegisterPatch {
-    static void Postfix(SystemStatusDisplay __instance) {
-        if (UIUtils.systemsPanel == null) {
-            UIUtils.systemsPanel = __instance.transform;
-            Plugin.Log($"[UU] Systems Panel registered !");
-        }
-
-    }
-}
-
-[HarmonyPatch(typeof(SystemStatusDisplay), "OnDestroy")]
-class MFD_SystemsOnDestroyPatch {
-    static void Postfix() {
-        UIUtils.systemsPanel = null;
+[HarmonyPatch(typeof(TacScreen), "Initialize")]
+class MFD_TacticalRegisterPatch {
+    static void Postfix(TacScreen __instance) {
+        UIUtils.tacticalScreen = __instance.transform;
+        Plugin.Log($"[UU] Tactical Screen registered !");
     }
 }

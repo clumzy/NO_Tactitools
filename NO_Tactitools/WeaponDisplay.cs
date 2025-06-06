@@ -92,8 +92,11 @@ class WeaponDisplayTask {
     public static Transform GetDestination(string platformName) {
         // Get the destination Transform based on the platform name
         return platformName switch {
-            "T/A-30 Compass" or "FS-12 Revoker" or "FS-20 Vortex" or "KR-67 Ifrit" => UIUtils.systemsPanel,
-            _ => null,// Return null if the platform is not supported
+            "T/A-30 Compass" or "FS-12 Revoker" or "FS-20 Vortex" or "KR-67 Ifrit" => UIUtils.tacticalScreen.Find("Canvas/SystemStatus").transform,
+            // For Cricket, return the EngPanel under Canvas under tacticalScreen
+            "CI-22 Cricket" => UIUtils.tacticalScreen.Find("Canvas/EngPanel").transform,
+            "SAH-46 Chicane" => UIUtils.tacticalScreen.Find("Canvas/TelemetryPanel").transform,
+            _ => null, // Return null if the platform is not supported
         };
     }
 
@@ -117,6 +120,33 @@ public class WeaponDisplay {
             Vector2 flarePos, radarPos, lineStart, lineEnd, weaponNamePos, weaponAmmoPos, weaponImagePos;
             int flareFont, radarFont, weaponNameFont, weaponAmmoFont;
             switch (platformName) {
+                case "CI-22 Cricket":
+                    flarePos = new Vector2(0, -40);
+                    radarPos = new Vector2(0, -80);
+                    lineStart = new Vector2(0, -60);
+                    lineEnd = new Vector2(0, 60);
+                    weaponNamePos = new Vector2(0, 60);
+                    weaponAmmoPos = new Vector2(0, 30);
+                    weaponImagePos = new Vector2(0, 80);
+                    flareFont = 30;
+                    radarFont = 30;
+                    weaponNameFont = 18;
+                    weaponAmmoFont = 40;
+                    break;
+                case "SAH-46 Chicane":
+                    flarePos = new Vector2(0, -80);
+                    radarPos = new Vector2(0, -160);
+                    lineStart = new Vector2(-6000, 0);
+                    lineEnd = new Vector2(6000, 0);
+                    weaponNamePos = new Vector2(0, 110);
+                    weaponAmmoPos = new Vector2(0, 60);
+                    weaponImagePos = new Vector2(0, 160);
+                    flareFont = 55;
+                    radarFont = 55;
+                    weaponNameFont = 35;
+                    weaponAmmoFont = 55;
+                    imageScaleFactor = 1.2f; // Scale the image for SAH-46 Chicane
+                    break;
                 case "T/A-30 Compass":
                     flarePos = new Vector2(0, -40);
                     radarPos = new Vector2(0, -80);
@@ -190,7 +220,7 @@ public class WeaponDisplay {
             originalFlareFont = flareFont;
             originalRadarFont = radarFont;
 
-            // Hide the existing MFD content and kill the layout
+        // Hide the existing MFD content and kill the layout
             UIUtils.HideChildren(destination);
             UIUtils.KillLayout(destination);
             
