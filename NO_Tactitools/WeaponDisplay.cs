@@ -91,8 +91,8 @@ class WeaponDisplayTask {
                     weaponNamePos = new Vector2(0, 70);
                     weaponAmmoPos = new Vector2(70, 20);
                     weaponImagePos = new Vector2(-70, 20);
-                    flareFont = 40;
-                    radarFont = 40;
+                    flareFont = 35;
+                    radarFont = 35;
                     weaponNameFont = 30;
                     weaponAmmoFont = 55;
                     imageScaleFactor = 0.6f; // Scale the image for KR-67 Ifrit
