@@ -363,6 +363,7 @@ class MFD_TargetRegisterPatch {
 [HarmonyPatch(typeof(TargetScreenUI), "OnDestroy")]
 class MFD_TargetOnDestroyPatch {
     static void Postfix() {
+        UIUtils.MFD_List["target"].SetMFDTransform(null);
         UIUtils.ClearMFD_Labels("target");
     }
 }
@@ -386,6 +387,7 @@ class MFD_SystemsRegisterPatch {
 [HarmonyPatch(typeof(SystemStatusDisplay), "OnDestroy")]
 class MFD_SystemsOnDestroyPatch {
     static void Postfix() {
+        UIUtils.MFD_List["systems"].SetMFDTransform(null);
         UIUtils.ClearMFD_Labels("systems");
     }
 }
