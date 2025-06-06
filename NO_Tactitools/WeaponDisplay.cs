@@ -35,6 +35,7 @@ class WeaponDisplayTask {
     static void Postfix() {
         string platformName = SceneSingleton<CombatHUD>.i.aircraft.GetAircraftParameters().aircraftName;
         Transform destination = GetDestination(platformName);
+        Plugin.Log($"[WD] Weapon Display Task running for airplane {platformName} at destination {destination?.name}");
         if (destination == null) return; // If the platform is not supported or destination canvas is not initialized, do nothing
         if (!initialized) {
             Plugin.Log("[WD] Weapon Display Task starting for airplane " + platformName);
@@ -92,10 +93,15 @@ class WeaponDisplayTask {
     public static Transform GetDestination(string platformName) {
         // Get the destination Transform based on the platform name
         return platformName switch {
-            "T/A-30 Compass" or "FS-12 Revoker" or "FS-20 Vortex" or "KR-67 Ifrit" => UIUtils.tacticalScreen.Find("Canvas/SystemStatus").transform,
-            // For Cricket, return the EngPanel under Canvas under tacticalScreen
+            "T/A-30 Compass" or 
+            "FS-12 Revoker" or 
+            "FS-20 Vortex" or 
+            "KR-67 Ifrit" or 
+            "EW-1 Medusa"=> UIUtils.tacticalScreen.Find("Canvas/SystemStatus").transform,
             "CI-22 Cricket" => UIUtils.tacticalScreen.Find("Canvas/EngPanel").transform,
             "SAH-46 Chicane" => UIUtils.tacticalScreen.Find("Canvas/TelemetryPanel").transform,
+            "VL-49 Tarantula" => UIUtils.tacticalScreen.Find("Canvas/RightScreenBorder/WeaponPanel").transform,
+            "SFB-81" => UIUtils.tacticalScreen.Find("Canvas/weaponPanel").transform, // sic
             _ => null, // Return null if the platform is not supported
         };
     }
@@ -110,8 +116,8 @@ public class WeaponDisplay {
         private static GameObject weaponImageClone;
 
         // Store original font sizes
-        private int originalFlareFont;
-        private int originalRadarFont;
+        private int originalFlareFontSize;
+        private int originalRadarFontSize;
 
         public WeaponDisplay(string platformName, Transform destination) {
             bool rotateWeaponImage = false;
@@ -123,8 +129,8 @@ public class WeaponDisplay {
                 case "CI-22 Cricket":
                     flarePos = new Vector2(0, -40);
                     radarPos = new Vector2(0, -80);
-                    lineStart = new Vector2(0, -60);
-                    lineEnd = new Vector2(0, 60);
+                    lineStart = new Vector2(-60, 0);
+                    lineEnd = new Vector2(60, 0);
                     weaponNamePos = new Vector2(0, 60);
                     weaponAmmoPos = new Vector2(0, 30);
                     weaponImagePos = new Vector2(0, 80);
@@ -136,8 +142,8 @@ public class WeaponDisplay {
                 case "SAH-46 Chicane":
                     flarePos = new Vector2(0, -80);
                     radarPos = new Vector2(0, -160);
-                    lineStart = new Vector2(-6000, 0);
-                    lineEnd = new Vector2(6000, 0);
+                    lineStart = new Vector2(-150, 0);
+                    lineEnd = new Vector2(150, 0);
                     weaponNamePos = new Vector2(0, 110);
                     weaponAmmoPos = new Vector2(0, 60);
                     weaponImagePos = new Vector2(0, 160);
@@ -150,8 +156,8 @@ public class WeaponDisplay {
                 case "T/A-30 Compass":
                     flarePos = new Vector2(0, -40);
                     radarPos = new Vector2(0, -80);
-                    lineStart = new Vector2(0, -60);
-                    lineEnd = new Vector2(0, 60);
+                    lineStart = new Vector2(-60, 0);
+                    lineEnd = new Vector2(60, 0);
                     weaponNamePos = new Vector2(0, 60);
                     weaponAmmoPos = new Vector2(0, 30);
                     weaponImagePos = new Vector2(0, 80);
@@ -163,8 +169,8 @@ public class WeaponDisplay {
                 case "FS-12 Revoker":
                     flarePos = new Vector2(0, -40);
                     radarPos = new Vector2(0, -80);
-                    lineStart = new Vector2(-80, -10);
-                    lineEnd = new Vector2(80, -10);
+                    lineStart = new Vector2(-100, -10);
+                    lineEnd = new Vector2(100, -10);
                     weaponNamePos = new Vector2(0, 50);
                     weaponAmmoPos = new Vector2(0, 20);
                     weaponImagePos = new Vector2(0, 80);
@@ -177,8 +183,8 @@ public class WeaponDisplay {
                 case "FS-20 Vortex":
                     flarePos = new Vector2(-70, -70);
                     radarPos = new Vector2(70, -70);
-                    lineStart = new Vector2(-200, -20);
-                    lineEnd = new Vector2(200, -20);
+                    lineStart = new Vector2(-120, -20);
+                    lineEnd = new Vector2(120, -20);
                     weaponNamePos = new Vector2(0, 70);
                     weaponAmmoPos = new Vector2(70, 20);
                     weaponImagePos = new Vector2(-70, 20);
@@ -191,8 +197,8 @@ public class WeaponDisplay {
                 case "KR-67 Ifrit":
                     flarePos = new Vector2(-70, -70);
                     radarPos = new Vector2(70, -70);
-                    lineStart = new Vector2(-200, -20);
-                    lineEnd = new Vector2(200, -20);
+                    lineStart = new Vector2(-100, -20);
+                    lineEnd = new Vector2(100, -20);
                     weaponNamePos = new Vector2(0, 70);
                     weaponAmmoPos = new Vector2(80, 20);
                     weaponImagePos = new Vector2(-70, 20);
@@ -201,6 +207,49 @@ public class WeaponDisplay {
                     weaponNameFont = 45;
                     weaponAmmoFont = 55;
                     imageScaleFactor = 0.8f; // Scale the image for KR-67 Ifrit
+                    break;
+                case "VL-49 Tarantula":
+                    flarePos = new Vector2(105, 40);
+                    radarPos = new Vector2(105, -40);
+                    lineStart = new Vector2(50, -60);
+                    lineEnd = new Vector2(50, 60);
+                    weaponNamePos = new Vector2(-60, 0);
+                    weaponAmmoPos = new Vector2(-60, -50);
+                    weaponImagePos = new Vector2(-60, 40);
+                    flareFont = 25;
+                    radarFont = 25;
+                    weaponNameFont = 18;
+                    weaponAmmoFont = 40;
+                    imageScaleFactor = 0.8f;
+                    break;
+                case "EW-1 Medusa":
+                    flarePos = new Vector2(0, -60);
+                    radarPos = new Vector2(0, -120);
+                    lineStart = new Vector2(-60, 0);
+                    lineEnd = new Vector2(60, 0);
+                    weaponNamePos = new Vector2(0, 80);
+                    weaponAmmoPos = new Vector2(0, 40);
+                    weaponImagePos = new Vector2(0, 120);
+                    flareFont = 35;
+                    radarFont = 35;
+                    weaponNameFont = 18;
+                    weaponAmmoFont = 45;
+                    imageScaleFactor = 0.7f; // Scale the image for EW-1 Medusa
+                    break;
+                case "SFB-81":
+                    flarePos = new Vector2(0, -40);
+                    radarPos = new Vector2(0, -80);
+                    lineStart = new Vector2(-50, 0);
+                    lineEnd = new Vector2(50, 0);
+                    weaponNamePos = new Vector2(0, 80);
+                    weaponAmmoPos = new Vector2(0, 40);
+                    weaponImagePos = new Vector2(-120, 0);
+                    flareFont = 30;
+                    radarFont = 30;
+                    weaponNameFont = 25;
+                    weaponAmmoFont = 40;
+                    rotateWeaponImage = true; // Rotate the weapon image for SFB-81
+                    imageScaleFactor = 0.9f; // Scale the image for SFB-81
                     break;
                 default:
                     flarePos = new Vector2(0, -40);
@@ -217,12 +266,14 @@ public class WeaponDisplay {
                     break;
             }
             // Store original font sizes
-            originalFlareFont = flareFont;
-            originalRadarFont = radarFont;
+            originalFlareFontSize = flareFont;
+            originalRadarFontSize = radarFont;
 
-        // Hide the existing MFD content and kill the layout
+            // Hide the existing MFD content and kill the layout
             UIUtils.HideChildren(destination);
             UIUtils.KillLayout(destination);
+            // rotate the destination canvas 90 degrees clockwise
+            if (platformName == "SFB-81") destination.localRotation = Quaternion.Euler(0, 0, -90);
             
             // Create the labels and line for the systems MFD
             flareLabel = new(
@@ -251,7 +302,7 @@ public class WeaponDisplay {
                 lineEnd,
                 destination,
                 Color.green,
-                4f
+                2f
             );
             weaponNameLabel = new(
                 "weaponNameLabel",
@@ -297,7 +348,7 @@ public class WeaponDisplay {
             int ammo = flareEjector.GetAmmo();
             flareLabel.SetText("IR:" + ammo.ToString());
 
-            int font = highlight ? originalFlareFont + 10 : originalFlareFont;
+            int font = highlight ? originalFlareFontSize + 10 : originalFlareFontSize;
             flareLabel.SetFontStyle(highlight ? FontStyle.Bold : FontStyle.Normal);
             flareLabel.SetFontSize(Mathf.Max(1, font));
 
@@ -312,7 +363,7 @@ public class WeaponDisplay {
             int charge = (int)(powerSupply.GetCharge() * 100f);
             radarLabel.SetText("EW:" + charge.ToString() + "%");
 
-            int font = highlight ? originalRadarFont + 10 : originalRadarFont;
+            int font = highlight ? originalRadarFontSize + 10 : originalRadarFontSize;
             radarLabel.SetFontStyle(highlight ? FontStyle.Bold : FontStyle.Normal);
             radarLabel.SetFontSize(Mathf.Max(1, font));
 

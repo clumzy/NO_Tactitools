@@ -86,7 +86,7 @@ public class UIUtils {
             int fontSize = 24,
             float backgroundOpacity = 0.8f) : base(name, UIParent) {
 
-            rectTransform.anchoredPosition = position;
+            rectTransform.localPosition = position;
             rectTransform.sizeDelta = new Vector2(200, 40);
             imageComponent.color = new Color(0, 0, 0, backgroundOpacity);
 
@@ -149,8 +149,7 @@ public class UIUtils {
             rectTransform.anchoredPosition = start + direction / 2f;
             rectTransform.pivot = new Vector2(0.5f, 0.5f);
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            rectTransform.rotation = Quaternion.Euler(0, 0, angle);
-
+            rectTransform.localRotation = Quaternion.Euler(0, 0, angle);
             return;
         }
 
