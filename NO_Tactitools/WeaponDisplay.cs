@@ -35,7 +35,6 @@ class WeaponDisplayTask {
     static void Postfix() {
         string platformName = SceneSingleton<CombatHUD>.i.aircraft.GetAircraftParameters().aircraftName;
         Transform destination = GetDestination(platformName);
-        Plugin.Log($"[WD] Weapon Display Task running for airplane {platformName} at destination {destination?.name}");
         if (destination == null) return; // If the platform is not supported or destination canvas is not initialized, do nothing
         if (!initialized) {
             Plugin.Log("[WD] Weapon Display Task starting for airplane " + platformName);
@@ -249,7 +248,7 @@ public class WeaponDisplay {
                     weaponNameFont = 25;
                     weaponAmmoFont = 40;
                     rotateWeaponImage = true; // Rotate the weapon image for SFB-81
-                    imageScaleFactor = 0.9f; // Scale the image for SFB-81
+                    imageScaleFactor = 0.8f; // Scale the image for SFB-81
                     break;
                 default:
                     flarePos = new Vector2(0, -40);
