@@ -241,6 +241,9 @@ class InterceptionVectorTask {
         else {
             indicatorScreenLabel.SetText("");
             if (interceptArray.Count == interceptArraySize) indicatorTargetLabel.SetText("↶");
+            else{
+                indicatorTargetLabel.SetText("." + new string('.', (int)(interceptArray.Count / 60)));
+            }
             indicatorTargetLabel.SetPosition(new Vector2(0, -40));
             indicatorTargetLine.SetThickness(0f);
         }
