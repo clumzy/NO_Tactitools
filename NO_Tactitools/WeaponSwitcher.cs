@@ -14,8 +14,9 @@ class WeaponSwitcherPlugin {
                 Plugin.weaponSwitcherControllerName.Value,
                 new ControllerButton(
                 Plugin.weaponSwitcherButton0.Value,
-                0.2f,
-                onShortPress: HandleClick0
+                0.5f,
+                onShortPress: HandleClick0,
+                onLongPress: HandleToggleAutoControl // Long press to switch to the first weapon station
                 ));
             InputCatcher.RegisterControllerButton(
                 Plugin.weaponSwitcherControllerName.Value,
@@ -62,6 +63,17 @@ class WeaponSwitcherPlugin {
             catch (Exception) { }
         }
     }
+
+    private static void HandleToggleAutoControl() {
+        if (SceneSingleton<CombatHUD>.i != null &&
+            SceneSingleton<CombatHUD>.i.aircraft != null) {
+            try {
+                SceneSingleton<CombatHUD>.i.ToggleAutoControl();
+            }
+            catch (Exception) { }
+        }
+    }
+
     private static void HandleClick1() {
         if (SceneSingleton<CombatHUD>.i != null &&
             SceneSingleton<CombatHUD>.i.aircraft != null &&
@@ -117,4 +129,5 @@ class WeaponSwitcherPlugin {
             catch (Exception) { }
         }
     }
+
 }

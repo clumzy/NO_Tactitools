@@ -19,8 +19,27 @@ class WeaponDisplayPlugin {
             // Register the FlareEjector and RadarJammer patches
             Plugin.harmony.PatchAll(typeof(FlareEjectorRegisterPatch));
             Plugin.harmony.PatchAll(typeof(RadarJammerRegisterPatch));
+            // Register the new button for toggling the weapon display
+            InputCatcher.RegisterControllerButton(
+                Plugin.weaponDisplayControllerName.Value,
+                new ControllerButton(
+                    Plugin.weaponDisplayButtonNumber.Value,
+                    0.2f,
+                    onShortPress: HandleDisplayToggle
+                )
+            );
             initialized = true;
             Plugin.Log("[WD] Weapon Display plugin succesfully started !");
+        }
+    }
+
+    private static void HandleDisplayToggle() {
+        if (WeaponDisplayTask.initialized) {
+            WeaponDisplay.ToggleChildrenActiveState();
+            Plugin.Log("[WD] Weapon Display toggled.");
+        }
+        else {
+            Plugin.Log("[WD] Weapon Display not initialized, cannot toggle.");
         }
     }
 }
@@ -107,6 +126,7 @@ class WeaponDisplayTask {
 
 }
 public class WeaponDisplay {
+        private static Transform weaponDisplay_transform;
         private static UIUtils.UILabel flareLabel;
         private static UIUtils.UILabel radarLabel;
         private static UIUtils.UILine MFD_systemsLine;
@@ -117,10 +137,12 @@ public class WeaponDisplay {
         // Store original font sizes
         private int originalFlareFontSize;
         private int originalRadarFontSize;
+        
 
         public WeaponDisplay(string platformName, Transform destination) {
             bool rotateWeaponImage = false;
             float imageScaleFactor = 0.6f;
+            weaponDisplay_transform = destination;
             // Layout settings for each supported platform
             Vector2 flarePos, radarPos, lineStart, lineEnd, weaponNamePos, weaponAmmoPos, weaponImagePos;
             int flareFont, radarFont, weaponNameFont, weaponAmmoFont;
@@ -186,15 +208,15 @@ public class WeaponDisplay {
                     lineEnd = new Vector2(120, -20);
                     weaponNamePos = new Vector2(0, 70);
                     weaponAmmoPos = new Vector2(70, 20);
-                    weaponImagePos = new Vector2(-70, 20);
+                    weaponImagePos = new Vector2(-60, 20);
                     flareFont = 35;
                     radarFont = 35;
                     weaponNameFont = 30;
                     weaponAmmoFont = 55;
-                    imageScaleFactor = 0.6f; // Scale the image for KR-67 Ifrit
+                    imageScaleFactor = 0.7f; // Scale the image for KR-67 Ifrit
                     break;
                 case "KR-67 Ifrit":
-                    flarePos = new Vector2(-70, -70);
+                    flarePos = new Vector2(-75, -70);
                     radarPos = new Vector2(70, -70);
                     lineStart = new Vector2(-100, -20);
                     lineEnd = new Vector2(100, -20);
@@ -369,6 +391,16 @@ public class WeaponDisplay {
             float t = Mathf.Clamp01(charge / 100f);
             Color color = Color.Lerp(Color.red, Color.green, t);
             radarLabel.SetColor(color);
+        }
+
+        public static void ToggleChildrenActiveState()
+        {
+            if (weaponDisplay_transform == null) return;
+            for (int i = 0; i < weaponDisplay_transform.childCount; i++)
+            {
+                var child = weaponDisplay_transform.GetChild(i).gameObject;
+                child.SetActive(!child.activeSelf);
+            }
         }
     }
 

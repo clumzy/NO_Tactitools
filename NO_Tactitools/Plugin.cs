@@ -28,6 +28,8 @@ namespace NO_Tactitools {
         public static ConfigEntry<int> weaponSwitcherButton3;
         public static ConfigEntry<int> weaponSwitcherButton4;
         public static ConfigEntry<bool> weaponDisplayEnabled;
+        public static ConfigEntry<string> weaponDisplayControllerName;
+        public static ConfigEntry<int> weaponDisplayButtonNumber;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
 
@@ -109,6 +111,14 @@ namespace NO_Tactitools {
                 "Weapon Display Enabled",
                 true,
                 "Enable or disable the Weapon Display feature");
+            weaponDisplayControllerName = Config.Bind("Weapon Display",
+                "Weapon Display Controller Name",
+                "",
+                "Name of the peripheral for weapon display");
+            weaponDisplayButtonNumber = Config.Bind("Weapon Display",
+                "Weapon Display Button Number",
+                46,
+                "Button number for weapon display toggle");
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",
                 "Debug Mode Enabled",

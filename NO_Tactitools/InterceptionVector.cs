@@ -43,6 +43,8 @@ class InterceptionVectorTask {
     static Vector3 targetPosition;
     static Vector3 targetVelocity;
     static Vector3 interceptPosition;
+    static List<Vector3> interceptArray = [];
+    const int interceptArraySize = 180; // Number of entries to keep in the intercept array
 
     static void Postfix() {
         if (UIUtils.targetScreen == null) return; // Ensure targetScreen is initialized before proceeding
@@ -125,6 +127,7 @@ class InterceptionVectorTask {
         indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(0, 0));
         targetUnit = null;
         solutionTime = 0f;
+        interceptArray.Clear();
         currentState = State.Idle;
         Plugin.Log("[IV] Transitioning to Idle state");
         return;
@@ -158,6 +161,33 @@ class InterceptionVectorTask {
             currentState = State.Intercepting;
             Plugin.Log("[IV] Target is being tracked, going to TargetTracked state");
             return;
+        }
+    }
+
+    static void HandleInterception() {
+        if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count != 1
+            || ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0] != targetUnit) {
+            currentState = State.Reset;
+            Plugin.Log("[IV] Switched target, returning to Reset state");
+            return;
+        }
+        playerPosition = SceneSingleton<CombatHUD>.i.aircraft.rb.transform.position;
+        playerVelocity = SceneSingleton<CombatHUD>.i.aircraft.rb.velocity;
+        if (playerFactionHQ.IsTargetBeingTracked(targetUnit)) {
+            HandleTracked();
+            solutionTime = FindSolutionTime(targetUnit);
+            if (solutionTime > 0) {
+                UpdateInterceptionPosition();
+            }
+        }
+        else {
+            HandleUntracked();
+        }
+        if (solutionTime > 0) {
+            HandleTargetReachable();
+        }
+        else {
+            HandleTargetUnreachable();
         }
     }
 
@@ -197,22 +227,23 @@ class InterceptionVectorTask {
         bearingLabel.SetText($"({interceptBearing.ToString()}°)");
         timerLabel.SetText($"ETA : {interceptionTimeInSeconds.ToString()}s");
         bool currentInterceptScreenVisible = interceptScreen.z > 0;
-            if (currentInterceptScreenVisible) {
-                if (Plugin.onScreenVectorEnabled.Value) indicatorScreenLabel.SetText("+");
-                indicatorTargetLabel.SetText("+");
-                indicatorTargetLine.ResetThickness();
+        if (currentInterceptScreenVisible && interceptArray.Count == interceptArraySize) {
+            if (Plugin.onScreenVectorEnabled.Value) {
+                indicatorScreenLabel.SetText("+");
+                indicatorScreenLabel.SetPosition(new Vector2(interceptScreen.x, interceptScreen.y));
             }
-            else {
-                indicatorScreenLabel.SetText("");
-                indicatorTargetLabel.SetText("↶");
-                indicatorTargetLabel.SetPosition(new Vector2(0, -40));
-                indicatorTargetLine.SetThickness(0f);
-            }
-        indicatorScreenLabel.SetPosition(new Vector2(interceptScreen.x, interceptScreen.y));
-        if (currentInterceptScreenVisible) {
+            indicatorTargetLabel.SetText("+");
             indicatorTargetLabel.SetPosition(new Vector2(interceptTarget.x, interceptTarget.y));
+            indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(interceptTarget.x, interceptTarget.y));
+            indicatorTargetLine.ResetThickness();
+            Plugin.Log(interceptArray.Count.ToString() + " entries in interceptArray");
         }
-        indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(interceptTarget.x, interceptTarget.y));
+        else {
+            indicatorScreenLabel.SetText("");
+            if (interceptArray.Count == interceptArraySize) indicatorTargetLabel.SetText("↶");
+            indicatorTargetLabel.SetPosition(new Vector2(0, -40));
+            indicatorTargetLine.SetThickness(0f);
+        }
 
     }
 
@@ -225,34 +256,22 @@ class InterceptionVectorTask {
     }
 
     static void UpdateInterceptionPosition() {
-        interceptPosition = targetPosition + targetVelocity * solutionTime;
-    }
-
-    static void HandleInterception() {
-        if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count != 1
-            || ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0] != targetUnit) {
-            currentState = State.Reset;
-            Plugin.Log("[IV] Switched target, returning to Reset state");
-            return;
-        }
-        playerPosition = SceneSingleton<CombatHUD>.i.aircraft.rb.transform.position;
-        playerVelocity = SceneSingleton<CombatHUD>.i.aircraft.rb.velocity;
-        if (playerFactionHQ.IsTargetBeingTracked(targetUnit)) {
-            HandleTracked();
-            solutionTime = FindSolutionTime(targetUnit);
-            if (solutionTime > 0) {
-                UpdateInterceptionPosition();
-            }
+        Vector3 currentPosition = targetPosition + targetVelocity * solutionTime;
+        // If interceptArray does not have 120 entries, fill it with 120 entries of currentPosition
+        if (interceptArray.Count < interceptArraySize) {
+            interceptArray.Add(currentPosition);
         }
         else {
-            HandleUntracked();
+            interceptArray.RemoveAt(0);
+            interceptArray.Add(currentPosition);
         }
-        if (solutionTime > 0) {
-            HandleTargetReachable();
+        // Calculate the average position of the last 120 entries
+        Vector3 averagePosition = Vector3.zero;
+        foreach (Vector3 position in interceptArray) {
+            averagePosition += position;
         }
-        else {
-            HandleTargetUnreachable();
-        }
+        averagePosition /= interceptArray.Count;
+        interceptPosition = averagePosition;
     }
 
     public static void ResetState() {
