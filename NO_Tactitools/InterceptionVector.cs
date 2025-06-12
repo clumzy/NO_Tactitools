@@ -236,7 +236,6 @@ class InterceptionVectorTask {
             indicatorTargetLabel.SetPosition(new Vector2(interceptTarget.x, interceptTarget.y));
             indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(interceptTarget.x, interceptTarget.y));
             indicatorTargetLine.ResetThickness();
-            Plugin.Log(interceptArray.Count.ToString() + " entries in interceptArray");
         }
         else {
             indicatorScreenLabel.SetText("");
