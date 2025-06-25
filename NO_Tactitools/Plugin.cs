@@ -52,10 +52,6 @@ namespace NO_Tactitools {
                 "Interception Vector Enabled",
                 true,
                 "Enable or disable the Interception Vector feature");
-            onScreenVectorEnabled = Config.Bind("Interception Vector",
-                "On-Screen Vector Enabled",
-                false,
-                "Enable or disable the on-screen vector display");
             // Countermeasure Controls settings
             countermeasureControlsEnabled = Config.Bind("Countermeasures",
                 "Countermeasure Controls Enabled",
@@ -111,14 +107,14 @@ namespace NO_Tactitools {
                 "Weapon Display Enabled",
                 true,
                 "Enable or disable the Weapon Display feature");
-            weaponDisplayControllerName = Config.Bind("Weapon Display",
-                "Weapon Display Controller Name",
+            weaponDisplayControllerName = Config.Bind("CM & Weapon Display",
+                "CM & Weapon Display Controller Name",
                 "",
                 "Name of the peripheral for weapon display");
-            weaponDisplayButtonNumber = Config.Bind("Weapon Display",
-                "Weapon Display Button Number",
+            weaponDisplayButtonNumber = Config.Bind("CM & Weapon Display",
+                "CM & Weapon Display Button Number",
                 46,
-                "Button number for weapon display toggle");
+                "Button number for swapping between weapon display modes (modded or vanilla content)");
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",
                 "Debug Mode Enabled",

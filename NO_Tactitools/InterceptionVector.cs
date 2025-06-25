@@ -2,6 +2,7 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using NuclearOption.SceneLoading;
 
 namespace NO_Tactitools;
 
@@ -32,7 +33,6 @@ class InterceptionVectorTask {
     static State currentState = State.Init;
     static UIUtils.UILabel bearingLabel;
     static UIUtils.UILabel timerLabel;
-    static UIUtils.UILabel indicatorScreenLabel;
     static UIUtils.UILabel indicatorTargetLabel;
     static UIUtils.UILine indicatorTargetLine;
     static FactionHQ playerFactionHQ;
@@ -70,16 +70,6 @@ class InterceptionVectorTask {
     static void HandleInitState() {
         Plugin.Log("[IV] Init state");
         playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
-        // Create or find the labels
-        indicatorScreenLabel = new UIUtils.UILabel(
-            "indicatorScreenLabel",
-            new Vector2(0, 0),
-            UIUtils.HMD,
-            FontStyle.Bold,
-            Color.green,
-            18,
-            0f
-        );
         bearingLabel = new UIUtils.UILabel(
             "bearingLabel",
             new Vector2(0, -70),
@@ -122,7 +112,6 @@ class InterceptionVectorTask {
     static void HandleResetState() {
         bearingLabel.SetText("");
         timerLabel.SetText("");
-        indicatorScreenLabel.SetText("");
         indicatorTargetLabel.SetText("");
         indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(0, 0));
         targetUnit = null;
@@ -136,6 +125,7 @@ class InterceptionVectorTask {
     static void HandleIdleState() {
         if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count == 1) {
             targetUnit = ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0];
+            if(targetUnit is Building) return; // WE DO NOT WANT TO TRACK BUILDINGS
             if (playerFactionHQ.IsTargetBeingTracked(targetUnit)) {
                 currentState = State.Intercepting;
                 Plugin.Log("[IV] Target is being tracked");
@@ -221,24 +211,19 @@ class InterceptionVectorTask {
                 SceneSingleton<CombatHUD>.i.aircraft.rb.transform.up));
         Vector3 interceptTarget = new(
             (int)Mathf.Clamp(relativeBearing / 60f * 170f, -170, 170), //180 = width of the canvas
-            (int)Mathf.Clamp(relativeHeight / 60f * 110f, -110, 110), //115 = height of the canvas
+            (int)Mathf.Clamp(relativeHeight / 60f * 170f, -110, 110), //115 = height of the canvas
             0
         );
         bearingLabel.SetText($"({interceptBearing.ToString()}°)");
         timerLabel.SetText($"ETA : {interceptionTimeInSeconds.ToString()}s");
         bool currentInterceptScreenVisible = interceptScreen.z > 0;
         if (currentInterceptScreenVisible && interceptArray.Count == interceptArraySize) {
-            if (Plugin.onScreenVectorEnabled.Value) {
-                indicatorScreenLabel.SetText("+");
-                indicatorScreenLabel.SetPosition(new Vector2(interceptScreen.x, interceptScreen.y));
-            }
             indicatorTargetLabel.SetText("+");
             indicatorTargetLabel.SetPosition(new Vector2(interceptTarget.x, interceptTarget.y));
             indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(interceptTarget.x, interceptTarget.y));
             indicatorTargetLine.ResetThickness();
         }
         else {
-            indicatorScreenLabel.SetText("");
             if (interceptArray.Count == interceptArraySize) indicatorTargetLabel.SetText("↶");
             else{
                 indicatorTargetLabel.SetText("." + new string('.', (int)(interceptArray.Count / 60)));
@@ -252,7 +237,6 @@ class InterceptionVectorTask {
     static void HandleTargetUnreachable() {
         bearingLabel.SetText("");
         timerLabel.SetText("");
-        indicatorScreenLabel.SetText("");
         indicatorTargetLabel.SetText("");
         indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(0, 0));
     }
