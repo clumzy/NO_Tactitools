@@ -115,7 +115,7 @@ class WeaponDisplayTask {
             "FS-12 Revoker" or 
             "FS-20 Vortex" or 
             "KR-67 Ifrit" or 
-            "EW-1 Medusa"=> UIUtils.tacticalScreen.Find("Canvas/SystemStatus").transform,
+            "EW-1 Medusa"=> UIUtils.tacticalScreen.Find("Canvas/engPanel1").transform,
             "CI-22 Cricket" => UIUtils.tacticalScreen.Find("Canvas/EngPanel").transform,
             "SAH-46 Chicane" => UIUtils.tacticalScreen.Find("Canvas/TelemetryPanel").transform,
             "VL-49 Tarantula" => UIUtils.tacticalScreen.Find("Canvas/RightScreenBorder/WeaponPanel").transform,
@@ -244,18 +244,18 @@ public class WeaponDisplay {
                     imageScaleFactor = 0.8f;
                     break;
                 case "EW-1 Medusa":
-                    flarePos = new Vector2(0, -60);
-                    radarPos = new Vector2(0, -120);
-                    lineStart = new Vector2(-60, 0);
-                    lineEnd = new Vector2(60, 0);
-                    weaponNamePos = new Vector2(0, 80);
-                    weaponAmmoPos = new Vector2(0, 40);
-                    weaponImagePos = new Vector2(0, 120);
+                    flarePos = new Vector2(-60, -70);
+                    radarPos = new Vector2(60, -70);
+                    lineStart = new Vector2(-100, -20);
+                    lineEnd = new Vector2(100, -20);
+                    weaponNamePos = new Vector2(0, 70);
+                    weaponAmmoPos = new Vector2(80, 20);
+                    weaponImagePos = new Vector2(-60, 20);
                     flareFont = 35;
                     radarFont = 35;
-                    weaponNameFont = 18;
-                    weaponAmmoFont = 45;
-                    imageScaleFactor = 0.7f; // Scale the image for EW-1 Medusa
+                    weaponNameFont = 30;
+                    weaponAmmoFont = 50;
+                    imageScaleFactor = 0.6f; // Scale the image for KR-67 Ifrit
                     break;
                 case "SFB-81":
                     flarePos = new Vector2(0, -40);
@@ -399,7 +399,8 @@ public class WeaponDisplay {
             for (int i = 0; i < weaponDisplay_transform.childCount; i++)
             {
                 var child = weaponDisplay_transform.GetChild(i).gameObject;
-                child.SetActive(!child.activeSelf);
+                //Specific fix for the Medusa, ThrottleGauge1 was initially hidden
+                if (child.name != "ThrottleGauge1") child.SetActive(!child.activeSelf);
             }
         }
     }

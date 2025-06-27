@@ -7,7 +7,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 namespace NO_Tactitools {
-    [BepInPlugin("NO_Tactitools", "NOTT", "0.1.01")]
+    [BepInPlugin("NO_Tactitools", "NOTT", "0.1.1")]
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;
         public static ConfigEntry<bool> targetRecallEnabled;
@@ -103,8 +103,8 @@ namespace NO_Tactitools {
                 45,
                 "Button number for weapon slot 4");
             // Weapon Display settings
-            weaponDisplayEnabled = Config.Bind("Weapon Display",
-                "Weapon Display Enabled",
+            weaponDisplayEnabled = Config.Bind("CM & Weapon Display",
+                "CM & Weapon Display Enabled",
                 true,
                 "Enable or disable the Weapon Display feature");
             weaponDisplayControllerName = Config.Bind("CM & Weapon Display",
