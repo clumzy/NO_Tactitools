@@ -114,8 +114,8 @@ class WeaponDisplayTask {
             "T/A-30 Compass" or 
             "FS-12 Revoker" or 
             "FS-20 Vortex" or 
-            "KR-67 Ifrit" or 
-            "EW-1 Medusa"=> UIUtils.tacticalScreen.Find("Canvas/engPanel1").transform,
+            "KR-67 Ifrit" => UIUtils.tacticalScreen.Find("Canvas/SystemStatus").transform,
+            "EW-1 Medusa" => UIUtils.tacticalScreen.Find("Canvas/engPanel1").transform,
             "CI-22 Cricket" => UIUtils.tacticalScreen.Find("Canvas/EngPanel").transform,
             "SAH-46 Chicane" => UIUtils.tacticalScreen.Find("Canvas/TelemetryPanel").transform,
             "VL-49 Tarantula" => UIUtils.tacticalScreen.Find("Canvas/RightScreenBorder/WeaponPanel").transform,
