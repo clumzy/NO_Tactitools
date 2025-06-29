@@ -30,6 +30,7 @@ namespace NO_Tactitools {
         public static ConfigEntry<bool> weaponDisplayEnabled;
         public static ConfigEntry<string> weaponDisplayControllerName;
         public static ConfigEntry<int> weaponDisplayButtonNumber;
+        public static ConfigEntry<bool> unitDistanceEnabled;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
 
@@ -115,6 +116,11 @@ namespace NO_Tactitools {
                 "CM & Weapon Display Button Number",
                 46,
                 "Button number for swapping between weapon display modes (modded or vanilla content)");
+            // Unit Distance settings
+            unitDistanceEnabled = Config.Bind("HMD Tweaks",
+                "Unit Marker Distance Indicator Enabled",
+                true,
+                "Enable or disable the Unit Marker Distance Indicator feature");
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",
                 "Debug Mode Enabled",
@@ -152,6 +158,11 @@ namespace NO_Tactitools {
             if (weaponDisplayEnabled.Value) {
                 Logger.LogInfo($"Weapon Display is enabled, patching...");
                 harmony.PatchAll(typeof(WeaponDisplayPlugin));
+            }
+            // Patch Unit Distance
+            if (unitDistanceEnabled.Value) {
+                Logger.LogInfo($"Unit Marker Distance Indicator is enabled, patching...");
+                harmony.PatchAll(typeof(UnitDistancePlugin));
             }
 
             Logger.LogInfo($"Plugin NO_Tactitools is loaded!");
