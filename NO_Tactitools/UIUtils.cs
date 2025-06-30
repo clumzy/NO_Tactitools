@@ -2,6 +2,8 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.IO;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
 namespace NO_Tactitools;
@@ -31,6 +33,36 @@ public class UIUtils {
     public static Transform tacticalScreen;
     public static AudioClip selectAudio;
     public static CameraStateManager cameraStateManager;
+    private static AudioSource audioSource;
+
+    public static void PlaySound(string soundFileName) {
+        if (audioSource == null) {
+            GameObject audioGO = new("NOTT_AudioSource");
+            audioSource = audioGO.AddComponent<AudioSource>();
+            Object.DontDestroyOnLoad(audioGO);
+        }
+
+        string soundPath = Path.Combine(Path.GetDirectoryName(typeof(Plugin).Assembly.Location), "assets", "sounds", soundFileName);
+        if (!File.Exists(soundPath)) {
+            Plugin.Logger.LogError($"[UIUtils] Sound file not found at: {soundPath}");
+            return;
+        }
+
+        SceneSingleton<CombatHUD>.i.StartCoroutine(LoadAndPlayAudio(soundPath));
+    }
+
+    private static IEnumerator<UnityWebRequestAsyncOperation> LoadAndPlayAudio(string path) {
+        using UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, AudioType.MPEG);
+        yield return www.SendWebRequest();
+
+        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError) {
+            Plugin.Logger.LogError("[UIUtils] Error loading audio: " + www.error);
+        }
+        else {
+            AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
+            audioSource.PlayOneShot(clip);
+        }
+    }
 
     public abstract class UIElement {
         protected GameObject gameObject;
@@ -287,7 +319,6 @@ public class UIUtils {
 class HMDRegisterPatch {
     static void Postfix(CombatHUD __instance) {
         UIUtils.HMD = __instance.transform;
-        UIUtils.selectAudio = (AudioClip)Traverse.Create(UIUtils.HMD).Field("selectSound").GetValue();
         Plugin.Log("[UU] HMD Registered !");
     }
 }

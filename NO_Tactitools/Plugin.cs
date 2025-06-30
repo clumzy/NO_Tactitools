@@ -31,6 +31,8 @@ namespace NO_Tactitools {
         public static ConfigEntry<string> weaponDisplayControllerName;
         public static ConfigEntry<int> weaponDisplayButtonNumber;
         public static ConfigEntry<bool> unitDistanceEnabled;
+        public static ConfigEntry<int> unitDistanceThreshold;
+        public static ConfigEntry<bool> unitDistanceSoundEnabled;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
 
@@ -121,6 +123,16 @@ namespace NO_Tactitools {
                 "Unit Marker Distance Indicator Enabled",
                 true,
                 "Enable or disable the Unit Marker Distance Indicator feature");
+            unitDistanceThreshold = Config.Bind("HMD Tweaks",
+                "Unit Marker Distance Indicator Threshold",
+                10,
+                new ConfigDescription(
+                    "Distance threshold in meters for the Unit Marker Distance Indicator to change the marker orientation.",
+                    new AcceptableValueRange<int>(5, 50)));
+            unitDistanceSoundEnabled = Config.Bind("HMD Tweaks",
+                "Unit Marker Distance Sound Enabled",
+                true,
+                "Enable or disable the sound when the Unit Marker Distance Indicator is in \'near\' state.");
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",
                 "Debug Mode Enabled",
@@ -164,7 +176,7 @@ namespace NO_Tactitools {
                 Logger.LogInfo($"Unit Marker Distance Indicator is enabled, patching...");
                 harmony.PatchAll(typeof(UnitDistancePlugin));
             }
-
+            Logger.LogInfo("T" + Time.fixedDeltaTime.ToString());
             Logger.LogInfo($"Plugin NO_Tactitools is loaded!");
         }
 

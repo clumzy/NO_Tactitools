@@ -28,9 +28,12 @@ class TargetRecallPlugin {
         Plugin.Log($"[TR] HandleLongPress");
         if (SceneSingleton<CombatHUD>.i != null) {
             units = [.. (List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()];
-            SoundManager.PlayInterfaceOneShot(UIUtils.selectAudio);
+            if (units.Count == 0) {
+                return;
+            }
             string report = $"Saved <b>{units.Count.ToString()}</b> targets";
             SceneSingleton<AircraftActionsReport>.i.ReportText(report, 3f);
+            UIUtils.PlaySound("beep_target.mp3");
         }
     }
     
