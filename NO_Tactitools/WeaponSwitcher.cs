@@ -50,6 +50,7 @@ class WeaponSwitcherPlugin {
             Plugin.Log("[WS] Weapon Switcher plugin succesfully started !");
         }
     }
+
     private static void HandleClick0() {
         if (SceneSingleton<CombatHUD>.i != null && 
             SceneSingleton<CombatHUD>.i.aircraft != null && 
