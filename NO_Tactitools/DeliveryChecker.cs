@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
@@ -23,9 +22,10 @@ class DeliveryCheckerPlugin {
 class DeliveryBar {
     public static Dictionary<Missile, DeliveryIndicator> deliveryIndicator = [];
 
-    public static void TriggerRemoval(Missile missile) {
+    public static void TriggerRemoval(Missile missile, bool success) {
         if (deliveryIndicator.ContainsKey(missile)) {
-            deliveryIndicator[missile].SetSuccess();
+            if (success) deliveryIndicator[missile].SetSuccess();
+            else deliveryIndicator[missile].SetFailure();
         }
     }
 
@@ -37,10 +37,10 @@ class DeliveryBar {
         }
     }
 
-    private static void RepositionIndicators() {
+    public static void RepositionIndicators() {
         int i = 0;
         foreach (var indicator in deliveryIndicator.Values) {
-            indicator.SetPosition(new Vector2(-120f + i * 12f, -115f));
+            indicator.SetPosition(new Vector2(-120f + i * 12f, -60f));
             i++;
         }
     }
@@ -63,22 +63,30 @@ class DeliveryIndicator {
             "DeliveryFrame" + randomString,
             new Vector2(0f, 0f),
             new Vector2(12f, 12f),
-            UIUtils.HMD,
+            UIUtils.targetScreen,
             Color.black);
         indicator = new UIUtils.UIRectangle(
             "DeliveryIndicator" + randomString,
             new Vector2(0f, 0f),
             new Vector2(8, 8f),
-            UIUtils.HMD,
+            UIUtils.targetScreen,
             Color.yellow);
         frame.SetCenter(pos);
         indicator.SetCenter(pos);
         displayCountdown = -1f;
+        //ensure that both elements don't inherite their parent scaling
+        frame.GetRectObject().transform.localScale = Vector3.one;
+        indicator.GetRectObject().transform.localScale = Vector3.one;
     }
 
     public void SetPosition(Vector2 pos) {
         frame.SetCenter(pos);
         indicator.SetCenter(pos);
+    }
+
+    public void SetRotation(float rotation) {
+        frame.GetRectObject().transform.localRotation = Quaternion.Euler(0f, 0f, rotation);
+        indicator.GetRectObject().transform.localRotation = Quaternion.Euler(0f, 0f, rotation);
     }
 
     public float GetDisplayCountdown() {
@@ -99,12 +107,10 @@ class DeliveryIndicator {
 
     public void SetSuccess() {
         indicator.SetFillColor(Color.green);
-        displayCountdown = 3f;
     }
 
     public void SetFailure() {
         indicator.SetFillColor(Color.red);
-        displayCountdown = 3f;
     }
 
     public void Destroy() {
@@ -123,19 +129,24 @@ class StartMissilePatch {
                     -115f
                 )
             );
+            // IF IT'S A BOMB, ROTATE IT 45 DEGREES
+            // HACKY BUT IT WORKS
+            if (!__instance.GetWeaponInfo().bomb) deliveryIndicator.SetRotation(45f);
             DeliveryBar.deliveryIndicator.Add(__instance, deliveryIndicator);
+            DeliveryBar.RepositionIndicators();
         }
     }
 }
 
-[HarmonyPatch(typeof(Missile), "UnitDisabled")]
+[HarmonyPatch(typeof(Missile), "UserCode_RpcDetonate_897349600")]
 class DetonatePatch {
-    static void Postfix(Missile __instance) {
+    static void Postfix(Missile __instance, bool hitArmor) {
         if (__instance.owner == SceneSingleton<CombatHUD>.i.aircraft) {
             if (DeliveryBar.deliveryIndicator.ContainsKey(__instance)) {
                 DeliveryBar.deliveryIndicator[__instance].SetDisplayCountdown(3f);
                 DeliveryBar.deliveryIndicator[__instance].SetHitTime();
-                DeliveryBar.TriggerRemoval(__instance);
+                if (hitArmor) DeliveryBar.TriggerRemoval(__instance, true);
+                else DeliveryBar.TriggerRemoval(__instance, false);
             }
         }
     }
