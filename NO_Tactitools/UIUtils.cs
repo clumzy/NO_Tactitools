@@ -149,6 +149,8 @@ public class UIUtils {
             rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
         }
 
+        public string GetText() => textComponent.text;
+
         public override void SetColor(Color color) {
             textComponent.color = color;
         }
@@ -334,6 +336,7 @@ class HUDRegisterPatch {
     }
 }
 
+//Sends us back the main camera
 [HarmonyPatch(typeof(CameraStateManager), "Start")]
 class CameraStateManagerRegisterPatch {
     static void Postfix(CameraStateManager __instance) {
@@ -342,6 +345,7 @@ class CameraStateManagerRegisterPatch {
     }
 }
 
+//Specifically the target screen with the camera
 [HarmonyPatch(typeof(TargetScreenUI), "LateUpdate")]
 class MFD_TargetRegisterPatch {
     static void Postfix(TargetScreenUI __instance) {
@@ -352,6 +356,7 @@ class MFD_TargetRegisterPatch {
     }
 }
 
+//The entire tactical screen
 [HarmonyPatch(typeof(TacScreen), "Initialize")]
 class MFD_TacticalRegisterPatch {
     static void Postfix(TacScreen __instance) {

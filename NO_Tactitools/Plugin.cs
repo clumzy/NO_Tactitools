@@ -35,6 +35,8 @@ namespace NO_Tactitools {
         public static ConfigEntry<int> unitDistanceThreshold;
         public static ConfigEntry<bool> unitDistanceSoundEnabled;
         public static ConfigEntry<bool> deliveryCheckerEnabled;
+        public static ConfigEntry<bool> MFDColorEnabled;
+        public static ConfigEntry<float> MFDColorMainColor;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
 
@@ -144,6 +146,17 @@ namespace NO_Tactitools {
                 "Delivery Checker Enabled",
                 true,
                 "Enable or disable the Delivery Checker feature");
+            // MFD Color settings
+            MFDColorEnabled = Config.Bind("MFD Color",
+                "MFD Color Enabled",
+                true,
+                "Enable or disable the MFD Color feature");
+            MFDColorMainColor = Config.Bind("MFD Color",
+                "MFD Color Main Color",
+                0.14f,
+                new ConfigDescription(
+                    "Main color for the MFD, represented as a hue value in HSV color space (0-1).",
+                    new AcceptableValueRange<float>(0f, 1f)));
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",
                 "Debug Mode Enabled",
@@ -191,6 +204,11 @@ namespace NO_Tactitools {
             if (deliveryCheckerEnabled.Value) {
                 Logger.LogInfo($"Delivery Checker is enabled, patching...");
                 harmony.PatchAll(typeof(DeliveryCheckerPlugin));
+            }
+            // Patch MFD Color
+            if (MFDColorEnabled.Value) {
+                Logger.LogInfo($"MFD Color is enabled, patching...");
+                harmony.PatchAll(typeof(MFDColorPlugin));
             }
             Logger.LogInfo("T" + Time.fixedDeltaTime.ToString());
             Logger.LogInfo($"Plugin NO_Tactitools is loaded!");

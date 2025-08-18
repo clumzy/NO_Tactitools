@@ -197,8 +197,6 @@ class InterceptionVectorTask {
         int interceptBearing = (int)(Vector3.SignedAngle(Vector3.forward, interceptVectorXZ, Vector3.up) + 360) % 360;
         int interceptionTimeInSeconds = (int)(interceptVector.magnitude / playerVelocity.magnitude);
         Vector3 interceptScreen = UIUtils.cameraStateManager.mainCamera.WorldToScreenPoint(interceptPosition);
-        interceptScreen.x -= Screen.width / 2;
-        interceptScreen.y -= Screen.height / 2;
         int relativeHeight = (int)-(
             Vector3.SignedAngle(
                 Vector3.ProjectOnPlane(interceptVector, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.up),

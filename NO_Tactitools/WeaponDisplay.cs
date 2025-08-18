@@ -52,13 +52,12 @@ class WeaponDisplayTask {
     private static WeaponDisplay weaponDisplay;
 
     static void Postfix() {
-        string platformName = SceneSingleton<CombatHUD>.i.aircraft.GetAircraftParameters().aircraftName;
-        Transform destination = GetDestination(platformName);
-        if (destination == null) return; // If the platform is not supported or destination canvas is not initialized, do nothing
         if (!initialized) {
+            string platformName = SceneSingleton<CombatHUD>.i.aircraft.GetAircraftParameters().aircraftName;
+            Transform destination = GetDestination(platformName);
+            if (destination == null) return; // If the platform is not supported or destination canvas is not initialized, do nothing
             Plugin.Log("[WD] Weapon Display Task starting for airplane " + platformName);
             if (flareEjector != null) {
-                // Remove the existing MFD content and kill the layout
                 weaponDisplay = new WeaponDisplay(platformName, destination);
                 if (!Plugin.weaponDisplayVanillaUIEnabled.Value) UIUtils.HideWeaponPanel();
                 initialized = true;
@@ -133,13 +132,16 @@ public class WeaponDisplay {
     private static UIUtils.UILabel weaponNameLabel;
     private static UIUtils.UILabel weaponAmmoLabel;
     private static GameObject weaponImageClone;
-
     // Store original font sizes
     private int originalFlareFontSize;
     private int originalRadarFontSize;
 
+    //Store the main color for the MFD
+    private static Color mainColor = Color.green;
+
 
     public WeaponDisplay(string platformName, Transform destination) {
+        // Default settings for the weapon display
         bool rotateWeaponImage = false;
         float imageScaleFactor = 0.6f;
         weaponDisplay_transform = destination;
@@ -302,7 +304,7 @@ public class WeaponDisplay {
             flarePos,
             destination,
             FontStyle.Normal,
-            Color.green,
+            mainColor,
             flareFont,
             0f
         );
@@ -312,7 +314,7 @@ public class WeaponDisplay {
             radarPos,
             destination,
             FontStyle.Normal,
-            Color.green,
+            mainColor,
             radarFont,
             0f
         );
@@ -322,7 +324,7 @@ public class WeaponDisplay {
             lineStart,
             lineEnd,
             destination,
-            Color.green,
+            mainColor,
             2f
         );
         weaponNameLabel = new(
@@ -330,7 +332,7 @@ public class WeaponDisplay {
             weaponNamePos,
             destination,
             FontStyle.Normal,
-            Color.green,
+            mainColor,
             weaponNameFont,
             0f
         );
@@ -339,7 +341,7 @@ public class WeaponDisplay {
             weaponAmmoPos,
             destination,
             FontStyle.Normal,
-            Color.green,
+            mainColor,
             weaponAmmoFont,
             0f
         );
@@ -357,11 +359,14 @@ public class WeaponDisplay {
     public void RefreshWeapon() {
         weaponNameLabel.SetText(SceneSingleton<CombatHUD>.i.weaponName.text);
         weaponAmmoLabel.SetText(SceneSingleton<CombatHUD>.i.ammoCount.text);
-        weaponAmmoLabel.SetColor(SceneSingleton<CombatHUD>.i.ammoCount.color);
+        if (weaponAmmoLabel.GetText() == "0") weaponAmmoLabel.SetColor(Color.red);
+        else weaponAmmoLabel.SetColor(mainColor);
 
         var image = weaponImageClone.GetComponent<Image>();
         var srcImg = SceneSingleton<CombatHUD>.i.weaponImage;
         image.sprite = srcImg.sprite;
+        if (weaponAmmoLabel.GetText() == "0") image.color = Color.red;
+        else image.color = mainColor;
     }
 
     public void RefreshFlare(bool highlight) {
@@ -374,7 +379,7 @@ public class WeaponDisplay {
         flareLabel.SetFontSize(Mathf.Max(1, font));
 
         float t = Mathf.Clamp01((float)ammo / flareEjector.GetMaxAmmo());
-        Color color = Color.Lerp(Color.red, Color.green, t);
+        Color color = Color.Lerp(Color.red, mainColor, t);
         flareLabel.SetColor(color);
     }
 
@@ -389,7 +394,7 @@ public class WeaponDisplay {
         radarLabel.SetFontSize(Mathf.Max(1, font));
 
         float t = Mathf.Clamp01(charge / 100f);
-        Color color = Color.Lerp(Color.red, Color.green, t);
+        Color color = Color.Lerp(Color.red, mainColor, t);
         radarLabel.SetColor(color);
     }
 
@@ -400,6 +405,11 @@ public class WeaponDisplay {
             //Specific fix for the Medusa, ThrottleGauge1 was initially hidden
             if (child.name != "ThrottleGauge1") child.SetActive(!child.activeSelf);
         }
+    }
+
+    public static void SetMainColor(Color color) {
+        // ONLY WORKS IF THE REST OF THE DISPLAY HAS NOT STARTED YET
+        mainColor = color;
     }
 }
 
