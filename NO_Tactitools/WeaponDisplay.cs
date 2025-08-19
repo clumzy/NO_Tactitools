@@ -136,7 +136,7 @@ public class WeaponDisplay {
     private int originalFlareFontSize;
     private int originalRadarFontSize;
 
-    //Store the main color for the MFD
+    //Store the main color for the MFD, can be set by the MFDColorPlugin
     private static Color mainColor = Color.green;
 
 
@@ -324,7 +324,7 @@ public class WeaponDisplay {
             lineStart,
             lineEnd,
             destination,
-            mainColor,
+            Color.white,
             2f
         );
         weaponNameLabel = new(

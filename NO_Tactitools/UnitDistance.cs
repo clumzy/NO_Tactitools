@@ -10,13 +10,22 @@ namespace NO_Tactitools;
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class UnitDistancePlugin {
     private static bool initialized = false;
+    public static int unitDistanceThreshold;
+    public static bool unitDistanceSoundEnabled;
     static void Postfix() {
         if (!initialized) {
             Plugin.Log($"[UD] Unit Marker Distance Indicator plugin starting !");
             Plugin.harmony.PatchAll(typeof(UnitDistanceTask));
+            Reset();
             initialized = true;
             Plugin.Log("[UD] Unit Marker Distance Indicator plugin succesfully started !");
         }
+    }
+
+    public static void Reset() {
+        unitDistanceThreshold = Plugin.unitDistanceThreshold.Value * 1000; // Convert threshold from kilometers to Unity units (1 unit = 1 meter)
+        unitDistanceSoundEnabled = Plugin.unitDistanceSoundEnabled.Value;
+        UnitDistanceTask.unitStates.Clear();
     }
 }
 
@@ -30,7 +39,7 @@ class UnitDistanceTask {
         Transform markerTransform = (Transform)Traverse.Create(__instance).Field("_transform").GetValue();
         if (SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ.IsTargetBeingTracked(__instance.unit)) {
             int distanceToPlayer = Mathf.RoundToInt(Vector3.Distance(__instance.unit.rb.transform.position, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.position));
-            int threshold = Plugin.unitDistanceThreshold.Value * 1000;
+            int threshold = UnitDistancePlugin.unitDistanceThreshold;
             int rotationThreshold = threshold + 250; // Convert threshold from kilometers to Unity units (1 unit = 1 meter)
 
             string currentState;
@@ -51,7 +60,7 @@ class UnitDistanceTask {
 
             unitStates.TryGetValue(__instance, out string previousState);
 
-            if (currentState == "transition" && previousState == "far" && Plugin.unitDistanceSoundEnabled.Value) {
+            if (currentState == "transition" && previousState == "far" && UnitDistancePlugin.unitDistanceSoundEnabled) {
                 UIUtils.PlaySound("beep_alert.mp3");
             }
 
@@ -76,6 +85,6 @@ class UnitDistanceTask {
 class ResetUnitDistanceDictOnRespawnPatch {
     static void Postfix() {
         // Reset the unitStates when the aircraft is destroyed
-        UnitDistanceTask.unitStates.Clear();
+        UnitDistancePlugin.Reset();
     }
 }

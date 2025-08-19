@@ -36,7 +36,8 @@ namespace NO_Tactitools {
         public static ConfigEntry<bool> unitDistanceSoundEnabled;
         public static ConfigEntry<bool> deliveryCheckerEnabled;
         public static ConfigEntry<bool> MFDColorEnabled;
-        public static ConfigEntry<float> MFDColorMainColor;
+        public static ConfigEntry<Color> MFDColor;
+        public static ConfigEntry<bool> MFDAlternativeAttitudeEnabled;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
 
@@ -151,12 +152,14 @@ namespace NO_Tactitools {
                 "MFD Color Enabled",
                 true,
                 "Enable or disable the MFD Color feature");
-            MFDColorMainColor = Config.Bind("MFD Color",
-                "MFD Color Main Color",
-                0.14f,
-                new ConfigDescription(
-                    "Main color for the MFD, represented as a hue value in HSV color space (0-1).",
-                    new AcceptableValueRange<float>(0f, 1f)));
+            MFDColor = Config.Bind("MFD Color",
+                "MFD Main Color",
+                new Color(0.176f, 0.357f, 0.502f), // Default color in RGB
+                "Main color for the MFD in RGB format. This will be used to set the MFD main color.");
+            MFDAlternativeAttitudeEnabled = Config.Bind("MFD Color",
+                "MFD Alternative Attitude Enabled",
+                true,
+                "Enable or disable the alternative attitude colors for the MFD horizon and ground indicators.");
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",
                 "Debug Mode Enabled",
