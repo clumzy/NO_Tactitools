@@ -7,7 +7,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 namespace NO_Tactitools {
-    [BepInPlugin("NO_Tactitools", "NOTT", "0.1.1")]
+    [BepInPlugin("NO_Tactitools", "NOTT", "0.2.0")]
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;
         public static ConfigEntry<bool> targetRecallEnabled;
