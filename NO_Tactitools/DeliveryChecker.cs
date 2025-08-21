@@ -72,7 +72,7 @@ class DeliveryIndicator {
         indicator = new UIUtils.UIRectangle(
             "DeliveryIndicator" + randomString,
             new Vector2(0f, 0f),
-            new Vector2(8, 8f),
+            new Vector2(5f, 5f),
             UIUtils.targetScreen,
             Color.yellow);
         frame.SetCenter(pos);
@@ -147,7 +147,7 @@ class DetonatePatch {
     static void Postfix(Missile __instance, bool hitArmor) {
         if (__instance.owner == SceneSingleton<CombatHUD>.i.aircraft) {
             if (DeliveryBar.deliveryIndicator.ContainsKey(__instance)) {
-                DeliveryBar.deliveryIndicator[__instance].SetDisplayCountdown(3f);
+                DeliveryBar.deliveryIndicator[__instance].SetDisplayCountdown(2f);
                 DeliveryBar.deliveryIndicator[__instance].SetHitTime();
                 if (hitArmor) DeliveryBar.TriggerRemoval(__instance, true);
                 else DeliveryBar.TriggerRemoval(__instance, false);

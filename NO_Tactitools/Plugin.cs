@@ -154,7 +154,7 @@ namespace NO_Tactitools {
                 "Enable or disable the MFD Color feature");
             MFDColor = Config.Bind("MFD Color",
                 "MFD Main Color",
-                new Color(0.176f, 0.357f, 0.502f), // Default color in RGB
+                new Color(1f, 0.53f, 0.22f), // Default color in RGB
                 "Main color for the MFD in RGB format. This will be used to set the MFD main color.");
             MFDAlternativeAttitudeEnabled = Config.Bind("MFD Color",
                 "MFD Alternative Attitude Enabled",
