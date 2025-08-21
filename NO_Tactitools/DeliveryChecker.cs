@@ -17,6 +17,10 @@ class DeliveryCheckerPlugin {
             Plugin.Logger.LogInfo("[DV] DeliveryChecker plugin succesfully started !");
         }
     }
+
+    public static void Reset() {
+        DeliveryBar.deliveryIndicator.Clear();
+    }
 }
 
 class DeliveryBar {
@@ -155,12 +159,17 @@ class DetonatePatch {
 [HarmonyPatch(typeof(CombatHUD), "LateUpdate")]
 class DeliveryBarUpdatePatch {
     static void Postfix() {
+        // collect keys to remove to avoid modifying the collection during enumeration
+        var toRemove = new List<Missile>();
         foreach (var delivery in DeliveryBar.deliveryIndicator) {
             if (delivery.Value.GetDisplayCountdown() > 0f) {
                 if (Time.time - delivery.Value.GetHitTime() > delivery.Value.GetDisplayCountdown()) {
-                    DeliveryBar.RemoveMissile(delivery.Key);
+                    toRemove.Add(delivery.Key);
                 }
             }
+        }
+        foreach (var missile in toRemove) {
+            DeliveryBar.RemoveMissile(missile);
         }
     }
 }
@@ -168,7 +177,6 @@ class DeliveryBarUpdatePatch {
 [HarmonyPatch(typeof(FlightHud), "ResetAircraft")]
 class ResetDeliveryIndicatorsOnRespawnPatch {
     static void Postfix() {
-        DeliveryBar.deliveryIndicator.Clear();
-        Plugin.Logger.LogInfo("[DV] Delivery indicators reset on aircraft respawn.");
+        DeliveryCheckerPlugin.Reset();
     }
 }
