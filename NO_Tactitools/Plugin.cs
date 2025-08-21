@@ -154,11 +154,11 @@ namespace NO_Tactitools {
                 "Enable or disable the MFD Color feature");
             MFDColor = Config.Bind("MFD Color",
                 "MFD Main Color",
-                new Color(1f, 0.53f, 0.22f), // Default color in RGB
+                new Color(0f, 1f, 0f), // Default color in RGB
                 "Main color for the MFD in RGB format. This will be used to set the MFD main color.");
             MFDAlternativeAttitudeEnabled = Config.Bind("MFD Color",
                 "MFD Alternative Attitude Enabled",
-                true,
+                false,
                 "Enable or disable the alternative attitude colors for the MFD horizon and ground indicators.");
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",
