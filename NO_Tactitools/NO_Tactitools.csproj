@@ -70,7 +70,20 @@
     <Delete Files="@(FilesToDelete)" />
   </Target>
 
-  <Target Name="RunGameAfterBuild" AfterTargets="Build">
+  <!-- Create a versioned release zip of the NOTT folder (contains dll + assets) after each build -->
+  <PropertyGroup>
+    <NottSourceDir>$(GameDirectory)\BepInEx\plugins\NOTT</NottSourceDir>
+    <ReleaseOutDir>$(MSBuildProjectDirectory)\releases</ReleaseOutDir>
+    <ReleaseZipName>NOTT_PR_$(Version).zip</ReleaseZipName>
+    <ReleaseZipPath>$(ReleaseOutDir)\$(ReleaseZipName)</ReleaseZipPath>
+  </PropertyGroup>
+
+  <Target Name="CreateReleaseZip" AfterTargets="Build">
+    <!-- Ensure output folder exists, remove old zip, then compress the NOTT folder so the root in the archive is NOTT/ -->
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;$zipOut='$(ReleaseZipPath)'; $src='$(NottSourceDir)'; $outDir=[System.IO.Path]::GetDirectoryName($zipOut); New-Item -ItemType Directory -Force -Path $outDir ^| Out-Null; if (Test-Path $zipOut) { Remove-Item -Force $zipOut }; Compress-Archive -Path $src -DestinationPath $zipOut -Force&quot;" />
+  </Target>
+
+  <Target Name="RunGameAfterBuild" AfterTargets="Build" DependsOnTargets="CreateReleaseZip">
     <Exec Command="&quot;$(GameDirectory)\NuclearOption.exe&quot;" />
   </Target>
 </Project>
