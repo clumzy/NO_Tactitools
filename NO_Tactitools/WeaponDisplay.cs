@@ -400,10 +400,17 @@ public class WeaponDisplay {
 
     public static void ToggleChildrenActiveState() {
         if (weaponDisplay_transform == null) return;
+        if (SceneSingleton<CombatHUD>.i.aircraft.GetAircraftParameters().aircraftName == "SFB-81") {
+            if (weaponDisplay_transform.localRotation.eulerAngles.z == 0)
+                weaponDisplay_transform.localRotation = Quaternion.Euler(0, 0, -90);
+            else
+                weaponDisplay_transform.localRotation = Quaternion.Euler(0, 0, 0);
+        }
         for (int i = 0; i < weaponDisplay_transform.childCount; i++) {
             var child = weaponDisplay_transform.GetChild(i).gameObject;
             //Specific fix for the Medusa, ThrottleGauge1 was initially hidden
-            if (child.name != "ThrottleGauge1") child.SetActive(!child.activeSelf);
+            if (child.name != "ThrottleGauge1")
+                child.SetActive(!child.activeSelf);
         }
     }
 

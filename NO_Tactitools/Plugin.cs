@@ -213,8 +213,9 @@ namespace NO_Tactitools {
                 Logger.LogInfo($"MFD Color is enabled, patching...");
                 harmony.PatchAll(typeof(MFDColorPlugin));
             }
-            Logger.LogInfo("T" + Time.fixedDeltaTime.ToString());
-            Logger.LogInfo($"Plugin NO_Tactitools is loaded!");
+            
+            // Patch Unit Icon Recolor
+            harmony.PatchAll(typeof(UnitIconRecolorPlugin));
         }
 
         public static void Log(string message) {
