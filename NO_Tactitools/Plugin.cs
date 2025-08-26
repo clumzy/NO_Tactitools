@@ -38,6 +38,7 @@ namespace NO_Tactitools {
         public static ConfigEntry<bool> MFDColorEnabled;
         public static ConfigEntry<Color> MFDColor;
         public static ConfigEntry<bool> MFDAlternativeAttitudeEnabled;
+        public static ConfigEntry<bool> unitIconRecolorEnabled;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
 
@@ -160,6 +161,11 @@ namespace NO_Tactitools {
                 "MFD Alternative Attitude Enabled",
                 false,
                 "Enable or disable the alternative attitude colors for the MFD horizon and ground indicators.");
+            // Unit Icon Recolor settings
+            unitIconRecolorEnabled = Config.Bind("Unit Icon Recolor",
+                "Unit Icon Recolor Enabled",
+                true,
+                "Enable or disable the Unit Icon Recolor feature");
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",
                 "Debug Mode Enabled",
@@ -215,7 +221,10 @@ namespace NO_Tactitools {
             }
             
             // Patch Unit Icon Recolor
-            harmony.PatchAll(typeof(UnitIconRecolorPlugin));
+            if (unitIconRecolorEnabled.Value) {
+                Logger.LogInfo($"Unit Icon Recolor is enabled, patching...");
+                harmony.PatchAll(typeof(UnitIconRecolorPlugin));
+            }
         }
 
         public static void Log(string message) {
