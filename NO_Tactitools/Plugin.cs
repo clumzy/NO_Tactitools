@@ -219,12 +219,12 @@ namespace NO_Tactitools {
                 Logger.LogInfo($"MFD Color is enabled, patching...");
                 harmony.PatchAll(typeof(MFDColorPlugin));
             }
-            
             // Patch Unit Icon Recolor
             if (unitIconRecolorEnabled.Value) {
                 Logger.LogInfo($"Unit Icon Recolor is enabled, patching...");
                 harmony.PatchAll(typeof(UnitIconRecolorPlugin));
             }
+            harmony.PatchAll(typeof(BootScreenPlugin));
         }
 
         public static void Log(string message) {

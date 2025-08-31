@@ -19,6 +19,10 @@ class InterceptionVectorPlugin {
             Plugin.Log("[IV] Interception Vector plugin succesfully started !");
         }
     }
+
+    public static void Reset() {
+        InterceptionVectorTask.ResetState();
+    }
 }
 
 [HarmonyPatch(typeof(CombatHUD), "FixedUpdate")]
@@ -320,6 +324,6 @@ class InterceptionVectorTask {
 class ResetInterceptionVectorOnRespawnPatch {
     static void Postfix() {
         // Reset the FSM state when the aircraft is destroyed
-        InterceptionVectorTask.ResetState();
+        InterceptionVectorPlugin.Reset();
     }
 }

@@ -117,7 +117,7 @@ public class UIUtils {
             int fontSize = 24,
             float backgroundOpacity = 0.8f) : base(name, UIParent) {
 
-            rectTransform.localPosition = position;
+            rectTransform.anchoredPosition = position;
             rectTransform.sizeDelta = new Vector2(200, 40);
             imageComponent.color = new Color(0, 0, 0, backgroundOpacity);
 
@@ -281,20 +281,6 @@ public class UIUtils {
         }
     }
 
-    public static void RestoreWeaponPanel() {
-        GameObject countermeasureBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("countermeasureBackground").GetValue();
-        GameObject weaponBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("weaponBackground").GetValue();
-        GameObject topRightPanel = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("topRightPanel").GetValue();
-        countermeasureBackground.SetActive(true);
-        weaponBackground.SetActive(true);
-        CanvasGroup cg = topRightPanel.GetComponent<CanvasGroup>() ?? topRightPanel.AddComponent<CanvasGroup>();
-        if (cg != null) {
-            cg.alpha = 1f;
-            cg.interactable = true;
-            cg.blocksRaycasts = true;
-        }
-    }
-
     public static void KillLayout(Transform target) {
         var layoutGroup = target.GetComponent<UnityEngine.UI.LayoutGroup>();
         if (layoutGroup != null) layoutGroup.enabled = false;
@@ -305,12 +291,6 @@ public class UIUtils {
     public static void HideChildren(Transform target) {
         foreach (Transform child in target) {
             child.gameObject.SetActive(false);
-        }
-    }
-
-    public static void DestroyChildren(Transform target) {
-        foreach (Transform child in target) {
-            GameObject.Destroy(child.gameObject);
         }
     }
 }
@@ -359,7 +339,7 @@ class MFD_TargetRegisterPatch {
 [HarmonyPatch(typeof(TacScreen), "Initialize")]
 class MFD_TacticalRegisterPatch {
     static void Postfix(TacScreen __instance) {
-        UIUtils.tacticalScreen = __instance.transform;
+        UIUtils.tacticalScreen = __instance.transform.Find("Canvas").transform;
         Plugin.Log($"[UU] Tactical Screen registered !");
     }
 }
