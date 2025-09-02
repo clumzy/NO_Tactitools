@@ -34,35 +34,6 @@ public class UIUtils {
     public static CameraStateManager cameraStateManager;
     private static AudioSource audioSource;
 
-    public static void PlaySound(string soundFileName) {
-        if (audioSource == null) {
-            GameObject audioGO = new("NOTT_AudioSource");
-            audioSource = audioGO.AddComponent<AudioSource>();
-            Object.DontDestroyOnLoad(audioGO);
-        }
-
-        string soundPath = Path.Combine(Path.GetDirectoryName(typeof(Plugin).Assembly.Location), "assets", "sounds", soundFileName);
-        if (!File.Exists(soundPath)) {
-            Plugin.Logger.LogError($"[UIUtils] Sound file not found at: {soundPath}");
-            return;
-        }
-
-        SceneSingleton<CombatHUD>.i.StartCoroutine(LoadAndPlayAudio(soundPath));
-    }
-
-    private static IEnumerator<UnityWebRequestAsyncOperation> LoadAndPlayAudio(string path) {
-        using UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, AudioType.MPEG);
-        yield return www.SendWebRequest();
-
-        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError) {
-            Plugin.Logger.LogError("[UIUtils] Error loading audio: " + www.error);
-        }
-        else {
-            AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
-            audioSource.PlayOneShot(clip);
-        }
-    }
-
     public abstract class UIElement {
         protected GameObject gameObject;
         protected RectTransform rectTransform;
@@ -265,6 +236,39 @@ public class UIUtils {
         public Vector2 GetCenter() => rectTransform.anchoredPosition;
         public Color GetFillColor() => fillColor;
         public GameObject GetRectObject() => gameObject;
+    }
+
+    public static void PlaySound(string soundFileName) {
+        static IEnumerator<UnityWebRequestAsyncOperation> LoadAndPlayAudio(string path) {
+            using UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, AudioType.MPEG);
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError) {
+                Plugin.Logger.LogError("[UIUtils] Error loading audio: " + www.error);
+            }
+            else {
+                AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
+                audioSource.PlayOneShot(clip);
+            }
+        }
+
+        if (audioSource == null) {
+            GameObject audioGO = new("NOTT_AudioSource");
+            audioSource = audioGO.AddComponent<AudioSource>();
+            Object.DontDestroyOnLoad(audioGO);
+        }
+
+        string soundPath = Path.Combine(Path.GetDirectoryName(typeof(Plugin).Assembly.Location), "assets", "sounds", soundFileName);
+        if (!File.Exists(soundPath)) {
+            Plugin.Logger.LogError($"[UIUtils] Sound file not found at: {soundPath}");
+            return;
+        }
+
+        SceneSingleton<CombatHUD>.i.StartCoroutine(LoadAndPlayAudio(soundPath));
+    }
+
+    public static void DisplayToast(string message, float duration = 2f) {
+        SceneSingleton<AircraftActionsReport>.i?.ReportText(message, duration);
     }
 
     public static void HideWeaponPanel() {

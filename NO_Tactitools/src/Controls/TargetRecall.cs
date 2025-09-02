@@ -33,11 +33,11 @@ class TargetRecallPlugin {
                 return;
             }
             string report = $"Saved <b>{units.Count.ToString()}</b> targets";
-            SceneSingleton<AircraftActionsReport>.i.ReportText(report, 3f);
+            UIUtils.DisplayToast(report, 3f);
             UIUtils.PlaySound("beep_target.mp3");
         }
     }
-    
+
     private static void HandleClick() {
         Plugin.Log($"[TR] HandleClick");
         if (SceneSingleton<CombatHUD>.i != null && units != null) {
@@ -48,7 +48,7 @@ class TargetRecallPlugin {
                 }
                 units = [.. (List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()];
                 string report = $"Recalled <b>{units.Count.ToString()}</b> targets";
-                SceneSingleton<AircraftActionsReport>.i.ReportText(report, 2f);
+                UIUtils.DisplayToast(report, 3f);
             }
         }
     }

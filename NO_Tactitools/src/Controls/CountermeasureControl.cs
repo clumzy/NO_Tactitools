@@ -31,17 +31,10 @@ class CountermeasureControlsPlugin {
     }
 
     private static void HandleOnHoldFlare() {
-        try {
-            SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 0;
-        }
-        catch (NullReferenceException) { }
+        Bindings.Player.Aircraft.Countermeasures.SetIRFlare();
     }
 
     private static void HandleOnHoldJammer() {
-        try {
-            SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 1;
-        }
-        catch (IndexOutOfRangeException) { } // This is to prevent the logger from going insane² if the player has no jammers
-        catch (NullReferenceException) { }
+        Bindings.Player.Aircraft.Countermeasures.SetJammer();
     }
 }
