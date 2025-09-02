@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine.Networking;
 
-namespace NO_Tactitools;
+namespace NO_Tactitools.Core;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class UIUtilsPlugin {

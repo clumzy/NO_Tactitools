@@ -1,7 +1,8 @@
 using HarmonyLib;
 using System.Collections.Generic;
+using NO_Tactitools.Core;
 
-namespace NO_Tactitools;
+namespace NO_Tactitools.Controls;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class TargetRecallPlugin {

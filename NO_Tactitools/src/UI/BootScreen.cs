@@ -3,8 +3,9 @@ using HarmonyLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using NO_Tactitools.Core;
 
-namespace NO_Tactitools;
+namespace NO_Tactitools.UI;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class BootScreenPlugin {

@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
-namespace NO_Tactitools;
+using NO_Tactitools.Core;
+
+namespace NO_Tactitools.UI;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class DeliveryCheckerPlugin {

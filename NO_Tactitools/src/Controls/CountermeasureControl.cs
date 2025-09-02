@@ -1,7 +1,8 @@
 using System;
 using HarmonyLib;
+using NO_Tactitools.Core;
 
-namespace NO_Tactitools;
+namespace NO_Tactitools.Controls;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class CountermeasureControlsPlugin {
@@ -13,14 +14,14 @@ class CountermeasureControlsPlugin {
             InputCatcher.RegisterControllerButton(
                 Plugin.countermeasureControlsFlareControllerName.Value,
                 new ControllerButton(
-                (int)Plugin.countermeasureControlsFlareButtonNumber.Value,
+                Plugin.countermeasureControlsFlareButtonNumber.Value,
                 1000f,
                 onShortPress: HandleOnHoldFlare
                 ));
             InputCatcher.RegisterControllerButton(
                 Plugin.countermeasureControlsJammerControllerName.Value,
                 new ControllerButton(
-                (int)Plugin.countermeasureControlsJammerButtonNumber.Value,
+                Plugin.countermeasureControlsJammerButtonNumber.Value,
                 1000f,
                 onShortPress: HandleOnHoldJammer
                 ));
@@ -28,19 +29,19 @@ class CountermeasureControlsPlugin {
             Plugin.Log("[CC] Countermeasure Controls plugin succesfully started !");
         }
     }
-    
+
     private static void HandleOnHoldFlare() {
         try {
-        SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 0;
-        } 
-        catch (NullReferenceException) {}
+            SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 0;
+        }
+        catch (NullReferenceException) { }
     }
 
     private static void HandleOnHoldJammer() {
         try {
             SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 1;
-        } 
-        catch (IndexOutOfRangeException) {} // This is to prevent the logger from going insane² if the player has no jammers
-        catch (NullReferenceException) {}
+        }
+        catch (IndexOutOfRangeException) { } // This is to prevent the logger from going insane² if the player has no jammers
+        catch (NullReferenceException) { }
     }
 }

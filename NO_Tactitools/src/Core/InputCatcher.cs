@@ -3,7 +3,7 @@ using Rewired;
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace NO_Tactitools;
+namespace NO_Tactitools.Core;
 
 public class InputCatcher {
     // Dictionary mapping each controller to its list of buttons

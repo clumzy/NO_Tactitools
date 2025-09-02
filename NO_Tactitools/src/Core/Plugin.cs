@@ -2,11 +2,11 @@
 using BepInEx.Logging;
 using BepInEx.Configuration;
 using HarmonyLib;
-using Rewired;
 using UnityEngine;
-using System.Collections.Generic;
+using NO_Tactitools.Controls;
+using NO_Tactitools.UI;
 
-namespace NO_Tactitools {
+namespace NO_Tactitools.Core {
     [BepInPlugin("NO_Tactitools", "NOTT", "0.2.0")]
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;

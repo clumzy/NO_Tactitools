@@ -1,7 +1,8 @@
 using UnityEngine;
 using HarmonyLib;
+using NO_Tactitools.Core;
 
-namespace NO_Tactitools;
+namespace NO_Tactitools.UI;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class MapOnMFDPlugin {
