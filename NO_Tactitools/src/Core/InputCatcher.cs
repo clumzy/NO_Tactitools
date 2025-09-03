@@ -37,11 +37,10 @@ public class ControllerButton {
     public System.Action OnShortPress;
     public System.Action OnHold;
     public System.Action OnLongPress;
-    public float longPressThreshold;
     public bool currentButtonState;
     public bool previousButtonState;
     public float buttonPressTime;
-    public float holdDuration;
+    public float longPressThreshold;
     public bool longPressHandled;
 
     public ControllerButton(
@@ -55,9 +54,6 @@ public class ControllerButton {
         this.longPressThreshold = longPressThreshold;
         if (onShortPress == null && onLongPress == null && onHold == null) {
             Plugin.Logger.LogError("[IC] No actions provided for button " + buttonNumber);
-            this.OnShortPress = () => { Plugin.Logger.LogError("[IC] No actions provided for button " + buttonNumber.ToString()); };
-            this.OnHold = () => { Plugin.Logger.LogError("[IC] No actions provided for button " + buttonNumber.ToString()); };
-            this.OnLongPress = () => { Plugin.Logger.LogError("[IC] No actions provided for button " + buttonNumber.ToString()); };
         }
         else {
             Plugin.Log($"[IC] Creating button {buttonNumber.ToString()} with actions");

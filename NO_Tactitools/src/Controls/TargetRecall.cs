@@ -28,7 +28,7 @@ class TargetRecallPlugin {
     private static void HandleLongPress() {
         Plugin.Log($"[TR] HandleLongPress");
         if (SceneSingleton<CombatHUD>.i != null) {
-            units = [.. (List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()];
+            units = Bindings.Player.TargetList.GetTargets();
             if (units.Count == 0) {
                 return;
             }
@@ -40,13 +40,11 @@ class TargetRecallPlugin {
 
     private static void HandleClick() {
         Plugin.Log($"[TR] HandleClick");
-        if (SceneSingleton<CombatHUD>.i != null && units != null) {
+        if (units != null) {
             if (units.Count > 0) {
-                SceneSingleton<CombatHUD>.i.DeselectAll(false);
-                foreach (Unit t_unit in units) {
-                    SceneSingleton<CombatHUD>.i.SelectUnit(t_unit);
-                }
-                units = [.. (List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()];
+                Bindings.Player.TargetList.DeselectAll();
+                Bindings.Player.TargetList.AddTargets(units);
+                units = Bindings.Player.TargetList.GetTargets();
                 string report = $"Recalled <b>{units.Count.ToString()}</b> targets";
                 UIUtils.DisplayToast(report, 3f);
             }

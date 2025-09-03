@@ -35,6 +35,7 @@ class CountermeasureControlsPlugin {
     }
 
     private static void HandleOnHoldJammer() {
-        Bindings.Player.Aircraft.Countermeasures.SetJammer();
+        if (Bindings.Player.Aircraft.Countermeasures.HasJammer())
+            Bindings.Player.Aircraft.Countermeasures.SetJammer();
     }
 }
