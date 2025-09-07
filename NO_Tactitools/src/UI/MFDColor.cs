@@ -34,7 +34,7 @@ class MFDColorResetPatch {
             mainHue,
             mainSaturation,
             1.0f));
-        Transform tacScreenTransform = UIUtils.tacticalScreen;
+        Transform tacScreenTransform = Bindings.UI.Game.GetTacScreen();
         foreach(Text text in tacScreenTransform.GetComponentsInChildren<Text>()){
             text.color = Color.HSVToRGB(
                 mainHue,

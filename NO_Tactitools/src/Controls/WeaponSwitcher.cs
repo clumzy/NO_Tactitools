@@ -53,83 +53,26 @@ class WeaponSwitcherPlugin {
     }
 
     private static void HandleClick0() {
-        if (SceneSingleton<CombatHUD>.i != null && 
-            SceneSingleton<CombatHUD>.i.aircraft != null && 
-            SceneSingleton<CombatHUD>.i.aircraft.weaponManager != null && 
-            SceneSingleton<CombatHUD>.i.aircraft.weaponStations != null && 
-            SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count > 0) {
-            try {
-                SceneSingleton<CombatHUD>.i.aircraft.weaponManager.SetActiveStation((byte)0);
-                SceneSingleton<CombatHUD>.i.ShowWeaponStation(SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation);
-            }
-            catch (Exception) { }
-        }
+        Bindings.Player.Weapons.SetActiveStation(0);
     }
 
     private static void HandleToggleAutoControl() {
-        if (SceneSingleton<CombatHUD>.i != null &&
-            SceneSingleton<CombatHUD>.i.aircraft != null) {
-            try {
-                SceneSingleton<CombatHUD>.i.ToggleAutoControl();
-            }
-            catch (Exception) { }
-        }
+        Bindings.Player.Aircraft.ToggleAutoControl();
     }
 
     private static void HandleClick1() {
-        if (SceneSingleton<CombatHUD>.i != null &&
-            SceneSingleton<CombatHUD>.i.aircraft != null &&
-            SceneSingleton<CombatHUD>.i.aircraft.weaponManager != null &&
-            SceneSingleton<CombatHUD>.i.aircraft.weaponStations != null &&
-            SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count > 1) {
-            try {
-                SceneSingleton<CombatHUD>.i.aircraft.weaponManager.SetActiveStation((byte)1);
-                SceneSingleton<CombatHUD>.i.ShowWeaponStation(SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation);
-            }
-            catch (Exception) { }
-        }
+        Bindings.Player.Weapons.SetActiveStation(1);
     }
 
     private static void HandleClick2() {
-        if (SceneSingleton<CombatHUD>.i != null &&
-            SceneSingleton<CombatHUD>.i.aircraft != null &&
-            SceneSingleton<CombatHUD>.i.aircraft.weaponManager != null &&
-            SceneSingleton<CombatHUD>.i.aircraft.weaponStations != null &&
-            SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count > 2) {
-            try {
-                SceneSingleton<CombatHUD>.i.aircraft.weaponManager.SetActiveStation((byte)2);
-                SceneSingleton<CombatHUD>.i.ShowWeaponStation(SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation);
-            }
-            catch (Exception) { }
-        }
+        Bindings.Player.Weapons.SetActiveStation(2);
     }
 
     private static void HandleClick3() {
-        if (SceneSingleton<CombatHUD>.i != null &&
-            SceneSingleton<CombatHUD>.i.aircraft != null &&
-            SceneSingleton<CombatHUD>.i.aircraft.weaponManager != null &&
-            SceneSingleton<CombatHUD>.i.aircraft.weaponStations != null &&
-            SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count > 3) {
-            try {
-                SceneSingleton<CombatHUD>.i.aircraft.weaponManager.SetActiveStation((byte)3);
-                SceneSingleton<CombatHUD>.i.ShowWeaponStation(SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation);
-            }
-            catch (Exception) { }
-        }
+        Bindings.Player.Weapons.SetActiveStation(3);
     }
 
     private static void HandleClick4() {
-        if (SceneSingleton<CombatHUD>.i != null &&
-            SceneSingleton<CombatHUD>.i.aircraft != null &&
-            SceneSingleton<CombatHUD>.i.aircraft.weaponManager != null &&
-            SceneSingleton<CombatHUD>.i.aircraft.weaponStations != null &&
-            SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count > 4) {
-            try {
-                SceneSingleton<CombatHUD>.i.aircraft.weaponManager.SetActiveStation((byte)4);
-                SceneSingleton<CombatHUD>.i.ShowWeaponStation(SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation);
-            }
-            catch (Exception) { }
-        }
+        Bindings.Player.Weapons.SetActiveStation(4);
     }
-
 }

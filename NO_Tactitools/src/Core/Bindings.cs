@@ -1,82 +1,481 @@
 using System;
-using System.Collections.Generic;
 using HarmonyLib;
 using System.Collections;
 using System.Reflection;
+using UnityEngine.Networking;
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
+using System.IO;
+
+
 
 namespace NO_Tactitools.Core;
 
 public class Bindings {
-    public class Player{
-        public class Aircraft{
-            public class Countermeasures{
-                public static bool HasJammer(){
+    public class Player {
+        public class Aircraft {
+            public static string GetPlatformName() {
+                try {
+                    return SceneSingleton<CombatHUD>.i.aircraft.GetAircraftParameters().aircraftName;
+                }
+                catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return "Unknown"; }
+            }
+
+            public static void ToggleAutoControl() {
+                try {
+                    SceneSingleton<CombatHUD>.i.ToggleAutoControl();
+                }
+                catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); }
+            }
+            public class Countermeasures {
+
+                public static int GetCurrentIndex() {
                     try {
-                        // Reflection to access private field 'countermeasureStations'
-                        var mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
-                        var f = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                        object stationsObj = f.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
-
-                        var stations = stationsObj as IList;
-                        int count = stations.Count;
-
-                        return count > 1;
+                        return SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex;
                     }
-                    catch (NullReferenceException) {Plugin.Log("[CC] No aircraft found !"); return false; }
+                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return -1; }
+                }
+                public static int GetIRAmmo() {
+                    try {
+                        Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
+                        FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                        object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
+                        var IRStation = (stationsObj as IList)[0];
+                        int count = (int)IRStation.GetType().GetField("ammo", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(IRStation);
+                        return count;
+                    }
+                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return 0; }
                 }
 
-                public static void SetIRFlare(){
+                public static int GetIRMaxAmmo() {
                     try {
-                        // No need for other checks here, the player always has flares
+                        Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
+                        FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                        object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
+                        var IRStation = (stationsObj as IList)[0];
+                        int maxCount = (int)IRStation.GetType().GetField("maxAmmo", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(IRStation);
+                        return maxCount;
+                    }
+                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return 0; }
+                }
+
+                public static int GetJammerAmmo() {
+                    try {
+                        Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
+                        FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                        object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
+                        var JammerStation = (stationsObj as IList)[1];
+                        PowerSupply supply = (PowerSupply)JammerStation.GetType().GetField("powerSupply", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(JammerStation);
+                        int charge = (int)(supply.GetCharge() * 100f);
+                        return charge;
+                    }
+                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return 0; }
+                }
+
+                public static bool HasIRFlare() {
+                    try {
+                        // Reflection to access private field 'countermeasureStations'
+                        Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
+                        FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                        object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
+
+                        return (stationsObj as IList).Count > 0;
+                    }
+                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return false; }
+                }
+
+                public static bool HasJammer() {
+                    try {
+                        // Reflection to access private field 'countermeasureStations'
+                        Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
+                        FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                        object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
+
+                        return (stationsObj as IList).Count > 1;
+                    }
+                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return false; }
+                }
+
+                public static void SetIRFlare() {
+                    try {
                         SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 0;
                     }
-                    catch (NullReferenceException) { Plugin.Log("[CC] No aircraft found !"); }
+                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); }
                 }
 
-                public static void SetJammer(){
+                public static void SetJammer() {
                     try {
-                        // Reflection to access private field 'countermeasureStations'
-                        var mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
-                        var f = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                        object stationsObj = f.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
-
-                        var stations = stationsObj as IList;
-                        int count = stations.Count;
-
-                        if (count > 1) {
-                            SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 1;
-                        }
+                        SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 1;
                     }
-                    catch (NullReferenceException) {Plugin.Log("[CC] No aircraft found !"); }
+                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); }
                 }
             }
         }
 
-        public class Weapons{
+        public class Weapons {
+            public static void SetActiveStation(byte index) {
+                try {
+                    if (index < StationCount()) {
+                        SceneSingleton<CombatHUD>.i.aircraft.weaponManager.SetActiveStation(index);
+                        SceneSingleton<CombatHUD>.i.ShowWeaponStation(SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation);
+                    }
+                    else
+                        Plugin.Log("[BD] Station index out of range !");
+                }
+                catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); }
+            }
+            public static int StationCount() {
+                try {
+                    return SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count;
+                }
+                catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return 5; }
+            }
         }
 
-        public class TargetList{
-            public static void AddTargets(List<Unit> units){
+        public class TargetList {
+            public static void AddTargets(List<Unit> units) {
                 try {
                     foreach (Unit t_unit in units) {
                         SceneSingleton<CombatHUD>.i.SelectUnit(t_unit);
                     }
                 }
-                catch (NullReferenceException) { Plugin.Log("[TR] No CombatHUD found !"); }
+                catch (NullReferenceException) { Plugin.Log("[BD] No CombatHUD found !"); }
             }
 
-            public static void DeselectAll(){
+            public static void DeselectAll() {
                 try {
                     SceneSingleton<CombatHUD>.i.DeselectAll(false);
                 }
-                catch (NullReferenceException) { Plugin.Log("[TR] No CombatHUD found !"); }
+                catch (NullReferenceException) { Plugin.Log("[BD] No CombatHUD found !"); }
             }
 
-            public static List<Unit> GetTargets(){
+            public static List<Unit> GetTargets() {
                 try {
                     return [.. (List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()];
                 }
-                catch (NullReferenceException) { Plugin.Log("[TR] No CombatHUD found !"); return []; }
+                catch (NullReferenceException) { Plugin.Log("[BD] No CombatHUD found !"); return []; }
+            }
+        }
+    }
+    public class UI {
+        public class Draw {
+            public abstract class UIElement {
+                protected GameObject gameObject;
+                protected RectTransform rectTransform;
+                protected Image imageComponent;
+                protected string mfdKey;
+
+                protected UIElement(
+                    string name,
+                    Transform UIParent = null,
+                    string mfdKey = null) {
+                    this.mfdKey = mfdKey;
+                    if (UIParent != null) {
+                        foreach (Transform child in UIParent) {
+                            if (child.name == name) {
+                                gameObject = child.gameObject;
+                                rectTransform = gameObject.GetComponent<RectTransform>();
+                                imageComponent = gameObject.GetComponent<Image>();
+                                return;
+                            }
+                        }
+                    }
+                    // Create a new GameObject for the element
+                    gameObject = new GameObject(name);
+                    gameObject.transform.SetParent(UIParent, false);
+                    rectTransform = gameObject.AddComponent<RectTransform>();
+                    imageComponent = gameObject.AddComponent<Image>();
+                    return;
+                }
+
+                public virtual void SetPosition(Vector2 position) {
+                    rectTransform.anchoredPosition = position;
+                }
+
+                public virtual void SetColor(Color color) {
+                    imageComponent.color = color;
+                }
+
+                public GameObject GetGameObject() => gameObject;
+                public RectTransform GetRectTransform() => rectTransform;
+                public Image GetImageComponent() => imageComponent;
+            }
+
+            public class UILabel : UIElement {
+                private Text textComponent;
+
+                public UILabel(
+                    string name,
+                    Vector2 position,
+                    Transform UIParent = null,
+                    FontStyle fontStyle = FontStyle.Normal,
+                    Color? color = null,
+                    int fontSize = 24,
+                    float backgroundOpacity = 0.8f) : base(name, UIParent) {
+
+                    rectTransform.anchoredPosition = position;
+                    rectTransform.sizeDelta = new Vector2(200, 40);
+                    imageComponent.color = new Color(0, 0, 0, backgroundOpacity);
+
+                    GameObject textObj = new("LabelText");
+                    textObj.transform.SetParent(gameObject.transform, false);
+                    var textRect = textObj.AddComponent<RectTransform>();
+                    textRect.anchorMin = Vector2.zero;
+                    textRect.anchorMax = Vector2.one;
+                    textRect.offsetMin = Vector2.zero;
+                    textRect.offsetMax = Vector2.zero;
+                    var textComp = textObj.AddComponent<Text>();
+                    textComp.font = SceneSingleton<CombatHUD>.i.weaponName.font;
+                    textComp.fontSize = fontSize;
+                    textComp.fontStyle = fontStyle;
+                    textComp.color = color ?? Color.white;
+                    textComp.alignment = TextAnchor.MiddleCenter;
+                    textComp.text = "";
+                    textComp.horizontalOverflow = HorizontalWrapMode.Overflow;
+                    textComp.verticalOverflow = VerticalWrapMode.Overflow;
+                    rectTransform.sizeDelta = new Vector2(textComp.preferredWidth, textComp.preferredHeight);
+                    var textTransform = gameObject.transform.Find("LabelText");
+                    textComponent = textTransform.GetComponent<Text>();
+                    return;
+                }
+
+                public void SetText(string text) {
+                    textComponent.text = text;
+                    rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
+                }
+
+                public string GetText() => textComponent.text;
+
+                public override void SetColor(Color color) {
+                    textComponent.color = color;
+                }
+
+                public void SetFontSize(int size) {
+                    textComponent.fontSize = size;
+                    rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
+                }
+
+                public void SetFontStyle(FontStyle style) {
+                    textComponent.fontStyle = style;
+                }
+            }
+
+            public class UILine : UIElement {
+                private float thickness;
+
+                public UILine(
+                    string name,
+                    Vector2 start,
+                    Vector2 end,
+                    Transform UIParent = null,
+                    Color? color = null,
+                    float thickness = 2f) : base(name, UIParent) {
+                    this.thickness = thickness;
+                    imageComponent.color = color ?? Color.white;
+                    Vector2 direction = end - start;
+                    float length = direction.magnitude;
+                    rectTransform.sizeDelta = new Vector2(length, thickness);
+                    rectTransform.anchoredPosition = start + direction / 2f;
+                    rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                    rectTransform.localRotation = Quaternion.Euler(0, 0, angle);
+                    return;
+                }
+
+                public void SetCoordinates(Vector2 start, Vector2 end) {
+                    if (rectTransform == null) return;
+                    Vector2 direction = end - start;
+                    float length = direction.magnitude;
+                    rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                    rectTransform.sizeDelta = new Vector2(length, rectTransform.sizeDelta.y);
+                    rectTransform.anchoredPosition = start + direction / 2f;
+                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                    rectTransform.localRotation = Quaternion.Euler(0, 0, angle);
+                }
+
+                public void SetThickness(float thickness) {
+                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, thickness);
+                }
+
+                public void ResetThickness() {
+                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, thickness);
+                }
+            }
+
+            public class UIRectangle : UIElement {
+                private Vector2 cornerA;
+                private Vector2 cornerB;
+                private Color fillColor;
+
+                public UIRectangle(
+                    string name,
+                    Vector2 cornerA,
+                    Vector2 cornerB,
+                    Transform UIParent = null,
+                    Color? fillColor = null) : base(name, UIParent) {
+
+                    this.cornerA = cornerA;
+                    this.cornerB = cornerB;
+                    this.fillColor = fillColor ?? new Color(1, 1, 1, 0.1f);
+                    imageComponent.color = this.fillColor;
+
+                    UpdateRect();
+                    return;
+                }
+
+                private void UpdateRect() {
+                    Vector2 min = Vector2.Min(cornerA, cornerB);
+                    Vector2 max = Vector2.Max(cornerA, cornerB);
+                    Vector2 size = max - min;
+                    Vector2 center = (min + max) / 2f;
+
+                    rectTransform.anchoredPosition = center;
+                    rectTransform.sizeDelta = size;
+                }
+
+                public void SetCorners(Vector2 a, Vector2 b) {
+                    cornerA = a;
+                    cornerB = b;
+                    UpdateRect();
+                }
+
+                public void SetFillColor(Color color) {
+                    fillColor = color;
+                    imageComponent.color = fillColor;
+                }
+
+                public void SetCenter(Vector2 center) {
+                    Vector2 size = rectTransform.sizeDelta;
+                    Vector2 half = size / 2f;
+                    cornerA = center - half;
+                    cornerB = center + half;
+                    UpdateRect();
+                }
+
+                public void MoveCenter(Vector2 delta) {
+                    SetCenter(rectTransform.anchoredPosition + delta);
+                }
+
+                public Vector2 GetCornerA() => cornerA;
+                public Vector2 GetCornerB() => cornerB;
+                public Vector2 GetCenter() => rectTransform.anchoredPosition;
+                public Color GetFillColor() => fillColor;
+                public GameObject GetRectObject() => gameObject;
+            }
+        }
+
+        public class Game {
+            public static void DisplayToast(string message, float duration = 2f) {
+                SceneSingleton<AircraftActionsReport>.i?.ReportText(message, duration);
+            }
+
+            public static Transform GetCombatHUD() {
+                try {
+                    return SceneSingleton<CombatHUD>.i.transform;
+                }
+                catch (NullReferenceException) { Plugin.Log("[BD] No CombatHUD found !"); return null; }
+            }
+
+            public static Transform GetFlightHUD() {
+                try {
+                    return SceneSingleton<FlightHud>.i.transform;
+                }
+                catch (NullReferenceException) { Plugin.Log("[BD] No FlightHUD found !"); return null; }
+            }
+
+
+            public static Transform GetTargetScreenUI() {
+                try {
+                    Type targetCamType = (SceneSingleton<CombatHUD>.i.aircraft.targetCam).GetType();
+                    FieldInfo targetScreenField = targetCamType.GetField("targetScreenUI", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                    TargetScreenUI targetScreenUIObject = (TargetScreenUI)targetScreenField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.targetCam);
+                    return targetScreenUIObject.transform;
+                }
+                catch (NullReferenceException) { Plugin.Log("[BD] No TargetScreenUI found !"); return null; }
+            }
+
+            public static Transform GetTacScreen() {
+                try {
+                    foreach (Cockpit child in UnityEngine.Object.FindObjectsOfType<Cockpit>()) {
+                        Type cockpitType = child.GetType();
+                        FieldInfo tacScreenField = cockpitType.GetField("tacScreen", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                        TacScreen tacScreenObject = (TacScreen)tacScreenField.GetValue(child);
+                        if (tacScreenObject != null) {
+                            return tacScreenObject.transform.Find("Canvas").transform;
+                        }
+                    }
+                    Plugin.Log("[BD] No Cockpit with TacScreen found !");
+                    return null;
+                }
+                catch (NullReferenceException) { Plugin.Log("[BD] No TacScreen found !"); return null; }
+            }
+
+            public static CameraStateManager GetCameraStateManager() {
+                try {
+                    return SceneSingleton<CameraStateManager>.i;
+                }
+                catch (NullReferenceException) { Plugin.Log("[BD] No CameraStateManager found !"); return null; }
+            }
+            public static void HideWeaponPanel() {
+                GameObject countermeasureBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("countermeasureBackground").GetValue();
+                GameObject weaponBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("weaponBackground").GetValue();
+                GameObject topRightPanel = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("topRightPanel").GetValue();
+                countermeasureBackground.SetActive(false);
+                weaponBackground.SetActive(false);
+                CanvasGroup cg = topRightPanel.GetComponent<CanvasGroup>() ?? topRightPanel.AddComponent<CanvasGroup>();
+                if (cg != null) {
+                    cg.alpha = 0f;
+                    cg.interactable = false;
+                    cg.blocksRaycasts = false;
+                }
+            }
+        }
+
+        public class Generic {
+            public static void KillLayout(Transform target) {
+                var layoutGroup = target.GetComponent<UnityEngine.UI.LayoutGroup>();
+                if (layoutGroup != null) layoutGroup.enabled = false;
+                var contentFitter = target.GetComponent<UnityEngine.UI.ContentSizeFitter>();
+                if (contentFitter != null) contentFitter.enabled = false;
+            }
+
+            public static void HideChildren(Transform target) {
+                foreach (Transform child in target) {
+                    child.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        public class Sound {
+            private static AudioSource audioSource;
+            public static void PlaySound(string soundFileName) {
+                static IEnumerator<UnityWebRequestAsyncOperation> LoadAndPlayAudio(string path) {
+                    using UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, AudioType.MPEG);
+                    yield return www.SendWebRequest();
+
+                    if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError) {
+                        Plugin.Logger.LogError("[UIUtils] Error loading audio: " + www.error);
+                    }
+                    else {
+                        AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
+                        audioSource.PlayOneShot(clip);
+                    }
+                }
+
+                if (audioSource == null) {
+                    GameObject audioGO = new("NOTT_AudioSource");
+                    audioSource = audioGO.AddComponent<AudioSource>();
+                    UnityEngine.Object.DontDestroyOnLoad(audioGO);
+                }
+
+                string soundPath = Path.Combine(Path.GetDirectoryName(typeof(Plugin).Assembly.Location), "assets", "sounds", soundFileName);
+                if (!File.Exists(soundPath)) {
+                    Plugin.Logger.LogError($"[UIUtils] Sound file not found at: {soundPath}");
+                    return;
+                }
+
+                SceneSingleton<CombatHUD>.i.StartCoroutine(LoadAndPlayAudio(soundPath));
             }
         }
     }

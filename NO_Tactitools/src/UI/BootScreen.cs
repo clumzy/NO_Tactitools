@@ -30,7 +30,8 @@ class BootScreenTask {
     public static List<GameObject> previouslyActiveObjects = [];
     static void Postfix() {
         previouslyActiveObjects.Clear();
-        foreach (Transform child in UIUtils.tacticalScreen) {
+        Transform tacScreenTransform = Bindings.UI.Game.GetTacScreen();
+        foreach (Transform child in tacScreenTransform) {
             if (child == null || child.gameObject == null) continue;
             if (child.gameObject.activeSelf) {
                 previouslyActiveObjects.Add(child.gameObject);
@@ -40,7 +41,7 @@ class BootScreenTask {
         bootLabel = new UIUtils.UILabel(
             "Boot Label",
             new Vector2(0f, 0f),
-            UIUtils.tacticalScreen);
+            tacScreenTransform);
         bootLabel.SetText("Booting...");
         startTime = DateTime.Now;
         hasBooted = false;
@@ -52,8 +53,7 @@ class BootScreenUpdatePatch {
     static void Postfix(TacScreen __instance) {
         if (
             ((System.DateTime.Now - BootScreenTask.startTime).TotalSeconds > 3) &&
-            !BootScreenTask.hasBooted)
-        {
+            !BootScreenTask.hasBooted) {
             // pour déterminer les valeurs de minJitter et maxJitter
             const float minJitter = 0.05f;
             const float maxJitter = 1f; // normalement 1f
@@ -65,10 +65,9 @@ class BootScreenUpdatePatch {
             BootScreenTask.hasBooted = true;
             GameObject.Destroy(BootScreenTask.bootLabel.GetGameObject());
         }
-        }
+    }
 
-    private static IEnumerator ActivateWithDelay(GameObject go, float delay)
-    {
+    private static IEnumerator ActivateWithDelay(GameObject go, float delay) {
         // initial random delay before activation
         yield return new WaitForSeconds(delay);
 
