@@ -19,14 +19,14 @@ public class Bindings {
                 try {
                     return SceneSingleton<CombatHUD>.i.aircraft.GetAircraftParameters().aircraftName;
                 }
-                catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return "Unknown"; }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.GetPlatformName] NullReferenceException: CombatHUD or aircraft was null; returning 'Unknown'."); return "Unknown"; }
             }
 
             public static void ToggleAutoControl() {
                 try {
                     SceneSingleton<CombatHUD>.i.ToggleAutoControl();
                 }
-                catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.ToggleAutoControl] NullReferenceException: CombatHUD or aircraft not available; unable to toggle auto control."); }
             }
             public class Countermeasures {
 
@@ -34,7 +34,7 @@ public class Bindings {
                     try {
                         return SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex;
                     }
-                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return -1; }
+                    catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex] NullReferenceException: countermeasureManager or CombatHUD/aircraft was null; returning -1."); return -1; }
                 }
                 public static int GetIRAmmo() {
                     try {
@@ -45,7 +45,7 @@ public class Bindings {
                         int count = (int)IRStation.GetType().GetField("ammo", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(IRStation);
                         return count;
                     }
-                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return 0; }
+                    catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetIRAmmo] NullReferenceException: countermeasure manager or IR station unavailable; returning 0 IR flares."); return 0; }
                 }
 
                 public static int GetIRMaxAmmo() {
@@ -54,10 +54,14 @@ public class Bindings {
                         FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                         object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
                         var IRStation = (stationsObj as IList)[0];
-                        int maxCount = (int)IRStation.GetType().GetField("maxAmmo", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(IRStation);
+                        Type stationType = IRStation.GetType();
+                        FieldInfo counterField = stationType.GetField("countermeasures", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                        var ejectorStationObj = counterField.GetValue(IRStation);
+                        FlareEjector ejectorStation = (FlareEjector) (ejectorStationObj as IList)[0];
+                        int maxCount = ejectorStation.GetMaxAmmo();
                         return maxCount;
                     }
-                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return 0; }
+                    catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetIRMaxAmmo] NullReferenceException: countermeasure manager or IR station unavailable; returning 0 as max IR flares."); return 0; }
                 }
 
                 public static int GetJammerAmmo() {
@@ -66,11 +70,19 @@ public class Bindings {
                         FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                         object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
                         var JammerStation = (stationsObj as IList)[1];
-                        PowerSupply supply = (PowerSupply)JammerStation.GetType().GetField("powerSupply", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(JammerStation);
+                        Type stationType = JammerStation.GetType();
+                        FieldInfo counterField = stationType.GetField("countermeasures", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                        var jammerStationObj = counterField.GetValue(JammerStation);
+                        RadarJammer jammerStation = (RadarJammer) (jammerStationObj as IList)[0];
+                        Type powerSupplyType = jammerStation.GetType();
+                        FieldInfo powerSupplyField = powerSupplyType.GetField("powerSupply", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                        PowerSupply supply = (PowerSupply)powerSupplyField.GetValue(jammerStation);
                         int charge = (int)(supply.GetCharge() * 100f);
+/*                         PowerSupply supply = (PowerSupply)JammerStation.GetType().GetField("powerSupply", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(JammerStation);
+                        int charge = (int)(supply.GetCharge() * 100f); */
                         return charge;
                     }
-                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return 0; }
+                    catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetJammerAmmo] NullReferenceException: countermeasure manager or jammer station/power supply unavailable; returning 0% jammer charge."); return 0; }
                 }
 
                 public static bool HasIRFlare() {
@@ -82,7 +94,7 @@ public class Bindings {
 
                         return (stationsObj as IList).Count > 0;
                     }
-                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return false; }
+                    catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasIRFlare] NullReferenceException: countermeasure manager or stations list unavailable; assuming no IR flares (false)."); return false; }
                 }
 
                 public static bool HasJammer() {
@@ -94,21 +106,21 @@ public class Bindings {
 
                         return (stationsObj as IList).Count > 1;
                     }
-                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return false; }
+                    catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasJammer] NullReferenceException: countermeasure manager or stations list unavailable; assuming no jammer (false)."); return false; }
                 }
 
                 public static void SetIRFlare() {
                     try {
                         SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 0;
                     }
-                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); }
+                    catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.SetIRFlare] NullReferenceException: countermeasure manager unavailable; cannot select IR flare."); }
                 }
 
                 public static void SetJammer() {
                     try {
                         SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 1;
                     }
-                    catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); }
+                    catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.SetJammer] NullReferenceException: countermeasure manager unavailable; cannot select jammer."); }
                 }
             }
         }
@@ -123,13 +135,13 @@ public class Bindings {
                     else
                         Plugin.Log("[BD] Station index out of range !");
                 }
-                catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.SetActiveStation] NullReferenceException: CombatHUD or aircraft/weaponManager was null; cannot set active station."); }
             }
             public static int StationCount() {
                 try {
                     return SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count;
                 }
-                catch (NullReferenceException) { Plugin.Log("[BD] No aircraft found !"); return 5; }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.StationCount] NullReferenceException: CombatHUD or aircraft/weaponStations was null; returning fallback station count 5."); return 5; }
             }
         }
 
@@ -140,21 +152,21 @@ public class Bindings {
                         SceneSingleton<CombatHUD>.i.SelectUnit(t_unit);
                     }
                 }
-                catch (NullReferenceException) { Plugin.Log("[BD] No CombatHUD found !"); }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.TargetList.AddTargets] NullReferenceException: CombatHUD target selection unavailable; cannot add targets."); }
             }
 
             public static void DeselectAll() {
                 try {
                     SceneSingleton<CombatHUD>.i.DeselectAll(false);
                 }
-                catch (NullReferenceException) { Plugin.Log("[BD] No CombatHUD found !"); }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.TargetList.DeselectAll] NullReferenceException: CombatHUD not available; cannot deselect targets."); }
             }
 
             public static List<Unit> GetTargets() {
                 try {
                     return [.. (List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()];
                 }
-                catch (NullReferenceException) { Plugin.Log("[BD] No CombatHUD found !"); return []; }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.TargetList.GetTargets] NullReferenceException: CombatHUD or targetList unavailable; returning empty list."); return []; }
             }
         }
     }
@@ -374,14 +386,14 @@ public class Bindings {
                 try {
                     return SceneSingleton<CombatHUD>.i.transform;
                 }
-                catch (NullReferenceException) { Plugin.Log("[BD] No CombatHUD found !"); return null; }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetCombatHUD] NullReferenceException: CombatHUD singleton not available; returning null."); return null; }
             }
 
             public static Transform GetFlightHUD() {
                 try {
                     return SceneSingleton<FlightHud>.i.transform;
                 }
-                catch (NullReferenceException) { Plugin.Log("[BD] No FlightHUD found !"); return null; }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetFlightHUD] NullReferenceException: FlightHud singleton not available; returning null."); return null; }
             }
 
 
@@ -392,7 +404,7 @@ public class Bindings {
                     TargetScreenUI targetScreenUIObject = (TargetScreenUI)targetScreenField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.targetCam);
                     return targetScreenUIObject.transform;
                 }
-                catch (NullReferenceException) { Plugin.Log("[BD] No TargetScreenUI found !"); return null; }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetTargetScreenUI] NullReferenceException: targetCam or TargetScreenUI not available; returning null."); return null; }
             }
 
             public static Transform GetTacScreen() {
@@ -408,14 +420,14 @@ public class Bindings {
                     Plugin.Log("[BD] No Cockpit with TacScreen found !");
                     return null;
                 }
-                catch (NullReferenceException) { Plugin.Log("[BD] No TacScreen found !"); return null; }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetTacScreen] NullReferenceException: TacScreen or cockpit reference was null; returning null."); return null; }
             }
 
             public static CameraStateManager GetCameraStateManager() {
                 try {
                     return SceneSingleton<CameraStateManager>.i;
                 }
-                catch (NullReferenceException) { Plugin.Log("[BD] No CameraStateManager found !"); return null; }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetCameraStateManager] NullReferenceException: CameraStateManager singleton not available; returning null."); return null; }
             }
             public static void HideWeaponPanel() {
                 GameObject countermeasureBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("countermeasureBackground").GetValue();

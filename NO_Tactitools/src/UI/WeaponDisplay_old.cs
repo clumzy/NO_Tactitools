@@ -13,9 +13,6 @@ class WeaponDisplayPlugin {
             Plugin.Log($"[WD] Weapon Display plugin starting !");
             Plugin.harmony.PatchAll(typeof(WeaponDisplayTask));
             Plugin.harmony.PatchAll(typeof(ResetWeaponDisplayOnRespawnPatch));
-            // Register the FlareEjector and RadarJammer patches
-            Plugin.harmony.PatchAll(typeof(FlareEjectorRegisterPatch));
-            Plugin.harmony.PatchAll(typeof(RadarJammerRegisterPatch));
             // Register the new button for toggling the weapon display
             InputCatcher.RegisterControllerButton(
                 Plugin.weaponDisplayControllerName.Value,
@@ -44,8 +41,6 @@ class WeaponDisplayPlugin {
 [HarmonyPatch(typeof(CombatHUD), "FixedUpdate")]
 class WeaponDisplayTask {
     public static bool initialized = false;
-    private static FlareEjector flareEjector;
-    private static RadarJammer radarJammer;
     private static WeaponDisplay weaponDisplay;
 
     static void Postfix() {
@@ -54,9 +49,9 @@ class WeaponDisplayTask {
             Transform destination = GetDestination(platformName);
             if (destination == null) return; // If the platform is not supported or destination canvas is not initialized, do nothing
             Plugin.Log("[WD] Weapon Display Task starting for airplane " + platformName);
-            if (flareEjector != null) {
+            if (Bindings.Player.Aircraft.Countermeasures.HasIRFlare()) {
                 weaponDisplay = new WeaponDisplay(platformName, destination);
-                if (!Plugin.weaponDisplayVanillaUIEnabled.Value) UIUtils.HideWeaponPanel();
+                if (!Plugin.weaponDisplayVanillaUIEnabled.Value) Bindings.UI.Game.HideWeaponPanel();
                 initialized = true;
             }
             else return;
@@ -64,44 +59,23 @@ class WeaponDisplayTask {
         // REGULAR OPERATION STARTS HERE
         // Refresh Weapons
         weaponDisplay.RefreshWeapon();
-        if (flareEjector == null && radarJammer == null) {
-            Plugin.Log("[WD] FlareEjector or RadarJammer is null, aborting update.");
-        }
-        else {
-            if (flareEjector != null) {
-                if (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex == 0) {
+            if (Bindings.Player.Aircraft.Countermeasures.HasIRFlare()) {
+                if (Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex() == 0) {
                     weaponDisplay.RefreshFlare(true);
                 }
                 else {
                     weaponDisplay.RefreshFlare(false);
                 }
             }
-            if (radarJammer != null) {
-                if (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex == 1) {
+            if (Bindings.Player.Aircraft.Countermeasures.HasJammer()) {
+                if (Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex() == 1) {
                     weaponDisplay.RefreshJammer(true);
                 }
                 else {
                     weaponDisplay.RefreshJammer(false);
                 }
             }
-        }
         return;
-    }
-
-    public static FlareEjector GetFlareEjector() {
-        return flareEjector;
-    }
-
-    public static void SetFlareEjector(FlareEjector flare) {
-        flareEjector = flare;
-    }
-
-    public static RadarJammer GetRadarJammer() {
-        return radarJammer;
-    }
-
-    public static void SetRadarJammer(RadarJammer jammer) {
-        radarJammer = jammer;
     }
 
     public static Transform GetDestination(string platformName) {
@@ -110,12 +84,12 @@ class WeaponDisplayTask {
             "T/A-30 Compass" or
             "FS-12 Revoker" or
             "FS-20 Vortex" or
-            "KR-67 Ifrit" => UIUtils.tacticalScreen.Find("SystemStatus").transform,
-            "EW-1 Medusa" => UIUtils.tacticalScreen.Find("engPanel1").transform,
-            "CI-22 Cricket" => UIUtils.tacticalScreen.Find("EngPanel").transform,
-            "SAH-46 Chicane" => UIUtils.tacticalScreen.Find("TelemetryPanel").transform,
-            "VL-49 Tarantula" => UIUtils.tacticalScreen.Find("RightScreenBorder/WeaponPanel").transform,
-            "SFB-81" => UIUtils.tacticalScreen.Find("weaponPanel").transform, // sic
+            "KR-67 Ifrit" => Bindings.UI.Game.GetTacScreen().Find("SystemStatus").transform,
+            "EW-1 Medusa" => Bindings.UI.Game.GetTacScreen().Find("engPanel1").transform,
+            "CI-22 Cricket" => Bindings.UI.Game.GetTacScreen().Find("EngPanel").transform,
+            "SAH-46 Chicane" => Bindings.UI.Game.GetTacScreen().Find("TelemetryPanel").transform,
+            "VL-49 Tarantula" => Bindings.UI.Game.GetTacScreen().Find("RightScreenBorder/WeaponPanel").transform,
+            "SFB-81" => Bindings.UI.Game.GetTacScreen().Find("weaponPanel").transform, // sic
             _ => null, // Return null if the platform is not supported
         };
     }
@@ -123,11 +97,11 @@ class WeaponDisplayTask {
 }
 public class WeaponDisplay {
     private static Transform weaponDisplay_transform;
-    private static UIUtils.UILabel flareLabel;
-    private static UIUtils.UILabel radarLabel;
-    private static UIUtils.UILine MFD_systemsLine;
-    private static UIUtils.UILabel weaponNameLabel;
-    private static UIUtils.UILabel weaponAmmoLabel;
+    private static Bindings.UI.Draw.UILabel flareLabel;
+    private static Bindings.UI.Draw.UILabel radarLabel;
+    private static Bindings.UI.Draw.UILine MFD_systemsLine;
+    private static Bindings.UI.Draw.UILabel weaponNameLabel;
+    private static Bindings.UI.Draw.UILabel weaponAmmoLabel;
     private static GameObject weaponImageClone;
     // Store original font sizes
     private int originalFlareFontSize;
@@ -290,8 +264,8 @@ public class WeaponDisplay {
         originalRadarFontSize = radarFont;
 
         // Hide the existing MFD content and kill the layout
-        UIUtils.HideChildren(destination);
-        UIUtils.KillLayout(destination);
+        Bindings.UI.Generic.HideChildren(destination);
+        Bindings.UI.Generic.KillLayout(destination);
         // rotate the destination canvas 90 degrees clockwise
         if (platformName == "SFB-81") destination.localRotation = Quaternion.Euler(0, 0, -90);
 
@@ -367,23 +341,21 @@ public class WeaponDisplay {
     }
 
     public void RefreshFlare(bool highlight) {
-        var flareEjector = WeaponDisplayTask.GetFlareEjector();
-        int ammo = flareEjector.GetAmmo();
+        int ammo = Bindings.Player.Aircraft.Countermeasures.GetIRAmmo();
+        int maxAmmo = Bindings.Player.Aircraft.Countermeasures.GetIRMaxAmmo();
         flareLabel.SetText("IR:" + ammo.ToString());
 
         int font = highlight ? originalFlareFontSize + 10 : originalFlareFontSize;
         flareLabel.SetFontStyle(highlight ? FontStyle.Bold : FontStyle.Normal);
         flareLabel.SetFontSize(Mathf.Max(1, font));
 
-        float t = Mathf.Clamp01((float)ammo / flareEjector.GetMaxAmmo());
+        float t = Mathf.Clamp01((float)ammo / maxAmmo);
         Color color = Color.Lerp(Color.red, mainColor, t);
         flareLabel.SetColor(color);
     }
 
     public void RefreshJammer(bool highlight) {
-        var radarJammer = WeaponDisplayTask.GetRadarJammer();
-        PowerSupply powerSupply = (PowerSupply)Traverse.Create(radarJammer).Field("powerSupply").GetValue();
-        int charge = (int)(powerSupply.GetCharge() * 100f);
+        int charge = Bindings.Player.Aircraft.Countermeasures.GetJammerAmmo();
         radarLabel.SetText("EW:" + charge.ToString() + "%");
 
         int font = highlight ? originalRadarFontSize + 10 : originalRadarFontSize;
@@ -421,25 +393,5 @@ public class WeaponDisplay {
 class ResetWeaponDisplayOnRespawnPatch {
     static void Postfix() {
         WeaponDisplayTask.initialized = false;
-    }
-}
-
-[HarmonyPatch(typeof(FlareEjector), "UpdateHUD")]
-class FlareEjectorRegisterPatch {
-    static void Postfix(FlareEjector __instance) {
-        if (WeaponDisplayTask.GetFlareEjector() == null && __instance.aircraft == SceneSingleton<CombatHUD>.i.aircraft) {
-            WeaponDisplayTask.SetFlareEjector(__instance);
-            Plugin.Log($"[WD] FlareEjector registered !");
-        }
-    }
-}
-
-[HarmonyPatch(typeof(RadarJammer), "UpdateHUD")]
-class RadarJammerRegisterPatch {
-    static void Postfix(RadarJammer __instance) {
-        if (WeaponDisplayTask.GetRadarJammer() == null && __instance.aircraft == SceneSingleton<CombatHUD>.i.aircraft) {
-            WeaponDisplayTask.SetRadarJammer(__instance);
-            Plugin.Log($"[WD] RadarJammer registered !");
-        }
     }
 }
