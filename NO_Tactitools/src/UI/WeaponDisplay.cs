@@ -60,12 +60,26 @@ public class WeaponDisplayComponent {
         }
 
         static public void Update() {
+            InternalState.isOutOfAmmo = Bindings.Player.Weapons.GetActiveStationAmmo() == 0;
+            InternalState.isFlareSelected = Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex() == 0;
+            InternalState.isJammerSelected = Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex() == 1;
+            InternalState.flareAmmo01 = Mathf.Clamp01(
+                (float)Bindings.Player.Aircraft.Countermeasures.GetIRFlare() / Bindings.Player.Aircraft.Countermeasures.GetIRFlareMaxAmmo());
+            InternalState.jammerAmmo01 = Mathf.Clamp01(
+                (float)Bindings.Player.Aircraft.Countermeasures.GetJammerAmmo() / 100f);
+            
         }
     }
 
     public static class InternalState {
         static public Transform destination;
         static public WeaponDisplay weaponDisplay;
+        static public bool isOutOfAmmo;
+        static public bool isFlareSelected;
+        static public bool isJammerSelected;
+        static public float flareAmmo01;
+        static public float jammerAmmo01;
+
     }
 
     static class DisplayEngine {
@@ -84,40 +98,25 @@ public class WeaponDisplayComponent {
             // REFRESH WEAPON
             InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Weapons.GetActiveStationName());
             InternalState.weaponDisplay.weaponAmmoLabel.SetText(Bindings.Player.Weapons.GetActiveStationAmmo().ToString());
-            if (Bindings.Player.Weapons.GetActiveStationAmmo() == 0) InternalState.weaponDisplay.weaponAmmoLabel.SetColor(Color.red);
-            else InternalState.weaponDisplay.weaponAmmoLabel.SetColor(WeaponDisplay.mainColor);
+            InternalState.weaponDisplay.weaponAmmoLabel.SetColor(InternalState.isOutOfAmmo?Color.red:WeaponDisplay.mainColor);
 
             Image cloneImg = InternalState.weaponDisplay.weaponImageClone.GetComponent<Image>();
             Image srcImg = SceneSingleton<CombatHUD>.i.weaponImage;
             cloneImg.sprite = srcImg.sprite;
-            if (Bindings.Player.Weapons.GetActiveStationAmmo() == 0) cloneImg.color = Color.red;
-            else cloneImg.color = WeaponDisplay.mainColor; // TODO : ENCAPSULATE IMAGES IN MY OWN CODE
+            cloneImg.color = InternalState.isOutOfAmmo?Color.red:WeaponDisplay.mainColor;
+            // TODO : ENCAPSULATE IMAGES IN MY OWN CODE
 
             // REFRESH FLARE
-            int ammo = Bindings.Player.Aircraft.Countermeasures.GetIRFlare();
-            int maxAmmo = Bindings.Player.Aircraft.Countermeasures.GetIRFlareMaxAmmo();
-            InternalState.weaponDisplay.flareLabel.SetText("IR:" + ammo.ToString());
-
-            int originalFlareFontSize = InternalState.weaponDisplay.originalFlareFontSize;
-            int flareFontSize = (Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex() == 0) ? originalFlareFontSize + 10 : originalFlareFontSize;
-            InternalState.weaponDisplay.flareLabel.SetFontStyle((Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex() == 0) ? FontStyle.Bold : FontStyle.Normal);
-            InternalState.weaponDisplay.flareLabel.SetFontSize(Mathf.Max(1, flareFontSize));
-
-            float flareColor01 = Mathf.Clamp01((float)ammo / maxAmmo);
-            Color flareColor = Color.Lerp(Color.red, WeaponDisplay.mainColor, flareColor01);
-            InternalState.weaponDisplay.flareLabel.SetColor(flareColor);
+            InternalState.weaponDisplay.flareLabel.SetText("IR:" + Bindings.Player.Aircraft.Countermeasures.GetIRFlare().ToString());
+            InternalState.weaponDisplay.flareLabel.SetFontStyle(InternalState.isFlareSelected ? FontStyle.Bold : FontStyle.Normal);
+            InternalState.weaponDisplay.flareLabel.SetFontSize(InternalState.weaponDisplay.originalFlareFontSize + (InternalState.isFlareSelected ? 10 : 0));
+            InternalState.weaponDisplay.flareLabel.SetColor(Color.Lerp(Color.red, WeaponDisplay.mainColor, InternalState.flareAmmo01));
 
             // REFRESH JAMMER
-            int charge = Bindings.Player.Aircraft.Countermeasures.GetJammerAmmo();
-            InternalState.weaponDisplay.radarLabel.SetText("EW:" + charge.ToString() + "%");
-            int originalRadarFontSize = InternalState.weaponDisplay.originalRadarFontSize;
-            int jammerFontSize = (Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex() == 1) ? originalRadarFontSize + 10 : originalRadarFontSize;
-            InternalState.weaponDisplay.radarLabel.SetFontStyle((Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex() == 1) ? FontStyle.Bold : FontStyle.Normal);
-            InternalState.weaponDisplay.radarLabel.SetFontSize(Mathf.Max(1, jammerFontSize));
-
-            float radarColor01 = Mathf.Clamp01(charge / 100f);
-            Color radarColor = Color.Lerp(Color.red, WeaponDisplay.mainColor, radarColor01);
-            InternalState.weaponDisplay.radarLabel.SetColor(radarColor);
+            InternalState.weaponDisplay.jammerLabel.SetText("EW:" + Bindings.Player.Aircraft.Countermeasures.GetJammerAmmo().ToString() + "%");
+            InternalState.weaponDisplay.jammerLabel.SetFontStyle(InternalState.isJammerSelected ? FontStyle.Bold : FontStyle.Normal);
+            InternalState.weaponDisplay.jammerLabel.SetFontSize(InternalState.weaponDisplay.originalJammerFontSize + (InternalState.isJammerSelected ? 10 : 0));;
+            InternalState.weaponDisplay.jammerLabel.SetColor(Color.Lerp(Color.red, WeaponDisplay.mainColor, InternalState.jammerAmmo01));
         }
 
 
@@ -126,14 +125,14 @@ public class WeaponDisplayComponent {
     public class WeaponDisplay {
         public Transform weaponDisplay_transform;
         public Bindings.UI.Draw.UILabel flareLabel;
-        public Bindings.UI.Draw.UILabel radarLabel;
+        public Bindings.UI.Draw.UILabel jammerLabel;
         public Bindings.UI.Draw.UILine MFD_systemsLine;
         public Bindings.UI.Draw.UILabel weaponNameLabel;
         public Bindings.UI.Draw.UILabel weaponAmmoLabel;
         public GameObject weaponImageClone;
         // Store original font sizes
         public int originalFlareFontSize;
-        public int originalRadarFontSize;
+        public int originalJammerFontSize;
 
         //Store the main color for the MFD, can be set by the MFDColorPlugin
         public static Color mainColor = Color.green;
@@ -145,129 +144,129 @@ public class WeaponDisplayComponent {
             float imageScaleFactor = 0.6f;
             weaponDisplay_transform = destination;
             // Layout settings for each supported platform
-            Vector2 flarePos, radarPos, lineStart, lineEnd, weaponNamePos, weaponAmmoPos, weaponImagePos;
-            int flareFont, radarFont, weaponNameFont, weaponAmmoFont;
+            Vector2 flarePos, jammerPos, lineStart, lineEnd, weaponNamePos, weaponAmmoPos, weaponImagePos;
+            int flareFont, jammerFont, weaponNameFont, weaponAmmoFont;
             switch (platformName) {
                 case "CI-22 Cricket":
                     flarePos = new Vector2(0, -40);
-                    radarPos = new Vector2(0, -80);
+                    jammerPos = new Vector2(0, -80);
                     lineStart = new Vector2(-60, 0);
                     lineEnd = new Vector2(60, 0);
                     weaponNamePos = new Vector2(0, 60);
                     weaponAmmoPos = new Vector2(0, 30);
                     weaponImagePos = new Vector2(0, 80);
                     flareFont = 30;
-                    radarFont = 30;
+                    jammerFont = 30;
                     weaponNameFont = 18;
                     weaponAmmoFont = 40;
                     break;
                 case "SAH-46 Chicane":
                     flarePos = new Vector2(0, -80);
-                    radarPos = new Vector2(0, -160);
+                    jammerPos = new Vector2(0, -160);
                     lineStart = new Vector2(-150, 0);
                     lineEnd = new Vector2(150, 0);
                     weaponNamePos = new Vector2(0, 110);
                     weaponAmmoPos = new Vector2(0, 60);
                     weaponImagePos = new Vector2(0, 160);
                     flareFont = 55;
-                    radarFont = 55;
+                    jammerFont = 55;
                     weaponNameFont = 35;
                     weaponAmmoFont = 55;
                     imageScaleFactor = 1.2f; // Scale the image for SAH-46 Chicane
                     break;
                 case "T/A-30 Compass":
                     flarePos = new Vector2(0, -40);
-                    radarPos = new Vector2(0, -80);
+                    jammerPos = new Vector2(0, -80);
                     lineStart = new Vector2(-60, 0);
                     lineEnd = new Vector2(60, 0);
                     weaponNamePos = new Vector2(0, 60);
                     weaponAmmoPos = new Vector2(0, 30);
                     weaponImagePos = new Vector2(0, 80);
                     flareFont = 30;
-                    radarFont = 30;
+                    jammerFont = 30;
                     weaponNameFont = 18;
                     weaponAmmoFont = 40;
                     break;
                 case "FS-12 Revoker":
                     flarePos = new Vector2(0, -40);
-                    radarPos = new Vector2(0, -80);
+                    jammerPos = new Vector2(0, -80);
                     lineStart = new Vector2(-100, -10);
                     lineEnd = new Vector2(100, -10);
                     weaponNamePos = new Vector2(0, 50);
                     weaponAmmoPos = new Vector2(0, 20);
                     weaponImagePos = new Vector2(0, 80);
                     flareFont = 30;
-                    radarFont = 30;
+                    jammerFont = 30;
                     weaponNameFont = 25;
                     weaponAmmoFont = 35;
                     imageScaleFactor = 0.8f; // Scale the image for FS-12 Revoker
                     break;
                 case "FS-20 Vortex":
                     flarePos = new Vector2(-70, -70);
-                    radarPos = new Vector2(70, -70);
+                    jammerPos = new Vector2(70, -70);
                     lineStart = new Vector2(-120, -20);
                     lineEnd = new Vector2(120, -20);
                     weaponNamePos = new Vector2(0, 70);
                     weaponAmmoPos = new Vector2(70, 20);
                     weaponImagePos = new Vector2(-60, 20);
                     flareFont = 35;
-                    radarFont = 35;
+                    jammerFont = 35;
                     weaponNameFont = 30;
                     weaponAmmoFont = 55;
                     imageScaleFactor = 0.7f; // Scale the image for FS-20 Vortex
                     break;
                 case "KR-67 Ifrit":
                     flarePos = new Vector2(-75, -70);
-                    radarPos = new Vector2(70, -70);
+                    jammerPos = new Vector2(70, -70);
                     lineStart = new Vector2(-100, -20);
                     lineEnd = new Vector2(100, -20);
                     weaponNamePos = new Vector2(0, 70);
                     weaponAmmoPos = new Vector2(80, 20);
                     weaponImagePos = new Vector2(-70, 20);
                     flareFont = 45;
-                    radarFont = 45;
+                    jammerFont = 45;
                     weaponNameFont = 45;
                     weaponAmmoFont = 55;
                     imageScaleFactor = 0.8f; // Scale the image for KR-67 Ifrit
                     break;
                 case "VL-49 Tarantula":
                     flarePos = new Vector2(105, 40);
-                    radarPos = new Vector2(105, -40);
+                    jammerPos = new Vector2(105, -40);
                     lineStart = new Vector2(50, -60);
                     lineEnd = new Vector2(50, 60);
                     weaponNamePos = new Vector2(-60, 0);
                     weaponAmmoPos = new Vector2(-60, -50);
                     weaponImagePos = new Vector2(-60, 40);
                     flareFont = 25;
-                    radarFont = 25;
+                    jammerFont = 25;
                     weaponNameFont = 18;
                     weaponAmmoFont = 40;
                     imageScaleFactor = 0.8f;
                     break;
                 case "EW-1 Medusa":
                     flarePos = new Vector2(-60, -70);
-                    radarPos = new Vector2(60, -70);
+                    jammerPos = new Vector2(60, -70);
                     lineStart = new Vector2(-100, -20);
                     lineEnd = new Vector2(100, -20);
                     weaponNamePos = new Vector2(0, 70);
                     weaponAmmoPos = new Vector2(80, 20);
                     weaponImagePos = new Vector2(-60, 20);
                     flareFont = 35;
-                    radarFont = 35;
+                    jammerFont = 35;
                     weaponNameFont = 30;
                     weaponAmmoFont = 50;
                     imageScaleFactor = 0.6f; // Scale the image for EW-1 Medusa
                     break;
                 case "SFB-81":
                     flarePos = new Vector2(0, -40);
-                    radarPos = new Vector2(0, -80);
+                    jammerPos = new Vector2(0, -80);
                     lineStart = new Vector2(-50, 0);
                     lineEnd = new Vector2(50, 0);
                     weaponNamePos = new Vector2(0, 80);
                     weaponAmmoPos = new Vector2(0, 40);
                     weaponImagePos = new Vector2(-120, 0);
                     flareFont = 30;
-                    radarFont = 30;
+                    jammerFont = 30;
                     weaponNameFont = 25;
                     weaponAmmoFont = 40;
                     rotateWeaponImage = true; // Rotate the weapon image for SFB-81
@@ -275,21 +274,21 @@ public class WeaponDisplayComponent {
                     break;
                 default:
                     flarePos = new Vector2(0, -40);
-                    radarPos = new Vector2(0, -80);
+                    jammerPos = new Vector2(0, -80);
                     lineStart = new Vector2(0, -60);
                     lineEnd = new Vector2(0, 60);
                     weaponNamePos = new Vector2(0, 60);
                     weaponAmmoPos = new Vector2(0, 30);
                     weaponImagePos = new Vector2(0, 80);
                     flareFont = 30;
-                    radarFont = 30;
+                    jammerFont = 30;
                     weaponNameFont = 18;
                     weaponAmmoFont = 30;
                     break;
             }
             // Store original font sizes
             originalFlareFontSize = flareFont;
-            originalRadarFontSize = radarFont;
+            originalJammerFontSize = jammerFont;
 
             // Hide the existing MFD content and kill the layout
             Bindings.UI.Generic.HideChildren(destination);
@@ -308,16 +307,16 @@ public class WeaponDisplayComponent {
                 0f
             );
             flareLabel.SetText("");
-            radarLabel = new(
+            jammerLabel = new(
                 "radarLabel",
-                radarPos,
+                jammerPos,
                 destination,
                 FontStyle.Normal,
                 mainColor,
-                radarFont,
+                jammerFont,
                 0f
             );
-            radarLabel.SetText("⇌");
+            jammerLabel.SetText("⇌");
             MFD_systemsLine = new(
                 "MFD_systemsLine",
                 lineStart,
