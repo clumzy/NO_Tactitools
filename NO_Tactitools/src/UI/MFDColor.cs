@@ -30,10 +30,10 @@ class MFDColorResetPatch {
         Plugin.Log("[MFD] Resetting MFD colors");
         Color.RGBToHSV(Plugin.MFDColor.Value, out mainHue, out mainSaturation, out mainBrightness);
         MFDAlternativeAttitudeEnabled = Plugin.MFDAlternativeAttitudeEnabled.Value;
-        WeaponDisplay.SetMainColor(Color.HSVToRGB(
+        WeaponDisplayComponent.InternalState.weaponDisplay.mainColor = Color.HSVToRGB(
             mainHue,
             mainSaturation,
-            1.0f));
+            1.0f);
         Transform tacScreenTransform = Bindings.UI.Game.GetTacScreen();
         foreach(Text text in tacScreenTransform.GetComponentsInChildren<Text>()){
             text.color = Color.HSVToRGB(
@@ -59,7 +59,7 @@ class MFDColorResetPatch {
                 } // Skip the horizon image if alternative attitude is not enabled
             }
             else{
-                Color.RGBToHSV(image.color, out float hue, out float saturation, out float brightness);
+                Color.RGBToHSV(image.color, out _, out float saturation, out float brightness);
                 image.color = Color.HSVToRGB(
                     mainHue, 
                     saturation, // we keep the original saturation

@@ -126,9 +126,38 @@ public class Bindings {
         }
 
         public class Weapons {
+
+            public static string GetActiveStationName() {
+                try {
+                    return SceneSingleton<CombatHUD>.i.weaponName.text;
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetCurrentWeaponName] NullReferenceException: CombatHUD or weapon name text unavailable; returning 'Unknown Weapon'."); return "Unknown Weapon"; }
+            }
+
+            public static int GetActiveStationAmmo() {
+                try {
+                    return int.Parse(SceneSingleton<CombatHUD>.i.ammoCount.text);
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetCurrentWeaponAmmo] NullReferenceException: CombatHUD or ammo count text unavailable; returning 0 ammo."); return 0; }
+            }
+
+            public static Image GetActiveStationImage() {
+                try {
+                    return SceneSingleton<CombatHUD>.i.weaponImage;
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetCurrentWeaponImage] NullReferenceException: CombatHUD or weapon image unavailable; returning null."); return null; }
+            }
+
+            public static int GetStationCount() {
+                try {
+                    return SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count;
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.StationCount] NullReferenceException: CombatHUD or aircraft/weaponStations was null; returning fallback station count 5."); return 5; }
+            }
+
             public static void SetActiveStation(byte index) {
                 try {
-                    if (index < StationCount()) {
+                    if (index < GetStationCount()) {
                         SceneSingleton<CombatHUD>.i.aircraft.weaponManager.SetActiveStation(index);
                         SceneSingleton<CombatHUD>.i.ShowWeaponStation(SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation);
                     }
@@ -136,12 +165,6 @@ public class Bindings {
                         Plugin.Log("[BD] Station index out of range !");
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.SetActiveStation] NullReferenceException: CombatHUD or aircraft/weaponManager was null; cannot set active station."); }
-            }
-            public static int StationCount() {
-                try {
-                    return SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count;
-                }
-                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.StationCount] NullReferenceException: CombatHUD or aircraft/weaponStations was null; returning fallback station count 5."); return 5; }
             }
         }
 
