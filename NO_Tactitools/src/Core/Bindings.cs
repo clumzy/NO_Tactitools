@@ -36,7 +36,8 @@ public class Bindings {
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex] NullReferenceException: countermeasureManager or CombatHUD/aircraft was null; returning -1."); return -1; }
                 }
-                public static int GetIRAmmo() {
+                
+                public static int GetIRFlare() {
                     try {
                         Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
                         FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
@@ -48,7 +49,7 @@ public class Bindings {
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetIRAmmo] NullReferenceException: countermeasure manager or IR station unavailable; returning 0 IR flares."); return 0; }
                 }
 
-                public static int GetIRMaxAmmo() {
+                public static int GetIRFlareMaxAmmo() {
                     try {
                         Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
                         FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
@@ -78,8 +79,6 @@ public class Bindings {
                         FieldInfo powerSupplyField = powerSupplyType.GetField("powerSupply", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                         PowerSupply supply = (PowerSupply)powerSupplyField.GetValue(jammerStation);
                         int charge = (int)(supply.GetCharge() * 100f);
-/*                         PowerSupply supply = (PowerSupply)JammerStation.GetType().GetField("powerSupply", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(JammerStation);
-                        int charge = (int)(supply.GetCharge() * 100f); */
                         return charge;
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetJammerAmmo] NullReferenceException: countermeasure manager or jammer station/power supply unavailable; returning 0% jammer charge."); return 0; }
@@ -452,6 +451,7 @@ public class Bindings {
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetCameraStateManager] NullReferenceException: CameraStateManager singleton not available; returning null."); return null; }
             }
+            
             public static void HideWeaponPanel() {
                 GameObject countermeasureBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("countermeasureBackground").GetValue();
                 GameObject weaponBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("weaponBackground").GetValue();
@@ -484,6 +484,7 @@ public class Bindings {
 
         public class Sound {
             private static AudioSource audioSource;
+            
             public static void PlaySound(string soundFileName) {
                 static IEnumerator<UnityWebRequestAsyncOperation> LoadAndPlayAudio(string path) {
                     using UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, AudioType.MPEG);

@@ -94,8 +94,8 @@ public class WeaponDisplayComponent {
             else cloneImg.color = WeaponDisplay.mainColor; // TODO : ENCAPSULATE IMAGES IN MY OWN CODE
 
             // REFRESH FLARE
-            int ammo = Bindings.Player.Aircraft.Countermeasures.GetIRAmmo();
-            int maxAmmo = Bindings.Player.Aircraft.Countermeasures.GetIRMaxAmmo();
+            int ammo = Bindings.Player.Aircraft.Countermeasures.GetIRFlare();
+            int maxAmmo = Bindings.Player.Aircraft.Countermeasures.GetIRFlareMaxAmmo();
             InternalState.weaponDisplay.flareLabel.SetText("IR:" + ammo.ToString());
 
             int originalFlareFontSize = InternalState.weaponDisplay.originalFlareFontSize;
