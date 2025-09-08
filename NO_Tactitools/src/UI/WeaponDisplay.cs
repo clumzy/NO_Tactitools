@@ -76,6 +76,7 @@ public class WeaponDisplayComponent {
                     InternalState.destination);
                 if (!Plugin.weaponDisplayVanillaUIEnabled.Value) Bindings.UI.Game.HideWeaponPanel();
             }
+            Plugin.Log("[WD] Display Engine initialized for platform " + Bindings.Player.Aircraft.GetPlatformName());
         }
 
         static public void Update() {
@@ -84,13 +85,13 @@ public class WeaponDisplayComponent {
             InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Weapons.GetActiveStationName());
             InternalState.weaponDisplay.weaponAmmoLabel.SetText(Bindings.Player.Weapons.GetActiveStationAmmo().ToString());
             if (Bindings.Player.Weapons.GetActiveStationAmmo() == 0) InternalState.weaponDisplay.weaponAmmoLabel.SetColor(Color.red);
-            else InternalState.weaponDisplay.weaponAmmoLabel.SetColor(InternalState.weaponDisplay.mainColor);
+            else InternalState.weaponDisplay.weaponAmmoLabel.SetColor(WeaponDisplay.mainColor);
 
             Image cloneImg = InternalState.weaponDisplay.weaponImageClone.GetComponent<Image>();
             Image srcImg = SceneSingleton<CombatHUD>.i.weaponImage;
             cloneImg.sprite = srcImg.sprite;
             if (Bindings.Player.Weapons.GetActiveStationAmmo() == 0) cloneImg.color = Color.red;
-            else cloneImg.color = InternalState.weaponDisplay.mainColor; // TODO : ENCAPSULATE IMAGES IN MY OWN CODE
+            else cloneImg.color = WeaponDisplay.mainColor; // TODO : ENCAPSULATE IMAGES IN MY OWN CODE
 
             // REFRESH FLARE
             int ammo = Bindings.Player.Aircraft.Countermeasures.GetIRAmmo();
@@ -103,7 +104,7 @@ public class WeaponDisplayComponent {
             InternalState.weaponDisplay.flareLabel.SetFontSize(Mathf.Max(1, flareFontSize));
 
             float flareColor01 = Mathf.Clamp01((float)ammo / maxAmmo);
-            Color flareColor = Color.Lerp(Color.red, InternalState.weaponDisplay.mainColor, flareColor01);
+            Color flareColor = Color.Lerp(Color.red, WeaponDisplay.mainColor, flareColor01);
             InternalState.weaponDisplay.flareLabel.SetColor(flareColor);
 
             // REFRESH JAMMER
@@ -111,11 +112,11 @@ public class WeaponDisplayComponent {
             InternalState.weaponDisplay.radarLabel.SetText("EW:" + charge.ToString() + "%");
             int originalRadarFontSize = InternalState.weaponDisplay.originalRadarFontSize;
             int jammerFontSize = (Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex() == 1) ? originalRadarFontSize + 10 : originalRadarFontSize;
-            InternalState.weaponDisplay.radarLabel.SetFontStyle((Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex() == 0) ? FontStyle.Bold : FontStyle.Normal);
+            InternalState.weaponDisplay.radarLabel.SetFontStyle((Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex() == 1) ? FontStyle.Bold : FontStyle.Normal);
             InternalState.weaponDisplay.radarLabel.SetFontSize(Mathf.Max(1, jammerFontSize));
 
             float radarColor01 = Mathf.Clamp01(charge / 100f);
-            Color radarColor = Color.Lerp(Color.red, InternalState.weaponDisplay.mainColor, radarColor01);
+            Color radarColor = Color.Lerp(Color.red, WeaponDisplay.mainColor, radarColor01);
             InternalState.weaponDisplay.radarLabel.SetColor(radarColor);
         }
 
@@ -135,7 +136,7 @@ public class WeaponDisplayComponent {
         public int originalRadarFontSize;
 
         //Store the main color for the MFD, can be set by the MFDColorPlugin
-        public Color mainColor = Color.green;
+        public static Color mainColor = Color.green;
 
 
         public WeaponDisplay(string platformName, Transform destination) {
@@ -213,7 +214,7 @@ public class WeaponDisplayComponent {
                     radarFont = 35;
                     weaponNameFont = 30;
                     weaponAmmoFont = 55;
-                    imageScaleFactor = 0.7f; // Scale the image for KR-67 Ifrit
+                    imageScaleFactor = 0.7f; // Scale the image for FS-20 Vortex
                     break;
                 case "KR-67 Ifrit":
                     flarePos = new Vector2(-75, -70);
@@ -255,7 +256,7 @@ public class WeaponDisplayComponent {
                     radarFont = 35;
                     weaponNameFont = 30;
                     weaponAmmoFont = 50;
-                    imageScaleFactor = 0.6f; // Scale the image for KR-67 Ifrit
+                    imageScaleFactor = 0.6f; // Scale the image for EW-1 Medusa
                     break;
                 case "SFB-81":
                     flarePos = new Vector2(0, -40);
@@ -379,7 +380,7 @@ public class WeaponDisplayComponent {
         }
     }
 
-    [HarmonyPatch(typeof(CombatHUD), "FixedUpdate")]
+    [HarmonyPatch(typeof(TacScreen), "Update")]
     public static class OnPlatformUpdate {
         static void Postfix() {
             LogicEngine.Update();
