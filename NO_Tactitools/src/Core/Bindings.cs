@@ -37,7 +37,7 @@ public class Bindings {
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex] NullReferenceException: countermeasureManager or CombatHUD/aircraft was null; returning -1."); return -1; }
                 }
                 
-                public static int GetIRFlare() {
+                public static int GetIRFlareAmmo() {
                     try {
                         Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
                         FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
@@ -443,6 +443,22 @@ public class Bindings {
                     return null;
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetTacScreen] NullReferenceException: TacScreen or cockpit reference was null; returning null."); return null; }
+            }
+
+            public static TacScreen GetTacScreenComponent() {
+                try {
+                    foreach (Cockpit child in UnityEngine.Object.FindObjectsOfType<Cockpit>()) {
+                        Type cockpitType = child.GetType();
+                        FieldInfo tacScreenField = cockpitType.GetField("tacScreen", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                        TacScreen tacScreenObject = (TacScreen)tacScreenField.GetValue(child);
+                        if (tacScreenObject != null) {
+                            return tacScreenObject;
+                        }
+                    }
+                    Plugin.Log("[BD] No Cockpit with TacScreen found !");
+                    return null;
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetTacScreenComponent] NullReferenceException: TacScreen or cockpit reference was null; returning null."); return null; }
             }
 
             public static CameraStateManager GetCameraStateManager() {
