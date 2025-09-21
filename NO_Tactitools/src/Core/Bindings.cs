@@ -36,13 +36,15 @@ public class Bindings {
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex] NullReferenceException: countermeasureManager or CombatHUD/aircraft was null; returning -1."); return -1; }
                 }
-                
+
                 public static int GetIRFlareAmmo() {
                     try {
                         Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
                         FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                         object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
-                        var IRStation = (stationsObj as IList)[0];
+                        Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetIRAmmo] HasECMPod: " + HasECMPod().ToString());
+                        Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetIRAmmo] HasJammer: " + HasJammer().ToString());
+                        var IRStation = (stationsObj as IList)[HasECMPod() ? 1 : 0];
                         int count = (int)IRStation.GetType().GetField("ammo", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(IRStation);
                         return count;
                     }
@@ -54,11 +56,11 @@ public class Bindings {
                         Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
                         FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                         object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
-                        var IRStation = (stationsObj as IList)[0];
+                        var IRStation = (stationsObj as IList)[HasECMPod() ? 1 : 0];
                         Type stationType = IRStation.GetType();
                         FieldInfo counterField = stationType.GetField("countermeasures", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                         var ejectorStationObj = counterField.GetValue(IRStation);
-                        FlareEjector ejectorStation = (FlareEjector) (ejectorStationObj as IList)[0];
+                        FlareEjector ejectorStation = (FlareEjector)(ejectorStationObj as IList)[0];
                         int maxCount = ejectorStation.GetMaxAmmo();
                         return maxCount;
                     }
@@ -70,11 +72,11 @@ public class Bindings {
                         Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
                         FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                         object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
-                        var JammerStation = (stationsObj as IList)[1];
+                        var JammerStation = (stationsObj as IList)[HasECMPod() ? 0 : 1];
                         Type stationType = JammerStation.GetType();
                         FieldInfo counterField = stationType.GetField("countermeasures", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                         var jammerStationObj = counterField.GetValue(JammerStation);
-                        RadarJammer jammerStation = (RadarJammer) (jammerStationObj as IList)[0];
+                        RadarJammer jammerStation = (RadarJammer)(jammerStationObj as IList)[0];
                         Type powerSupplyType = jammerStation.GetType();
                         FieldInfo powerSupplyField = powerSupplyType.GetField("powerSupply", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                         PowerSupply supply = (PowerSupply)powerSupplyField.GetValue(jammerStation);
@@ -96,6 +98,16 @@ public class Bindings {
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasIRFlare] NullReferenceException: countermeasure manager or stations list unavailable; assuming no IR flares (false)."); return false; }
                 }
 
+                public static bool HasECMPod() {
+                    try {
+                        return (
+                            HasJammer() &&
+                                ((Bindings.Player.Aircraft.GetPlatformName() == "UH-80 Ibis") ||
+                                (Bindings.Player.Aircraft.GetPlatformName() == "SAH-46 Chicane")));
+                    }
+                    catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasECMPod] NullReferenceException: countermeasure manager or stations list unavailable; assuming no ECM pod (false)."); return false; }
+                }
+
                 public static bool HasJammer() {
                     try {
                         // Reflection to access private field 'countermeasureStations'
@@ -106,6 +118,16 @@ public class Bindings {
                         return (stationsObj as IList).Count > 1;
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasJammer] NullReferenceException: countermeasure manager or stations list unavailable; assuming no jammer (false)."); return false; }
+                }
+
+                public static bool IsFlareSelected() {
+                    try {
+                        if (HasECMPod())
+                            return GetCurrentIndex() == 1;
+                        else
+                            return GetCurrentIndex() == 0;
+                    }
+                    catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.IsFlareSelected] NullReferenceException: countermeasure manager or CombatHUD/aircraft was null; returning false."); return false; }
                 }
 
                 public static void SetIRFlare() {
@@ -128,21 +150,24 @@ public class Bindings {
 
             public static string GetActiveStationName() {
                 try {
-                    return SceneSingleton<CombatHUD>.i.weaponName.text;
+                    return SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation.WeaponInfo.shortName;
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetCurrentWeaponName] NullReferenceException: CombatHUD or weapon name text unavailable; returning 'Unknown Weapon'."); return "Unknown Weapon"; }
             }
 
             public static int GetActiveStationAmmo() {
                 try {
-                    return int.Parse(SceneSingleton<CombatHUD>.i.ammoCount.text);
+                    return SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation.Ammo;
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetCurrentWeaponAmmo] NullReferenceException: CombatHUD or ammo count text unavailable; returning 0 ammo."); return 0; }
             }
 
             public static Image GetActiveStationImage() {
                 try {
-                    return SceneSingleton<CombatHUD>.i.weaponImage;
+                    Type weaponIndicatorType = (Bindings.UI.Game.GetWeaponStatus()).GetType();
+                    FieldInfo weaponImageField = weaponIndicatorType.GetField("weaponImage", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                    Image weaponImage = (Image)weaponImageField.GetValue(Bindings.UI.Game.GetWeaponStatus());
+                    return weaponImage;
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetCurrentWeaponImage] NullReferenceException: CombatHUD or weapon image unavailable; returning null."); return null; }
             }
@@ -260,7 +285,7 @@ public class Bindings {
                     textRect.offsetMin = Vector2.zero;
                     textRect.offsetMax = Vector2.zero;
                     var textComp = textObj.AddComponent<Text>();
-                    textComp.font = SceneSingleton<CombatHUD>.i.weaponName.font;
+                    textComp.font = Bindings.UI.Draw.GetDefaultFont();
                     textComp.fontSize = fontSize;
                     textComp.fontStyle = fontStyle;
                     textComp.color = color ?? Color.white;
@@ -397,6 +422,13 @@ public class Bindings {
                 public Color GetFillColor() => fillColor;
                 public GameObject GetRectObject() => gameObject;
             }
+
+            public static Font GetDefaultFont() {
+                Type weaponIndicatorType = (Bindings.UI.Game.GetWeaponStatus()).GetType();
+                FieldInfo weaponTextField = weaponIndicatorType.GetField("nameText", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                Text weaponText = (Text)weaponTextField.GetValue(Bindings.UI.Game.GetWeaponStatus());
+                return weaponText.font;
+            }
         }
 
         public class Game {
@@ -419,14 +451,14 @@ public class Bindings {
             }
 
 
-            public static Transform GetTargetScreenUI() {
+            public static Transform GetTargetScreen() {
                 try {
                     Type targetCamType = (SceneSingleton<CombatHUD>.i.aircraft.targetCam).GetType();
                     FieldInfo targetScreenField = targetCamType.GetField("targetScreenUI", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                     TargetScreenUI targetScreenUIObject = (TargetScreenUI)targetScreenField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.targetCam);
                     return targetScreenUIObject.transform;
                 }
-                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetTargetScreenUI] NullReferenceException: targetCam or TargetScreenUI not available; returning null."); return null; }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetTargetScreen] NullReferenceException: targetCam or TargetScreenUI not available; returning null."); return null; }
             }
 
             public static Transform GetTacScreen() {
@@ -461,19 +493,23 @@ public class Bindings {
                 catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetTacScreenComponent] NullReferenceException: TacScreen or cockpit reference was null; returning null."); return null; }
             }
 
+            public static WeaponStatus GetWeaponStatus() {
+                try {
+                    return UnityEngine.Object.FindObjectsOfType<WeaponStatus>()[0];
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetWeaponStatus] NullReferenceException: CombatHUD or weaponIndicator singleton not available; returning null."); return null; }
+                catch (IndexOutOfRangeException) { return null; } // this means the game is paused and there is no weapon status displayed
+            }
+
             public static CameraStateManager GetCameraStateManager() {
                 try {
                     return SceneSingleton<CameraStateManager>.i;
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetCameraStateManager] NullReferenceException: CameraStateManager singleton not available; returning null."); return null; }
             }
-            
+
             public static void HideWeaponPanel() {
-                GameObject countermeasureBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("countermeasureBackground").GetValue();
-                GameObject weaponBackground = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("weaponBackground").GetValue();
                 GameObject topRightPanel = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("topRightPanel").GetValue();
-                countermeasureBackground.SetActive(false);
-                weaponBackground.SetActive(false);
                 CanvasGroup cg = topRightPanel.GetComponent<CanvasGroup>() ?? topRightPanel.AddComponent<CanvasGroup>();
                 if (cg != null) {
                     cg.alpha = 0f;
@@ -500,7 +536,7 @@ public class Bindings {
 
         public class Sound {
             private static AudioSource audioSource;
-            
+
             public static void PlaySound(string soundFileName) {
                 static IEnumerator<UnityWebRequestAsyncOperation> LoadAndPlayAudio(string path) {
                     using UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, AudioType.MPEG);

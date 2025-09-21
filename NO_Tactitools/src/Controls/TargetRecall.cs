@@ -33,8 +33,8 @@ class TargetRecallPlugin {
                 return;
             }
             string report = $"Saved <b>{units.Count.ToString()}</b> targets";
-            UIUtils.DisplayToast(report, 3f);
-            UIUtils.PlaySound("beep_target.mp3");
+            Bindings.UI.Game.DisplayToast(report, 3f);
+            Bindings.UI.Sound.PlaySound("beep_target.mp3");
         }
     }
 
@@ -46,7 +46,7 @@ class TargetRecallPlugin {
                 Bindings.Player.TargetList.AddTargets(units);
                 units = Bindings.Player.TargetList.GetTargets();
                 string report = $"Recalled <b>{units.Count.ToString()}</b> targets";
-                UIUtils.DisplayToast(report, 3f);
+                Bindings.UI.Game.DisplayToast(report, 3f);
             }
         }
     }

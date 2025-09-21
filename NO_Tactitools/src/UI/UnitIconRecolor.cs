@@ -33,6 +33,6 @@ class UnitIconRecolorPatch {
     static void Postfix(UnitMapIcon __instance) {
         if (__instance.unit.NetworkHQ != SceneSingleton<DynamicMap>.i.HQ &&
             targetUnitNames.Contains(__instance.unit.unitName))
-                __instance.iconImage.color = new Color(1f, 0.87f, 0.13f); // yellow color for enemy AA units
+                __instance.iconImage.color = new Color(0.8f, 0.2f, 1f); // yellow color for enemy AA units
     }
 }

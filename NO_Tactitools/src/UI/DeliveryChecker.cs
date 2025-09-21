@@ -53,8 +53,8 @@ class DeliveryBar {
 }
 
 class DeliveryIndicator {
-    private UIUtils.UIRectangle frame;
-    private UIUtils.UIRectangle indicator;
+    private Bindings.UI.Draw.UIRectangle frame;
+    private Bindings.UI.Draw.UIRectangle indicator;
     private float displayCountdown;
     private float hitTime;
 
@@ -65,17 +65,17 @@ class DeliveryIndicator {
         for (int i = 0; i < 6; i++) {
             randomString += chars[rand.Next(chars.Length)];
         }
-        frame = new UIUtils.UIRectangle(
+        frame = new Bindings.UI.Draw.UIRectangle(
             "DeliveryFrame" + randomString,
             new Vector2(0f, 0f),
             new Vector2(12f, 12f),
-            UIUtils.targetScreen,
+            Bindings.UI.Game.GetTargetScreen(),
             Color.black);
-        indicator = new UIUtils.UIRectangle(
+        indicator = new Bindings.UI.Draw.UIRectangle(
             "DeliveryIndicator" + randomString,
             new Vector2(0f, 0f),
-            new Vector2(5f, 5f),
-            UIUtils.targetScreen,
+            new Vector2(8f, 8f),
+            Bindings.UI.Game.GetTargetScreen(),
             Color.yellow);
         frame.SetCenter(pos);
         indicator.SetCenter(pos);
@@ -131,7 +131,7 @@ class StartMissilePatch {
         if (__instance.owner == SceneSingleton<CombatHUD>.i.aircraft) {
             DeliveryIndicator deliveryIndicator = new(
                 new Vector2(
-                    -120f + DeliveryBar.deliveryIndicator.Count * 12f,
+                    -120f + DeliveryBar.deliveryIndicator.Count * 17f,
                     -115f
                 )
             );

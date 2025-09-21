@@ -28,13 +28,17 @@ public static class BootScreenComponent {
     static class LogicEngine {
         public static void Init() {
             InternalState.tacScreenTransform = Bindings.UI.Game.GetTacScreen();
-
             InternalState.previouslyActiveObjects.Clear();
             foreach (Transform child in InternalState.tacScreenTransform) {
                 if (child == null || child.gameObject == null) continue;
                 if (child.gameObject.activeSelf) InternalState.previouslyActiveObjects.Add(child.gameObject);
                 child.gameObject.SetActive(false);
             }
+            InternalState.bootLabel = new Bindings.UI.Draw.UILabel(
+                "Boot Label",
+                new Vector2(0f, 0f),
+                InternalState.tacScreenTransform
+            );
             InternalState.startTime = DateTime.Now;
             InternalState.hasBooted = false;
         }
@@ -68,11 +72,6 @@ public static class BootScreenComponent {
     }
     static class DisplayEngine {
         public static void Init() {
-            InternalState.bootLabel = new Bindings.UI.Draw.UILabel(
-                "Boot Label",
-                new Vector2(0f, 0f),
-                InternalState.tacScreenTransform
-            );
             InternalState.bootLabel.SetText("Booting...");
         }
         public static void Update() {
@@ -88,7 +87,7 @@ public static class BootScreenComponent {
             float baseAlpha = Mathf.Clamp01(cg.alpha <= 0f ? 1f : cg.alpha);
             float lowAlpha = 0.25f;
             int pulses = 2;
-            float pulseDuration = 0.20f; // total time per pulse (down+up)
+            float pulseDuration = 0.15f; // total time per pulse (down+up)
 
             for (int i = 0; i < pulses; i++) {
                 // fade down

@@ -35,10 +35,10 @@ class InterceptionVectorTask {
         Intercepting
     }
     static State currentState = State.Init;
-    static UIUtils.UILabel bearingLabel;
-    static UIUtils.UILabel timerLabel;
-    static UIUtils.UILabel indicatorTargetLabel;
-    static UIUtils.UILine indicatorTargetLine;
+    static Bindings.UI.Draw.UILabel bearingLabel;
+    static Bindings.UI.Draw.UILabel timerLabel;
+    static Bindings.UI.Draw.UILabel indicatorTargetLabel;
+    static Bindings.UI.Draw.UILine indicatorTargetLine;
     static FactionHQ playerFactionHQ;
     static Unit targetUnit;
     static float solutionTime;
@@ -51,7 +51,7 @@ class InterceptionVectorTask {
     const int interceptArraySize = 180; // Number of entries to keep in the intercept array
 
     static void Postfix() {
-        if (UIUtils.targetScreen == null) return; // Ensure targetScreen is initialized before proceeding
+        if (Bindings.UI.Game.GetTargetScreen() == null) return; // Ensure targetScreen is initialized before proceeding
         switch (currentState) {
             case State.Init:
                 HandleInitState();
@@ -74,36 +74,36 @@ class InterceptionVectorTask {
     static void HandleInitState() {
         Plugin.Log("[IV] Init state");
         playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
-        bearingLabel = new UIUtils.UILabel(
+        bearingLabel = new Bindings.UI.Draw.UILabel(
             "bearingLabel",
             new Vector2(0, -70),
-            UIUtils.targetScreen,
+            Bindings.UI.Game.GetTargetScreen(),
             FontStyle.Normal,
             Color.green,
             20
         );
-        timerLabel = new UIUtils.UILabel(
+        timerLabel = new Bindings.UI.Draw.UILabel(
             "timerLabel",
             new Vector2(0, -100),
-            UIUtils.targetScreen,
+            Bindings.UI.Game.GetTargetScreen(),
             FontStyle.Normal,
             Color.green,
             20
         );
-        indicatorTargetLabel = new UIUtils.UILabel(
+        indicatorTargetLabel = new Bindings.UI.Draw.UILabel(
             "indicatorTargetLabel",
             new Vector2(0, 0),
-            UIUtils.targetScreen,
+            Bindings.UI.Game.GetTargetScreen(),
             FontStyle.Normal,
             Color.magenta,
             36,
             0f
         );
-        indicatorTargetLine = new UIUtils.UILine(
+        indicatorTargetLine = new Bindings.UI.Draw.UILine(
             "indicatorTargetLine",
             new Vector2(0, 0),
             new Vector2(0, 0),
-            UIUtils.targetScreen,
+            Bindings.UI.Game.GetTargetScreen(),
             Color.magenta,
             2f
         );
@@ -200,7 +200,7 @@ class InterceptionVectorTask {
         Vector3 interceptVectorXZ = Vector3.Scale(interceptVector, new Vector3(1f, 0f, 1f)).normalized;
         int interceptBearing = (int)(Vector3.SignedAngle(Vector3.forward, interceptVectorXZ, Vector3.up) + 360) % 360;
         int interceptionTimeInSeconds = (int)(interceptVector.magnitude / playerVelocity.magnitude);
-        Vector3 interceptScreen = UIUtils.cameraStateManager.mainCamera.WorldToScreenPoint(interceptPosition);
+        Vector3 interceptScreen = Bindings.UI.Game.GetCameraStateManager().mainCamera.WorldToScreenPoint(interceptPosition);
         int relativeHeight = (int)-(
             Vector3.SignedAngle(
                 Vector3.ProjectOnPlane(interceptVector, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.up),

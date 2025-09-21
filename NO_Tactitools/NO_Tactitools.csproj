@@ -21,15 +21,15 @@
 
   <!-- Debug configuration -->
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugType>full</DebugType>
+    <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
   </PropertyGroup>
 
   <!-- Release configuration - strip debug info and source paths -->
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DebugType>none</DebugType>
-    <DebugSymbols>false</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
     <Optimize>true</Optimize>
     <PathMap>$(MSBuildProjectDirectory)=.</PathMap>
     <EmbedAllSources>false</EmbedAllSources>

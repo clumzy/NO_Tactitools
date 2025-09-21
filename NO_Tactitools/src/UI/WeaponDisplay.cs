@@ -47,8 +47,9 @@ public class WeaponDisplayComponent {
             static Transform Get(string path) {
                 return Bindings.UI.Game.GetTacScreen().Find(path)?.transform;
             }
+            Plugin.Log("[WD] Initializing Logic Engine for platform " + name);
             InternalState.destination = name switch {
-                "T/A-30 Compass" or "FS-12 Revoker" or "FS-20 Vortex" or "KR-67 Ifrit" => Get("SystemStatus"),
+                "T/A-30 Compass" or "FS-12 Revoker" or "FS-20 Vortex" or "KR-67 Ifrit" or "UH-80 Ibis"=> Get("SystemStatus"),
                 "EW-1 Medusa" => Get("engPanel1"),
                 "CI-22 Cricket" => Get("EngPanel"),
                 "SAH-46 Chicane" => Get("TelemetryPanel"),
@@ -57,12 +58,14 @@ public class WeaponDisplayComponent {
                 _ => null
             };
             InternalState.hasJammer = Bindings.Player.Aircraft.Countermeasures.HasJammer();
+            InternalState.hasIRFlare = Bindings.Player.Aircraft.Countermeasures.HasIRFlare();
+            InternalState.vanillaUIEnabled = Plugin.weaponDisplayVanillaUIEnabled.Value;
             Plugin.Log("[WD] Logic Engine initialized for platform " + name);
         }
 
         static public void Update() {
             InternalState.isOutOfAmmo = Bindings.Player.Weapons.GetActiveStationAmmo() == 0;
-            InternalState.isFlareSelected = Bindings.Player.Aircraft.Countermeasures.GetCurrentIndex() == 0;
+            InternalState.isFlareSelected = Bindings.Player.Aircraft.Countermeasures.IsFlareSelected();
             InternalState.isJammerSelected = ! InternalState.isFlareSelected;
             InternalState.flareAmmo01 = Mathf.Clamp01(
                 (float)Bindings.Player.Aircraft.Countermeasures.GetIRFlareAmmo() / Bindings.Player.Aircraft.Countermeasures.GetIRFlareMaxAmmo());
@@ -77,26 +80,29 @@ public class WeaponDisplayComponent {
         static public Transform destination;
         static public WeaponDisplay weaponDisplay;
         static public bool hasJammer;
+        static public bool hasIRFlare;
         static public bool isOutOfAmmo;
         static public bool isFlareSelected;
         static public bool isJammerSelected;
         static public float flareAmmo01;
         static public float jammerAmmo01;
+        static public bool vanillaUIEnabled;
 
     }
 
     static class DisplayEngine {
         static public void Init() {
-            if (Bindings.Player.Aircraft.Countermeasures.HasIRFlare()) {
+            if (InternalState.hasIRFlare) {
                 InternalState.weaponDisplay = new WeaponDisplay(
                     Bindings.Player.Aircraft.GetPlatformName(),
                     InternalState.destination);
-                if (!Plugin.weaponDisplayVanillaUIEnabled.Value) Bindings.UI.Game.HideWeaponPanel();
+                if (!InternalState.vanillaUIEnabled) Bindings.UI.Game.HideWeaponPanel();
             }
             Plugin.Log("[WD] Display Engine initialized for platform " + Bindings.Player.Aircraft.GetPlatformName());
         }
 
         static public void Update() {
+            if (Bindings.UI.Game.GetWeaponStatus() == null) return;
 
             // REFRESH WEAPON
             InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Weapons.GetActiveStationName());
@@ -104,7 +110,7 @@ public class WeaponDisplayComponent {
             InternalState.weaponDisplay.weaponAmmoLabel.SetColor(InternalState.isOutOfAmmo ? Color.red : WeaponDisplay.mainColor);
 
             Image cloneImg = InternalState.weaponDisplay.weaponImageClone.GetComponent<Image>();
-            Image srcImg = SceneSingleton<CombatHUD>.i.weaponImage;
+            Image srcImg = Bindings.Player.Weapons.GetActiveStationImage();
             cloneImg.sprite = srcImg.sprite;
             cloneImg.color = InternalState.isOutOfAmmo ? Color.red : WeaponDisplay.mainColor;
             // TODO : ENCAPSULATE IMAGES IN MY OWN CODE
@@ -277,6 +283,20 @@ public class WeaponDisplayComponent {
                     rotateWeaponImage = true; // Rotate the weapon image for SFB-81
                     imageScaleFactor = 0.8f; // Scale the image for SFB-81
                     break;
+                case "UH-80 Ibis":
+                    flarePos = new Vector2(-60, -70);
+                    jammerPos = new Vector2(60, -70);
+                    lineStart = new Vector2(-100, -20);
+                    lineEnd = new Vector2(100, -20);
+                    weaponNamePos = new Vector2(0, 70);
+                    weaponAmmoPos = new Vector2(80, 20);
+                    weaponImagePos = new Vector2(-60, 20);
+                    flareFont = 35;
+                    jammerFont = 35;
+                    weaponNameFont = 35;
+                    weaponAmmoFont = 50;
+                    imageScaleFactor = 0.6f; // Scale the image for EW-1 Medusa
+                    break;
                 default:
                     flarePos = new Vector2(0, -40);
                     jammerPos = new Vector2(0, -80);
@@ -349,7 +369,7 @@ public class WeaponDisplayComponent {
                 0f
             );
             // Clone the weapon image and set it as a child of the systems MFD
-            weaponImageClone = GameObject.Instantiate(SceneSingleton<CombatHUD>.i.weaponImage.gameObject, destination);
+            weaponImageClone = GameObject.Instantiate(Bindings.Player.Weapons.GetActiveStationImage().gameObject, destination);
             var cloneImg = weaponImageClone.GetComponent<Image>();
             cloneImg.rectTransform.sizeDelta = new Vector2(
                 cloneImg.rectTransform.sizeDelta.x * imageScaleFactor,
