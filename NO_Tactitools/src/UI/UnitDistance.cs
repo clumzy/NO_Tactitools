@@ -14,6 +14,7 @@ class UnitDistancePlugin {
         if (!initialized) {
             Plugin.Log($"[UD] Unit Marker Distance Indicator plugin starting !");
             Plugin.harmony.PatchAll(typeof(UnitDistanceTask));
+            Plugin.harmony.PatchAll(typeof(ResetUnitDistanceDictOnRespawnPatch));
             Reset();
             initialized = true;
             Plugin.Log("[UD] Unit Marker Distance Indicator plugin succesfully started !");

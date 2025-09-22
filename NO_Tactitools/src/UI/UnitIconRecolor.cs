@@ -13,10 +13,15 @@ class UnitIconRecolorPlugin {
         if (!initialized) {
             Plugin.Log("[UIR] Unit Icon Recolor plugin starting !");
             Plugin.harmony.PatchAll(typeof(UnitIconRecolorPatch));
-            unitIconRecolorEnemyColor = Plugin.unitIconRecolorEnemyColor.Value;
+            Plugin.harmony.PatchAll(typeof(UnitIconRecolorPatchOnRespawnPatch));
+            Reset();
             initialized = true;
             Plugin.Log("[UIR] Unit Icon Recolor plugin successfully started !");
         }
+    }
+
+    public static void Reset() {
+        unitIconRecolorEnemyColor = Plugin.unitIconRecolorEnemyColor.Value;
     }
 }
 
@@ -38,5 +43,12 @@ class UnitIconRecolorPatch {
         if (__instance.unit.NetworkHQ != SceneSingleton<DynamicMap>.i.HQ &&
             targetUnitNames.Contains(__instance.unit.unitName))
                 __instance.iconImage.color = UnitIconRecolorPlugin.unitIconRecolorEnemyColor;
+    }
+}
+
+[HarmonyPatch(typeof(FlightHud), "ResetAircraft")]
+class UnitIconRecolorPatchOnRespawnPatch {
+    static void Postfix() {
+        UnitIconRecolorPlugin.Reset();
     }
 }
