@@ -8,11 +8,12 @@ namespace NO_Tactitools.UI;
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class UnitIconRecolorPlugin {
     private static bool initialized = false;
-
+    public static Color unitIconRecolorEnemyColor = Color.red;
     static void Postfix() {
         if (!initialized) {
             Plugin.Log("[UIR] Unit Icon Recolor plugin starting !");
             Plugin.harmony.PatchAll(typeof(UnitIconRecolorPatch));
+            unitIconRecolorEnemyColor = Plugin.unitIconRecolorEnemyColor.Value;
             initialized = true;
             Plugin.Log("[UIR] Unit Icon Recolor plugin successfully started !");
         }
@@ -29,10 +30,13 @@ class UnitIconRecolorPatch {
         "AeroSentry SPAAG",
         "FGA-57 Anvil",
         "T9K41 Boltstrike",
-        "StratoLance R9 Launcher"];
+        "StratoLance R9 Launcher",
+        "Hexhound SAM",
+        "CRAM Trailer",
+        "Laser CIWS Trailer"];
     static void Postfix(UnitMapIcon __instance) {
         if (__instance.unit.NetworkHQ != SceneSingleton<DynamicMap>.i.HQ &&
             targetUnitNames.Contains(__instance.unit.unitName))
-                __instance.iconImage.color = new Color(0.8f, 0.2f, 1f); // yellow color for enemy AA units
+                __instance.iconImage.color = UnitIconRecolorPlugin.unitIconRecolorEnemyColor;
     }
 }

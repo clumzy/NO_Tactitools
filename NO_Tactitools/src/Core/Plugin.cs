@@ -39,6 +39,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<Color> MFDColor;
         public static ConfigEntry<bool> MFDAlternativeAttitudeEnabled;
         public static ConfigEntry<bool> unitIconRecolorEnabled;
+        public static ConfigEntry<Color> unitIconRecolorEnemyColor;
         public static ConfigEntry<bool> bootScreenEnabled;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
@@ -168,6 +169,10 @@ namespace NO_Tactitools.Core {
                 "Unit Icon Recolor Enabled",
                 false,
                 "Enable or disable the Unit Icon Recolor feature");
+            unitIconRecolorEnemyColor = Config.Bind("PREVIEW - EXPECT BUGS",
+                "Unit Icon Recolor Enemy Color",
+                new Color(0.8f, 0.2f, 1f),
+                "Color for specific enemy unit icons.");
             // Boot Screen settings
             bootScreenEnabled = Config.Bind("PREVIEW - EXPECT BUGS",
                 "Boot Screen Enabled",
