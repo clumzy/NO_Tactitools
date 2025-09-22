@@ -165,16 +165,16 @@ namespace NO_Tactitools.Core {
                 "Enable or disable the alternative attitude colors for the MFD horizon and ground indicators.");
             // PREVIEW FEATURES
             // Unit Icon Recolor settings
-            unitIconRecolorEnabled = Config.Bind("PREVIEW - EXPECT BUGS",
+            unitIconRecolorEnabled = Config.Bind("PREVIEW - SUBJECT TO CHANGES IN THE FUTURE",
                 "Unit Icon Recolor Enabled",
                 false,
                 "Enable or disable the Unit Icon Recolor feature");
-            unitIconRecolorEnemyColor = Config.Bind("PREVIEW - EXPECT BUGS",
+            unitIconRecolorEnemyColor = Config.Bind("PREVIEW - SUBJECT TO CHANGES IN THE FUTURE",
                 "Unit Icon Recolor Enemy Color",
                 new Color(0.8f, 0.2f, 1f),
                 "Color for specific enemy unit icons.");
             // Boot Screen settings
-            bootScreenEnabled = Config.Bind("PREVIEW - EXPECT BUGS",
+            bootScreenEnabled = Config.Bind("PREVIEW - SUBJECT TO CHANGES IN THE FUTURE",
                 "Boot Screen Enabled",
                 false,
                 "Enable or disable the Boot Screen feature");
