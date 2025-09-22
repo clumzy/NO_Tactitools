@@ -7,7 +7,7 @@ using NO_Tactitools.Controls;
 using NO_Tactitools.UI;
 
 namespace NO_Tactitools.Core {
-    [BepInPlugin("NO_Tactitools", "NOTT", "0.2.0")]
+    [BepInPlugin("NO_Tactitools", "NOTT", "0.2.1")]
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;
         public static ConfigEntry<bool> targetRecallEnabled;
@@ -39,6 +39,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<Color> MFDColor;
         public static ConfigEntry<bool> MFDAlternativeAttitudeEnabled;
         public static ConfigEntry<bool> unitIconRecolorEnabled;
+        public static ConfigEntry<bool> bootScreenEnabled;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
 
@@ -94,7 +95,7 @@ namespace NO_Tactitools.Core {
             weaponSwitcherButton0 = Config.Bind("Weapon Switcher",
                 "Weapon Switcher Button 0",
                 41,
-                "Button number for weapon slot 0");
+                "Button number for weapon slot 0 (Long press to toggle Turret Auto Control)");
             weaponSwitcherButton1 = Config.Bind("Weapon Switcher",
                 "Weapon Switcher Button 1",
                 42,
@@ -161,11 +162,17 @@ namespace NO_Tactitools.Core {
                 "MFD Alternative Attitude Enabled",
                 false,
                 "Enable or disable the alternative attitude colors for the MFD horizon and ground indicators.");
+            // PREVIEW FEATURES
             // Unit Icon Recolor settings
-            unitIconRecolorEnabled = Config.Bind("Unit Icon Recolor",
+            unitIconRecolorEnabled = Config.Bind("PREVIEW - EXPECT BUGS",
                 "Unit Icon Recolor Enabled",
-                true,
+                false,
                 "Enable or disable the Unit Icon Recolor feature");
+            // Boot Screen settings
+            bootScreenEnabled = Config.Bind("PREVIEW - EXPECT BUGS",
+                "Boot Screen Enabled",
+                false,
+                "Enable or disable the Boot Screen feature");
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",
                 "Debug Mode Enabled",
@@ -222,7 +229,11 @@ namespace NO_Tactitools.Core {
                 Logger.LogInfo($"Unit Icon Recolor is enabled, patching...");
                 harmony.PatchAll(typeof(UnitIconRecolorPlugin));
             }
-            harmony.PatchAll(typeof(BootScreenPlugin));
+            // Patch Boot Screen
+            if (bootScreenEnabled.Value) {
+                Logger.LogInfo($"Boot Screen is enabled, patching...");
+                harmony.PatchAll(typeof(BootScreenPlugin));
+            }
         }
 
         public static void Log(string message) {

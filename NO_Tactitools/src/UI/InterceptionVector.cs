@@ -51,7 +51,6 @@ class InterceptionVectorTask {
     const int interceptArraySize = 180; // Number of entries to keep in the intercept array
 
     static void Postfix() {
-        if (Bindings.UI.Game.GetTargetScreen() == null) return; // Ensure targetScreen is initialized before proceeding
         switch (currentState) {
             case State.Init:
                 HandleInitState();
@@ -72,6 +71,7 @@ class InterceptionVectorTask {
     }
 
     static void HandleInitState() {
+        if(Bindings.Player.TargetList.GetTargets().Count == 0) return; // Do not init if no target is selected
         Plugin.Log("[IV] Init state");
         playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
         bearingLabel = new Bindings.UI.Draw.UILabel(

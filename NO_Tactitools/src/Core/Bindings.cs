@@ -42,8 +42,6 @@ public class Bindings {
                         Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
                         FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                         object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
-                        Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetIRAmmo] HasECMPod: " + HasECMPod().ToString());
-                        Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetIRAmmo] HasJammer: " + HasJammer().ToString());
                         var IRStation = (stationsObj as IList)[HasECMPod() ? 1 : 0];
                         int count = (int)IRStation.GetType().GetField("ammo", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(IRStation);
                         return count;
@@ -132,14 +130,20 @@ public class Bindings {
 
                 public static void SetIRFlare() {
                     try {
-                        SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 0;
+                        if(HasECMPod())
+                            SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 1;
+                        else
+                            SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 0;
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.SetIRFlare] NullReferenceException: countermeasure manager unavailable; cannot select IR flare."); }
                 }
 
                 public static void SetJammer() {
                     try {
-                        SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 1;
+                        if(HasECMPod())
+                            SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 0;
+                        else
+                            SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 1;
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.SetJammer] NullReferenceException: countermeasure manager unavailable; cannot select jammer."); }
                 }
@@ -169,7 +173,7 @@ public class Bindings {
                     Image weaponImage = (Image)weaponImageField.GetValue(Bindings.UI.Game.GetWeaponStatus());
                     return weaponImage;
                 }
-                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetCurrentWeaponImage] NullReferenceException: CombatHUD or weapon image unavailable; returning null."); return null; }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetActiveStationImage] NullReferenceException: CombatHUD or weapon image unavailable; returning null."); return null; }
             }
 
             public static int GetStationCount() {
@@ -495,7 +499,9 @@ public class Bindings {
 
             public static WeaponStatus GetWeaponStatus() {
                 try {
-                    return UnityEngine.Object.FindObjectsOfType<WeaponStatus>()[0];
+                    GameObject topRightPanel = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("topRightPanel").GetValue();
+                    WeaponStatus weaponStatus = topRightPanel.GetComponentInChildren<WeaponStatus>();
+                    return weaponStatus;
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetWeaponStatus] NullReferenceException: CombatHUD or weaponIndicator singleton not available; returning null."); return null; }
                 catch (IndexOutOfRangeException) { return null; } // this means the game is paused and there is no weapon status displayed

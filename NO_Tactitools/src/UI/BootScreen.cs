@@ -72,7 +72,7 @@ public static class BootScreenComponent {
     }
     static class DisplayEngine {
         public static void Init() {
-            InternalState.bootLabel.SetText("Booting...");
+            InternalState.bootLabel.SetText("Booting "+Bindings.Player.Aircraft.GetPlatformName()+"...");
         }
         public static void Update() {
             // Nothing to update visually for now

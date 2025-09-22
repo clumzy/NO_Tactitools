@@ -45,13 +45,13 @@ public static class MFDColorComponent {
                 InternalState.mainSaturation,
                 1.0f);
             Transform tacScreenTransform = Bindings.UI.Game.GetTacScreen();
-            foreach (Text text in tacScreenTransform.GetComponentsInChildren<Text>()) {
+            foreach (Text text in tacScreenTransform.GetComponentsInChildren<Text>(true)) {
                 text.color = Color.HSVToRGB(
                     InternalState.mainHue,
                     InternalState.mainSaturation,
                     InternalState.mainBrightness);
             }
-            foreach (Image image in tacScreenTransform.GetComponentsInChildren<Image>()) {
+            foreach (Image image in tacScreenTransform.GetComponentsInChildren<Image>(true)) {
                 if (image.transform.name == "Ground") {
                     if (InternalState.MFDAlternativeAttitudeEnabled) {
                         image.color = new Color(
