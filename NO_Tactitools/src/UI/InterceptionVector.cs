@@ -200,6 +200,7 @@ class InterceptionVectorTask {
         Vector3 interceptVectorXZ = Vector3.Scale(interceptVector, new Vector3(1f, 0f, 1f)).normalized;
         int interceptBearing = (int)(Vector3.SignedAngle(Vector3.forward, interceptVectorXZ, Vector3.up) + 360) % 360;
         int interceptionTimeInSeconds = (int)(interceptVector.magnitude / playerVelocity.magnitude);
+        Vector3 interceptScreen = Bindings.UI.Game.GetCameraStateManager().mainCamera.WorldToScreenPoint(interceptPosition);
         int relativeHeight = (int)-(
             Vector3.SignedAngle(
                 Vector3.ProjectOnPlane(interceptVector, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.up),
@@ -217,12 +218,7 @@ class InterceptionVectorTask {
         );
         bearingLabel.SetText($"({interceptBearing.ToString()}°)");
         timerLabel.SetText($"ETA : {interceptionTimeInSeconds.ToString()}s");
-        int playerBearing = (int)
-            (Vector3.SignedAngle(
-                Vector3.forward, 
-                Bindings.Player.Aircraft.GetAircraft().rb.transform.forward, 
-                Vector3.up) + 360) % 360;
-        bool currentInterceptScreenVisible = Mathf.Abs(Mathf.DeltaAngle(playerBearing, interceptBearing)) <= 60;
+        bool currentInterceptScreenVisible = interceptScreen.z > 0;
         if (currentInterceptScreenVisible && interceptArray.Count == interceptArraySize) {
             indicatorTargetLabel.SetText("+");
             indicatorTargetLabel.SetPosition(new Vector2(interceptTarget.x, interceptTarget.y));
@@ -249,13 +245,13 @@ class InterceptionVectorTask {
 
     static void UpdateInterceptionPosition() {
         Vector3 currentPosition = targetPosition + targetVelocity * solutionTime;
-        // If interceptArray does not have 160 entries, fill it with 160 entries of currentPosition
+        // If interceptArray does not have 120 entries, fill it with 120 entries of currentPosition
         if (interceptArray.Count < interceptArraySize) {
             interceptArray.Add(currentPosition);
         }
         else {
-            interceptArray.Add(currentPosition);
             interceptArray.RemoveAt(0);
+            interceptArray.Add(currentPosition);
         }
         // Calculate the average position of the last 120 entries
         Vector3 averagePosition = Vector3.zero;
