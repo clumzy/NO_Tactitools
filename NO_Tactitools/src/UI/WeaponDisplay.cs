@@ -64,6 +64,7 @@ public class WeaponDisplayComponent {
         }
 
         static public void Update() {
+            if (Bindings.Player.Aircraft.GetAircraft() == null) return;
             InternalState.isOutOfAmmo = Bindings.Player.Weapons.GetActiveStationAmmo() == 0;
             InternalState.isFlareSelected = Bindings.Player.Aircraft.Countermeasures.IsFlareSelected();
             InternalState.isJammerSelected = ! InternalState.isFlareSelected;
@@ -103,6 +104,7 @@ public class WeaponDisplayComponent {
 
         static public void Update() {
             if (Bindings.UI.Game.GetWeaponStatus() == null) return;
+            if (Bindings.Player.Aircraft.GetAircraft() == null) return;
 
             // REFRESH WEAPON
             InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Weapons.GetActiveStationName());

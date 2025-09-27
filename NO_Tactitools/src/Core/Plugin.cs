@@ -27,6 +27,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<int> weaponSwitcherButton2;
         public static ConfigEntry<int> weaponSwitcherButton3;
         public static ConfigEntry<int> weaponSwitcherButton4;
+        public static ConfigEntry<int> weaponSwitcherButton5;
         public static ConfigEntry<bool> weaponDisplayEnabled;
         public static ConfigEntry<bool> weaponDisplayVanillaUIEnabled;
         public static ConfigEntry<string> weaponDisplayControllerName;
@@ -113,6 +114,10 @@ namespace NO_Tactitools.Core {
                 "Weapon Switcher Button 4",
                 45,
                 "Button number for weapon slot 4");
+            weaponSwitcherButton5 = Config.Bind("Weapon Switcher",
+                "Weapon Switcher Button 5",
+                46,
+                "Button number for weapon slot 5");
             // Weapon Display settings
             weaponDisplayEnabled = Config.Bind("CM & Weapon Display",
                 "CM & Weapon Display Enabled",
@@ -181,7 +186,7 @@ namespace NO_Tactitools.Core {
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",
                 "Debug Mode Enabled",
-                true,
+                false,
                 "Enable or disable the debug mode for logging");
             // Plugin startup logic
             harmony = new Harmony("george.no_tactitools");

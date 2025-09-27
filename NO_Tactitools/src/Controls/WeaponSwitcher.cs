@@ -47,6 +47,13 @@ class WeaponSwitcherPlugin {
                 0.2f,
                 onShortPress: HandleClick4
                 ));
+            InputCatcher.RegisterControllerButton(
+                Plugin.weaponSwitcherControllerName.Value,
+                new ControllerButton(
+                Plugin.weaponSwitcherButton5.Value,
+                0.2f,
+                onShortPress: HandleClick5
+                ));
             initialized = true;
             Plugin.Log("[WS] Weapon Switcher plugin succesfully started !");
         }
@@ -74,5 +81,9 @@ class WeaponSwitcherPlugin {
 
     private static void HandleClick4() {
         Bindings.Player.Weapons.SetActiveStation(4);
+    }
+
+    private static void HandleClick5() {
+        Bindings.Player.Weapons.SetActiveStation(5);
     }
 }

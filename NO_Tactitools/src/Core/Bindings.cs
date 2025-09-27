@@ -15,6 +15,13 @@ namespace NO_Tactitools.Core;
 public class Bindings {
     public class Player {
         public class Aircraft {
+            public static global::Aircraft GetAircraft() {
+                try {
+                    return SceneSingleton<CombatHUD>.i.aircraft;
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.GetAircraft] NullReferenceException: CombatHUD or aircraft was null; returning null."); return null; }
+            }
+
             public static string GetPlatformName() {
                 try {
                     return SceneSingleton<CombatHUD>.i.aircraft.GetAircraftParameters().aircraftName;
@@ -156,14 +163,14 @@ public class Bindings {
                 try {
                     return SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation.WeaponInfo.shortName;
                 }
-                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetCurrentWeaponName] NullReferenceException: CombatHUD or weapon name text unavailable; returning 'Unknown Weapon'."); return "Unknown Weapon"; }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetActiveStationName] NullReferenceException: CombatHUD or weapon name text unavailable; returning 'Unknown Weapon'."); return "Unknown Weapon"; }
             }
 
             public static int GetActiveStationAmmo() {
                 try {
                     return SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation.Ammo;
                 }
-                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetCurrentWeaponAmmo] NullReferenceException: CombatHUD or ammo count text unavailable; returning 0 ammo."); return 0; }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetActiveStationAmmo] NullReferenceException: CombatHUD or ammo count text unavailable; returning 0 ammo."); return 0; }
             }
 
             public static Image GetActiveStationImage() {
