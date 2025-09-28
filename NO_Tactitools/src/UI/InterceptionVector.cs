@@ -250,7 +250,6 @@ class InterceptionVectorTask {
 
     static void UpdateInterceptionPosition() {
         Vector3 currentPosition = targetPosition + targetVelocity * solutionTime;
-        // If interceptArray does not have 160 entries, fill it with 160 entries of currentPosition
         if (interceptArray.Count < interceptArraySize) {
             interceptArray.Add(currentPosition);
         }
@@ -258,7 +257,7 @@ class InterceptionVectorTask {
             interceptArray.RemoveAt(0);
             interceptArray.Add(currentPosition);
         }
-        // Calculate the average position of the last 160 entries
+        // Calculate the average position of the interceptArraySize 160 entries
         Vector3 averagePosition = Vector3.zero;
         foreach (Vector3 position in interceptArray) {
             averagePosition += position;
