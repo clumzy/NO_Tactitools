@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>NO_Tactitools</AssemblyName>
     <Product>Nuclear Option Tactical Tools</Product>
-    <Version>0.2.1</Version>
+    <Version>0.2.1.1</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
