@@ -250,7 +250,7 @@ class InterceptionVectorTask {
 
     static void UpdateInterceptionPosition() {
         Vector3 currentPosition = targetPosition + targetVelocity * solutionTime;
-        // If interceptArray does not have 160 entries, fill it with 120 entries of currentPosition
+        // If interceptArray does not have 160 entries, fill it with 160 entries of currentPosition
         if (interceptArray.Count < interceptArraySize) {
             interceptArray.Add(currentPosition);
         }
