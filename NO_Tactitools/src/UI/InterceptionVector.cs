@@ -196,10 +196,15 @@ class InterceptionVectorTask {
     }
 
     static void HandleTargetReachable() {
-        Vector3 interceptVector = interceptPosition - playerPosition;
+        if (Bindings.Player.Aircraft.GetAircraft() == null) {
+            currentState = State.Reset;
+            Plugin.Log("[IV] Player aircraft was null, returning to Reset state");
+            return;
+        }
+        Vector3 interceptVector = interceptPosition;
         Vector3 interceptVectorXZ = Vector3.Scale(interceptVector, new Vector3(1f, 0f, 1f)).normalized;
         int interceptBearing = (int)(Vector3.SignedAngle(Vector3.forward, interceptVectorXZ, Vector3.up) + 360) % 360;
-        int interceptionTimeInSeconds = (int)(interceptVector.magnitude / playerVelocity.magnitude);
+        int interceptionTimeInSeconds = (int)Mathf.Clamp(interceptVector.magnitude / playerVelocity.magnitude - interceptArraySize/60, 0 , 999);
         Vector3 interceptScreen = Bindings.UI.Game.GetCameraStateManager().mainCamera.WorldToScreenPoint(interceptPosition);
         int relativeHeight = (int)-(
             Vector3.SignedAngle(
@@ -216,14 +221,14 @@ class InterceptionVectorTask {
             (int)Mathf.Clamp(relativeHeight / 60f * 170f, -110, 110), //115 = height of the canvas
             0
         );
-        bearingLabel.SetText($"({interceptBearing.ToString()}°)");
-        timerLabel.SetText($"ETA : {interceptionTimeInSeconds.ToString()}s");
         bool currentInterceptScreenVisible = interceptScreen.z > 0;
         if (currentInterceptScreenVisible && interceptArray.Count == interceptArraySize) {
             indicatorTargetLabel.SetText("+");
             indicatorTargetLabel.SetPosition(new Vector2(interceptTarget.x, interceptTarget.y));
             indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(interceptTarget.x, interceptTarget.y));
             indicatorTargetLine.ResetThickness();
+            bearingLabel.SetText($"({interceptBearing.ToString()}°)");
+            timerLabel.SetText($"ETA : {interceptionTimeInSeconds.ToString()}s");
         }
         else {
             if (interceptArray.Count == interceptArraySize) indicatorTargetLabel.SetText("↶");
@@ -245,7 +250,7 @@ class InterceptionVectorTask {
 
     static void UpdateInterceptionPosition() {
         Vector3 currentPosition = targetPosition + targetVelocity * solutionTime;
-        // If interceptArray does not have 120 entries, fill it with 120 entries of currentPosition
+        // If interceptArray does not have 160 entries, fill it with 120 entries of currentPosition
         if (interceptArray.Count < interceptArraySize) {
             interceptArray.Add(currentPosition);
         }
@@ -253,7 +258,7 @@ class InterceptionVectorTask {
             interceptArray.RemoveAt(0);
             interceptArray.Add(currentPosition);
         }
-        // Calculate the average position of the last 120 entries
+        // Calculate the average position of the last 160 entries
         Vector3 averagePosition = Vector3.zero;
         foreach (Vector3 position in interceptArray) {
             averagePosition += position;
