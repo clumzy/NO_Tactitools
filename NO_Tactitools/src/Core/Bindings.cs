@@ -108,7 +108,8 @@ public class Bindings {
                         return (
                             HasJammer() &&
                                 ((Bindings.Player.Aircraft.GetPlatformName() == "UH-80 Ibis") ||
-                                (Bindings.Player.Aircraft.GetPlatformName() == "SAH-46 Chicane")));
+                                (Bindings.Player.Aircraft.GetPlatformName() == "SAH-46 Chicane") ||
+                                (Bindings.Player.Aircraft.GetPlatformName() == "VL-49 Tarantula")));
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasECMPod] NullReferenceException: countermeasure manager or stations list unavailable; assuming no ECM pod (false)."); return false; }
                 }
