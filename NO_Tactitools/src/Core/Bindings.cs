@@ -13,6 +13,15 @@ using System.IO;
 namespace NO_Tactitools.Core;
 
 public class Bindings {
+    public class GameState {
+        public static bool IsGamePaused() {
+            try {
+                return GameplayUI.GameIsPaused;
+            }
+            catch (NullReferenceException) { Plugin.Log("[Bindings.GameState.IsGamePaused] NullReferenceException: GameplayUI singleton not available; assuming game is not paused."); return false; }
+        }
+    }
+
     public class Player {
         public class Aircraft {
             public static global::Aircraft GetAircraft() {
@@ -107,9 +116,10 @@ public class Bindings {
                     try {
                         return (
                             HasJammer() &&
-                                ((Bindings.Player.Aircraft.GetPlatformName() == "UH-80 Ibis") ||
-                                (Bindings.Player.Aircraft.GetPlatformName() == "SAH-46 Chicane") ||
-                                (Bindings.Player.Aircraft.GetPlatformName() == "VL-49 Tarantula")));
+                                ((GetPlatformName() == "UH-80 Ibis") ||
+                                (GetPlatformName() == "SAH-46 Chicane") ||
+                                (GetPlatformName() == "VL-49 Tarantula") ||
+                                (GetPlatformName() == "CI-22 Cricket") ));
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasECMPod] NullReferenceException: countermeasure manager or stations list unavailable; assuming no ECM pod (false)."); return false; }
                 }
@@ -138,7 +148,7 @@ public class Bindings {
 
                 public static void SetIRFlare() {
                     try {
-                        if(HasECMPod())
+                        if (HasECMPod())
                             SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 1;
                         else
                             SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 0;
@@ -148,7 +158,7 @@ public class Bindings {
 
                 public static void SetJammer() {
                     try {
-                        if(HasECMPod())
+                        if (HasECMPod())
                             SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 0;
                         else
                             SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager.activeIndex = 1;
@@ -169,7 +179,10 @@ public class Bindings {
 
             public static int GetActiveStationAmmo() {
                 try {
-                    return SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation.Ammo;
+                    if (GetStationCount() == 0)
+                        return 0;
+                    else
+                        return SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation.Ammo;
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetActiveStationAmmo] NullReferenceException: CombatHUD or ammo count text unavailable; returning 0 ammo."); return 0; }
             }
@@ -436,9 +449,7 @@ public class Bindings {
             }
 
             public static Font GetDefaultFont() {
-                Type weaponIndicatorType = (Bindings.UI.Game.GetWeaponStatus()).GetType();
-                FieldInfo weaponTextField = weaponIndicatorType.GetField("nameText", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                Text weaponText = (Text)weaponTextField.GetValue(Bindings.UI.Game.GetWeaponStatus());
+                Text weaponText = Bindings.UI.Game.GetFlightHUD().GetComponentInChildren<Text>();
                 return weaponText.font;
             }
         }
@@ -448,14 +459,14 @@ public class Bindings {
                 SceneSingleton<AircraftActionsReport>.i?.ReportText(message, duration);
             }
 
-            public static Transform GetCombatHUD() {
+            public static Transform GetCombatHUD() { // HMD
                 try {
                     return SceneSingleton<CombatHUD>.i.transform;
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetCombatHUD] NullReferenceException: CombatHUD singleton not available; returning null."); return null; }
             }
 
-            public static Transform GetFlightHUD() {
+            public static Transform GetFlightHUD() { // HUD
                 try {
                     return SceneSingleton<FlightHud>.i.transform;
                 }

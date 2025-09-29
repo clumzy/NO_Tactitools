@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using NO_Tactitools.Core;
 using UnityEngine.PlayerLoop;
+using Unity.Baselib.LowLevel;
 
 namespace NO_Tactitools.UI;
 
@@ -59,13 +60,13 @@ public class WeaponDisplayComponent {
             };
             InternalState.hasJammer = Bindings.Player.Aircraft.Countermeasures.HasJammer();
             InternalState.hasIRFlare = Bindings.Player.Aircraft.Countermeasures.HasIRFlare();
+            InternalState.hasStations = Bindings.Player.Weapons.GetStationCount() > 0;
             InternalState.vanillaUIEnabled = Plugin.weaponDisplayVanillaUIEnabled.Value;
             Plugin.Log("[WD] Logic Engine initialized for platform " + name);
         }
 
         static public void Update() {
             if (Bindings.Player.Aircraft.GetAircraft() == null) return;
-            InternalState.isOutOfAmmo = Bindings.Player.Weapons.GetActiveStationAmmo() == 0;
             InternalState.isFlareSelected = Bindings.Player.Aircraft.Countermeasures.IsFlareSelected();
             InternalState.isJammerSelected = ! InternalState.isFlareSelected;
             InternalState.flareAmmo01 = Mathf.Clamp01(
@@ -73,6 +74,8 @@ public class WeaponDisplayComponent {
             if (Bindings.Player.Aircraft.Countermeasures.HasJammer())
                 InternalState.jammerAmmo01 = Mathf.Clamp01(
                     (float)Bindings.Player.Aircraft.Countermeasures.GetJammerAmmo() / 100f);
+            if (InternalState.hasStations)
+                InternalState.isOutOfAmmo = Bindings.Player.Weapons.GetActiveStationAmmo() == 0;
 
         }
     }
@@ -82,6 +85,7 @@ public class WeaponDisplayComponent {
         static public WeaponDisplay weaponDisplay;
         static public bool hasJammer;
         static public bool hasIRFlare;
+        static public bool hasStations;
         static public bool isOutOfAmmo;
         static public bool isFlareSelected;
         static public bool isJammerSelected;
@@ -103,26 +107,27 @@ public class WeaponDisplayComponent {
         }
 
         static public void Update() {
-            if (Bindings.UI.Game.GetWeaponStatus() == null) return;
-            if (Bindings.Player.Aircraft.GetAircraft() == null) return;
-
+            if 
+                (Bindings.GameState.IsGamePaused() ||
+                Bindings.Player.Aircraft.GetAircraft() == null) 
+                return;
             // REFRESH WEAPON
-            InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Weapons.GetActiveStationName());
-            InternalState.weaponDisplay.weaponAmmoLabel.SetText(Bindings.Player.Weapons.GetActiveStationAmmo().ToString());
-            InternalState.weaponDisplay.weaponAmmoLabel.SetColor(InternalState.isOutOfAmmo ? Color.red : WeaponDisplay.mainColor);
+            if (InternalState.hasStations) {
+                InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Weapons.GetActiveStationName());
+                InternalState.weaponDisplay.weaponAmmoLabel.SetText(Bindings.Player.Weapons.GetActiveStationAmmo().ToString());
+                InternalState.weaponDisplay.weaponAmmoLabel.SetColor(InternalState.isOutOfAmmo ? Color.red : WeaponDisplay.mainColor);
 
-            Image cloneImg = InternalState.weaponDisplay.weaponImageClone.GetComponent<Image>();
-            Image srcImg = Bindings.Player.Weapons.GetActiveStationImage();
-            cloneImg.sprite = srcImg.sprite;
-            cloneImg.color = InternalState.isOutOfAmmo ? Color.red : WeaponDisplay.mainColor;
-            // TODO : ENCAPSULATE IMAGES IN MY OWN CODE
-
-            // REFRESH FLARE
+                Image cloneImg = InternalState.weaponDisplay.weaponImageClone.GetComponent<Image>();
+                Image srcImg = Bindings.Player.Weapons.GetActiveStationImage();
+                cloneImg.sprite = srcImg.sprite;
+                cloneImg.color = InternalState.isOutOfAmmo ? Color.red : WeaponDisplay.mainColor;
+                // TODO : ENCAPSULATE IMAGES IN MY OWN CODE
+            }
+            // REFRESH FLARE (ALWAYS, BECAUSE EVERYONE HAS FLARES   )
             InternalState.weaponDisplay.flareLabel.SetText("IR:" + Bindings.Player.Aircraft.Countermeasures.GetIRFlareAmmo().ToString());
             InternalState.weaponDisplay.flareLabel.SetFontStyle(InternalState.isFlareSelected ? FontStyle.Bold : FontStyle.Normal);
             InternalState.weaponDisplay.flareLabel.SetFontSize(InternalState.weaponDisplay.originalFlareFontSize + (InternalState.isFlareSelected ? 10 : 0));
             InternalState.weaponDisplay.flareLabel.SetColor(Color.Lerp(Color.red, WeaponDisplay.mainColor, InternalState.flareAmmo01));
-
             // REFRESH JAMMER
             if (InternalState.hasJammer) {
                 InternalState.weaponDisplay.jammerLabel.SetText("EW:" + Bindings.Player.Aircraft.Countermeasures.GetJammerAmmo().ToString() + "%");
@@ -369,7 +374,16 @@ public class WeaponDisplayComponent {
                 0f
             );
             // Clone the weapon image and set it as a child of the systems MFD
-            weaponImageClone = GameObject.Instantiate(Bindings.Player.Weapons.GetActiveStationImage().gameObject, destination);
+            if (Bindings.Player.Weapons.GetStationCount() != 0)
+                weaponImageClone = GameObject.Instantiate(Bindings.Player.Weapons.GetActiveStationImage().gameObject, destination);
+            else
+                weaponImageClone = new Bindings.UI.Draw.UIRectangle(
+                    "empty_texture",
+                    new Vector2(0, 0),
+                    new Vector2(1, 1),
+                    destination,
+                    Color.black
+                ).GetGameObject();
             var cloneImg = weaponImageClone.GetComponent<Image>();
             cloneImg.rectTransform.sizeDelta = new Vector2(
                 cloneImg.rectTransform.sizeDelta.x * imageScaleFactor,

@@ -55,10 +55,10 @@ public static class BootScreenComponent {
                 Bindings.UI.Game.GetTacScreenComponent()?.StartCoroutine(DisplayEngine.ActivateWithDelay(child, delay));
             }
 
-            InternalState.hasBooted = true;
             if (InternalState.bootLabel != null) {
                 GameObject.Destroy(InternalState.bootLabel.GetGameObject());
                 InternalState.bootLabel = null;
+            InternalState.hasBooted = true;
             }
         }
     }
