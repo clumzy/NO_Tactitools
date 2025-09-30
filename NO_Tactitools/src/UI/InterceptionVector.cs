@@ -71,7 +71,7 @@ class InterceptionVectorTask {
     }
 
     static void HandleInitState() {
-        if(Bindings.Player.TargetList.GetTargets().Count == 0) return; // Do not init if no target is selected
+        if (Bindings.Player.TargetList.GetTargets().Count != 1) return; // Do not init if no target is selected
         Plugin.Log("[IV] Init state");
         playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
         bearingLabel = new Bindings.UI.Draw.UILabel(
@@ -129,7 +129,6 @@ class InterceptionVectorTask {
     static void HandleIdleState() {
         if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count == 1) {
             targetUnit = ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0];
-            if(targetUnit is Building) return; // WE DO NOT WANT TO TRACK BUILDINGS
             if (playerFactionHQ.IsTargetBeingTracked(targetUnit)) {
                 currentState = State.Intercepting;
                 Plugin.Log("[IV] Target is being tracked");
@@ -204,7 +203,7 @@ class InterceptionVectorTask {
         Vector3 interceptVector = interceptPosition;
         Vector3 interceptVectorXZ = Vector3.Scale(interceptVector, new Vector3(1f, 0f, 1f)).normalized;
         int interceptBearing = (int)(Vector3.SignedAngle(Vector3.forward, interceptVectorXZ, Vector3.up) + 360) % 360;
-        int interceptionTimeInSeconds = (int)Mathf.Clamp(interceptVector.magnitude / playerVelocity.magnitude - interceptArraySize/60, 0 , 999);
+        int interceptionTimeInSeconds = (int)Mathf.Clamp(interceptVector.magnitude / playerVelocity.magnitude - interceptArraySize / 60, 0, 999);
         Vector3 interceptScreen = Bindings.UI.Game.GetCameraStateManager().mainCamera.WorldToScreenPoint(interceptPosition);
         int relativeHeight = (int)-(
             Vector3.SignedAngle(
@@ -223,16 +222,21 @@ class InterceptionVectorTask {
         );
         bool currentInterceptScreenVisible = interceptScreen.z > 0;
         if (currentInterceptScreenVisible && interceptArray.Count == interceptArraySize) {
-            indicatorTargetLabel.SetText("+");
-            indicatorTargetLabel.SetPosition(new Vector2(interceptTarget.x, interceptTarget.y));
-            indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(interceptTarget.x, interceptTarget.y));
-            indicatorTargetLine.ResetThickness();
             bearingLabel.SetText($"({interceptBearing.ToString()}°)");
             timerLabel.SetText($"ETA : {interceptionTimeInSeconds.ToString()}s");
+            if (targetUnit is not Building) { // only display the vector if the target is a unit
+                indicatorTargetLabel.SetText("+");
+                indicatorTargetLabel.SetPosition(new Vector2(interceptTarget.x, interceptTarget.y));
+                indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(interceptTarget.x, interceptTarget.y));
+                indicatorTargetLine.ResetThickness();
+            }
+            else {
+                indicatorTargetLabel.SetText("");
+            }
         }
         else {
             if (interceptArray.Count == interceptArraySize) indicatorTargetLabel.SetText("↶");
-            else{
+            else {
                 indicatorTargetLabel.SetText("." + new string('.', (int)(interceptArray.Count / 60)));
             }
             indicatorTargetLabel.SetPosition(new Vector2(0, -40));
@@ -272,8 +276,12 @@ class InterceptionVectorTask {
 
     static float FindSolutionTime(Unit targetUnit) {
         //Get target vectors
-        Vector3 localTargetPosition = targetUnit.rb.transform.position;
-        Vector3 localTargetVelocity = targetUnit.rb.velocity;
+        Vector3 localTargetPosition = targetUnit.transform.position;
+        Vector3 localTargetVelocity;
+        if (targetUnit is Building)
+            localTargetVelocity = Vector3.zero;
+        else
+            localTargetVelocity = targetUnit.rb.velocity;
         //Create vector from player to target
         Vector3 calcLine = localTargetPosition - playerPosition;
         //angle between the two vectors

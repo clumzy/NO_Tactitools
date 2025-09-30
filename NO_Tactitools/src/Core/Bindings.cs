@@ -474,14 +474,17 @@ public class Bindings {
             }
 
 
-            public static Transform GetTargetScreen() {
+            public static Transform GetTargetScreen(bool nullIsOkay = false) {
                 try {
                     Type targetCamType = (SceneSingleton<CombatHUD>.i.aircraft.targetCam).GetType();
                     FieldInfo targetScreenField = targetCamType.GetField("targetScreenUI", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                     TargetScreenUI targetScreenUIObject = (TargetScreenUI)targetScreenField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.targetCam);
                     return targetScreenUIObject.transform;
                 }
-                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetTargetScreen] NullReferenceException: targetCam or TargetScreenUI not available; returning null."); return null; }
+                catch (NullReferenceException) { 
+                    if (!nullIsOkay)
+                        Plugin.Log("[Bindings.UI.Game.GetTargetScreen] NullReferenceException: targetCam or TargetScreenUI not available; returning null."); 
+                    return null; }
             }
 
             public static Transform GetTacScreen() {

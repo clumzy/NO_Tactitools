@@ -97,7 +97,7 @@ public class WeaponDisplayComponent {
 
     static class DisplayEngine {
         static public void Init() {
-            if (InternalState.hasIRFlare) {
+            if (InternalState.hasIRFlare) { // In reality, this checks if the player's plane has spawned
                 InternalState.weaponDisplay = new WeaponDisplay(
                     Bindings.Player.Aircraft.GetPlatformName(),
                     InternalState.destination);
@@ -110,9 +110,9 @@ public class WeaponDisplayComponent {
             if 
                 (Bindings.GameState.IsGamePaused() ||
                 Bindings.Player.Aircraft.GetAircraft() == null) 
-                return;
+                return; // do not refresh anything if the game is paused or the player aircraft is not available
             // REFRESH WEAPON
-            if (InternalState.hasStations) {
+            if (InternalState.hasStations) { // do not refresh weapon info if the player has no weapon stations
                 InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Weapons.GetActiveStationName());
                 InternalState.weaponDisplay.weaponAmmoLabel.SetText(Bindings.Player.Weapons.GetActiveStationAmmo().ToString());
                 InternalState.weaponDisplay.weaponAmmoLabel.SetColor(InternalState.isOutOfAmmo ? Color.red : WeaponDisplay.mainColor);

@@ -128,6 +128,7 @@ class DeliveryIndicator {
 [HarmonyPatch(typeof(Missile), "StartMissile")]
 class StartMissilePatch {
     static void Postfix(Missile __instance) {
+        if (Bindings.UI.Game.GetTargetScreen(true) == null) return; // in case the targeting screen doesn't exist yet
         if (__instance.owner == SceneSingleton<CombatHUD>.i.aircraft) {
             DeliveryIndicator deliveryIndicator = new(
                 new Vector2(
