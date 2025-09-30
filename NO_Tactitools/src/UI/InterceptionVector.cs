@@ -232,6 +232,7 @@ class InterceptionVectorTask {
             }
             else {
                 indicatorTargetLabel.SetText("");
+                indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(0, 0));
             }
         }
         else {
