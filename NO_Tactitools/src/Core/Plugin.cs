@@ -144,7 +144,7 @@ namespace NO_Tactitools.Core {
                 "Unit Marker Distance Indicator Threshold",
                 10,
                 new ConfigDescription(
-                    "Distance threshold in meters for the Unit Marker Distance Indicator to change the marker orientation.",
+                    "Distance threshold in kilometers for the Unit Marker Distance Indicator to change the marker orientation.",
                     new AcceptableValueRange<int>(5, 50)));
             unitDistanceSoundEnabled = Config.Bind("HMD Tweaks",
                 "Unit Marker Distance Sound Enabled",

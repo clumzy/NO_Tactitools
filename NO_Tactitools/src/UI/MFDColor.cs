@@ -25,9 +25,19 @@ public static class MFDColorComponent {
         public static void Init() {
             Color.RGBToHSV(Plugin.MFDColor.Value, out InternalState.mainHue, out InternalState.mainSaturation, out InternalState.mainBrightness);
             InternalState.MFDAlternativeAttitudeEnabled = Plugin.MFDAlternativeAttitudeEnabled.Value;
+            InternalState.currentColor = Plugin.MFDColor.Value;
         }
 
-        public static void Update() { }
+        public static void Update() {
+            InternalState.needsUpdate = (
+                Plugin.MFDColor.Value != InternalState.currentColor ||
+                Plugin.MFDAlternativeAttitudeEnabled.Value != InternalState.MFDAlternativeAttitudeEnabled);
+            if (InternalState.needsUpdate) {
+                Color.RGBToHSV(Plugin.MFDColor.Value, out InternalState.mainHue, out InternalState.mainSaturation, out InternalState.mainBrightness);
+                InternalState.MFDAlternativeAttitudeEnabled = Plugin.MFDAlternativeAttitudeEnabled.Value;
+                InternalState.currentColor = Plugin.MFDColor.Value;
+            }
+        }
     }
 
     public static class InternalState {
@@ -35,6 +45,8 @@ public static class MFDColorComponent {
         static public float mainSaturation;
         static public float mainBrightness;
         static public bool MFDAlternativeAttitudeEnabled;
+        static public Color currentColor;
+        static public bool needsUpdate = false;
     }
 
     static class DisplayEngine {
@@ -89,7 +101,11 @@ public static class MFDColorComponent {
             }
         }
 
-        public static void Update() { }
+        public static void Update() {
+            if (InternalState.needsUpdate) {
+                Init(); // reapply the colors if needed
+            }
+        }
     }
 
     [HarmonyPatch(typeof(TacScreen), "Initialize")]
