@@ -34,7 +34,6 @@ public static class MFDColorComponent {
                 Plugin.MFDAlternativeAttitudeEnabled.Value != InternalState.MFDAlternativeAttitudeEnabled);
             if (InternalState.needsUpdate) {
                 Color.RGBToHSV(Plugin.MFDColor.Value, out InternalState.mainHue, out InternalState.mainSaturation, out InternalState.mainBrightness);
-                InternalState.MFDAlternativeAttitudeEnabled = Plugin.MFDAlternativeAttitudeEnabled.Value;
                 InternalState.currentColor = Plugin.MFDColor.Value;
             }
         }
