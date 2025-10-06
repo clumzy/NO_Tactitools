@@ -51,13 +51,14 @@ public static class MFDColorComponent {
     static class DisplayEngine {
         public static void Init() {
             Plugin.Log("[MFD] Resetting MFD colors");
-            Color originalMainColor = WeaponDisplayComponent.WeaponDisplay.mainColor;
+            Color originalMainColor = WeaponDisplayComponent.InternalState.weaponDisplay.mainColor;
             Color newMainColor = Color.HSVToRGB(
                 InternalState.mainHue,
                 InternalState.mainSaturation,
                 1.0f);
+            // we keep the original alpha
             newMainColor.a = originalMainColor.a;
-            WeaponDisplayComponent.WeaponDisplay.mainColor = newMainColor;
+            WeaponDisplayComponent.InternalState.weaponDisplay.mainColor = newMainColor;
             Transform tacScreenTransform = Bindings.UI.Game.GetTacScreen();
             foreach (Text text in tacScreenTransform.GetComponentsInChildren<Text>(true)) {
                 Color originalTextColor = text.color;
