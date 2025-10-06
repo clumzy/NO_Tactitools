@@ -31,8 +31,10 @@ class WeaponDisplayPlugin {
 
     private static void HandleDisplayToggle() {
         if (WeaponDisplayComponent.InternalState.weaponDisplay != null) {
-            WeaponDisplayComponent.InternalState.weaponDisplay.ToggleChildrenActiveState();
-            Plugin.Log("[WD] Weapon Display toggled.");
+            if (WeaponDisplayComponent.InternalState.weaponDisplay.removeOriginalMFDContent) {
+                WeaponDisplayComponent.InternalState.weaponDisplay.ToggleChildrenActiveState();
+                Plugin.Log("[WD] Weapon Display toggled.");
+            }
         }
         else {
             Plugin.Log("[WD] Weapon Display not initialized, cannot toggle.");
@@ -50,10 +52,10 @@ public class WeaponDisplayComponent {
             }
             Plugin.Log("[WD] Initializing Logic Engine for platform " + name);
             InternalState.destination = name switch {
-                "T/A-30 Compass" or "FS-12 Revoker" or "FS-20 Vortex" or "KR-67 Ifrit" or "UH-80 Ibis"=> Get("SystemStatus"),
+                "T/A-30 Compass" or "FS-12 Revoker" or "FS-20 Vortex" or "KR-67 Ifrit" or "UH-80 Ibis" => Get("SystemStatus"),
                 "EW-1 Medusa" => Get("engPanel1"),
                 "CI-22 Cricket" => Get("EngPanel"),
-                "SAH-46 Chicane" => Get("TelemetryPanel"),
+                "SAH-46 Chicane" => Get("BasicFlightInstrument"),
                 "VL-49 Tarantula" => Get("RightScreenBorder/WeaponPanel"),
                 "SFB-81" => Get("weaponPanel"),
                 _ => null
@@ -68,7 +70,7 @@ public class WeaponDisplayComponent {
         static public void Update() {
             if (Bindings.Player.Aircraft.GetAircraft() == null) return;
             InternalState.isFlareSelected = Bindings.Player.Aircraft.Countermeasures.IsFlareSelected();
-            InternalState.isJammerSelected = ! InternalState.isFlareSelected;
+            InternalState.isJammerSelected = !InternalState.isFlareSelected;
             InternalState.flareAmmo01 = Mathf.Clamp01(
                 (float)Bindings.Player.Aircraft.Countermeasures.GetIRFlareAmmo() / Bindings.Player.Aircraft.Countermeasures.GetIRFlareMaxAmmo());
             if (Bindings.Player.Aircraft.Countermeasures.HasJammer())
@@ -107,33 +109,33 @@ public class WeaponDisplayComponent {
         }
 
         static public void Update() {
-            if 
+            if
                 (Bindings.GameState.IsGamePaused() ||
-                Bindings.Player.Aircraft.GetAircraft() == null) 
+                Bindings.Player.Aircraft.GetAircraft() == null)
                 return; // do not refresh anything if the game is paused or the player aircraft is not available
             // REFRESH WEAPON
             if (InternalState.hasStations) { // do not refresh weapon info if the player has no weapon stations
                 InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Weapons.GetActiveStationName());
                 InternalState.weaponDisplay.weaponAmmoLabel.SetText(Bindings.Player.Weapons.GetActiveStationAmmo().ToString());
-                InternalState.weaponDisplay.weaponAmmoLabel.SetColor(InternalState.isOutOfAmmo ? Color.red : WeaponDisplay.mainColor);
+                InternalState.weaponDisplay.weaponAmmoLabel.SetColor(InternalState.isOutOfAmmo ? Color.red : InternalState.weaponDisplay.mainColor);
 
                 Image cloneImg = InternalState.weaponDisplay.weaponImageClone.GetComponent<Image>();
                 Image srcImg = Bindings.Player.Weapons.GetActiveStationImage();
                 cloneImg.sprite = srcImg.sprite;
-                cloneImg.color = InternalState.isOutOfAmmo ? Color.red : WeaponDisplay.mainColor;
+                cloneImg.color = InternalState.isOutOfAmmo ? Color.red : InternalState.weaponDisplay.mainColor;
                 // TODO : ENCAPSULATE IMAGES IN MY OWN CODE
             }
             // REFRESH FLARE (ALWAYS, BECAUSE EVERYONE HAS FLARES   )
             InternalState.weaponDisplay.flareLabel.SetText("IR:" + Bindings.Player.Aircraft.Countermeasures.GetIRFlareAmmo().ToString());
             InternalState.weaponDisplay.flareLabel.SetFontStyle(InternalState.isFlareSelected ? FontStyle.Bold : FontStyle.Normal);
             InternalState.weaponDisplay.flareLabel.SetFontSize(InternalState.weaponDisplay.originalFlareFontSize + (InternalState.isFlareSelected ? 10 : 0));
-            InternalState.weaponDisplay.flareLabel.SetColor(Color.Lerp(Color.red, WeaponDisplay.mainColor, InternalState.flareAmmo01));
+            InternalState.weaponDisplay.flareLabel.SetColor(Color.Lerp(Color.red, InternalState.weaponDisplay.mainColor, InternalState.flareAmmo01));
             // REFRESH JAMMER
             if (InternalState.hasJammer) {
                 InternalState.weaponDisplay.jammerLabel.SetText("EW:" + Bindings.Player.Aircraft.Countermeasures.GetJammerAmmo().ToString() + "%");
                 InternalState.weaponDisplay.jammerLabel.SetFontStyle(InternalState.isJammerSelected ? FontStyle.Bold : FontStyle.Normal);
                 InternalState.weaponDisplay.jammerLabel.SetFontSize(InternalState.weaponDisplay.originalJammerFontSize + (InternalState.isJammerSelected ? 10 : 0)); ;
-                InternalState.weaponDisplay.jammerLabel.SetColor(Color.Lerp(Color.red, WeaponDisplay.mainColor, InternalState.jammerAmmo01));
+                InternalState.weaponDisplay.jammerLabel.SetColor(Color.Lerp(Color.red, InternalState.weaponDisplay.mainColor, InternalState.jammerAmmo01));
             }
         }
     }
@@ -149,19 +151,20 @@ public class WeaponDisplayComponent {
         // Store original font sizes
         public int originalFlareFontSize;
         public int originalJammerFontSize;
-
         //Store the main color for the MFD, can be set by the MFDColorPlugin
-        public static Color mainColor = Color.green;
+        public Color mainColor = Color.green;
+        public bool removeOriginalMFDContent = true; // by default, we remove the original MFD content
 
 
         public WeaponDisplay(string platformName, Transform destination) {
+            weaponDisplay_transform = destination;
             // Default settings for the weapon display
             bool rotateWeaponImage = false;
             float imageScaleFactor = 0.6f;
-            weaponDisplay_transform = destination;
             // Layout settings for each supported platform
             Vector2 flarePos, jammerPos, lineStart, lineEnd, weaponNamePos, weaponAmmoPos, weaponImagePos;
             int flareFont, jammerFont, weaponNameFont, weaponAmmoFont;
+
             switch (platformName) {
                 case "CI-22 Cricket":
                     flarePos = new Vector2(0, -40);
@@ -177,18 +180,20 @@ public class WeaponDisplayComponent {
                     weaponAmmoFont = 40;
                     break;
                 case "SAH-46 Chicane":
-                    flarePos = new Vector2(0, -80);
-                    jammerPos = new Vector2(0, -160);
-                    lineStart = new Vector2(-150, 0);
-                    lineEnd = new Vector2(150, 0);
-                    weaponNamePos = new Vector2(0, 110);
-                    weaponAmmoPos = new Vector2(0, 60);
-                    weaponImagePos = new Vector2(0, 160);
-                    flareFont = 55;
-                    jammerFont = 55;
-                    weaponNameFont = 35;
-                    weaponAmmoFont = 55;
-                    imageScaleFactor = 1.2f; // Scale the image for SAH-46 Chicane
+                    flarePos = new Vector2(-40, -105);
+                    jammerPos = new Vector2(40, -105);
+                    lineStart = new Vector2(-80, -10);
+                    lineEnd = new Vector2(80, -10);
+                    weaponNamePos = new Vector2(0, -45);
+                    weaponAmmoPos = new Vector2(0, -70);
+                    weaponImagePos = new Vector2(0, -25);
+                    flareFont = 15;
+                    jammerFont = 15;
+                    weaponNameFont = 20;
+                    weaponAmmoFont = 35;
+                    imageScaleFactor = 0.4f; // Scale the image for SAH-46 Chicane
+                    removeOriginalMFDContent = false; // Do not remove original MFD content for SAH-46 Chicane
+                    rotateWeaponImage = false;
                     break;
                 case "T/A-30 Compass":
                     flarePos = new Vector2(0, -40);
@@ -321,10 +326,37 @@ public class WeaponDisplayComponent {
             originalJammerFontSize = jammerFont;
 
             // Hide the existing MFD content and kill the layout
-            Bindings.UI.Generic.HideChildren(destination);
+            if (removeOriginalMFDContent) {
+                Bindings.UI.Generic.HideChildren(destination);
+            }
             Bindings.UI.Generic.KillLayout(destination);
-            // rotate the destination canvas 90 degrees clockwise
+            // rotate the destination canvas 90 degrees clockwise if Darkreach
             if (platformName == "SFB-81") destination.localRotation = Quaternion.Euler(0, 0, -90);
+            // move the BasicFlightInstruments higher on his screen
+            if (platformName == "SAH-46 Chicane") {
+                Transform toMove;
+                toMove = destination.Find("Heading");
+                toMove.transform.localPosition += new Vector3(-40, 40, 0);
+                toMove.transform.localScale *= 0.8f;
+                toMove = destination.Find("Airspeed");
+                toMove.transform.localPosition += new Vector3(40, 60, 0);
+                toMove.transform.localScale *= 0.8f;
+                toMove = destination.Find("RadarAlt");
+                toMove.transform.localPosition += new Vector3(-40, 80, 0);
+                toMove.transform.localScale *= 0.8f;
+                toMove = destination.Find("Horizon");
+                toMove.transform.localPosition += new Vector3(0, 60, 0);
+                toMove.transform.localScale *= 0.8f;
+                toMove = destination.Find("ClimbRate");
+                toMove.transform.localPosition += new Vector3(40, 60, 0);
+                toMove.transform.localScale *= 0.8f;
+                toMove = destination.Find("VerticalLadder");
+                toMove.transform.localPosition += new Vector3(0, 55, 0);
+                toMove.transform.localScale *= 0.8f;
+                toMove = destination.Find("AoAlLadder");
+                toMove.transform.localPosition += new Vector3(0, 55, 0);
+                toMove.transform.localScale *= 0.8f;
+            }
 
             // Create the labels and line for the systems MFD
             flareLabel = new(
@@ -352,8 +384,8 @@ public class WeaponDisplayComponent {
                 lineStart,
                 lineEnd,
                 destination,
-                Color.white,
-                2f
+                mainColor,
+                1f
             );
             weaponNameLabel = new(
                 "weaponNameLabel",
@@ -404,12 +436,10 @@ public class WeaponDisplayComponent {
             LayoutGroup lg = weaponDisplay_transform.GetComponent<LayoutGroup>();
             if (lg != null)
                 lg.enabled = !lg.enabled;
-            foreach (Transform childTransform in weaponDisplay_transform)
-            {
+            foreach (Transform childTransform in weaponDisplay_transform) {
                 GameObject child = childTransform.gameObject;
                 //Specific fix for the Medusa, ThrottleGauge1 was initially hidden
-                if (child.name != "ThrottleGauge1")
-                {
+                if (child.name != "ThrottleGauge1") {
                     child.SetActive(!child.activeSelf);
                 }
             }
