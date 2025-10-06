@@ -51,6 +51,7 @@ class InterceptionVectorTask {
     const int interceptArraySize = 180; // Number of entries to keep in the intercept array
 
     static void Postfix() {
+        CheckForUIElements();
         switch (currentState) {
             case State.Init:
                 HandleInitState();
@@ -68,6 +69,12 @@ class InterceptionVectorTask {
                 HandleInterception();
                 break;
         }
+    }
+
+    static void CheckForUIElements() {
+        if (bearingLabel == null || timerLabel == null || indicatorTargetLabel == null || indicatorTargetLine == null)
+            // UI elements not initialized yet or destroyed
+            currentState = State.Init;
     }
 
     static void HandleInitState() {
