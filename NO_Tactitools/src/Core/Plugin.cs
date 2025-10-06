@@ -1,4 +1,5 @@
-﻿using BepInEx;
+﻿using System;
+using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Configuration;
 using HarmonyLib;
@@ -247,8 +248,11 @@ namespace NO_Tactitools.Core {
         }
 
         public static void Log(string message) {
-            if (debugModeEnabled.Value)
-                Logger.LogInfo(message);
+            if (debugModeEnabled.Value) {
+                TimeSpan timeSpan = TimeSpan.FromSeconds(Time.realtimeSinceStartup);
+                string formattedTime = string.Format("{0:D2}:{1:D2}:{2:D2}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
+                Logger.LogInfo("[" + formattedTime + "] " + message);
+            }
         }
     }
 }
