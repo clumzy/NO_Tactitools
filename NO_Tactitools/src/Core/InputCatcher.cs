@@ -2,6 +2,8 @@ using HarmonyLib;
 using Rewired;
 using UnityEngine;
 using System.Collections.Generic;
+using System;
+using System.Linq;
 
 namespace NO_Tactitools.Core;
 
@@ -64,9 +66,9 @@ public class ControllerButton {
     }
 }
 
-[HarmonyPatch(typeof(Rewired.Controller), "pBrAJYWOGkILyqjLrMpmCdajATI")]
+[HarmonyPatch(typeof(Rewired.Joystick), "qEOMcUOdQiTnCAuDVnEAygszhlYP")]
 class InputInterceptionPatch {
-    static bool Prefix(Controller __instance) {
+    static bool Prefix(Joystick __instance) {
         foreach (Controller controller in InputCatcher.controllerStructure.Keys) {
             if (__instance == controller) {
                 foreach (ControllerButton button in InputCatcher.controllerStructure[controller]) {
@@ -121,6 +123,43 @@ class RegisterControllerPatch {
                 Plugin.Log($"[IC] Registered pending button {btn.buttonNumber.ToString()} on controller {cleanedName}");
             }
             InputCatcher.pendingButtons.Remove(cleanedName);
+        }
+    }
+}
+
+[HarmonyPatch(typeof(Rewired.Joystick), "qEOMcUOdQiTnCAuDVnEAygszhlYP")]
+class HatInputInterceptionPatch {
+
+    static int FindFirstDifferenceIndex(IList<bool> list1, IList<bool> list2) {
+        for (int i = 0; i < list1.Count && i < list2.Count; i++) {
+            if (list1[i] != list2[i]) {
+                return i;
+            }
+        }
+
+        return Math.Min(list1.Count, list2.Count);
+    }
+    static double time = -1;
+    static IList<bool> previousHatStates = [];
+    static void Postfix(Joystick __instance) {
+        if (previousHatStates == null) {
+            for (int i = 0; i < __instance.Buttons.Count; i++) {
+                previousHatStates.Add(__instance.Buttons[i].value);
+            }
+        }
+        double newTime = __instance.GetLastTimeAnyButtonPressed();
+        if (newTime != time) {
+            time = newTime;
+            int diffIndex = FindFirstDifferenceIndex(previousHatStates, [.. __instance.Buttons.Select(b => b.value)]);
+            previousHatStates.Clear();
+            for (int i = 0; i < __instance.Buttons.Count; i++) {
+                previousHatStates.Add(__instance.Buttons[i].value);
+            }
+            Plugin.Log($"[IC] Hat input detected on controller {__instance.name.Trim()} at time {time.ToString()}");
+            // MES TROUVAILLES ICI
+            // LES HAT DEMARRENT A L'INDEX 128.
+            // L'ALGO C'EST INDEX = 128 * HAT NUMBER + DIRECTION (0-7)
+            Plugin.Log(diffIndex.ToString());
         }
     }
 }
