@@ -10,13 +10,13 @@ class DeliveryCheckerPlugin {
     private static bool initialized = false;
     public static void Postfix() {
         if (!initialized) {
-            Plugin.Logger.LogInfo("[DV] DeliveryChecker plugin starting !");
+            Plugin.Log("[DV] DeliveryChecker plugin starting !");
             Plugin.harmony.PatchAll(typeof(StartMissilePatch));
             Plugin.harmony.PatchAll(typeof(DetonatePatch));
             Plugin.harmony.PatchAll(typeof(DeliveryBarUpdatePatch));
             Plugin.harmony.PatchAll(typeof(ResetDeliveryIndicatorsOnRespawnPatch));
             initialized = true;
-            Plugin.Logger.LogInfo("[DV] DeliveryChecker plugin succesfully started !");
+            Plugin.Log("[DV] DeliveryChecker plugin succesfully started !");
         }
     }
 
