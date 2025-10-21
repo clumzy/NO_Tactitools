@@ -148,8 +148,8 @@ public class ArtificialHorizonComponent {
             InternalState.eastLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(eastCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
             InternalState.westLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(westCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
             // add em to the line offsets
-            Vector2 lineOffset = new(0, 10);
-            Vector2 labelOffset = new(0, 20);
+            Vector2 lineOffset = new(0, 5);
+            Vector2 labelOffset = new(0, 15);
             InternalState.northStart = northLeftCombatHUD + lineOffset*InternalState.northLabelOpacity;
             InternalState.northEnd = northRightCombatHUD + lineOffset*InternalState.northLabelOpacity;
             InternalState.northLabelPos = ((northLeftCombatHUD + northRightCombatHUD) / 2) + labelOffset;
