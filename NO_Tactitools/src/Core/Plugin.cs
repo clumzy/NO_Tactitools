@@ -245,6 +245,7 @@ namespace NO_Tactitools.Core {
                 Logger.LogInfo($"Boot Screen is enabled, patching...");
                 harmony.PatchAll(typeof(BootScreenPlugin));
             }
+            harmony.PatchAll(typeof(ArtificialHorizonPlugin));
         }
 
         public static void Log(string message) {
