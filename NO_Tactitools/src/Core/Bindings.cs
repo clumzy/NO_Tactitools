@@ -288,6 +288,8 @@ public class Bindings {
 
             public class UILabel : UIElement {
                 private Text textComponent;
+                private float backgroundOpacity;
+                private float textOpacity;
 
                 public UILabel(
                     string name,
@@ -297,11 +299,10 @@ public class Bindings {
                     Color? color = null,
                     int fontSize = 24,
                     float backgroundOpacity = 0.8f) : base(name, UIParent) {
-
+                    this.backgroundOpacity = backgroundOpacity;
                     rectTransform.anchoredPosition = position;
                     rectTransform.sizeDelta = new Vector2(200, 40);
-                    imageComponent.color = new Color(0, 0, 0, backgroundOpacity);
-
+                    imageComponent.color = new Color(0, 0, 0, this.backgroundOpacity);
                     GameObject textObj = new("LabelText");
                     textObj.transform.SetParent(gameObject.transform, false);
                     var textRect = textObj.AddComponent<RectTransform>();
@@ -314,6 +315,7 @@ public class Bindings {
                     textComp.fontSize = fontSize;
                     textComp.fontStyle = fontStyle;
                     textComp.color = color ?? Color.white;
+                    this.textOpacity = textComp.color.a;
                     textComp.alignment = TextAnchor.MiddleCenter;
                     textComp.text = "";
                     textComp.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -343,10 +345,19 @@ public class Bindings {
                 public void SetFontStyle(FontStyle style) {
                     textComponent.fontStyle = style;
                 }
+
+                public void SetOpacity(float opacity) {
+                    opacity = Mathf.Clamp01(opacity);
+                    Color textColor = textComponent.color;
+                    textComponent.color = new Color(textColor.r, textColor.g, textColor.b, textOpacity* opacity);
+                    Color bgColor = imageComponent.color;
+                    imageComponent.color = new Color(bgColor.r, bgColor.g, bgColor.b, backgroundOpacity * opacity);
+                }
             }
 
             public class UILine : UIElement {
                 private float thickness;
+                private float baseOpacity;
 
                 public UILine(
                     string name,
@@ -357,6 +368,7 @@ public class Bindings {
                     float thickness = 2f) : base(name, UIParent) {
                     this.thickness = thickness;
                     imageComponent.color = color ?? Color.white;
+                    this.baseOpacity = imageComponent.color.a;
                     Vector2 direction = end - start;
                     float length = direction.magnitude;
                     rectTransform.sizeDelta = new Vector2(length, thickness);
@@ -384,6 +396,12 @@ public class Bindings {
 
                 public void ResetThickness() {
                     rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, thickness);
+                }
+
+                public void SetOpacity(float opacity) {
+                    opacity = Mathf.Clamp01(opacity);
+                    Color color = imageComponent.color;
+                    imageComponent.color = new Color(color.r, color.g, color.b, baseOpacity * opacity);
                 }
             }
 
@@ -473,6 +491,12 @@ public class Bindings {
                 catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetFlightHUD] NullReferenceException: FlightHud singleton not available; returning null."); return null; }
             }
 
+            public static FlightHud GetFlightHUDComponent() { // HUD
+                try {
+                    return SceneSingleton<FlightHud>.i;
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetFlightHUDComponent] NullReferenceException: FlightHud singleton not available; returning null."); return null; }
+            }
 
             public static Transform GetTargetScreen(bool nullIsOkay = false) {
                 try {
