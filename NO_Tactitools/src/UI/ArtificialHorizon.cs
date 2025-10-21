@@ -3,6 +3,7 @@ using UnityEngine;
 using NO_Tactitools.Core;
 using System.Collections.Generic;
 using System;
+using UnityEngine.Rendering;
 
 namespace NO_Tactitools.UI;
 
@@ -139,21 +140,29 @@ public class ArtificialHorizonComponent {
                 null,
                 out Vector2 westRightCombatHUD
             );
-            Vector2 lineOffset = new(0, 5);
-            Vector2 labelOffset = new(0, 15);
-            InternalState.northStart = northLeftCombatHUD + lineOffset;
-            InternalState.northEnd = northRightCombatHUD + lineOffset;
+            // set label opacity based on angle to center
+            const float lowerAngleThreshold = 25f;
+            const float upperAngleThreshold = 30f;
+            InternalState.northLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(northCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
+            InternalState.southLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(southCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
+            InternalState.eastLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(eastCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
+            InternalState.westLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(westCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
+            // add em to the line offsets
+            Vector2 lineOffset = new(0, 10);
+            Vector2 labelOffset = new(0, 20);
+            InternalState.northStart = northLeftCombatHUD + lineOffset*InternalState.northLabelOpacity;
+            InternalState.northEnd = northRightCombatHUD + lineOffset*InternalState.northLabelOpacity;
             InternalState.northLabelPos = ((northLeftCombatHUD + northRightCombatHUD) / 2) + labelOffset;
-            InternalState.southStart = southLeftCombatHUD + lineOffset;
-            InternalState.southEnd = southRightCombatHUD + lineOffset;
+            InternalState.southStart = southLeftCombatHUD + lineOffset*InternalState.southLabelOpacity;
+            InternalState.southEnd = southRightCombatHUD + lineOffset*InternalState.southLabelOpacity;
             InternalState.southLabelPos = ((southLeftCombatHUD + southRightCombatHUD) / 2) + labelOffset;
-            InternalState.eastStart = eastLeftCombatHUD + lineOffset;
-            InternalState.eastEnd = eastRightCombatHUD + lineOffset;
+            InternalState.eastStart = eastLeftCombatHUD + lineOffset*InternalState.eastLabelOpacity;
+            InternalState.eastEnd = eastRightCombatHUD + lineOffset*InternalState.eastLabelOpacity;
             InternalState.eastLabelPos = ((eastLeftCombatHUD + eastRightCombatHUD) / 2) + labelOffset;
-            InternalState.westStart = westLeftCombatHUD + lineOffset;
-            InternalState.westEnd = westRightCombatHUD + lineOffset;
+            InternalState.westStart = westLeftCombatHUD + lineOffset*InternalState.westLabelOpacity;
+            InternalState.westEnd = westRightCombatHUD + lineOffset*InternalState.westLabelOpacity;
             InternalState.westLabelPos = ((westLeftCombatHUD + westRightCombatHUD) / 2) + labelOffset;
-            // set label texts
+            // set label texts to hide when behind platform
             if (northLeftOfScreen.z > 0 && northRightOfScreen.z > 0)
                 InternalState.northLabelText = "0°";
             else
@@ -170,20 +179,23 @@ public class ArtificialHorizonComponent {
                 InternalState.westLabelText = "270°";
             else
                 InternalState.westLabelText = "";
-            // set label opacity based on angle to center
-            const float lowerAngleThreshold = 30f;
-            const float upperAngleThreshold = 35f;
-            InternalState.northLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(northCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
-            InternalState.southLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(southCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
-            InternalState.eastLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(eastCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
-            InternalState.westLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(westCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
-            // do the same for the cardinal lines
-            InternalState.northLineOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(northCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
-            InternalState.southLineOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(southCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
-            InternalState.eastLineOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(eastCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
-            InternalState.westLineOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(westCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
-            Plugin.Log(InternalState.eastLineOpacity.ToString());
-            Plugin.Log(InternalState.eastLabelOpacity.ToString());
+            // do the same for line visibility
+            if (northLeftOfScreen.z > 0 && northRightOfScreen.z > 0) 
+                InternalState.northLineOpacity = InternalState.northLabelOpacity;
+            else
+                InternalState.northLineOpacity = 0f;
+            if (southLeftOfScreen.z > 0 && southRightOfScreen.z > 0)
+                InternalState.southLineOpacity = InternalState.southLabelOpacity;
+            else
+                InternalState.southLineOpacity = 0f;
+            if (eastLeftOfScreen.z > 0 && eastRightOfScreen.z > 0)
+                InternalState.eastLineOpacity = InternalState.eastLabelOpacity;
+            else
+                InternalState.eastLineOpacity = 0f;
+            if (westLeftOfScreen.z > 0 && westRightOfScreen.z > 0)
+                InternalState.westLineOpacity = InternalState.westLabelOpacity;
+            else
+                InternalState.westLineOpacity = 0f;
         }
     }
 
@@ -199,25 +211,25 @@ public class ArtificialHorizonComponent {
         // Screen space coordinates for the cardinal direction lines and labels
         static public Vector2 northStart;
         static public Vector2 northEnd;
-        static public float northLineOpacity;
+        static public float northLineOpacity = 1f;
         static public Vector2 northLabelPos;
         static public string northLabelText = "0°";
         static public float northLabelOpacity = 1f;
         static public Vector2 southStart;
         static public Vector2 southEnd;
-        static public float southLineOpacity;
+        static public float southLineOpacity = 1f;
         static public Vector2 southLabelPos;
         static public string southLabelText = "180°";
         static public float southLabelOpacity = 1f;
         static public Vector2 eastStart;
         static public Vector2 eastEnd;
-        static public float eastLineOpacity;
+        static public float eastLineOpacity = 1f;
         static public Vector2 eastLabelPos;
         static public string eastLabelText = "90°";
         static public float eastLabelOpacity = 1f;
         static public Vector2 westStart;
         static public Vector2 westEnd;
-        static public float westLineOpacity;
+        static public float westLineOpacity = 1f;
         static public Vector2 westLabelPos;
         static public string westLabelText = "270°";
         static public float westLabelOpacity = 1f;
@@ -295,8 +307,8 @@ public class ArtificialHorizonComponent {
         public Bindings.UI.Draw.UILine westLine;
         public Bindings.UI.Draw.UILabel westLabel;
         const float cardinalLineThickness = 1f;
-        public Color cardinalLineColor = new(0.2f, 1f, 0.2f, 0.4f); // Green with less transparency
-        public Color cardinalLabelColor = new(0.2f, 1f, 0.2f, 0.6f); // Green with even less transparency
+        public Color cardinalLineColor = new(0.2f, 1f, 0.2f, 0.8f); // Green with less transparency
+        public Color cardinalLabelColor = new(0.2f, 1f, 0.2f, 1f); // Green with even less transparency
         public int cardinalLabelFontSize = 16;
         public float cardinalLabelBgOpacity = 0.1f;
 
