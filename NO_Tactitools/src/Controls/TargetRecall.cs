@@ -27,7 +27,7 @@ class TargetRecallPlugin {
 
     private static void HandleLongPress() {
         Plugin.Log($"[TR] HandleLongPress");
-        if (SceneSingleton<CombatHUD>.i != null) {
+        if (Bindings.UI.Game.GetCombatHUD() != null) {
             units = Bindings.Player.TargetList.GetTargets();
             if (units.Count == 0) {
                 return;
