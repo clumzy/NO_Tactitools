@@ -284,6 +284,10 @@ public class Bindings {
                 public GameObject GetGameObject() => gameObject;
                 public RectTransform GetRectTransform() => rectTransform;
                 public Image GetImageComponent() => imageComponent;
+
+                public void Destroy() {
+                    UnityEngine.Object.Destroy(gameObject);
+                }
             }
 
             public class UILabel : UIElement {
