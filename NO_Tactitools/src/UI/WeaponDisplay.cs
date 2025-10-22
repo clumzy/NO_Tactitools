@@ -237,7 +237,7 @@ public class WeaponDisplayComponent {
                     imageScaleFactor = 0.7f; // Scale the image for FS-20 Vortex
                     break;
                 case "KR-67 Ifrit":
-                    flarePos = new Vector2(-75, -70);
+                    flarePos = new Vector2(-80, -70);
                     jammerPos = new Vector2(70, -70);
                     lineStart = new Vector2(-100, -20);
                     lineEnd = new Vector2(100, -20);
