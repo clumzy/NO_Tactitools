@@ -4,6 +4,7 @@ using NO_Tactitools.Core;
 using System.Collections.Generic;
 using System;
 using UnityEngine.Rendering;
+using JetBrains.Annotations;
 
 namespace NO_Tactitools.UI;
 
@@ -28,6 +29,10 @@ public class ArtificialHorizonComponent {
             Plugin.Log("[AH] Initializing Artificial Horizon");
             if (!InternalState.authorizedPlatforms.Contains(Bindings.Player.Aircraft.GetPlatformName())) {
                 Plugin.Log("[AH] Platform not authorized for Artificial Horizon");
+                if (InternalState.artificialHorizon != null) {
+                    InternalState.artificialHorizon.Reset();
+                    Plugin.Log("[AH] Artificial Horizon display removed");
+                }
                 return;
             }
             InternalState.destination = Bindings.UI.Game.GetFlightHUD();
@@ -392,6 +397,18 @@ public class ArtificialHorizonComponent {
                 cardinalLabelBgOpacity
             );
             Plugin.Log("[AH] Artificial Horizon display created");
+        }
+
+        public void Reset() {
+            horizonLine.Destroy();
+            northLine.Destroy();
+            northLabel.Destroy();
+            southLine.Destroy();
+            southLabel.Destroy();
+            eastLine.Destroy();
+            eastLabel.Destroy();
+            westLine.Destroy();
+            westLabel.Destroy();
         }
     }
 
