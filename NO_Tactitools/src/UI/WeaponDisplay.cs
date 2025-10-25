@@ -100,9 +100,7 @@ public class WeaponDisplayComponent {
     static class DisplayEngine {
         static public void Init() {
             if (InternalState.hasIRFlare) { // In reality, this checks if the player's plane has spawned
-                InternalState.weaponDisplay = new WeaponDisplay(
-                    Bindings.Player.Aircraft.GetPlatformName(),
-                    InternalState.destination);
+                InternalState.weaponDisplay = new WeaponDisplay();
                 if (!InternalState.vanillaUIEnabled) Bindings.UI.Game.HideWeaponPanel();
             }
             Plugin.Log("[WD] Display Engine initialized for platform " + Bindings.Player.Aircraft.GetPlatformName());
@@ -156,8 +154,10 @@ public class WeaponDisplayComponent {
         public bool removeOriginalMFDContent = true; // by default, we remove the original MFD content
 
 
-        public WeaponDisplay(string platformName, Transform destination) {
+        public WeaponDisplay() {
+            Transform destination = InternalState.destination;
             weaponDisplay_transform = destination;
+            string platformName = Bindings.Player.Aircraft.GetPlatformName();
             // Default settings for the weapon display
             bool rotateWeaponImage = false;
             float imageScaleFactor = 0.6f;
