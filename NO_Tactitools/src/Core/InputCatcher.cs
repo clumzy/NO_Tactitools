@@ -9,33 +9,149 @@ namespace NO_Tactitools.Core;
 
 public class InputCatcher {
     // Dictionary mapping each controller to its list of buttons
-    public static Dictionary<Rewired.Controller, List<ControllerButton>> controllerStructure =
-        [];
+    public static Dictionary<Rewired.Controller, List<ControllerInput>> controllerInputs = [];
     // Dictionary mapping controller names to pending buttons
-    public static Dictionary<string, List<ControllerButton>> pendingButtons = [];
+    public static Dictionary<string, List<ControllerInput>> pendingControllerInputs = [];
 
-    public static void RegisterControllerButton(string controllerName, ControllerButton button) {
+    // add a specific keyboard input list
+    public static List<ControllerInput> keyboardInputs = [];
+
+    public static void RegisterNewInput(string controllerName, ControllerInput button) {
         Plugin.Log($"[IC] Registering button {button.buttonNumber.ToString()} on controller {controllerName.ToString()}");
         bool found = false;
-        foreach (Controller controller in controllerStructure.Keys) {
+        foreach (Controller controller in controllerInputs.Keys) {
             if (controller.name.Trim() == controllerName) {
-                controllerStructure[controller].Add(button);
+                controllerInputs[controller].Add(button);
                 Plugin.Log($"[IC] Registered button {button.buttonNumber.ToString()} on controller {controllerName.ToString()}");
                 found = true;
                 break;
             }
         }
         if (!found) {
-            if (!pendingButtons.ContainsKey(controllerName))
-                pendingButtons[controllerName] = [];
-            pendingButtons[controllerName].Add(button);
+            if (!pendingControllerInputs.ContainsKey(controllerName))
+                pendingControllerInputs[controllerName] = [];
+            pendingControllerInputs[controllerName].Add(button);
             Plugin.Log($"[IC] Controller not connected, button {button.buttonNumber.ToString()} added to pending list for {controllerName}");
         }
     }
+
+    public static void RegisterNewInput(
+        string controllerName,
+        string inputCodeString,
+        float longPressThreshold = 0.2f,
+        System.Action onShortPress = null,
+        System.Action onHold = null,
+        System.Action onLongPress = null
+        ) {
+        Plugin.Log($"[IC] Registering button {inputCodeString} on controller {controllerName.ToString()}");
+        ControllerInput newInput;
+        string inputType = ParseInputType(inputCodeString, controllerName);
+        Plugin.Log($"[IC] Parsed input type: {inputType.ToString()}");
+        switch (inputType) {
+            case "KeyboardKeyCode":
+                newInput = new ControllerInput(
+                    (Rewired.KeyboardKeyCode)Enum.Parse(typeof(Rewired.KeyboardKeyCode), inputCodeString),
+                    longPressThreshold,
+                    onShortPress,
+                    onHold,
+                    onLongPress
+                    );
+                break;
+            case "ButtonNumber":
+                newInput = new ControllerInput(
+                    int.Parse(inputCodeString),
+                    longPressThreshold,
+                    onShortPress,
+                    onHold,
+                    onLongPress
+                    );
+                break;
+            case "Hat":
+                int hatIndex = ParseHatInput(inputCodeString);
+                newInput = new ControllerInput(
+                    hatIndex,
+                    longPressThreshold,
+                    onShortPress,
+                    onHold,
+                    onLongPress
+                    );
+                break;
+            default:
+                Plugin.Logger.LogError("[IC] Unknown input type for input code: " + inputCodeString + " on controller: " + controllerName);
+                return;
+        }
+        if (controllerName == "Keyboard") {
+            keyboardInputs.Add(newInput);
+            Plugin.Log($"[IC] Registered keyboard input {inputCodeString}");
+        }
+        else {
+            bool found = false;
+            foreach (Controller controller in controllerInputs.Keys) {
+                if (controller.name.Trim() == controllerName) {
+                    controllerInputs[controller].Add(newInput);
+                    Plugin.Log($"[IC] Registered input {newInput.buttonNumber.ToString()} on controller {controllerName.ToString()}");
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                if (!pendingControllerInputs.ContainsKey(controllerName))
+                    pendingControllerInputs[controllerName] = [];
+                pendingControllerInputs[controllerName].Add(newInput);
+                Plugin.Log($"[IC] Controller not connected, input {newInput.buttonNumber.ToString()} added to pending list for {controllerName}");
+            }
+        }
+    }
+
+    public static string ParseInputType(string inputCodeString, string controllerName) {
+        if (controllerName == "Keyboard" && Enum.TryParse<Rewired.KeyboardKeyCode>(inputCodeString, out _)) {
+            return "KeyboardKeyCode";
+        } // next types to be added : int, and hat (hat is of format h_X_Y where X is hat number and Y is direction left right up down)
+        else if (int.TryParse(inputCodeString, out _)) {
+            return "ButtonNumber";
+        }
+        else if (inputCodeString.StartsWith("h_")) {
+            var parts = inputCodeString.Split('_');
+            if (parts.Length == 3 && parts[0] == "h" && int.TryParse(parts[1], out _)) {
+                string direction = parts[2].ToLower();
+                if (direction == "left" || direction == "right" || direction == "up" || direction == "down") {
+                    return "Hat";
+                }
+            }
+        }
+        Plugin.Logger.LogError("[IC] Unable to parse input code: " + inputCodeString);
+        return "Unknown";
+    }
+    // MES TROUVAILLES ICI
+    // LES HAT DEMARRENT A L'INDEX 128.
+    // L'ALGO C'EST INDEX = 128 * HAT NUMBER + DIRECTION (0-7)
+    public static int ParseHatInput(string inputCodeString) {
+        string[] parts = inputCodeString.Split('_');
+        int.TryParse(parts[1], out int hatNumber);
+        string directionStr = parts[2].ToLower();
+        int direction = 0;
+        switch (directionStr) {
+            case "up":
+                direction = 0;
+                break;
+            case "right":
+                direction = 2;
+                break;
+            case "down":
+                direction = 4;
+                break;
+            case "left":
+                direction = 6;
+                break;
+        }
+        int index = 128 + 8 * hatNumber + direction;
+        return index;
+    }
 }
 
-public class ControllerButton {
+public class ControllerInput {
     public int buttonNumber;
+    public Rewired.KeyboardKeyCode keyCode;
     public System.Action OnShortPress;
     public System.Action OnHold;
     public System.Action OnLongPress;
@@ -45,7 +161,7 @@ public class ControllerButton {
     public float longPressThreshold;
     public bool longPressHandled;
 
-    public ControllerButton(
+    public ControllerInput( // CONSTRUCTUR FOR BUTTONS AND HATS
         int buttonNumber,
         float longPressThreshold = 0.2f, // 200ms,
         System.Action onShortPress = null,
@@ -64,14 +180,34 @@ public class ControllerButton {
             this.OnLongPress = onLongPress;
         }
     }
+
+    public ControllerInput( // CONSTRUCTUR KEYBOARD
+        Rewired.KeyboardKeyCode keyboardCode,
+        float longPressThreshold = 0.2f, // 200ms,
+        System.Action onShortPress = null,
+        System.Action onHold = null,
+        System.Action onLongPress = null
+        ) {
+        this.keyCode = keyboardCode;
+        this.longPressThreshold = longPressThreshold;
+        if (onShortPress == null && onLongPress == null && onHold == null) {
+            Plugin.Logger.LogError("[IC] No actions provided for button " + buttonNumber);
+        }
+        else {
+            Plugin.Log($"[IC] Creating button {buttonNumber.ToString()} with actions");
+            this.OnShortPress = onShortPress;
+            this.OnHold = onHold;
+            this.OnLongPress = onLongPress;
+        }
+    }
 }
 
 [HarmonyPatch(typeof(Rewired.Joystick), "qEOMcUOdQiTnCAuDVnEAygszhlYP")]
 class InputInterceptionPatch {
     static bool Prefix(Joystick __instance) {
-        foreach (Controller controller in InputCatcher.controllerStructure.Keys) {
+        foreach (Controller controller in InputCatcher.controllerInputs.Keys) {
             if (__instance == controller) {
-                foreach (ControllerButton button in InputCatcher.controllerStructure[controller]) {
+                foreach (ControllerInput button in InputCatcher.controllerInputs[controller]) {
                     button.currentButtonState = __instance.Buttons[button.buttonNumber].value;
                     if (!button.previousButtonState && button.currentButtonState) {
                         // Button just pressed
@@ -112,57 +248,17 @@ class RegisterControllerPatch {
         string cleanedName = __instance.name.Trim();
         Plugin.Log($"[IC] Controller connected: {cleanedName}");
 
-        if (!InputCatcher.controllerStructure.ContainsKey(__instance)) {
-            InputCatcher.controllerStructure[__instance] = [];
+        if (!InputCatcher.controllerInputs.ContainsKey(__instance)) {
+            InputCatcher.controllerInputs[__instance] = [];
             Plugin.Log($"[IC] Controller structure initialized for: {cleanedName}");
         }
 
-        if (InputCatcher.pendingButtons.ContainsKey(cleanedName)) {
-            foreach (var btn in InputCatcher.pendingButtons[cleanedName]) {
-                InputCatcher.controllerStructure[__instance].Add(btn);
+        if (InputCatcher.pendingControllerInputs.ContainsKey(cleanedName)) {
+            foreach (var btn in InputCatcher.pendingControllerInputs[cleanedName]) {
+                InputCatcher.controllerInputs[__instance].Add(btn);
                 Plugin.Log($"[IC] Registered pending button {btn.buttonNumber.ToString()} on controller {cleanedName}");
             }
-            InputCatcher.pendingButtons.Remove(cleanedName);
-        }
-    }
-}
-
-
-/// TEST ZONE
-
-[HarmonyPatch(typeof(Rewired.Joystick), "qEOMcUOdQiTnCAuDVnEAygszhlYP")]
-class HatInputInterceptionPatch {
-
-    static int FindFirstDifferenceIndex(IList<bool> list1, IList<bool> list2) {
-        for (int i = 0; i < list1.Count && i < list2.Count; i++) {
-            if (list1[i] != list2[i]) {
-                return i;
-            }
-        }
-
-        return Math.Min(list1.Count, list2.Count);
-    }
-    static double time = -1;
-    static IList<bool> previousHatStates = [];
-    static void Postfix(Joystick __instance) {
-        if (previousHatStates == null) {
-            for (int i = 0; i < __instance.Buttons.Count; i++) {
-                previousHatStates.Add(__instance.Buttons[i].value);
-            }
-        }
-        double newTime = __instance.GetLastTimeAnyButtonPressed();
-        if (newTime != time) {
-            time = newTime;
-            int diffIndex = FindFirstDifferenceIndex(previousHatStates, [.. __instance.Buttons.Select(b => b.value)]);
-            previousHatStates.Clear();
-            for (int i = 0; i < __instance.Buttons.Count; i++) {
-                previousHatStates.Add(__instance.Buttons[i].value);
-            }
-            Plugin.Log($"[IC] Hat input detected on controller {__instance.name.Trim()} at time {time.ToString()}");
-            // MES TROUVAILLES ICI
-            // LES HAT DEMARRENT A L'INDEX 128.
-            // L'ALGO C'EST INDEX = 128 * HAT NUMBER + DIRECTION (0-7)
-            Plugin.Log(diffIndex.ToString());
+            InputCatcher.pendingControllerInputs.Remove(cleanedName);
         }
     }
 }

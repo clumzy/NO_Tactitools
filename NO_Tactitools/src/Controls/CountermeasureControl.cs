@@ -11,16 +11,16 @@ class CountermeasureControlsPlugin {
     static void Postfix() {
         if (!initialized) {
             Plugin.Log($"[CC] Countermeasure Controls plugin starting !");
-            InputCatcher.RegisterControllerButton(
+            InputCatcher.RegisterNewInput(
                 Plugin.countermeasureControlsFlareControllerName.Value,
-                new ControllerButton(
+                new ControllerInput(
                 Plugin.countermeasureControlsFlareButtonNumber.Value,
                 1000f,
                 onShortPress: HandleOnHoldFlare
                 ));
-            InputCatcher.RegisterControllerButton(
+            InputCatcher.RegisterNewInput(
                 Plugin.countermeasureControlsJammerControllerName.Value,
-                new ControllerButton(
+                new ControllerInput(
                 Plugin.countermeasureControlsJammerButtonNumber.Value,
                 1000f,
                 onShortPress: HandleOnHoldJammer

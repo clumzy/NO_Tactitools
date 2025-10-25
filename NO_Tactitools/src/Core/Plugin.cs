@@ -13,7 +13,7 @@ namespace NO_Tactitools.Core {
         public static Harmony harmony;
         public static ConfigEntry<bool> targetRecallEnabled;
         public static ConfigEntry<string> targetRecallControllerName;
-        public static ConfigEntry<int> targetRecallButtonNumber;
+        public static ConfigEntry<string> targetRecallInput;
         public static ConfigEntry<bool> interceptionVectorEnabled;
         public static ConfigEntry<bool> onScreenVectorEnabled;
         public static ConfigEntry<bool> countermeasureControlsEnabled;
@@ -56,9 +56,9 @@ namespace NO_Tactitools.Core {
                 "Target Recall Controller Name",
                 "",
                 "Name of the peripheral");
-            targetRecallButtonNumber = Config.Bind("Target Recall",
+            targetRecallInput = Config.Bind("Target Recall",
                 "Target Recall Button Number",
-                37,
+                "37",
                 "Number of the button");
             // Interception Vector settings
             interceptionVectorEnabled = Config.Bind("Interception Vector",

@@ -12,14 +12,12 @@ class TargetRecallPlugin {
     static void Postfix() {
         if (!initialized) {
             Plugin.Log($"[TR] Target Recall plugin starting !");
-            InputCatcher.RegisterControllerButton(
+            InputCatcher.RegisterNewInput(
                 Plugin.targetRecallControllerName.Value,
-                new ControllerButton(
-                Plugin.targetRecallButtonNumber.Value,
+                Plugin.targetRecallInput.Value,
                 0.2f,
                 onShortPress: HandleClick,
-                onLongPress: HandleLongPress
-                ));
+                onLongPress: HandleLongPress);
             initialized = true;
             Plugin.Log("[TR] Target Recall plugin succesfully started !");
         }
