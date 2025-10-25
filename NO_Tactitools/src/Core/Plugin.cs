@@ -193,8 +193,9 @@ namespace NO_Tactitools.Core {
             harmony = new Harmony("george.no_tactitools");
             Logger = base.Logger;
             // Patch Input Catcher - We do the patches manually here instead of in the "master class" like the other plugins because Rewired is a bit special as my mother would say
-            harmony.PatchAll(typeof(InputInterceptionPatch));
+            harmony.PatchAll(typeof(ControllerInputInterceptionPatch));
             harmony.PatchAll(typeof(RegisterControllerPatch));
+            //harmony.PatchAll(typeof(TestInput));
             // Patch Interception Vector
             if (interceptionVectorEnabled.Value) {
                 Logger.LogInfo($"Interception Vector is enabled, patching...");
