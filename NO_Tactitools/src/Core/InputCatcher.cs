@@ -14,24 +14,6 @@ public class InputCatcher {
     public static Dictionary<string, List<ControllerInput>> pendingControllerInputs = [];
     // keyboard pointer for easy access
     public static Rewired.Keyboard keyboardController = null;
-    public static void RegisterNewInput(string controllerName, ControllerInput button) {
-        Plugin.Log($"[IC] Registering button {button.buttonNumber.ToString()} on controller {controllerName.ToString()}");
-        bool found = false;
-        foreach (Controller controller in controllerInputs.Keys) {
-            if (controller.name.Trim() == controllerName) {
-                controllerInputs[controller].Add(button);
-                Plugin.Log($"[IC] Registered button {button.buttonNumber.ToString()} on controller {controllerName.ToString()}");
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            if (!pendingControllerInputs.ContainsKey(controllerName))
-                pendingControllerInputs[controllerName] = [];
-            pendingControllerInputs[controllerName].Add(button);
-            Plugin.Log($"[IC] Controller not connected, button {button.buttonNumber.ToString()} added to pending list for {controllerName}");
-        }
-    }
 
     public static void RegisterNewInput(
         string controllerName,
@@ -41,6 +23,14 @@ public class InputCatcher {
         System.Action onHold = null,
         System.Action onLongPress = null
         ) {
+        if (controllerName == "") {
+            Plugin.Log("[IC] No controller name provided for button registration. Skipping.");
+            return;
+        }
+        else if (inputCodeString == "") {
+            Plugin.Log("[IC] No input code string provided for button registration. Skipping.");
+            return;
+        }
         Plugin.Log($"[IC] Registering button {inputCodeString} on controller {controllerName.ToString()}");
         ControllerInput newInput;
         string inputType = ParseInputType(inputCodeString, controllerName);

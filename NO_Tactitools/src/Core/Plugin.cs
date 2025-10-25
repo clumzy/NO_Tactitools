@@ -17,22 +17,21 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> interceptionVectorEnabled;
         public static ConfigEntry<bool> onScreenVectorEnabled;
         public static ConfigEntry<bool> countermeasureControlsEnabled;
-        public static ConfigEntry<string> countermeasureControlsFlareControllerName;
-        public static ConfigEntry<int> countermeasureControlsFlareButtonNumber;
-        public static ConfigEntry<string> countermeasureControlsJammerControllerName;
-        public static ConfigEntry<int> countermeasureControlsJammerButtonNumber;
+        public static ConfigEntry<string> countermeasureControlsControllerName;
+        public static ConfigEntry<string> countermeasureControlsFlareButtonNumber;
+        public static ConfigEntry<string> countermeasureControlsJammerButtonNumber;
         public static ConfigEntry<bool> weaponSwitcherEnabled;
         public static ConfigEntry<string> weaponSwitcherControllerName;
-        public static ConfigEntry<int> weaponSwitcherButton0;
-        public static ConfigEntry<int> weaponSwitcherButton1;
-        public static ConfigEntry<int> weaponSwitcherButton2;
-        public static ConfigEntry<int> weaponSwitcherButton3;
-        public static ConfigEntry<int> weaponSwitcherButton4;
-        public static ConfigEntry<int> weaponSwitcherButton5;
+        public static ConfigEntry<string> weaponSwitcherButton0;
+        public static ConfigEntry<string> weaponSwitcherButton1;
+        public static ConfigEntry<string> weaponSwitcherButton2;
+        public static ConfigEntry<string> weaponSwitcherButton3;
+        public static ConfigEntry<string> weaponSwitcherButton4;
+        public static ConfigEntry<string> weaponSwitcherButton5;
         public static ConfigEntry<bool> weaponDisplayEnabled;
         public static ConfigEntry<bool> weaponDisplayVanillaUIEnabled;
         public static ConfigEntry<string> weaponDisplayControllerName;
-        public static ConfigEntry<int> weaponDisplayButtonNumber;
+        public static ConfigEntry<string> weaponDisplayButtonNumber;
         public static ConfigEntry<bool> unitDistanceEnabled;
         public static ConfigEntry<int> unitDistanceThreshold;
         public static ConfigEntry<bool> unitDistanceSoundEnabled;
@@ -43,151 +42,304 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> unitIconRecolorEnabled;
         public static ConfigEntry<Color> unitIconRecolorEnemyColor;
         public static ConfigEntry<bool> bootScreenEnabled;
+        public static ConfigEntry<bool> artificialHorizonEnabled;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
 
         private void Awake() {
             // Target Recall settings
             targetRecallEnabled = Config.Bind("Target Recall", //Category
-                "Target Recall Enabled", // Setting name
+                "Target Recall - Enabled", // Setting name
                 true, // Default value
-                "Enable or disable the Target Recall feature"); // Description of the setting
+                new ConfigDescription(
+                    "Enable or disable the Target Recall feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2})); // Description of the setting
             targetRecallControllerName = Config.Bind("Target Recall",
-                "Target Recall Controller Name",
+                "Target Recall - Controller Name",
                 "",
-                "Name of the peripheral");
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1
+                    }));
             targetRecallInput = Config.Bind("Target Recall",
-                "Target Recall Button Number",
-                "37",
-                "Number of the button");
+                "Target Recall - Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign for Target Recall (short press to recall, long press to save)",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
             // Interception Vector settings
             interceptionVectorEnabled = Config.Bind("Interception Vector",
-                "Interception Vector Enabled",
+                "Interception Vector - Enabled",
                 true,
-                "Enable or disable the Interception Vector feature");
+                new ConfigDescription(
+                    "Enable or disable the Interception Vector feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
             // Countermeasure Controls settings
             countermeasureControlsEnabled = Config.Bind("Countermeasures",
-                "Countermeasure Controls Enabled",
+                "Countermeasure Controls - Enabled",
                 true,
-                "Enable or disable the Countermeasure Controls feature");
-            countermeasureControlsFlareControllerName = Config.Bind("Countermeasures",
-                "Countermeasure Controls Controller Name",
+                new ConfigDescription(
+                    "Enable or disable the Countermeasure Controls feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 3
+                    }));
+            countermeasureControlsControllerName = Config.Bind("Countermeasures",
+                "Countermeasure Controls - Controller Name",
                 "",
-                "Name of the peripheral");
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2
+                    }));
             countermeasureControlsFlareButtonNumber = Config.Bind("Countermeasures",
-                "Countermeasure Controls - Flares - Button Number",
-                39,
-                "Number of the button");
-            countermeasureControlsJammerControllerName = Config.Bind("Countermeasures",
-                "Countermeasure Controls Controller Name",
+                "Countermeasure Controls - Flares - Input",
                 "",
-                "Name of the peripheral");
+                new ConfigDescription(
+                    "Input you want to assign for selecting Flares",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1
+                    }));
             countermeasureControlsJammerButtonNumber = Config.Bind("Countermeasures",
-                "Countermeasure Controls - Jammer - Button Number",
-                40,
-                "Number of the button");
-            // Weapon Switcher settings
-            weaponSwitcherEnabled = Config.Bind("Weapon Switcher",
-                "Weapon Switcher Enabled",
-                true,
-                "Enable or disable the Weapon Switcher feature");
-            weaponSwitcherControllerName = Config.Bind("Weapon Switcher",
-                "Weapon Switcher Controller Name",
+                "Countermeasure Controls - Jammer - Input",
                 "",
-                "Name of the peripheral for weapon switching");
-            weaponSwitcherButton0 = Config.Bind("Weapon Switcher",
-                "Weapon Switcher Button 0",
-                41,
-                "Button number for weapon slot 0 (Long press to toggle Turret Auto Control)");
-            weaponSwitcherButton1 = Config.Bind("Weapon Switcher",
-                "Weapon Switcher Button 1",
-                42,
-                "Button number for weapon slot 1");
-            weaponSwitcherButton2 = Config.Bind("Weapon Switcher",
-                "Weapon Switcher Button 2",
-                43,
-                "Button number for weapon slot 2");
-            weaponSwitcherButton3 = Config.Bind("Weapon Switcher",
-                "Weapon Switcher Button 3",
-                44,
-                "Button number for weapon slot 3");
-            weaponSwitcherButton4 = Config.Bind("Weapon Switcher",
-                "Weapon Switcher Button 4",
-                45,
-                "Button number for weapon slot 4");
-            weaponSwitcherButton5 = Config.Bind("Weapon Switcher",
-                "Weapon Switcher Button 5",
-                46,
-                "Button number for weapon slot 5");
+                new ConfigDescription(
+                    "Input you want to assign for selecting Jammer",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
+            // Weapon Switcher settings
+            weaponSwitcherEnabled = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Enabled",
+                true,
+                new ConfigDescription(
+                    "Enable or disable the Advanced Slot Selection feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 7
+                    }));
+            weaponSwitcherControllerName = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 6
+                    }));
+            weaponSwitcherButton0 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 0 - Input",
+                "",
+                new ConfigDescription(
+                    "Input for slot 0 (Long press to toggle Turret Auto Control)",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 5
+                    }));
+            weaponSwitcherButton1 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 1 - Input",
+                "",
+                new ConfigDescription(
+                    "Input for slot 1",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 4
+                    }));
+            weaponSwitcherButton2 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 2 - Input",
+                "",
+                new ConfigDescription(
+                    "Input for slot 2",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 3
+                    }));
+            weaponSwitcherButton3 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 3 - Input",
+                "",
+                new ConfigDescription(
+                    "Input for slot 3",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2
+                    }));
+            weaponSwitcherButton4 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 4 - Input",
+                "",
+                new ConfigDescription(
+                    "Input for slot 4",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1
+                    }));
+            weaponSwitcherButton5 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 5 - Input",
+                "",
+                new ConfigDescription(
+                    "Input for slot 5",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
             // Weapon Display settings
             weaponDisplayEnabled = Config.Bind("CM & Weapon Display",
-                "CM & Weapon Display Enabled",
+                "CM & Weapon Display - Enabled",
                 true,
-                "Enable or disable the Weapon Display feature");
+                new ConfigDescription(
+                    "Enable or disable the CM & Weapon Display feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 3
+                    }));
             weaponDisplayVanillaUIEnabled = Config.Bind("CM & Weapon Display",
-                "CM & Weapon Display Vanilla UI Enabled",
+                "CM & Weapon Display - Vanilla UI - Enabled",
                 false,
-                "Enable or disable the vanilla UI for weapon & CM display while the mod is active");
+                new ConfigDescription(
+                    "Enable or disable the vanilla weapon display UI when using the weapon display feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2
+                    }));
             weaponDisplayControllerName = Config.Bind("CM & Weapon Display",
-                "CM & Weapon Display Controller Name",
+                "CM & Weapon Display - Controller Name",
                 "",
-                "Name of the peripheral for weapon display");
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1
+                    }));
             weaponDisplayButtonNumber = Config.Bind("CM & Weapon Display",
-                "CM & Weapon Display Button Number",
-                46,
-                "Button number for swapping between weapon display modes (modded or vanilla content)");
+                "CM & Weapon Display - Content Toggling - Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign for toggling the weapon display back to its original content",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
             // Unit Distance settings
             unitDistanceEnabled = Config.Bind("HMD Tweaks",
-                "Unit Marker Distance Indicator Enabled",
+                "Unit Marker Distance Indicator - Enabled",
                 true,
-                "Enable or disable the Unit Marker Distance Indicator feature");
+                new ConfigDescription(
+                    "Enable or disable the Unit Marker Distance Indicator feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2
+                    }));
             unitDistanceThreshold = Config.Bind("HMD Tweaks",
-                "Unit Marker Distance Indicator Threshold",
+                "Unit Marker Distance Indicator - Threshold",
                 10,
                 new ConfigDescription(
-                    "Distance threshold in kilometers for the Unit Marker Distance Indicator to change the marker orientation.",
-                    new AcceptableValueRange<int>(5, 50)));
+                    "Distance threshold in kilometers for the Unit Marker Distance Indicator to change the marker's orientation.",
+                    new AcceptableValueRange<int>(5, 50),
+                    new ConfigurationManagerAttributes {
+                        Order = 1
+                    }));
             unitDistanceSoundEnabled = Config.Bind("HMD Tweaks",
-                "Unit Marker Distance Sound Enabled",
+                "Unit Marker Distance Sound - Enabled",
                 true,
-                "Enable or disable the sound when the Unit Marker Distance Indicator is in \'near\' state.");
+                new ConfigDescription(
+                    "Enable or disable the sound notification indicating that an enemy unit has crossed the distance threshold.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
             // Delivery Checker settings
             deliveryCheckerEnabled = Config.Bind("Delivery Checker",
-                "Delivery Checker Enabled",
+                "Delivery Checker - Enabled",
                 true,
-                "Enable or disable the Delivery Checker feature");
+                new ConfigDescription(
+                    "Enable or disable the Delivery Checker feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
             // MFD Color settings
             MFDColorEnabled = Config.Bind("MFD Color",
-                "MFD Color Enabled",
+                "MFD Color - Enabled",
                 true,
-                "Enable or disable the MFD Color feature");
+                new ConfigDescription(
+                    "Enable or disable the MFD Color feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2
+                    }));
             MFDColor = Config.Bind("MFD Color",
-                "MFD Main Color",
+                "MFD Color - MFD Main Color",
                 new Color(0f, 1f, 0f), // Default color in RGB
-                "Main color for the MFD in RGB format. This will be used to set the MFD main color.");
+                new ConfigDescription(
+                    "Main color for the MFD elements in RGB format.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1
+                    }));
             MFDAlternativeAttitudeEnabled = Config.Bind("MFD Color",
-                "MFD Alternative Attitude Enabled",
+                "MFD Color - MFD Alternative Attitude - Enabled",
                 false,
-                "Enable or disable the alternative attitude colors for the MFD horizon and ground indicators.");
-            // PREVIEW FEATURES
+                new ConfigDescription(
+                    "Enable or disable the alternative attitude indicator color on the MFD.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
             // Unit Icon Recolor settings
-            unitIconRecolorEnabled = Config.Bind("PREVIEW - SUBJECT TO CHANGES IN THE FUTURE",
-                "Unit Icon Recolor Enabled",
-                false,
-                "Enable or disable the Unit Icon Recolor feature");
-            unitIconRecolorEnemyColor = Config.Bind("PREVIEW - SUBJECT TO CHANGES IN THE FUTURE",
-                "Unit Icon Recolor Enemy Color",
+            unitIconRecolorEnabled = Config.Bind("AA Units Icon Recolor",
+                "AA Units Icon Recolor - Enabled",
+                true,
+                new ConfigDescription(
+                    "Enable or disable the AA Units Icon Recolor feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1
+                    }));
+            unitIconRecolorEnemyColor = Config.Bind("AA Units Icon Recolor",
+                "AA Units Icon Recolor - Enemy Unit Color",
                 new Color(0.8f, 0.2f, 1f),
-                "Color for specific enemy unit icons.");
+                new ConfigDescription(
+                    "Color for enemy AA unit icons in RGB format.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
             // Boot Screen settings
-            bootScreenEnabled = Config.Bind("PREVIEW - SUBJECT TO CHANGES IN THE FUTURE",
-                "Boot Screen Enabled",
-                false,
-                "Enable or disable the Boot Screen feature");
+            bootScreenEnabled = Config.Bind("Boot Screen Animation",
+                "Boot Screen Animation - Enabled",
+                true,
+                new ConfigDescription(
+                    "Enable or disable the Boot Screen Animation feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
+            // Artificial Horizon settings
+            artificialHorizonEnabled = Config.Bind("Artificial Horizon",
+                "Artificial Horizon - Enabled",
+                true,
+                new ConfigDescription(
+                    "Enable or disable the Artificial Horizon feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",
-                "Debug Mode Enabled",
-                false,
+                "Debug Mode - Enabled",
+                true,
                 "Enable or disable the debug mode for logging");
             // Plugin startup logic
             harmony = new Harmony("george.no_tactitools");
@@ -246,7 +398,11 @@ namespace NO_Tactitools.Core {
                 Logger.LogInfo($"Boot Screen is enabled, patching...");
                 harmony.PatchAll(typeof(BootScreenPlugin));
             }
-            harmony.PatchAll(typeof(ArtificialHorizonPlugin));
+            // Patch Artificial Horizon
+            if (artificialHorizonEnabled.Value) {
+                Logger.LogInfo($"Artificial Horizon is enabled, patching...");
+                harmony.PatchAll(typeof(ArtificialHorizonPlugin));
+            }
         }
 
         public static void Log(string message) {
@@ -255,6 +411,25 @@ namespace NO_Tactitools.Core {
                 string formattedTime = string.Format("{0:D2}:{1:D2}:{2:D2}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
                 Logger.LogInfo("[" + formattedTime + "] " + message);
             }
+        }
+
+        internal sealed class ConfigurationManagerAttributes {
+            public bool? ShowRangeAsPercent;
+            public System.Action<BepInEx.Configuration.ConfigEntryBase> CustomDrawer;
+            public CustomHotkeyDrawerFunc CustomHotkeyDrawer;
+            public delegate void CustomHotkeyDrawerFunc(BepInEx.Configuration.ConfigEntryBase setting, ref bool isCurrentlyAcceptingInput);
+            public bool? Browsable;
+            public string Category;
+            public object DefaultValue;
+            public bool? HideDefaultButton;
+            public bool? HideSettingName;
+            public string Description;
+            public string DispName;
+            public int? Order;
+            public bool? ReadOnly;
+            public bool? IsAdvanced;
+            public System.Func<object, string> ObjToStr;
+            public System.Func<string, object> StrToObj;
         }
     }
 }
