@@ -16,6 +16,7 @@ class ArtificialHorizonPlugin {
             Plugin.Log($"[AH] Artificial Horizon plugin starting !");
             Plugin.harmony.PatchAll(typeof(ArtificialHorizonComponent.OnPlatformStart));
             Plugin.harmony.PatchAll(typeof(ArtificialHorizonComponent.OnPlatformUpdate));
+            ArtificialHorizonComponent.InternalState.authorizedPlatforms = FileUtilities.GetListFromConfigFile("ArtificialHorizon_AuthorizedPlatforms.txt");
             initialized = true;
             Plugin.Log("[AH] Artificial Horizon plugin successfully started !");
         }
@@ -238,11 +239,7 @@ public class ArtificialHorizonComponent {
         static public Vector2 westLabelPos;
         static public string westLabelText = "270°";
         static public float westLabelOpacity = 1f;
-        static public List<String> authorizedPlatforms = [
-            "SAH-46 Chicane",
-            "VL-49 Tarantula",
-            "UH-80 Ibis"
-        ];
+        static public List<String> authorizedPlatforms;
     }
 
     static class DisplayEngine {

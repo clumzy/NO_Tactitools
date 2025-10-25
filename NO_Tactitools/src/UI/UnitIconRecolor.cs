@@ -14,6 +14,10 @@ class UnitIconRecolorPlugin {
             Plugin.Log("[UIR] Unit Icon Recolor plugin starting !");
             Plugin.harmony.PatchAll(typeof(UnitIconRecolorComponent.OnPlatformStart));
             Plugin.harmony.PatchAll(typeof(UnitIconRecolorComponent.OnPlatformUpdate));
+            // we do it here instead of Init because we want the values to be read
+            // before TacScreen.Initialize is called
+            UnitIconRecolorComponent.InternalState.targetUnitNames = FileUtilities.GetListFromConfigFile("UnitIconRecolor_TargetUnits.txt");
+            UnitIconRecolorComponent.InternalState.unitIconRecolorEnemyColor = Plugin.unitIconRecolorEnemyColor.Value;
             initialized = true;
             Plugin.Log("[UIR] Unit Icon Recolor plugin successfully started !");
         }
@@ -35,18 +39,7 @@ public static class UnitIconRecolorComponent {
 
     public static class InternalState {
         static public Color unitIconRecolorEnemyColor;
-        static public List<string> targetUnitNames = [
-            "LCV25 AA",
-            "AFV6 AA",
-            "Linebreaker SAM",
-            "AFV8 Mobile Air Defense",
-            "AeroSentry SPAAG",
-            "FGA-57 Anvil",
-            "T9K41 Boltstrike",
-            "StratoLance R9 Launcher",
-            "Hexhound SAM",
-            "CRAM Trailer",
-            "Laser CIWS Trailer"];
+        static public List<string> targetUnitNames;
         static public bool needsUpdate = false;
     }
     public static class DisplayEngine {
