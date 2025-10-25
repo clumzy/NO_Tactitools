@@ -127,6 +127,9 @@ class RegisterControllerPatch {
     }
 }
 
+
+/// TEST ZONE
+
 [HarmonyPatch(typeof(Rewired.Joystick), "qEOMcUOdQiTnCAuDVnEAygszhlYP")]
 class HatInputInterceptionPatch {
 
