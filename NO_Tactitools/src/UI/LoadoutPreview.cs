@@ -28,7 +28,8 @@ public class LoadoutPreviewComponent {
     // LOGIC ENGINE, INTERNAL STATE, DISPLAY ENGINE
     static class LogicEngine {
         static public void Init() {
-            InternalState.loadoutPreview.Reset();
+            InternalState.loadoutPreview?.Reset();
+            InternalState.displayDuration = Plugin.loadoutPreviewDuration.Value;
             for (int i = 0; i < Bindings.Player.Weapons.GetStationCount(); i++) {
                 InternalState.WeaponStationInfo stationInfo = new() {
                     stationName = Bindings.Player.Weapons.GetStationNameByIndex(i),
@@ -47,7 +48,7 @@ public class LoadoutPreviewComponent {
                 InternalState.lastUpdateTime = Time.time;
                 InternalState.currentWeaponStation = Bindings.Player.Weapons.GetActiveStationName();
             }
-            if (Time.time - InternalState.lastUpdateTime < 0.8f)
+            if (Time.time - InternalState.lastUpdateTime < InternalState.displayDuration)
                 InternalState.needsUpdate = true;
             else
                 InternalState.needsUpdate = false;
@@ -73,6 +74,7 @@ public class LoadoutPreviewComponent {
         public static bool needsUpdate = false;
         public static List<WeaponStationInfo> weaponStations = [];
         public static LoadoutPreview loadoutPreview;
+        public static float displayDuration = 1f;
         public static Color mainColor = Color.green;
     }
 

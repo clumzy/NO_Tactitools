@@ -8,7 +8,7 @@ using NO_Tactitools.Controls;
 using NO_Tactitools.UI;
 
 namespace NO_Tactitools.Core {
-    [BepInPlugin("NO_Tactitools", "NOTT", "0.2.1")]
+    [BepInPlugin("NO_Tactitools", "NOTT", "0.3.0")]
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;
         public static ConfigEntry<bool> targetRecallEnabled;
@@ -44,6 +44,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> bootScreenEnabled;
         public static ConfigEntry<bool> artificialHorizonEnabled;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
+        public static ConfigEntry<float> loadoutPreviewDuration;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
 
@@ -344,6 +345,15 @@ namespace NO_Tactitools.Core {
                 new ConfigDescription(
                     "Enable or disable the Loadout Preview feature.",
                     null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1
+                    }));
+            loadoutPreviewDuration = Config.Bind("Loadout Preview",
+                "Loadout Preview - Duration",
+                1f,
+                new ConfigDescription(
+                    "Duration (in seconds) for which the loadout preview is displayed.",
+                    new AcceptableValueRange<float>(0.5f, 3f),
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));
