@@ -28,7 +28,7 @@ public class LoadoutPreviewComponent {
     // LOGIC ENGINE, INTERNAL STATE, DISPLAY ENGINE
     static class LogicEngine {
         static public void Init() {
-            InternalState.weaponStations.Clear();
+            InternalState.loadoutPreview.Reset();
             for (int i = 0; i < Bindings.Player.Weapons.GetStationCount(); i++) {
                 InternalState.WeaponStationInfo stationInfo = new() {
                     stationName = Bindings.Player.Weapons.GetStationNameByIndex(i),
@@ -247,7 +247,7 @@ public class LoadoutPreviewComponent {
                 label.GetGameObject().SetActive(active);
             }
         }
-        public void Destroy() {
+        public void Reset() {
             foreach (var label in stationLabels) {
                 label.Destroy();
             }
