@@ -3,7 +3,6 @@
 *.json
 *.props
 *.editorconfig
-*.txt
 *.pdb
 obj/
 bin/
