@@ -11,8 +11,7 @@ I sincerely hope you enjoy the mod as much as I enjoy developing it, feel free t
 Fly safe,
 George
 
----
-## Main features {#features}
+## Main features
 
 ### 🎯 Interception vector on the target screen for single targets
 - Only works for single targets
@@ -76,8 +75,7 @@ George
 - A short booting animation is displayed on airframe start
 - The animation lasts for 2 seconds
 
----
-# Installing {#installing}
+## Installing
 
 ### :one: Installing BepInEx
 - Download the BepInEx version corresponding to your OS [here](https://github.com/BepInEx/BepInEx/releases)
@@ -100,8 +98,7 @@ George
 - Extract the content of the ZIP file in *Nuclear Option/BepInEx/plugins* (where Configuration Manager is already located)
 - The plugins folder should now have a new folder called *NOTT* inside
 
----
-# Configuring the mod {#configuring}
+## Configuring the mod
 
 ### How to activate/deactivate and configure features
 - Open Configuration Manager once the main menu of Nuclear Option is loaded
@@ -122,17 +119,13 @@ The process is a bit convoluted, I admit. Since the game is using ReWired for it
 - **RESTART THE GAME**
 <details>
 <summary>Example :</summary>
-![1](readme_content/hotas_button_1.png)
+![1](readme_content/hotas_button_1.png?raw=true)
 </details>
 
----
-# Common issues {#issues}
+## Common issues
 
----
-# FAQ {#faq}
+## FAQ
 
----
-# Roadmap {#roadmap}
+## Roadmap
 
----
-# Contributing
+## Contributing
