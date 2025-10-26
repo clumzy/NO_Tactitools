@@ -93,7 +93,10 @@ public static class BootScreenComponent {
 
         public static void Update() {
             if (InternalState.hasBooted) return;
-            if ((DateTime.Now - InternalState.startTime).TotalSeconds <= 3) return;
+            if ((DateTime.Now - InternalState.startTime).TotalSeconds <= 2){
+                InternalState.bootLabel.SetText("Booting "+Bindings.Player.Aircraft.GetPlatformName()+new string('.', (int)((DateTime.Now - InternalState.startTime).TotalSeconds*4f/2f)));
+                return;
+            }
 
             const float minJitter = 0.05f;
             const float maxJitter = 1f; // normally 1f
