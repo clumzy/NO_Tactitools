@@ -51,14 +51,7 @@ public static class MFDColorComponent {
     static class DisplayEngine {
         public static void Init() {
             Plugin.Log("[MFD] Resetting MFD colors");
-            Color originalMainColor = WeaponDisplayComponent.InternalState.weaponDisplay.mainColor;
-            Color newMainColor = Color.HSVToRGB(
-                InternalState.mainHue,
-                InternalState.mainSaturation,
-                1.0f);
-            // we keep the original alpha
-            newMainColor.a = originalMainColor.a;
-            WeaponDisplayComponent.InternalState.weaponDisplay.mainColor = newMainColor;
+            // Now onto the original elements
             Transform tacScreenTransform = Bindings.UI.Game.GetTacScreen();
             foreach (Text text in tacScreenTransform.GetComponentsInChildren<Text>(true)) {
                 Color originalTextColor = text.color;
@@ -99,6 +92,22 @@ public static class MFDColorComponent {
                     image.color = newImageColor;
                 } // we keep the original brightness
             }
+            // Apply the main color to weapon display and MFD texts and images
+            Color originalMainColor = WeaponDisplayComponent.InternalState.mainColor;
+            Color newMainColor = Color.HSVToRGB(
+                InternalState.mainHue,
+                InternalState.mainSaturation,
+                1.0f);
+            newMainColor.a = originalMainColor.a;
+            WeaponDisplayComponent.InternalState.mainColor = newMainColor;
+            // Apply the main color to loadout preview
+            Color originalLoadoutColor = LoadoutPreviewComponent.InternalState.mainColor;
+            Color newLoadoutColor = Color.HSVToRGB(
+                InternalState.mainHue,
+                InternalState.mainSaturation,
+                1.0f);
+            newLoadoutColor.a = originalLoadoutColor.a;
+            LoadoutPreviewComponent.InternalState.mainColor = newLoadoutColor;
         }
 
         public static void Update() {
