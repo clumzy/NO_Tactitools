@@ -107,8 +107,15 @@ George
 - Disable/Enable the components you want, and edit their settings if appliable
 - **RESTART THE WHOLE GAME** (activated mod components are patched on game start)
 
+### Advanced configuration (Unit Icon Recolor and Artificial Horizon)
+You can configure the Unit Icon Recolor and Artificial Horizon using text files located in the mod's folder.
+As time goes on I will allow more features to be precisely configured using text files.
+- Open the *config* folder located in *Nuclear Option/BepInEx/plugins/NOTT*
+- Open the two text files and follow the instructions in the comments (comments start with *//*)
+
 ### How to setup the mod to use your HOTAS and keyboard
 The process is a bit convoluted, I admit. Since the game is using ReWired for its inputs, I had to reverse engineer some obfuscated code and I haven't managed to leverage the ingame bindings menu for now. However what I have for now should work in a stable and surefire way !
+
 #### Setting up HOTAS buttons
 - Go to the ingame bindings menu
 - Bind a new control using the button you want to use
@@ -117,15 +124,73 @@ The process is a bit convoluted, I admit. Since the game is using ReWired for it
 - Input the name of the peripheral and its button (only the number) in the relevant settings
 - Repeat as needed
 - **RESTART THE GAME**
+
 <details>
 <summary>Example :</summary>
-![alt text](https://github.com/clumzy/NO_Tactitools/blob/main/readme_content/hotas_button_1.png?raw=true)
+<IMG src="readme_content/hotas_button_1.png"  alt="1.png"/>
+<IMG src="readme_content/hotas_button_2.png"  alt="2.png"/>
+</details>
+
+#### Setting up HOTAS hats
+- Go to the ingame bindings menu
+- Bind a new control using the hat you want to use
+  - You'll get an output in the format **Hat {number} {direction}**
+- Write down the number of the hat, its direction (only *up, left, down* and *right* are supported for now), and the name of the peripheral (don't forget to remove the binding you used to get the hat info)
+- Open Configuration Manager and the NOTT tab
+- Input the name of the peripheral in the relevant setting
+- Input the hat control in the following format : **h_{number}_{direction}**
+- Repeat as needed
+- **RESTART THE GAME**
+
+<details>
+<summary>Example :</summary>
+<IMG src="readme_content/hotas_hat_1.png"  alt="1.png"/>
+<IMG src="readme_content/hotas_hat_2.png"  alt="2.png"/>
+</details>
+
+#### Setting up keyboard inputs
+- Go to the ingame bindings menu
+- Bind a new control using the keyboard input you want to use
+- Write down the input the game has detected
+  - This is important if you're not using a QWERTY keyboard, the input displayed will likely not be the same as what's on your keyboard
+- Look up its relevant KeyCode (Unity's way of storing keyboard inputs) [here](https://docs.unity3d.com/ScriptReference/KeyCode.html)
+- Open Configuration Manager and the NOTT tab*
+- The name of the peripheral in the relevant setting **must be Keyboard**
+- Input the key code you got earlier in the relevant setting
+- **RESTART THE GAME**
+
+<details>
+<summary>Example :</summary>
+<IMG src="readme_content/keyboard_1.png"  alt="1.png"/>
+<IMG src="readme_content/keyboard_2.png"  alt="2.png"/>
+<IMG src="readme_content/keyboard_3.png"  alt="3.png"/>
 </details>
 
 ## Common issues
 
-## FAQ
+### My settings haven't been applied
+Restart the game, **I BEG YOU**
 
-## Roadmap
+### My peripheral is not recognized
+Sometimes the internal name of a peripheral is not the same as the one displayed in the menus.
+- Ensure you have activated Debug mode in the NOTT settings
+- Open the BepInEx log file, called *LogOutput.log*, located in *Nuclear Option/BepInEx/*
+- Look for lines that start with *[IC] Controller connected :*
+- Write down the name of the controller, if it is different than the one you see ingame, this is the one you must use in the NOTT config menu
 
 ## Contributing
+
+### Reporting bugs
+- You can either send me a DM on Discord (look for *cleunaygeorges*), or report it in [the mod's thread](https://discord.com/channels/909034158205059082/1387441277414539316)
+- You can also submit an issue on GitHub
+- When submitting bugs, I request that you provide two files :
+  - *LogOutput.log*, found in *Nuclear Option/BepInEx/*
+  - *Player.log*, found in *NuclearOption/*
+- Please be as descriptive as possible so that I can reproduce the bug
+- **NO LOGS, NO HELP**
+
+### Contributing to the mod
+- Feel free to suggest additions
+- You can also submit a pull request if you want to help me develop the mod !
+## FAQ
+*Coming soon*
