@@ -9,8 +9,19 @@ public static class FileUtilities
 {
     public static List<string> GetListFromConfigFile(string configFile)
     {
-        var absolutePath = Path.Combine(Path.GetDirectoryName(typeof(Plugin).Assembly.Location), "config", configFile);
+        var assemblyDir = Path.GetDirectoryName(typeof(Plugin).Assembly.Location) ?? Environment.CurrentDirectory;
+        var absolutePath = Path.Combine(assemblyDir, "config", configFile);
+        if (!File.Exists(absolutePath)) return new List<string>();
+
         var lines = File.ReadAllLines(absolutePath);
-        return [.. lines];
+        var result = new List<string>(lines.Length);
+        foreach (var line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            var trimmedStart = line.TrimStart();
+            if (trimmedStart.StartsWith("//")) continue;
+            result.Add(line);
+        }
+        return result;
     }
 }
