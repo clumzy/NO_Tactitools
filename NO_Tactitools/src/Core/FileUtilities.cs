@@ -20,7 +20,7 @@ public static class FileUtilities
             if (string.IsNullOrWhiteSpace(line)) continue;
             var trimmedStart = line.TrimStart();
             if (trimmedStart.StartsWith("//")) continue;
-            result.Add(line);
+            result.Add(trimmedStart);
         }
         return result;
     }
