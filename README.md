@@ -9,6 +9,7 @@ Every component of the mod is togglable, and you can use your keyboard and HOTAS
 I sincerely hope you enjoy the mod as much as I enjoy developing it, feel free to hit me up on [Discord](https://discord.com/channels/909034158205059082/1387441277414539316) !
 
 Fly safe,
+
 George
 
 ## Main features
@@ -169,7 +170,7 @@ The process is a bit convoluted, I admit. Since the game is using ReWired for it
 ## Common issues
 
 ### My settings haven't been applied
-Restart the game, **I BEG YOU**
+Restart the game, **I BEG YOU**.
 
 ### My peripheral is not recognized
 Sometimes the internal name of a peripheral is not the same as the one displayed in the menus.
