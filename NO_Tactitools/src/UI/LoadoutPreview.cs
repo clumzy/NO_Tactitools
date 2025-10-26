@@ -29,6 +29,7 @@ public class LoadoutPreviewComponent {
     static class LogicEngine {
         static public void Init() {
             InternalState.loadoutPreview?.Reset();
+            InternalState.weaponStations.Clear();
             InternalState.displayDuration = Plugin.loadoutPreviewDuration.Value;
             for (int i = 0; i < Bindings.Player.Weapons.GetStationCount(); i++) {
                 InternalState.WeaponStationInfo stationInfo = new() {
