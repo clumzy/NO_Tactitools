@@ -43,6 +43,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<Color> unitIconRecolorEnemyColor;
         public static ConfigEntry<bool> bootScreenEnabled;
         public static ConfigEntry<bool> artificialHorizonEnabled;
+        public static ConfigEntry<bool> loadoutPreviewEnabled;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
 
@@ -336,6 +337,16 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));
+            // Loadout Preview settings
+            loadoutPreviewEnabled = Config.Bind("Loadout Preview",
+                "Loadout Preview - Enabled",
+                true,
+                new ConfigDescription(
+                    "Enable or disable the Loadout Preview feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",
                 "Debug Mode - Enabled",
@@ -344,15 +355,16 @@ namespace NO_Tactitools.Core {
             // Plugin startup logic
             harmony = new Harmony("george.no_tactitools");
             Logger = base.Logger;
-            // Patch Input Catcher - We do the patches manually here instead of in the "master class" like the other plugins because Rewired is a bit special as my mother would say
+            // CORE PATCHES
             harmony.PatchAll(typeof(ControllerInputInterceptionPatch));
             harmony.PatchAll(typeof(RegisterControllerPatch));
             //harmony.PatchAll(typeof(TestInput));
-            // Patch Interception Vector
-            if (interceptionVectorEnabled.Value) {
-                Logger.LogInfo($"Interception Vector is enabled, patching...");
-                harmony.PatchAll(typeof(InterceptionVectorPlugin));
+            // Patch MFD Color
+            if (MFDColorEnabled.Value) {
+                Logger.LogInfo($"MFD Color is enabled, patching...");
+                harmony.PatchAll(typeof(MFDColorPlugin));
             }
+            // CONTROL PATCHES
             // Patch Target Recall
             if (targetRecallEnabled.Value) {
                 Logger.LogInfo($"Target Recall is enabled, patching...");
@@ -368,40 +380,48 @@ namespace NO_Tactitools.Core {
                 Logger.LogInfo($"Weapon Switcher is enabled, patching...");
                 harmony.PatchAll(typeof(WeaponSwitcherPlugin));
             }
+            // COCKPIT DISPLAY PATCHES
+            // Patch Loadout Preview
+            if (loadoutPreviewEnabled.Value) {
+                Logger.LogInfo($"Loadout Preview is enabled, patching...");
+                harmony.PatchAll(typeof(LoadoutPreviewPlugin));
+            }
+            // Patch Interception Vector
+            if (interceptionVectorEnabled.Value) {
+                Logger.LogInfo($"Interception Vector is enabled, patching...");
+                harmony.PatchAll(typeof(InterceptionVectorPlugin));
+            }
             // Patch Weapon Display
             if (weaponDisplayEnabled.Value) {
                 Logger.LogInfo($"Weapon Display is enabled, patching...");
                 harmony.PatchAll(typeof(WeaponDisplayPlugin));
-            }
-            // Patch Unit Distance
-            if (unitDistanceEnabled.Value) {
-                Logger.LogInfo($"Unit Marker Distance Indicator is enabled, patching...");
-                harmony.PatchAll(typeof(UnitDistancePlugin));
             }
             // Patch Delivery Checker
             if (deliveryCheckerEnabled.Value) {
                 Logger.LogInfo($"Delivery Checker is enabled, patching...");
                 harmony.PatchAll(typeof(DeliveryCheckerPlugin));
             }
-            // Patch MFD Color
-            if (MFDColorEnabled.Value) {
-                Logger.LogInfo($"MFD Color is enabled, patching...");
-                harmony.PatchAll(typeof(MFDColorPlugin));
-            }
-            // Patch Unit Icon Recolor
-            if (unitIconRecolorEnabled.Value) {
-                Logger.LogInfo($"Unit Icon Recolor is enabled, patching...");
-                harmony.PatchAll(typeof(UnitIconRecolorPlugin));
-            }
             // Patch Boot Screen
             if (bootScreenEnabled.Value) {
                 Logger.LogInfo($"Boot Screen is enabled, patching...");
                 harmony.PatchAll(typeof(BootScreenPlugin));
             }
+            // HMD DISPLAY PATCHES
+            // Patch Unit Distance
+            if (unitDistanceEnabled.Value) {
+                Logger.LogInfo($"Unit Marker Distance Indicator is enabled, patching...");
+                harmony.PatchAll(typeof(UnitDistancePlugin));
+            }
             // Patch Artificial Horizon
             if (artificialHorizonEnabled.Value) {
                 Logger.LogInfo($"Artificial Horizon is enabled, patching...");
                 harmony.PatchAll(typeof(ArtificialHorizonPlugin));
+            }
+            // MAP DISPLAY PATCHES
+            // Patch Unit Icon Recolor
+            if (unitIconRecolorEnabled.Value) {
+                Logger.LogInfo($"Unit Icon Recolor is enabled, patching...");
+                harmony.PatchAll(typeof(UnitIconRecolorPlugin));
             }
         }
 
@@ -414,22 +434,7 @@ namespace NO_Tactitools.Core {
         }
 
         internal sealed class ConfigurationManagerAttributes {
-            public bool? ShowRangeAsPercent;
-            public System.Action<BepInEx.Configuration.ConfigEntryBase> CustomDrawer;
-            public CustomHotkeyDrawerFunc CustomHotkeyDrawer;
-            public delegate void CustomHotkeyDrawerFunc(BepInEx.Configuration.ConfigEntryBase setting, ref bool isCurrentlyAcceptingInput);
-            public bool? Browsable;
-            public string Category;
-            public object DefaultValue;
-            public bool? HideDefaultButton;
-            public bool? HideSettingName;
-            public string Description;
-            public string DispName;
             public int? Order;
-            public bool? ReadOnly;
-            public bool? IsAdvanced;
-            public System.Func<object, string> ObjToStr;
-            public System.Func<string, object> StrToObj;
         }
     }
 }
