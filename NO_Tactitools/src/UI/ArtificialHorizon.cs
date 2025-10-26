@@ -298,7 +298,7 @@ public class ArtificialHorizonComponent {
 
     public class ArtificialHorizon {
         public Bindings.UI.Draw.UILine horizonLine;
-        const float horizonLineThickness = 1f;
+        const float horizonLineThickness = 1.5f;
         readonly Color mainColor = new(0.2f, 1f, 0.2f, 0.4f); // Green with transparency
         public Bindings.UI.Draw.UILine northLine;
         public Bindings.UI.Draw.UILabel northLabel;
