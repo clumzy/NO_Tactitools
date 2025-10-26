@@ -197,6 +197,44 @@ public class Bindings {
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetActiveStationImage] NullReferenceException: CombatHUD or weapon image unavailable; returning null."); return null; }
             }
 
+            public static string GetStationNameByIndex(int index) {
+                try {
+                    if (index < GetStationCount()) {
+                        return SceneSingleton<CombatHUD>.i.aircraft.weaponStations[index].WeaponInfo.shortName;
+                    }
+                    else {
+                        Plugin.Log("[BD] Station index out of range !");
+                        return null;
+                    }
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetStationNameByIndex] NullReferenceException: CombatHUD or weapon station/name unavailable; returning 'Unknown Weapon'."); return "Unknown Weapon"; }
+            }
+
+            public static int GetStationAmmoByIndex(int index) {
+                try {
+                    if (index < GetStationCount()) {
+                        return SceneSingleton<CombatHUD>.i.aircraft.weaponStations[index].Ammo;
+                    }
+                    else {
+                        Plugin.Log("[BD] Station index out of range !");
+                        return 0;
+                    }
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetStationAmmoByIndex] NullReferenceException: CombatHUD or weapon station/ammo unavailable; returning 0 ammo."); return 0; }
+            }
+
+            public static int GetStationMaxAmmoByIndex(int index) {
+                try {
+                    if (index < GetStationCount()) {
+                        return SceneSingleton<CombatHUD>.i.aircraft.weaponStations[index].FullAmmo;
+                    }
+                    else {
+                        Plugin.Log("[BD] Station index out of range !");
+                        return 0;
+                    }
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetStationMaxAmmoByIndex] NullReferenceException: CombatHUD or weapon station/max ammo unavailable; returning 0 max ammo."); return 0; }
+            }
             public static int GetStationCount() {
                 try {
                     return SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count;
@@ -277,6 +315,10 @@ public class Bindings {
                     rectTransform.anchoredPosition = position;
                 }
 
+                public virtual Vector2 GetPosition() {
+                    return rectTransform.anchoredPosition;
+                }
+
                 public virtual void SetColor(Color color) {
                     imageComponent.color = color;
                 }
@@ -335,8 +377,6 @@ public class Bindings {
                     rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
                 }
 
-                public string GetText() => textComponent.text;
-
                 public override void SetColor(Color color) {
                     textComponent.color = color;
                 }
@@ -356,6 +396,11 @@ public class Bindings {
                     textComponent.color = new Color(textColor.r, textColor.g, textColor.b, textOpacity* opacity);
                     Color bgColor = imageComponent.color;
                     imageComponent.color = new Color(bgColor.r, bgColor.g, bgColor.b, backgroundOpacity * opacity);
+                }
+                public string GetText() => textComponent.text;
+
+                public Vector2 GetTextSize() {
+                    return new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
                 }
             }
 
@@ -462,6 +507,8 @@ public class Bindings {
                 public void MoveCenter(Vector2 delta) {
                     SetCenter(rectTransform.anchoredPosition + delta);
                 }
+
+                public Vector2 GetSize() => rectTransform.sizeDelta;
 
                 public Vector2 GetCornerA() => cornerA;
                 public Vector2 GetCornerB() => cornerB;
