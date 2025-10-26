@@ -119,7 +119,7 @@ The process is a bit convoluted, I admit. Since the game is using ReWired for it
 - **RESTART THE GAME**
 <details>
 <summary>Example :</summary>
-![1](readme_content/hotas_button_1.png?raw=true)
+![alt text](https://github.com/clumzy/NO_Tactitools/blob/main/readme_content/hotas_button_1.png?raw=true)
 </details>
 
 ## Common issues
