@@ -78,7 +78,10 @@ class InterceptionVectorTask {
     }
 
     static void HandleInitState() {
-        if (Bindings.Player.TargetList.GetTargets().Count != 1) return; // Do not init if no target is selected
+        if (
+            Bindings.Player.TargetList.GetTargets().Count != 1 ||
+            Bindings.UI.Game.GetTacScreen() == null ||
+            Bindings.UI.Game.GetCombatHUD() == null) return; // Do not init if no target is selected
         Plugin.Log("[IV] Init state");
         playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
         bearingLabel = new Bindings.UI.Draw.UILabel(
@@ -212,16 +215,18 @@ class InterceptionVectorTask {
         int interceptBearing = (int)(Vector3.SignedAngle(Vector3.forward, interceptVectorXZ, Vector3.up) + 360) % 360;
         int interceptionTimeInSeconds = (int)Mathf.Clamp(interceptVector.magnitude / playerVelocity.magnitude - interceptArraySize / 60, 0, 999);
         Vector3 interceptScreen = Bindings.UI.Game.GetCameraStateManager().mainCamera.WorldToScreenPoint(interceptPosition);
-        int relativeHeight = (int)-(
+        Vector3 velocityUpNormal = Vector3.Cross(SceneSingleton<CombatHUD>.i.aircraft.rb.velocity, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.right).normalized;
+        Vector3 velocityRightNormal = Vector3.Cross(SceneSingleton<CombatHUD>.i.aircraft.rb.velocity, velocityUpNormal).normalized;
+        int relativeHeight = (int)(
             Vector3.SignedAngle(
-                Vector3.ProjectOnPlane(interceptVector, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.up),
+                Vector3.ProjectOnPlane(interceptVector, velocityUpNormal),
                 interceptVector,
-                SceneSingleton<CombatHUD>.i.aircraft.rb.transform.right));
+                velocityRightNormal));
         int relativeBearing = (int)(
             Vector3.SignedAngle(
-                Vector3.ProjectOnPlane(interceptVector, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.right),
+                Vector3.ProjectOnPlane(interceptVector, velocityRightNormal),
                 interceptVector,
-                SceneSingleton<CombatHUD>.i.aircraft.rb.transform.up));
+                velocityUpNormal));
         Vector3 interceptTarget = new(
             (int)Mathf.Clamp(relativeBearing / 60f * 170f, -170, 170), //180 = width of the canvas
             (int)Mathf.Clamp(relativeHeight / 60f * 170f, -110, 110), //115 = height of the canvas
