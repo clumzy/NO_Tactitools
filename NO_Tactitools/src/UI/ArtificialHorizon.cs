@@ -28,7 +28,8 @@ public class ArtificialHorizonComponent {
     static class LogicEngine {
         static public void Init() {
             Plugin.Log("[AH] Initializing Artificial Horizon");
-            if (!InternalState.authorizedPlatforms.Contains(Bindings.Player.Aircraft.GetPlatformName())) {
+            InternalState.isAuthorized = InternalState.authorizedPlatforms.Contains(Bindings.Player.Aircraft.GetPlatformName());
+            if (!InternalState.isAuthorized) {
                 Plugin.Log("[AH] Platform not authorized for Artificial Horizon");
                 if (InternalState.artificialHorizon != null) {
                     InternalState.artificialHorizon.Reset();
@@ -45,7 +46,7 @@ public class ArtificialHorizonComponent {
         static public void Update() {
             if (Bindings.Player.Aircraft.GetAircraft() == null || 
                 InternalState.canvasRectTransform == null ||
-                !InternalState.authorizedPlatforms.Contains(Bindings.Player.Aircraft.GetPlatformName()))
+                !InternalState.isAuthorized)
                 return; // do not refresh anything if the player aircraft is not available
 
             // Horizon line
@@ -239,13 +240,14 @@ public class ArtificialHorizonComponent {
         static public Vector2 westLabelPos;
         static public string westLabelText = "270°";
         static public float westLabelOpacity = 1f;
+        static public bool isAuthorized = false;
         static public List<String> authorizedPlatforms;
     }
 
     static class DisplayEngine {
         static public void Init() {
             if (InternalState.destination == null ||
-                !InternalState.authorizedPlatforms.Contains(Bindings.Player.Aircraft.GetPlatformName())) {
+                !InternalState.isAuthorized) {
                 return;
             }
             InternalState.artificialHorizon = new ArtificialHorizon(InternalState.destination);
@@ -255,7 +257,7 @@ public class ArtificialHorizonComponent {
         static public void Update() {
             if (Bindings.GameState.IsGamePaused() ||
                 Bindings.Player.Aircraft.GetAircraft() == null ||
-                !InternalState.authorizedPlatforms.Contains(Bindings.Player.Aircraft.GetPlatformName()))
+                !InternalState.isAuthorized)
                 return; // do not refresh anything if the game is paused or the player aircraft is not available
             InternalState.artificialHorizon.horizonLine.SetCoordinates(
                 InternalState.horizonStart,
