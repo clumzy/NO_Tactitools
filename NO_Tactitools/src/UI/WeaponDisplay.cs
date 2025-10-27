@@ -95,7 +95,8 @@ public class WeaponDisplayComponent {
         static public void Update() {
             if
                 (Bindings.GameState.IsGamePaused() ||
-                Bindings.Player.Aircraft.GetAircraft() == null)
+                Bindings.Player.Aircraft.GetAircraft() == null ||
+                Bindings.UI.Game.GetCombatHUD() == null)
                 return; // do not refresh anything if the game is paused or the player aircraft is not available
             // REFRESH WEAPON
             if (InternalState.hasStations) { // do not refresh weapon info if the player has no weapon stations
