@@ -61,6 +61,7 @@ George
 - Set main MFD color
 - Optional alternative attitude (horizon/ground) colors
 - Works with vanilla and modded cockpit UI elements
+- The MFD main color is updated in real time ingame
 
 ### 🧭 Artificial Horizon for Chicane, Ibis and Tarantula (by default)
 - Horizon line always shown
