@@ -186,8 +186,8 @@ Sometimes the internal name of a peripheral is not the same as the one displayed
 - You can either send me a DM on Discord (look for *cleunaygeorges*), or report it in [the mod's thread](https://discord.com/channels/909034158205059082/1387441277414539316)
 - You can also submit an issue on GitHub
 - When submitting bugs, I request that you provide two files :
-  - *LogOutput.log*, found in *Nuclear Option/BepInEx/*
-  - *Player.log*, found in *NuclearOption/*
+  - *LogOutput.log*, found in *[your steam folder]/steamapps/common/Nuclear Option/BepInEx/*
+  - *Player.log*, found in *[your user folder]/AppData/LocalLow/Shockfront/NuclearOption*
 - Please be as descriptive as possible so that I can reproduce the bug
 - **NO LOGS, NO HELP**
 

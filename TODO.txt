@@ -1,2 +1,5 @@
 -> ADD THE POSSIBILITY FOR THE LOADOUT PREVIEW TO ONLY APPEAR ONCE ON TAC SCREEN INIT
 -> ADD LOADOUT PREVIEW TO HMD
+-> loadout preview doesn't handle weapons with a loading stage properly, like the door guns on the ibis / the maximum cap changes depending on the ammo reserve
+-> add a check to deactivate the target screen if its created before the boot animation is done
+-> make it so the weapon selector automatically skips over fully expended weapons
