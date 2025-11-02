@@ -170,33 +170,39 @@ class ControllerInputInterceptionPatch {
         foreach (Controller controller in InputCatcher.controllerInputs.Keys) {
             if (__instance == controller) {
                 foreach (ControllerInput button in InputCatcher.controllerInputs[controller]) {
-                    button.currentButtonState = __instance.Buttons[button.buttonNumber].value;
-                    if (!button.previousButtonState && button.currentButtonState) {
-                        // Button just pressed
-                        button.buttonPressTime = Time.time;
-                        button.longPressHandled = false;
-                    }
-                    else if (button.previousButtonState && button.currentButtonState) {
-                        // Button is being held down
-                        float holdDuration = Time.time - button.buttonPressTime;
-                        if (holdDuration >= button.longPressThreshold && !button.longPressHandled && button.OnLongPress != null) {
-                            Plugin.Log($"[IC] Long press detected on button {button.buttonNumber.ToString()}");
-                            button.OnLongPress?.Invoke();
-                            button.longPressHandled = true;
+                    try {
+                        button.currentButtonState = __instance.Buttons[button.buttonNumber].value;
+                        if (!button.previousButtonState && button.currentButtonState) {
+                            // Button just pressed
+                            button.buttonPressTime = Time.time;
+                            button.longPressHandled = false;
                         }
-                        else if (holdDuration < button.longPressThreshold && button.OnHold != null) {
-                            Plugin.Log($"[IC] Hold detected on button {button.buttonNumber.ToString()}");
-                            button.OnHold?.Invoke();
+                        else if (button.previousButtonState && button.currentButtonState) {
+                            // Button is being held down
+                            float holdDuration = Time.time - button.buttonPressTime;
+                            if (holdDuration >= button.longPressThreshold && !button.longPressHandled && button.OnLongPress != null) {
+                                Plugin.Log($"[IC] Long press detected on button {button.buttonNumber.ToString()}");
+                                button.OnLongPress?.Invoke();
+                                button.longPressHandled = true;
+                            }
+                            else if (holdDuration < button.longPressThreshold && button.OnHold != null) {
+                                Plugin.Log($"[IC] Hold detected on button {button.buttonNumber.ToString()}");
+                                button.OnHold?.Invoke();
+                            }
                         }
-                    }
-                    else if (button.previousButtonState && !button.currentButtonState && button.OnShortPress != null) {
-                        // Button just released
-                        if (!button.longPressHandled) {
-                            Plugin.Log($"[IC] Short press detected on button {button.buttonNumber.ToString()}");
-                            button.OnShortPress?.Invoke();
+                        else if (button.previousButtonState && !button.currentButtonState && button.OnShortPress != null) {
+                            // Button just released
+                            if (!button.longPressHandled) {
+                                Plugin.Log($"[IC] Short press detected on button {button.buttonNumber.ToString()}");
+                                button.OnShortPress?.Invoke();
+                            }
                         }
+                        button.previousButtonState = button.currentButtonState;
                     }
-                    button.previousButtonState = button.currentButtonState;
+                    catch (ArgumentOutOfRangeException) {
+                        Plugin.Log("[IC] Error processing button " + button.buttonNumber.ToString() + " on controller" + __instance.name.Trim().ToString() + ". Removing from registered inputs.");
+                        InputCatcher.controllerInputs[controller].Remove(button);
+                    }
                 }
             }
         }
