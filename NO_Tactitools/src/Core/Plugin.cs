@@ -44,8 +44,9 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> bootScreenEnabled;
         public static ConfigEntry<bool> artificialHorizonEnabled;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
-        public static ConfigEntry<float> loadoutPreviewDuration;
+        public static ConfigEntry<bool> loadoutPreviewSendToHMD;
         public static ConfigEntry<bool> loadoutPreviewOnlyShowOnBoot;
+        public static ConfigEntry<float> loadoutPreviewDuration;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
 
@@ -345,6 +346,15 @@ namespace NO_Tactitools.Core {
                 true,
                 new ConfigDescription(
                     "Enable or disable the Loadout Preview feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 3
+                    }));
+            loadoutPreviewSendToHMD = Config.Bind("Loadout Preview",
+                "Loadout Preview - Send To HMD",
+                false,
+                new ConfigDescription(
+                    "If enabled, the loadout preview will also be sent to the HMD display.",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = 2
