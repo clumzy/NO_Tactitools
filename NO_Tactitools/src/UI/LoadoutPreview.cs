@@ -31,6 +31,8 @@ public class LoadoutPreviewComponent {
             InternalState.loadoutPreview?.Reset();
             InternalState.weaponStations.Clear();
             InternalState.displayDuration = Plugin.loadoutPreviewDuration.Value;
+            InternalState.onlyShowOnBoot = Plugin.loadoutPreviewOnlyShowOnBoot.Value;
+            InternalState.neverShown = true;
             for (int i = 0; i < Bindings.Player.Weapons.GetStationCount(); i++) {
                 InternalState.WeaponStationInfo stationInfo = new() {
                     stationName = Bindings.Player.Weapons.GetStationNameByIndex(i),
@@ -45,14 +47,19 @@ public class LoadoutPreviewComponent {
         static public void Update() {
             if (Bindings.GameState.IsGamePaused() || Bindings.Player.Aircraft.GetAircraft() == null)
                 return;
-            if (InternalState.currentWeaponStation != Bindings.Player.Weapons.GetActiveStationName() && BootScreenComponent.InternalState.hasBooted) {
+            if (InternalState.onlyShowOnBoot && InternalState.neverShown && BootScreenComponent.InternalState.hasBooted) {
+                InternalState.lastUpdateTime = Time.time;
+                InternalState.currentWeaponStation = Bindings.Player.Weapons.GetActiveStationName();
+                InternalState.neverShown = false;
+            }
+            else if (
+                InternalState.currentWeaponStation != Bindings.Player.Weapons.GetActiveStationName() && 
+                BootScreenComponent.InternalState.hasBooted && 
+                !InternalState.onlyShowOnBoot) {
                 InternalState.lastUpdateTime = Time.time;
                 InternalState.currentWeaponStation = Bindings.Player.Weapons.GetActiveStationName();
             }
-            if (Time.time - InternalState.lastUpdateTime < InternalState.displayDuration)
-                InternalState.needsUpdate = true;
-            else
-                InternalState.needsUpdate = false;
+            InternalState.needsUpdate = ((Time.time - InternalState.lastUpdateTime) < InternalState.displayDuration);
             if (InternalState.needsUpdate) {
                 for (int i = 0; i < Bindings.Player.Weapons.GetStationCount(); i++) {
                     InternalState.weaponStations[i].stationName = Bindings.Player.Weapons.GetStationNameByIndex(i);
@@ -73,6 +80,8 @@ public class LoadoutPreviewComponent {
         public static string currentWeaponStation = "";
         public static float lastUpdateTime = 0;
         public static bool needsUpdate = false;
+        public static bool onlyShowOnBoot;
+        public static bool neverShown = true;
         public static List<WeaponStationInfo> weaponStations = [];
         public static LoadoutPreview loadoutPreview;
         public static float displayDuration = 1f;

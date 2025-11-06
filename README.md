@@ -50,6 +50,7 @@ George
 - Displays weapon loadout on active slot switch
 - Preview duration is configurable (default: 1 second)
 - Automatically hides after the specified duration for uncluttered gameplay
+- Can be setup to only be shown once when the airframe starts
 
 ### 📡 Unit marker distance indicator
 - Changes HMD marker orientation for enemy air units when within a configurable distance threshold

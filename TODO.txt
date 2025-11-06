@@ -1,7 +1,20 @@
+CHECKLIST WHEN ADDING A FEATURE :
+-> add config if necessary
+-> add the feature
+-> edit the README if necessary
+-> add to the update log
+-> remove from TODO
+
+NEXT UPDATE LOG :
 -> ADD THE POSSIBILITY FOR THE LOADOUT PREVIEW TO ONLY APPEAR ONCE ON TAC SCREEN INIT
+
+TODO :
 -> ADD LOADOUT PREVIEW TO HMD
 -> loadout preview doesn't handle weapons with a loading stage properly, like the door guns on the ibis / the maximum cap changes depending on the ammo reserve
 -> add a check to deactivate the target screen if its created before the boot animation is done
 -> make it so the weapon selector automatically skips over fully expended weapons
 -> investigate the POV up format encountered by some users
 -> ensure the custom controls are not activated when not in flight
+
+NICE TO HAVE :
+-> update uniticonrecolor so that the colors show even when not in a plane yet
