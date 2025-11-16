@@ -87,6 +87,14 @@ public static class BootScreenComponent {
         public static void Update() {
             if (InternalState.hasBooted) return;
             if ((DateTime.Now - InternalState.startTime).TotalSeconds <= 5) {
+                if (Bindings.Player.TargetList.GetTargets().Count > 0) {
+                    Bindings.UI.Game.GetTargetCamComponent()?.CancelTarget();
+                    foreach (GameObject child in InternalState.previouslyActiveObjects) {
+                        if (child.gameObject.activeSelf)
+                            child.gameObject.SetActive(false);
+                    }
+                    Bindings.Player.TargetList.DeselectAll();
+                }
                 // SHOWING THE BOOTING LABEL
                 InternalState.updateBootingLabel = true;
                 return;

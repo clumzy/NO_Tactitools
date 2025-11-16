@@ -587,6 +587,13 @@ public class Bindings {
                 catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetTacScreenComponent] NullReferenceException: TacScreen or cockpit reference was null; returning null."); return null; }
             }
 
+            public static TargetCam GetTargetCamComponent() {
+                try {
+                    return SceneSingleton<CombatHUD>.i.aircraft.targetCam;
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetTargetCamComponent] NullReferenceException: TargetCam or CombatHUD/aircraft was null; returning null."); return null; }
+            }
+
             public static WeaponStatus GetWeaponStatus() {
                 try {
                     GameObject topRightPanel = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("topRightPanel").GetValue();
