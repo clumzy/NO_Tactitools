@@ -30,7 +30,6 @@ public static class BootScreenComponent {
         public static void Init() {
             InternalState.tacScreenTransform = Bindings.UI.Game.GetTacScreen();
             InternalState.previouslyActiveObjects.Clear();
-            InternalState.hasBooted = false;
             foreach (Transform child in InternalState.tacScreenTransform) {
                 if (child == null || child.gameObject == null || child.name.StartsWith("i_")) continue;
                 if (child.gameObject.activeSelf) InternalState.previouslyActiveObjects.Add(child.gameObject);
@@ -87,10 +86,12 @@ public static class BootScreenComponent {
 
         public static void Update() {
             if (InternalState.hasBooted) return;
-            if ((DateTime.Now - InternalState.startTime).TotalSeconds <= 2) {
+            if ((DateTime.Now - InternalState.startTime).TotalSeconds <= 5) {
+                // SHOWING THE BOOTING LABEL
                 InternalState.updateBootingLabel = true;
                 return;
             }
+            // START ACTIVATING THE UI ELEMENTS
             const float minJitter = 0.05f;
             const float maxJitter = 1f; // normally 1f
             foreach (GameObject child in InternalState.previouslyActiveObjects) {
