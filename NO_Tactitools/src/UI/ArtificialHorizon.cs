@@ -44,7 +44,7 @@ public class ArtificialHorizonComponent {
         }
 
         static public void Update() {
-            if (Bindings.Player.Aircraft.GetAircraft() == null || 
+            if (Bindings.Player.Aircraft.GetAircraft() == null ||
                 InternalState.canvasRectTransform == null ||
                 !InternalState.isAuthorized)
                 return; // do not refresh anything if the player aircraft is not available
@@ -157,17 +157,17 @@ public class ArtificialHorizonComponent {
             // add em to the line offsets
             Vector2 lineOffset = new(0, 5);
             Vector2 labelOffset = new(0, 15);
-            InternalState.northStart = northLeftCombatHUD + lineOffset*InternalState.northLabelOpacity;
-            InternalState.northEnd = northRightCombatHUD + lineOffset*InternalState.northLabelOpacity;
+            InternalState.northStart = northLeftCombatHUD + lineOffset * InternalState.northLabelOpacity;
+            InternalState.northEnd = northRightCombatHUD + lineOffset * InternalState.northLabelOpacity;
             InternalState.northLabelPos = ((northLeftCombatHUD + northRightCombatHUD) / 2) + labelOffset;
-            InternalState.southStart = southLeftCombatHUD + lineOffset*InternalState.southLabelOpacity;
-            InternalState.southEnd = southRightCombatHUD + lineOffset*InternalState.southLabelOpacity;
+            InternalState.southStart = southLeftCombatHUD + lineOffset * InternalState.southLabelOpacity;
+            InternalState.southEnd = southRightCombatHUD + lineOffset * InternalState.southLabelOpacity;
             InternalState.southLabelPos = ((southLeftCombatHUD + southRightCombatHUD) / 2) + labelOffset;
-            InternalState.eastStart = eastLeftCombatHUD + lineOffset*InternalState.eastLabelOpacity;
-            InternalState.eastEnd = eastRightCombatHUD + lineOffset*InternalState.eastLabelOpacity;
+            InternalState.eastStart = eastLeftCombatHUD + lineOffset * InternalState.eastLabelOpacity;
+            InternalState.eastEnd = eastRightCombatHUD + lineOffset * InternalState.eastLabelOpacity;
             InternalState.eastLabelPos = ((eastLeftCombatHUD + eastRightCombatHUD) / 2) + labelOffset;
-            InternalState.westStart = westLeftCombatHUD + lineOffset*InternalState.westLabelOpacity;
-            InternalState.westEnd = westRightCombatHUD + lineOffset*InternalState.westLabelOpacity;
+            InternalState.westStart = westLeftCombatHUD + lineOffset * InternalState.westLabelOpacity;
+            InternalState.westEnd = westRightCombatHUD + lineOffset * InternalState.westLabelOpacity;
             InternalState.westLabelPos = ((westLeftCombatHUD + westRightCombatHUD) / 2) + labelOffset;
             // set label texts to hide when behind platform
             if (northLeftOfScreen.z > 0 && northRightOfScreen.z > 0)
@@ -187,7 +187,7 @@ public class ArtificialHorizonComponent {
             else
                 InternalState.westLabelText = "";
             // do the same for line visibility
-            if (northLeftOfScreen.z > 0 && northRightOfScreen.z > 0) 
+            if (northLeftOfScreen.z > 0 && northRightOfScreen.z > 0)
                 InternalState.northLineOpacity = InternalState.northLabelOpacity;
             else
                 InternalState.northLineOpacity = 0f;
@@ -242,60 +242,6 @@ public class ArtificialHorizonComponent {
         static public float westLabelOpacity = 1f;
         static public bool isAuthorized = false;
         static public List<String> authorizedPlatforms;
-    }
-
-    static class DisplayEngine {
-        static public void Init() {
-            if (InternalState.destination == null ||
-                !InternalState.isAuthorized) {
-                return;
-            }
-            InternalState.artificialHorizon = new ArtificialHorizon(InternalState.destination);
-            
-        }
-
-        static public void Update() {
-            if (Bindings.GameState.IsGamePaused() ||
-                Bindings.Player.Aircraft.GetAircraft() == null ||
-                !InternalState.isAuthorized)
-                return; // do not refresh anything if the game is paused or the player aircraft is not available
-            InternalState.artificialHorizon.horizonLine.SetCoordinates(
-                InternalState.horizonStart,
-                InternalState.horizonEnd
-            );
-            InternalState.artificialHorizon.northLine.SetCoordinates(
-                InternalState.northStart,
-                InternalState.northEnd
-            );
-            InternalState.artificialHorizon.northLine.SetOpacity(InternalState.northLineOpacity);
-            InternalState.artificialHorizon.northLabel.SetPosition(InternalState.northLabelPos);
-            InternalState.artificialHorizon.northLabel.SetText(InternalState.northLabelText);
-            InternalState.artificialHorizon.northLabel.SetOpacity(InternalState.northLabelOpacity);
-            InternalState.artificialHorizon.southLine.SetCoordinates(
-                InternalState.southStart,
-                InternalState.southEnd
-            );
-            InternalState.artificialHorizon.southLine.SetOpacity(InternalState.southLineOpacity);
-            InternalState.artificialHorizon.southLabel.SetPosition(InternalState.southLabelPos);
-            InternalState.artificialHorizon.southLabel.SetText(InternalState.southLabelText);
-            InternalState.artificialHorizon.southLabel.SetOpacity(InternalState.southLabelOpacity);
-            InternalState.artificialHorizon.eastLine.SetCoordinates(
-                InternalState.eastStart,
-                InternalState.eastEnd
-            );
-            InternalState.artificialHorizon.eastLine.SetOpacity(InternalState.eastLineOpacity);
-            InternalState.artificialHorizon.eastLabel.SetPosition(InternalState.eastLabelPos);
-            InternalState.artificialHorizon.eastLabel.SetText(InternalState.eastLabelText);
-            InternalState.artificialHorizon.eastLabel.SetOpacity(InternalState.eastLabelOpacity);
-            InternalState.artificialHorizon.westLine.SetCoordinates(
-                InternalState.westStart,
-                InternalState.westEnd
-            );
-            InternalState.artificialHorizon.westLine.SetOpacity(InternalState.westLineOpacity);
-            InternalState.artificialHorizon.westLabel.SetPosition(InternalState.westLabelPos);
-            InternalState.artificialHorizon.westLabel.SetText(InternalState.westLabelText);
-            InternalState.artificialHorizon.westLabel.SetOpacity(InternalState.westLabelOpacity);
-        }
     }
 
     public class ArtificialHorizon {
@@ -408,6 +354,60 @@ public class ArtificialHorizonComponent {
             eastLabel.Destroy();
             westLine.Destroy();
             westLabel.Destroy();
+        }
+    }
+
+    static class DisplayEngine {
+        static public void Init() {
+            if (InternalState.destination == null ||
+                !InternalState.isAuthorized) {
+                return;
+            }
+            InternalState.artificialHorizon = new ArtificialHorizon(InternalState.destination);
+
+        }
+
+        static public void Update() {
+            if (Bindings.GameState.IsGamePaused() ||
+                Bindings.Player.Aircraft.GetAircraft() == null ||
+                !InternalState.isAuthorized)
+                return; // do not refresh anything if the game is paused or the player aircraft is not available
+            InternalState.artificialHorizon.horizonLine.SetCoordinates(
+                InternalState.horizonStart,
+                InternalState.horizonEnd
+            );
+            InternalState.artificialHorizon.northLine.SetCoordinates(
+                InternalState.northStart,
+                InternalState.northEnd
+            );
+            InternalState.artificialHorizon.northLine.SetOpacity(InternalState.northLineOpacity);
+            InternalState.artificialHorizon.northLabel.SetPosition(InternalState.northLabelPos);
+            InternalState.artificialHorizon.northLabel.SetText(InternalState.northLabelText);
+            InternalState.artificialHorizon.northLabel.SetOpacity(InternalState.northLabelOpacity);
+            InternalState.artificialHorizon.southLine.SetCoordinates(
+                InternalState.southStart,
+                InternalState.southEnd
+            );
+            InternalState.artificialHorizon.southLine.SetOpacity(InternalState.southLineOpacity);
+            InternalState.artificialHorizon.southLabel.SetPosition(InternalState.southLabelPos);
+            InternalState.artificialHorizon.southLabel.SetText(InternalState.southLabelText);
+            InternalState.artificialHorizon.southLabel.SetOpacity(InternalState.southLabelOpacity);
+            InternalState.artificialHorizon.eastLine.SetCoordinates(
+                InternalState.eastStart,
+                InternalState.eastEnd
+            );
+            InternalState.artificialHorizon.eastLine.SetOpacity(InternalState.eastLineOpacity);
+            InternalState.artificialHorizon.eastLabel.SetPosition(InternalState.eastLabelPos);
+            InternalState.artificialHorizon.eastLabel.SetText(InternalState.eastLabelText);
+            InternalState.artificialHorizon.eastLabel.SetOpacity(InternalState.eastLabelOpacity);
+            InternalState.artificialHorizon.westLine.SetCoordinates(
+                InternalState.westStart,
+                InternalState.westEnd
+            );
+            InternalState.artificialHorizon.westLine.SetOpacity(InternalState.westLineOpacity);
+            InternalState.artificialHorizon.westLabel.SetPosition(InternalState.westLabelPos);
+            InternalState.artificialHorizon.westLabel.SetText(InternalState.westLabelText);
+            InternalState.artificialHorizon.westLabel.SetOpacity(InternalState.westLabelOpacity);
         }
     }
 

@@ -93,8 +93,7 @@ public class WeaponDisplayComponent {
         }
 
         static public void Update() {
-            if
-                (Bindings.GameState.IsGamePaused() ||
+            if (Bindings.GameState.IsGamePaused() ||
                 Bindings.Player.Aircraft.GetAircraft() == null ||
                 Bindings.UI.Game.GetCombatHUD() == null)
                 return; // do not refresh anything if the game is paused or the player aircraft is not available

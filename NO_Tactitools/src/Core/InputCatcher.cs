@@ -55,9 +55,8 @@ public class InputCatcher {
                     );
                 break;
             case "Hat":
-                int hatIndex = ParseHatInput(inputCodeString);
                 newInput = new ControllerInput(
-                    hatIndex,
+                    ParseHatInput(inputCodeString),
                     longPressThreshold,
                     onShortPress,
                     onHold,

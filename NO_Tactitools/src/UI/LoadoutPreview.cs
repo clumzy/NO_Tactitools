@@ -96,9 +96,11 @@ public class LoadoutPreviewComponent {
         }
 
         static public void Update() {
-            if (Bindings.GameState.IsGamePaused() || Bindings.Player.Aircraft.GetAircraft() == null)
+            if (Bindings.GameState.IsGamePaused() || 
+                Bindings.Player.Aircraft.GetAircraft() == null)
                 return;
             if (!InternalState.needsUpdate) {
+                // if loadout preview is active, hide it
                 InternalState.loadoutPreview.SetActive(false);
                 return;
             }
@@ -108,7 +110,7 @@ public class LoadoutPreviewComponent {
                     (InternalState.weaponStations[i].ammo == 0) ? Color.red : InternalState.mainColor);
             }
             for (int i = 0; i < InternalState.weaponStations.Count; i++) {
-                var ws = InternalState.weaponStations[i];
+                InternalState.WeaponStationInfo ws = InternalState.weaponStations[i];
                 InternalState.loadoutPreview.stationLabels[i].SetText(
                     "[" + i.ToString() + "]" +
                     ws.stationName + ": " +
