@@ -542,13 +542,6 @@ public class Bindings {
                 catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetFlightHUD] NullReferenceException: FlightHud singleton not available; returning null."); return null; }
             }
 
-            public static FlightHud GetFlightHUDComponent() { // HUD
-                try {
-                    return SceneSingleton<FlightHud>.i;
-                }
-                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetFlightHUDComponent] NullReferenceException: FlightHud singleton not available; returning null."); return null; }
-            }
-
             public static Transform GetTargetScreen(bool nullIsOkay = false) {
                 try {
                     Type targetCamType = (SceneSingleton<CombatHUD>.i.aircraft.targetCam).GetType();
