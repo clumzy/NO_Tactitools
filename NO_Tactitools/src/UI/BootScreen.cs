@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using NO_Tactitools.Core;
+using System.Runtime.InteropServices;
 
 namespace NO_Tactitools.UI;
 
@@ -35,69 +36,61 @@ public static class BootScreenComponent {
                 if (child.gameObject.activeSelf) InternalState.previouslyActiveObjects.Add(child.gameObject);
                 child.gameObject.SetActive(false);
             }
-            int horizontalOffset = 0;
-            int verticalOffset = 0;
             string platformName = Bindings.Player.Aircraft.GetPlatformName();
             switch (platformName) {
                 case "CI-22 Cricket":
-                    horizontalOffset = -105;
-                    verticalOffset = 0;
+                    InternalState.horizontalOffset = -105;
+                    InternalState.verticalOffset = 0;
                     break;
                 case "SAH-46 Chicane":
-                    horizontalOffset = -130;
-                    verticalOffset = 65;
+                    InternalState.horizontalOffset = -130;
+                    InternalState.verticalOffset = 65;
                     break;
                 case "T/A-30 Compass":
-                    horizontalOffset = 0;
-                    verticalOffset = 80;
+                    InternalState.horizontalOffset = 0;
+                    InternalState.verticalOffset = 80;
                     break;
                 case "FS-12 Revoker":
-                    horizontalOffset = 0;
-                    verticalOffset = 75;
+                    InternalState.horizontalOffset = 0;
+                    InternalState.verticalOffset = 75;
                     break;
                 case "FS-20 Vortex":
-                    horizontalOffset = 0;
-                    verticalOffset = 75;
+                    InternalState.horizontalOffset = 0;
+                    InternalState.verticalOffset = 75;
                     break;
                 case "KR-67 Ifrit":
-                    horizontalOffset = -130;
-                    verticalOffset = 65;
+                    InternalState.horizontalOffset = -130;
+                    InternalState.verticalOffset = 65;
                     break;
                 case "VL-49 Tarantula":
-                    horizontalOffset = -255;
-                    verticalOffset = 60;
+                    InternalState.horizontalOffset = -255;
+                    InternalState.verticalOffset = 60;
                     break;
                 case "EW-1 Medusa":
-                    horizontalOffset = -225;
-                    verticalOffset = 65;
+                    InternalState.horizontalOffset = -225;
+                    InternalState.verticalOffset = 65;
                     break;
                 case "SFB-81":
-                    horizontalOffset = -180;
-                    verticalOffset = 60;
+                    InternalState.horizontalOffset = -180;
+                    InternalState.verticalOffset = 60;
                     break;
                 case "UH-80 Ibis":
-                    horizontalOffset = -245;
-                    verticalOffset = 65;
+                    InternalState.horizontalOffset = -245;
+                    InternalState.verticalOffset = 65;
                     break;
                 default:
                     break;
             }
-            InternalState.bootLabel = new Bindings.UI.Draw.UILabel(
-                "Boot Label",
-                new Vector2(horizontalOffset, verticalOffset),
-                InternalState.tacScreenTransform
-            );
             InternalState.startTime = DateTime.Now;
             InternalState.hasBooted = false;
         }
 
         public static void Update() {
             if (InternalState.hasBooted) return;
-            if ((DateTime.Now - InternalState.startTime).TotalSeconds <= 2){
-                InternalState.bootLabel.SetText("Booting "+Bindings.Player.Aircraft.GetPlatformName()+new string('.', (int)((DateTime.Now - InternalState.startTime).TotalSeconds*4f/2f)));
+            if ((DateTime.Now - InternalState.startTime).TotalSeconds <= 2) {
+                InternalState.updateBootingLabel = true;
                 return;
             }
-
             const float minJitter = 0.05f;
             const float maxJitter = 1f; // normally 1f
             foreach (GameObject child in InternalState.previouslyActiveObjects) {
@@ -109,24 +102,39 @@ public static class BootScreenComponent {
             if (InternalState.bootLabel != null) {
                 GameObject.Destroy(InternalState.bootLabel.GetGameObject());
                 InternalState.bootLabel = null;
-            InternalState.hasBooted = true;
+                InternalState.updateBootingLabel = false;
+                InternalState.hasBooted = true;
             }
         }
     }
 
     public static class InternalState {
         public static DateTime startTime;
-        public static bool hasBooted=true; // so that other plugins can check if boot is done, and initialized to true to avoid null refs
+        public static bool hasBooted = true; // so that other plugins can check if boot is done, and initialized to true to avoid null refs
+        public static bool updateBootingLabel = false;
         public static Bindings.UI.Draw.UILabel bootLabel;
+        public static int horizontalOffset = 0;
+        public static int verticalOffset = 0;
         public static List<GameObject> previouslyActiveObjects = [];
         public static Transform tacScreenTransform;
     }
     static class DisplayEngine {
         public static void Init() {
-            InternalState.bootLabel.SetText("Booting "+Bindings.Player.Aircraft.GetPlatformName()+"...");
+            InternalState.bootLabel = new Bindings.UI.Draw.UILabel(
+                "Boot Label",
+                new Vector2(InternalState.horizontalOffset, InternalState.verticalOffset),
+                InternalState.tacScreenTransform
+            );
+            InternalState.bootLabel.SetText("Booting " + Bindings.Player.Aircraft.GetPlatformName() + "...");
         }
         public static void Update() {
-            // Nothing to update visually for now
+            if (Bindings.GameState.IsGamePaused() ||
+                Bindings.Player.Aircraft.GetAircraft() == null)
+                return;
+            if (InternalState.updateBootingLabel &&
+                InternalState.hasBooted == false) {
+                InternalState.bootLabel.SetText("Booting " + Bindings.Player.Aircraft.GetPlatformName() + new string('.', (int)((DateTime.Now - InternalState.startTime).TotalSeconds * 4f / 2f)));
+            }
         }
         public static IEnumerator ActivateWithDelay(GameObject go, float delay) {
             // initial random delay before activation
