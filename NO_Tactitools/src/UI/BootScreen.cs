@@ -86,7 +86,7 @@ public static class BootScreenComponent {
 
         public static void Update() {
             if (InternalState.hasBooted) return;
-            if ((DateTime.Now - InternalState.startTime).TotalSeconds <= 5) {
+            if ((DateTime.Now - InternalState.startTime).TotalSeconds <= 2) {
                 if (Bindings.Player.TargetList.GetTargets().Count > 0) {
                     Bindings.UI.Game.GetTargetCamComponent()?.CancelTarget();
                     foreach (GameObject child in InternalState.previouslyActiveObjects) {
