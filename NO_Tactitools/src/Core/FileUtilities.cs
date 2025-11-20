@@ -20,8 +20,9 @@ public static class FileUtilities
             if (string.IsNullOrWhiteSpace(line)) continue;
             var trimmedStart = line.TrimStart();
             if (trimmedStart.StartsWith("//")) continue;
-            result.Add(trimmedStart);
+            result.Add(trimmedStart.TrimEnd());
         }
+        Plugin.Log("Loading config file " + configFile + " with " + result.Count + " entries.");
         return result;
     }
 }
