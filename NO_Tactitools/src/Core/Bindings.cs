@@ -504,10 +504,6 @@ public class Bindings {
                     UpdateRect();
                 }
 
-                public void MoveCenter(Vector2 delta) {
-                    SetCenter(rectTransform.anchoredPosition + delta);
-                }
-
                 public Vector2 GetSize() => rectTransform.sizeDelta;
 
                 public Vector2 GetCornerA() => cornerA;
