@@ -197,15 +197,15 @@ public class LoadoutPreviewComponent {
                     break;
                 case "HMD":
                     horizontalOffset = 0;
-                    verticalOffset = -150;
+                    verticalOffset = 0;
                     fontSize = 14;
                     break;
                 default:
                     break;
             }
-            if (sendToHMD) {
-                InternalState.mainColor = new(0f, 1f, 0f, 0.8f);
-            }
+            Color backgroundColor = Color.black;
+            if (sendToHMD)
+                InternalState.mainColor = new(0f, 1f, 0f, 0.6f);
             // Create background rectangle
             borderRect = new Bindings.UI.Draw.UIRectangle(
                 "i_LoadoutPreviewBorder",
@@ -219,7 +219,7 @@ public class LoadoutPreviewComponent {
                 new Vector2(-1, -1),
                 new Vector2(1, 1),
                 loadoutPreview_transform,
-                Color.black
+                backgroundColor
             );
             // Create labels
             for (int i = 0; i < weaponStations.Count; i++) {
@@ -251,6 +251,13 @@ public class LoadoutPreviewComponent {
             float rectHalfWidth = maxLabelWidth / 2f + padding;
             float rectHalfHeight = weaponStations.Count / 2f * (fontSize + 6) + padding;
             int border = 2;
+            if(sendToHMD) {
+                horizontalOffset+=((int)1920/2) - (int)rectHalfWidth - border - padding;
+                verticalOffset+=((int)1080/2) - (int)rectHalfHeight - border - padding;
+                if (WeaponDisplayComponent.InternalState.vanillaUIEnabled) {
+                    verticalOffset -= 100;
+                }
+            }
             // Center labels based on max width
             for (int i = 0; i < stationLabels.Count; i++) {
                 Vector2 textSize = stationLabels[i].GetTextSize();

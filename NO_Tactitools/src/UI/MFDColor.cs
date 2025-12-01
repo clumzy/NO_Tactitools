@@ -2,6 +2,7 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using NO_Tactitools.Core;
+using NuclearOption.SavedMission;
 
 namespace NO_Tactitools.UI;
 
@@ -93,21 +94,21 @@ public static class MFDColorComponent {
                 } // we keep the original brightness
             }
             // Apply the main color to weapon display and MFD texts and images
-            Color originalMainColor = WeaponDisplayComponent.InternalState.mainColor;
             Color newMainColor = Color.HSVToRGB(
                 InternalState.mainHue,
                 InternalState.mainSaturation,
                 1.0f);
-            newMainColor.a = originalMainColor.a;
+            newMainColor.a = 1;
             WeaponDisplayComponent.InternalState.mainColor = newMainColor;
             // Apply the main color to loadout preview
-            Color originalLoadoutColor = LoadoutPreviewComponent.InternalState.mainColor;
-            Color newLoadoutColor = Color.HSVToRGB(
-                InternalState.mainHue,
-                InternalState.mainSaturation,
-                1.0f);
-            newLoadoutColor.a = originalLoadoutColor.a;
-            LoadoutPreviewComponent.InternalState.mainColor = newLoadoutColor;
+            if (!LoadoutPreviewComponent.InternalState.sendToHMD) {
+                Color newLoadoutColor = Color.HSVToRGB(
+                    InternalState.mainHue,
+                    InternalState.mainSaturation,
+                    1.0f);
+                newLoadoutColor.a = 1.0f;
+                LoadoutPreviewComponent.InternalState.mainColor = newLoadoutColor;
+            }
         }
 
         public static void Update() {

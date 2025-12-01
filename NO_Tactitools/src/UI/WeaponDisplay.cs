@@ -78,7 +78,7 @@ public class WeaponDisplayComponent {
         static public bool isJammerSelected;
         static public float flareAmmo01;
         static public float jammerAmmo01;
-        static public bool vanillaUIEnabled;
+        static public bool vanillaUIEnabled = true; // true by default since we need to check this value elsewhere
         static public Color mainColor = Color.green;
 
     }

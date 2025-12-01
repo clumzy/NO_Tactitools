@@ -11,9 +11,13 @@ NEXT UPDATE LOG :
 TODO :
 -> ADD LOADOUT PREVIEW TO HMD
 -> loadout preview doesn't handle weapons with a loading stage properly, like the door guns on the ibis / the maximum cap changes depending on the ammo reserve
+-> same with sling, adapt it for the wpon screen
 -> add a check to deactivate the target screen if its created before the boot animation is done
 -> make it so the weapon selector automatically skips over fully expended weapons
 -> ensure the custom controls are not activated when not in flight
+-> make the navballs color dynamic with the theme
+-> add label mfd color setting
+-> add main menu patch reset, no need to restart the game
 
 NICE TO HAVE :
 -> update uniticonrecolor so that the colors show even when not in a plane yet
