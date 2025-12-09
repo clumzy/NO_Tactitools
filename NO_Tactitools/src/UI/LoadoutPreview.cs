@@ -88,6 +88,7 @@ public class LoadoutPreviewComponent {
         public static bool sendToHMD = false;
         public static float displayDuration = 1f;
         public static Color mainColor = Color.green;
+        public static Color textColor = Color.green;
     }
 
     static class DisplayEngine {
@@ -96,7 +97,7 @@ public class LoadoutPreviewComponent {
         }
 
         static public void Update() {
-            if (Bindings.GameState.IsGamePaused() || 
+            if (Bindings.GameState.IsGamePaused() ||
                 Bindings.Player.Aircraft.GetAircraft() == null)
                 return;
             if (!InternalState.needsUpdate) {
@@ -107,7 +108,7 @@ public class LoadoutPreviewComponent {
             InternalState.loadoutPreview.SetActive(true);
             for (int i = 0; i < InternalState.weaponStations.Count; i++) {
                 InternalState.loadoutPreview.stationLabels[i].SetColor(
-                    (InternalState.weaponStations[i].ammo == 0) ? Color.red : InternalState.mainColor);
+                    (InternalState.weaponStations[i].ammo == 0) ? Color.red : InternalState.textColor);
             }
             for (int i = 0; i < InternalState.weaponStations.Count; i++) {
                 InternalState.WeaponStationInfo ws = InternalState.weaponStations[i];
@@ -136,8 +137,7 @@ public class LoadoutPreviewComponent {
     public class LoadoutPreview {
         public Transform loadoutPreview_transform;
         public List<Bindings.UI.Draw.UILabel> stationLabels = [];
-        public Bindings.UI.Draw.UIRectangle borderRect;
-        public Bindings.UI.Draw.UIRectangle backgroundRect;
+        public Bindings.UI.Draw.UIAdvancedRectangle borderRect;
         public int maxLabelWidth = 0;
         public int verticalOffset = 0;
         public int horizontalOffset = 0;
@@ -204,20 +204,19 @@ public class LoadoutPreviewComponent {
                     break;
             }
             Color backgroundColor = Color.black;
-            if (sendToHMD)
-                InternalState.mainColor = new(0f, 1f, 0f, 0.6f);
+            int border = 2;
+            if (sendToHMD) {
+                InternalState.mainColor = new(0f, 1f, 0f, 0.9f);
+                InternalState.textColor = new(0f, 1f, 0f, 0.9f);
+                backgroundColor = new(0f, 0f, 0f, 0.6f);
+            }
             // Create background rectangle
-            borderRect = new Bindings.UI.Draw.UIRectangle(
+            borderRect = new(
                 "i_LoadoutPreviewBorder",
                 new Vector2(-1, -1),
                 new Vector2(1, 1),
-                loadoutPreview_transform,
-                InternalState.mainColor
-            );
-            backgroundRect = new Bindings.UI.Draw.UIRectangle(
-                "i_LoadoutPreviewBackground",
-                new Vector2(-1, -1),
-                new Vector2(1, 1),
+                InternalState.mainColor,
+                border,
                 loadoutPreview_transform,
                 backgroundColor
             );
@@ -228,7 +227,7 @@ public class LoadoutPreviewComponent {
                     new Vector2(0, 0),
                     loadoutPreview_transform,
                     fontStyle: FontStyle.Bold, // Default to bold; will be updated in DisplayEngine
-                    color: InternalState.mainColor,
+                    color: InternalState.textColor,
                     fontSize: fontSize + 6, // Default to 40; will be updated in DisplayEngine
                     backgroundOpacity: 0f
                 );
@@ -250,10 +249,9 @@ public class LoadoutPreviewComponent {
             int padding = (fontSize + 6) / 4;
             float rectHalfWidth = maxLabelWidth / 2f + padding;
             float rectHalfHeight = weaponStations.Count / 2f * (fontSize + 6) + padding;
-            int border = 2;
-            if(sendToHMD) {
-                horizontalOffset+=((int)1920/2) - (int)rectHalfWidth - border - padding;
-                verticalOffset+=((int)1080/2) - (int)rectHalfHeight - border - padding;
+            if (sendToHMD) {
+                horizontalOffset += ((int)1920 / 2) - (int)rectHalfWidth - border - padding;
+                verticalOffset += ((int)1080 / 2) - (int)rectHalfHeight - border - padding;
                 if (WeaponDisplayComponent.InternalState.vanillaUIEnabled) {
                     verticalOffset -= 100;
                 }
@@ -271,15 +269,10 @@ public class LoadoutPreviewComponent {
                 new Vector2(-rectHalfWidth - border + horizontalOffset, -rectHalfHeight - border + verticalOffset),
                 new Vector2(rectHalfWidth + border + horizontalOffset, rectHalfHeight + border + verticalOffset)
             );
-            backgroundRect.SetCorners(
-                new Vector2(-rectHalfWidth + horizontalOffset, -rectHalfHeight + verticalOffset),
-                new Vector2(rectHalfWidth + horizontalOffset, rectHalfHeight + verticalOffset)
-            );
         }
 
         public void SetActive(bool active) {
             borderRect.GetGameObject().SetActive(active);
-            backgroundRect.GetGameObject().SetActive(active);
             foreach (var label in stationLabels) {
                 label.GetGameObject().SetActive(active);
             }
