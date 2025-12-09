@@ -38,6 +38,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> deliveryCheckerEnabled;
         public static ConfigEntry<bool> MFDColorEnabled;
         public static ConfigEntry<Color> MFDColor;
+        public static ConfigEntry<Color> MFDTextColor;
         public static ConfigEntry<bool> MFDAlternativeAttitudeEnabled;
         public static ConfigEntry<bool> unitIconRecolorEnabled;
         public static ConfigEntry<Color> unitIconRecolorEnemyColor;
@@ -281,13 +282,22 @@ namespace NO_Tactitools.Core {
                     "Enable or disable the MFD Color feature.",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 2
+                        Order = 3
                     }));
             MFDColor = Config.Bind("MFD Color",
                 "MFD Color - MFD Main Color",
                 new Color(0f, 1f, 0f), // Default color in RGB
                 new ConfigDescription(
                     "Main color for the MFD elements in RGB format.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2
+                    }));
+            MFDTextColor = Config.Bind("MFD Color",
+                "MFD Color - MFD Text Color",
+                new Color(0f, 1f, 0f), // Default color in RGB
+                new ConfigDescription(
+                    "Color for the MFD text elements in RGB format.",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = 1

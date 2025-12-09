@@ -80,6 +80,7 @@ public class WeaponDisplayComponent {
         static public float jammerAmmo01;
         static public bool vanillaUIEnabled = true; // true by default since we need to check this value elsewhere
         static public Color mainColor = Color.green;
+        static public Color textColor = Color.green;
 
     }
 
@@ -101,7 +102,7 @@ public class WeaponDisplayComponent {
             if (InternalState.hasStations) { // do not refresh weapon info if the player has no weapon stations
                 InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Weapons.GetActiveStationName());
                 InternalState.weaponDisplay.weaponAmmoLabel.SetText(Bindings.Player.Weapons.GetActiveStationAmmo().ToString());
-                InternalState.weaponDisplay.weaponAmmoLabel.SetColor(InternalState.isOutOfAmmo ? Color.red : InternalState.mainColor);
+                InternalState.weaponDisplay.weaponAmmoLabel.SetColor(InternalState.isOutOfAmmo ? Color.red : InternalState.textColor);
 
                 Image cloneImg = InternalState.weaponDisplay.weaponImageClone.GetComponent<Image>();
                 Image srcImg = Bindings.Player.Weapons.GetActiveStationImage();
@@ -113,13 +114,13 @@ public class WeaponDisplayComponent {
             InternalState.weaponDisplay.flareLabel.SetText("IR:" + Bindings.Player.Aircraft.Countermeasures.GetIRFlareAmmo().ToString());
             InternalState.weaponDisplay.flareLabel.SetFontStyle(InternalState.isFlareSelected ? FontStyle.Bold : FontStyle.Normal);
             InternalState.weaponDisplay.flareLabel.SetFontSize(InternalState.weaponDisplay.originalFlareFontSize + (InternalState.isFlareSelected ? 10 : 0));
-            InternalState.weaponDisplay.flareLabel.SetColor(Color.Lerp(Color.red, InternalState.mainColor, InternalState.flareAmmo01));
+            InternalState.weaponDisplay.flareLabel.SetColor(Color.Lerp(Color.red, InternalState.textColor, InternalState.flareAmmo01));
             // REFRESH JAMMER
             if (InternalState.hasJammer) {
                 InternalState.weaponDisplay.jammerLabel.SetText("EW:" + Bindings.Player.Aircraft.Countermeasures.GetJammerAmmo().ToString() + "%");
                 InternalState.weaponDisplay.jammerLabel.SetFontStyle(InternalState.isJammerSelected ? FontStyle.Bold : FontStyle.Normal);
                 InternalState.weaponDisplay.jammerLabel.SetFontSize(InternalState.weaponDisplay.originalJammerFontSize + (InternalState.isJammerSelected ? 10 : 0)); ;
-                InternalState.weaponDisplay.jammerLabel.SetColor(Color.Lerp(Color.red, InternalState.mainColor, InternalState.jammerAmmo01));
+                InternalState.weaponDisplay.jammerLabel.SetColor(Color.Lerp(Color.red, InternalState.textColor, InternalState.jammerAmmo01));
             }
         }
     }
@@ -362,7 +363,7 @@ public class WeaponDisplayComponent {
                 flarePos,
                 destination,
                 FontStyle.Normal,
-                InternalState.mainColor,
+                InternalState.textColor,
                 flareFont,
                 0f
             );
@@ -372,7 +373,7 @@ public class WeaponDisplayComponent {
                 jammerPos,
                 destination,
                 FontStyle.Normal,
-                InternalState.mainColor,
+                InternalState.textColor,
                 jammerFont,
                 0f
             );
@@ -390,7 +391,7 @@ public class WeaponDisplayComponent {
                 weaponNamePos,
                 destination,
                 FontStyle.Normal,
-                InternalState.mainColor,
+                InternalState.textColor,
                 weaponNameFont,
                 0f
             );
@@ -399,7 +400,7 @@ public class WeaponDisplayComponent {
                 weaponAmmoPos,
                 destination,
                 FontStyle.Normal,
-                InternalState.mainColor,
+                InternalState.textColor,
                 weaponAmmoFont,
                 0f
             );

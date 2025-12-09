@@ -25,17 +25,22 @@ public static class MFDColorComponent {
     static class LogicEngine {
         public static void Init() {
             Color.RGBToHSV(Plugin.MFDColor.Value, out InternalState.mainHue, out InternalState.mainSaturation, out InternalState.mainBrightness);
+            Color.RGBToHSV(Plugin.MFDTextColor.Value, out InternalState.textHue, out InternalState.textSaturation, out InternalState.textBrightness);
             InternalState.MFDAlternativeAttitudeEnabled = Plugin.MFDAlternativeAttitudeEnabled.Value;
             InternalState.currentColor = Plugin.MFDColor.Value;
+            InternalState.currentTextColor = Plugin.MFDTextColor.Value;
         }
 
         public static void Update() {
             InternalState.needsUpdate = (
                 Plugin.MFDColor.Value != InternalState.currentColor ||
+                Plugin.MFDTextColor.Value != InternalState.currentTextColor ||
                 Plugin.MFDAlternativeAttitudeEnabled.Value != InternalState.MFDAlternativeAttitudeEnabled);
             if (InternalState.needsUpdate) {
                 Color.RGBToHSV(Plugin.MFDColor.Value, out InternalState.mainHue, out InternalState.mainSaturation, out InternalState.mainBrightness);
+                Color.RGBToHSV(Plugin.MFDTextColor.Value, out InternalState.textHue, out InternalState.textSaturation, out InternalState.textBrightness);
                 InternalState.currentColor = Plugin.MFDColor.Value;
+                InternalState.currentTextColor = Plugin.MFDTextColor.Value;
             }
         }
     }
@@ -44,8 +49,12 @@ public static class MFDColorComponent {
         static public float mainHue;
         static public float mainSaturation;
         static public float mainBrightness;
+        static public float textHue;
+        static public float textSaturation;
+        static public float textBrightness;
         static public bool MFDAlternativeAttitudeEnabled;
         static public Color currentColor;
+        static public Color currentTextColor;
         static public bool needsUpdate = false;
     }
 
@@ -57,9 +66,9 @@ public static class MFDColorComponent {
             foreach (Text text in tacScreenTransform.GetComponentsInChildren<Text>(true)) {
                 Color originalTextColor = text.color;
                 Color newTextColor = Color.HSVToRGB(
-                    InternalState.mainHue,
-                    InternalState.mainSaturation,
-                    InternalState.mainBrightness);
+                    InternalState.textHue,
+                    InternalState.textSaturation,
+                    InternalState.textBrightness);
                 newTextColor.a = originalTextColor.a;
                 text.color = newTextColor;
             }
@@ -67,20 +76,22 @@ public static class MFDColorComponent {
                 float originalAlpha = image.color.a;
                 if (image.transform.name == "Ground") {
                     if (InternalState.MFDAlternativeAttitudeEnabled) {
-                        image.color = new Color(
-                            45 / 255f,
-                            91 / 255f,
-                            128 / 255f,
-                            originalAlpha);
+                        Color groundColor = Color.HSVToRGB(
+                            InternalState.mainHue,
+                            InternalState.mainSaturation,
+                            InternalState.mainBrightness * 0.5f);
+                        groundColor.a = originalAlpha;
+                        image.color = groundColor;
                     } // Skip the ground image if alternative attitude is not enabled
                 }
                 else if (image.transform.name == "Sky") {
                     if (InternalState.MFDAlternativeAttitudeEnabled) {
-                        image.color = new Color(
-                            175 / 255f,
-                            225 / 255f,
-                            245 / 255f,
-                            originalAlpha);
+                        Color skyColor = Color.HSVToRGB(
+                            InternalState.mainHue,
+                            InternalState.mainSaturation * 0.7f,
+                            InternalState.mainBrightness);
+                        skyColor.a = originalAlpha;
+                        image.color = skyColor;
                     } // Skip the horizon image if alternative attitude is not enabled
                 }
                 else {
@@ -99,7 +110,13 @@ public static class MFDColorComponent {
                 InternalState.mainSaturation,
                 1.0f);
             newMainColor.a = 1;
+            Color newComponentTextColor = Color.HSVToRGB(
+                InternalState.textHue,
+                InternalState.textSaturation,
+                InternalState.textBrightness); // We keep the brightness for the text
+            newComponentTextColor.a = 1;
             WeaponDisplayComponent.InternalState.mainColor = newMainColor;
+            WeaponDisplayComponent.InternalState.textColor = newComponentTextColor;
             // Apply the main color to loadout preview
             if (!LoadoutPreviewComponent.InternalState.sendToHMD) {
                 Color newLoadoutColor = Color.HSVToRGB(
@@ -108,6 +125,7 @@ public static class MFDColorComponent {
                     1.0f);
                 newLoadoutColor.a = 1.0f;
                 LoadoutPreviewComponent.InternalState.mainColor = newLoadoutColor;
+                LoadoutPreviewComponent.InternalState.textColor = newComponentTextColor;
             }
         }
 
