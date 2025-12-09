@@ -166,6 +166,9 @@ public class ControllerInput {
 [HarmonyPatch(typeof(Rewired.Controller), "pBrAJYWOGkILyqjLrMpmCdajATI")]
 class ControllerInputInterceptionPatch {
     static bool Prefix(Controller __instance) {
+        if(Bindings.Player.Aircraft.GetAircraft() == null) {
+            return true; // Skip the original method
+        }   
         foreach (Controller controller in InputCatcher.controllerInputs.Keys) {
             if (__instance == controller) {
                 foreach (ControllerInput button in InputCatcher.controllerInputs[controller]) {
