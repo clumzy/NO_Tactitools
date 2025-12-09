@@ -485,18 +485,18 @@ public class Bindings {
                     rectTransform.sizeDelta = size;
                 }
 
-                public void SetCorners(Vector2 a, Vector2 b) {
+                public virtual void SetCorners(Vector2 a, Vector2 b) {
                     cornerA = a;
                     cornerB = b;
                     UpdateRect();
                 }
 
-                public void SetFillColor(Color color) {
+                public virtual void SetFillColor(Color color) {
                     fillColor = color;
                     imageComponent.color = fillColor;
                 }
 
-                public void SetCenter(Vector2 center) {
+                public virtual void SetCenter(Vector2 center) {
                     Vector2 size = rectTransform.sizeDelta;
                     Vector2 half = size / 2f;
                     cornerA = center - half;
@@ -511,6 +511,83 @@ public class Bindings {
                 public Vector2 GetCenter() => rectTransform.anchoredPosition;
                 public Color GetFillColor() => fillColor;
                 public GameObject GetRectObject() => gameObject;
+            }
+
+            public class UIAdvancedRectangle : UIRectangle {
+                private UIRectangle topBorder;
+                private UIRectangle bottomBorder;
+                private UIRectangle leftBorder;
+                private UIRectangle rightBorder;
+                private float borderThickness;
+                private Color borderColor;
+
+                public UIAdvancedRectangle(
+                    string name,
+                    Vector2 cornerA,
+                    Vector2 cornerB,
+                    Color borderColor,
+                    float borderThickness,
+                    Transform UIParent = null,
+                    Color? fillColor = null) : base(name, cornerA, cornerB, UIParent, fillColor) {
+
+                    this.borderColor = borderColor;
+                    this.borderThickness = borderThickness;
+
+                    topBorder = new UIRectangle(name + "_Top", Vector2.zero, Vector2.zero, gameObject.transform, borderColor);
+                    bottomBorder = new UIRectangle(name + "_Bottom", Vector2.zero, Vector2.zero, gameObject.transform, borderColor);
+                    leftBorder = new UIRectangle(name + "_Left", Vector2.zero, Vector2.zero, gameObject.transform, borderColor);
+                    rightBorder = new UIRectangle(name + "_Right", Vector2.zero, Vector2.zero, gameObject.transform, borderColor);
+
+                    UpdateBorders();
+                }
+
+                private void UpdateBorders() {
+                    Vector2 size = GetSize();
+                    Vector2 halfSize = size / 2f;
+                    float t = borderThickness;
+
+                    // Inward borders
+                    // Top Border: Full width, thickness t, at top edge
+                    Vector2 topLeft_Top = new Vector2(-halfSize.x, halfSize.y);
+                    Vector2 bottomRight_Top = new Vector2(halfSize.x, halfSize.y - t);
+
+                    // Bottom Border: Full width, thickness t, at bottom edge
+                    Vector2 topLeft_Bottom = new Vector2(-halfSize.x, -halfSize.y + t);
+                    Vector2 bottomRight_Bottom = new Vector2(halfSize.x, -halfSize.y);
+
+                    // Left Border: Height - 2t, thickness t, at left edge (between top and bottom borders)
+                    Vector2 topLeft_Left = new Vector2(-halfSize.x, halfSize.y - t);
+                    Vector2 bottomRight_Left = new Vector2(-halfSize.x + t, -halfSize.y + t);
+
+                    // Right Border: Height - 2t, thickness t, at right edge (between top and bottom borders)
+                    Vector2 topLeft_Right = new Vector2(halfSize.x - t, halfSize.y - t);
+                    Vector2 bottomRight_Right = new Vector2(halfSize.x, -halfSize.y + t);
+
+                    topBorder.SetCorners(topLeft_Top, bottomRight_Top);
+                    bottomBorder.SetCorners(topLeft_Bottom, bottomRight_Bottom);
+                    leftBorder.SetCorners(topLeft_Left, bottomRight_Left);
+                    rightBorder.SetCorners(topLeft_Right, bottomRight_Right);
+
+                    topBorder.SetFillColor(borderColor);
+                    bottomBorder.SetFillColor(borderColor);
+                    leftBorder.SetFillColor(borderColor);
+                    rightBorder.SetFillColor(borderColor);
+                }
+
+                public override void SetCorners(Vector2 a, Vector2 b) {
+                    base.SetCorners(a, b);
+                    UpdateBorders();
+                }
+
+                public void SetBorderColor(Color color) {
+                    borderColor = color;
+                    UpdateBorders();
+                }
+
+                public void SetBorderThickness(float thickness) {
+                    borderThickness = thickness;
+                    UpdateBorders();
+                }
             }
 
             public static Font GetDefaultFont() {
