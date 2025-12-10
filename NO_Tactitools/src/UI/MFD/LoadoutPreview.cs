@@ -2,10 +2,8 @@ using HarmonyLib;
 using UnityEngine;
 using NO_Tactitools.Core;
 using System.Collections.Generic;
-using System.Reflection.Emit;
-using System.IO.Compression;
 
-namespace NO_Tactitools.UI;
+namespace NO_Tactitools.UI.MFD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class LoadoutPreviewPlugin {

@@ -3,7 +3,7 @@ using HarmonyLib;
 using UnityEngine;
 using NO_Tactitools.Core;
 
-namespace NO_Tactitools.UI;
+namespace NO_Tactitools.UI.HMD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class UnitDistancePlugin {

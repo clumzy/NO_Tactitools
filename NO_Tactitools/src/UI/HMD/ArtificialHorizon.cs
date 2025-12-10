@@ -6,7 +6,7 @@ using System;
 using UnityEngine.Rendering;
 using JetBrains.Annotations;
 
-namespace NO_Tactitools.UI;
+namespace NO_Tactitools.UI.HMD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class ArtificialHorizonPlugin {

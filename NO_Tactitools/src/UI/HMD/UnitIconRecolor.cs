@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using NO_Tactitools.Core;
 using JetBrains.Annotations;
 
-namespace NO_Tactitools.UI;
+namespace NO_Tactitools.UI.HMD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class UnitIconRecolorPlugin {

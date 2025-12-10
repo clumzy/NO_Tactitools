@@ -2,10 +2,8 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using NO_Tactitools.Core;
-using UnityEngine.PlayerLoop;
-using Unity.Baselib.LowLevel;
 
-namespace NO_Tactitools.UI;
+namespace NO_Tactitools.UI.MFD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class WeaponDisplayPlugin {

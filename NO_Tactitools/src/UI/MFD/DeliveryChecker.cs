@@ -3,7 +3,7 @@ using HarmonyLib;
 using UnityEngine;
 using NO_Tactitools.Core;
 
-namespace NO_Tactitools.UI;
+namespace NO_Tactitools.UI.MFD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class DeliveryCheckerPlugin {
