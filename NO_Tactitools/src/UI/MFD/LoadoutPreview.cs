@@ -252,6 +252,9 @@ public class LoadoutPreviewComponent {
                 verticalOffset += ((int)1080 / 2) - (int)rectHalfHeight - border - padding;
                 if (WeaponDisplayComponent.InternalState.vanillaUIEnabled) {
                     verticalOffset -= 100;
+                    if (Bindings.Player.Aircraft.Countermeasures.HasJammer()) {
+                        verticalOffset -= 45;
+                    }
                 }
             }
             // Center labels based on max width
