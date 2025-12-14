@@ -5,7 +5,8 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine;
 using NO_Tactitools.Controls;
-using NO_Tactitools.UI;
+using NO_Tactitools.UI.HMD;
+using NO_Tactitools.UI.MFD;
 
 namespace NO_Tactitools.Core {
     [BepInPlugin("NO_Tactitools", "NOTT", "0.3.0")]

@@ -11,15 +11,19 @@ NEXT UPDATE LOG :
 -> make the navballs color dynamic with the theme
 -> add label mfd color setting
 -> ensure the custom controls are not activated when not in flight
+-> add a check to deactivate the target screen if its created before the boot animation is done
 
 TODO :
 -> loadout preview doesn't handle weapons with a loading stage properly, like the door guns on the ibis / the maximum cap changes depending on the ammo reserve
 -> same with sling, adapt it for the wpon screen
--> add a check to deactivate the target screen if its created before the boot animation is done
--> make it so the weapon selector automatically skips over fully expended weapons
--> add main menu patch reset, no need to restart the game
+-> fix exceptions when there are no weapon slots on the plane
 
 NICE TO HAVE :
+-> make it so the weapon selector automatically skips over fully expended weapons
 -> update uniticonrecolor so that the colors show even when not in a plane yet
 -> investigate the POV up format encountered by some users
 -> more generally, find a new way to work with "non-standard" buttons
+-> add main menu patch reset, no need to restart the game
+
+DROPPED :
+-> make the mod compatible with QOL mod
