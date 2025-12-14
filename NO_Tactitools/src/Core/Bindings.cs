@@ -24,11 +24,16 @@ public class Bindings {
 
     public class Player {
         public class Aircraft {
-            public static global::Aircraft GetAircraft() {
+            public static global::Aircraft GetAircraft(bool nullIsOkay = false) {
                 try {
                     return SceneSingleton<CombatHUD>.i.aircraft;
                 }
-                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.GetAircraft] NullReferenceException: CombatHUD or aircraft was null; returning null."); return null; }
+                catch (NullReferenceException) {
+                    if (!nullIsOkay) {
+                        Plugin.Log("[Bindings.Player.Aircraft.GetAircraft] NullReferenceException: CombatHUD or aircraft was null; returning null.");
+                    }
+                    return null;
+                }
             }
 
             public static string GetPlatformName() {
@@ -119,7 +124,7 @@ public class Bindings {
                                 ((GetPlatformName() == "UH-80 Ibis") ||
                                 (GetPlatformName() == "SAH-46 Chicane") ||
                                 (GetPlatformName() == "VL-49 Tarantula") ||
-                                (GetPlatformName() == "CI-22 Cricket") ));
+                                (GetPlatformName() == "CI-22 Cricket")));
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasECMPod] NullReferenceException: countermeasure manager or stations list unavailable; assuming no ECM pod (false)."); return false; }
                 }
@@ -393,7 +398,7 @@ public class Bindings {
                 public void SetOpacity(float opacity) {
                     opacity = Mathf.Clamp01(opacity);
                     Color textColor = textComponent.color;
-                    textComponent.color = new Color(textColor.r, textColor.g, textColor.b, textOpacity* opacity);
+                    textComponent.color = new Color(textColor.r, textColor.g, textColor.b, textOpacity * opacity);
                     Color bgColor = imageComponent.color;
                     imageComponent.color = new Color(bgColor.r, bgColor.g, bgColor.b, backgroundOpacity * opacity);
                 }
@@ -622,10 +627,11 @@ public class Bindings {
                     TargetScreenUI targetScreenUIObject = (TargetScreenUI)targetScreenField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.targetCam);
                     return targetScreenUIObject.transform;
                 }
-                catch (NullReferenceException) { 
+                catch (NullReferenceException) {
                     if (!nullIsOkay)
-                        Plugin.Log("[Bindings.UI.Game.GetTargetScreen] NullReferenceException: targetCam or TargetScreenUI not available; returning null."); 
-                    return null; }
+                        Plugin.Log("[Bindings.UI.Game.GetTargetScreen] NullReferenceException: targetCam or TargetScreenUI not available; returning null.");
+                    return null;
+                }
             }
 
             public static Transform GetTacScreen() {
