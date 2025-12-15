@@ -15,3 +15,5 @@ MSV R9 Stratolance Launcher
 MSV Radar
 StratoLance R9 Launcher
 T9K41 Boltstrike
+23mm AAA Emplacement
+IRM-S1 Emplacement
