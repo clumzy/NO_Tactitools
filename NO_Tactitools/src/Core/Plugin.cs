@@ -45,6 +45,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<Color> unitIconRecolorEnemyColor;
         public static ConfigEntry<bool> bootScreenEnabled;
         public static ConfigEntry<bool> artificialHorizonEnabled;
+        public static ConfigEntry<float> artificialHorizonTransparency;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
         public static ConfigEntry<bool> loadoutPreviewSendToHMD;
         public static ConfigEntry<bool> loadoutPreviewOnlyShowOnBoot;
@@ -348,6 +349,15 @@ namespace NO_Tactitools.Core {
                 new ConfigDescription(
                     "Enable or disable the Artificial Horizon feature.",
                     null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1
+                    }));
+            artificialHorizonTransparency = Config.Bind("Artificial Horizon",
+                "Artificial Horizon - Transparency",
+                0.4f,
+                new ConfigDescription(
+                    "Transparency level for the Artificial Horizon display (0.2 = almost transparent, 1 = fully opaque).",
+                    new AcceptableValueRange<float>(0.2f, 1f),
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));

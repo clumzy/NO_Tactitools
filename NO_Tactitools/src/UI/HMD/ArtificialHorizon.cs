@@ -263,7 +263,9 @@ public class ArtificialHorizonComponent {
         public float cardinalLabelBgOpacity = 0.1f;
 
         public ArtificialHorizon(Transform destination) {
-
+            mainColor.a = Plugin.artificialHorizonTransparency.Value;
+            cardinalLineColor.a = Mathf.Clamp(Plugin.artificialHorizonTransparency.Value + 0.2f, 0f, 1f);
+            cardinalLabelColor.a = Mathf.Clamp(Plugin.artificialHorizonTransparency.Value + 0.4f, 0f, 1f);
             // Create the horizon line
             horizonLine = new Bindings.UI.Draw.UILine(
                 "horizonLine",
