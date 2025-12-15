@@ -1,14 +1,17 @@
 // You can add additional units that you want recolored on the main map
-
-LCV25 AA
-AFV6 AA
-Linebreaker SAM
-AFV8 Mobile Air Defense
 AeroSentry SPAAG
+AFV6 AA
+AFV8 Mobile Air Defense
 FGA-57 Anvil
-T9K41 Boltstrike
-StratoLance R9 Launcher
 Hexhound SAM
-CRAM Trailer
-Laser CIWS Trailer
 HLT Radar Truck
+HLT-CRAM
+HLT-HEL
+LCV25 AA
+Linebreaker SAM
+MSV CRAM
+MSV LADS
+MSV R9 Stratolance Launcher
+MSV Radar
+StratoLance R9 Launcher
+T9K41 Boltstrike
