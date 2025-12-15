@@ -106,7 +106,6 @@ public class WeaponDisplayComponent {
             // REFRESH WEAPON
             if (InternalState.hasStations) { // do not refresh weapon info if the player has no weapon stations
                 InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Weapons.GetActiveStationName());
-                Plugin.Log("[WD] Refreshing weapon display: " + Bindings.Player.Weapons.GetActiveStationName());
                 if (InternalState.isReloading)
                     InternalState.weaponDisplay.weaponAmmoLabel.SetText(((int)(Bindings.Player.Weapons.GetActiveStationReloadProgress()*100f)).ToString() + "%");
                 else
