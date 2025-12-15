@@ -106,6 +106,7 @@ public class WeaponDisplayComponent {
             // REFRESH WEAPON
             if (InternalState.hasStations) { // do not refresh weapon info if the player has no weapon stations
                 InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Weapons.GetActiveStationName());
+                Plugin.Log("[WD] Refreshing weapon display: " + Bindings.Player.Weapons.GetActiveStationName());
                 if (InternalState.isReloading)
                     InternalState.weaponDisplay.weaponAmmoLabel.SetText(((int)(Bindings.Player.Weapons.GetActiveStationReloadProgress()*100f)).ToString() + "%");
                 else
@@ -157,7 +158,7 @@ public class WeaponDisplayComponent {
             }
             string platformName = Bindings.Player.Aircraft.GetPlatformName();
             Transform destination = platformName switch {
-                "T/A-30 Compass" or "FS-12 Revoker" or "FS-20 Vortex" or "KR-67 Ifrit" or "UH-80 Ibis" => Get("SystemStatus"),
+                "T/A-30 Compass" or "FS-12 Revoker" or "FS-20 Vortex" or "KR-67 Ifrit" or "UH-80 Ibis" or "A-19 Brawler" => Get("SystemStatus"),
                 "EW-1 Medusa" => Get("engPanel1"),
                 "CI-22 Cricket" => Get("EngPanel"),
                 "SAH-46 Chicane" => Get("BasicFlightInstrument"),
@@ -313,6 +314,19 @@ public class WeaponDisplayComponent {
                     weaponNameFont = 35;
                     weaponAmmoFont = 50;
                     imageScaleFactor = 0.6f; // Scale the image for EW-1 Medusa
+                    break;
+                case "A-19 Brawler":
+                    flarePos = new Vector2(0, -40);
+                    jammerPos = new Vector2(0, -75);
+                    lineStart = new Vector2(-80, 0);
+                    lineEnd = new Vector2(80, 0);
+                    weaponNamePos = new Vector2(0, 50);
+                    weaponAmmoPos = new Vector2(0, 20);
+                    weaponImagePos = new Vector2(0, 80);
+                    flareFont = 30;
+                    jammerFont = 30;
+                    weaponNameFont = 25;
+                    weaponAmmoFont = 40;
                     break;
                 default:
                     flarePos = new Vector2(0, -40);

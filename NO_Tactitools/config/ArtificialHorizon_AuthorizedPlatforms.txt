@@ -11,3 +11,4 @@ UH-80 Ibis
 // KR-67 Ifrit
 // EW-1 Medusa
 // SFB-81
+// A-19 Brawler

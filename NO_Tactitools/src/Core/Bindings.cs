@@ -177,7 +177,13 @@ public class Bindings {
 
             public static string GetActiveStationName() {
                 try {
-                    return SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation.WeaponInfo.shortName;
+                    string name = SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation.WeaponInfo.shortName;
+                    if (name ==""){
+                        return SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation.WeaponInfo.weaponName;
+                    }
+                    else {
+                        return name;
+                    }
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetActiveStationName] NullReferenceException: CombatHUD or weapon name text unavailable; returning 'Unknown Weapon'."); return "Unknown Weapon"; }
             }
