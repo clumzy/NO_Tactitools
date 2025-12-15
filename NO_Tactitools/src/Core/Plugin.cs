@@ -305,7 +305,7 @@ namespace NO_Tactitools.Core {
                     }));
             MFDAlternativeAttitudeEnabled = Config.Bind("MFD Color",
                 "MFD Color - MFD Alternative Attitude - Enabled",
-                false,
+                true,
                 new ConfigDescription(
                     "Enable or disable the alternative attitude indicator color on the MFD.",
                     null,
