@@ -9,7 +9,7 @@ using NO_Tactitools.UI.HMD;
 using NO_Tactitools.UI.MFD;
 
 namespace NO_Tactitools.Core {
-    [BepInPlugin("NO_Tactitools", "NOTT", "0.3.0")]
+    [BepInPlugin("NO_Tactitools", "NOTT", "0.4.0")]
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;
         public static ConfigEntry<bool> targetRecallEnabled;

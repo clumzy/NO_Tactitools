@@ -5,7 +5,7 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> add to the update log
 -> remove from TODO
 
-NEXT UPDATE LOG :
+0.4.0 (0.32):
 -> ADD THE POSSIBILITY FOR THE LOADOUT PREVIEW TO ONLY APPEAR ONCE ON TAC SCREEN INIT
 -> ADD LOADOUT PREVIEW TO HMD
 -> make the navballs color dynamic with the theme
