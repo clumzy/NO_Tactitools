@@ -60,9 +60,14 @@ public class WeaponDisplayComponent {
             if (Bindings.Player.Aircraft.Countermeasures.HasJammer())
                 InternalState.jammerAmmo01 = Mathf.Clamp01(
                     (float)Bindings.Player.Aircraft.Countermeasures.GetJammerAmmo() / 100f);
-            if (InternalState.hasStations)
+            if (InternalState.hasStations) { // WRITE WEAPON STATE ONLY IF THE PLAYER HAS WEAPON STATIONS
                 InternalState.isOutOfAmmo = Bindings.Player.Weapons.GetActiveStationAmmo() == 0;
-
+                InternalState.reduceWeaponFontSize = Bindings.Player.Weapons.GetActiveStationAmmoString().Contains("/");
+                if (Bindings.Player.Weapons.GetActiveStationReloadProgress()> 0f)
+                    InternalState.isReloading = true;
+                else
+                    InternalState.isReloading = false;
+            }
         }
     }
 
@@ -76,6 +81,8 @@ public class WeaponDisplayComponent {
         static public bool isJammerSelected;
         static public float flareAmmo01;
         static public float jammerAmmo01;
+        static public bool reduceWeaponFontSize = false;
+        static public bool isReloading = false;
         static public bool vanillaUIEnabled = true; // true by default since we need to check this value elsewhere
         static public Color mainColor = Color.green;
         static public Color textColor = Color.green;
@@ -99,7 +106,12 @@ public class WeaponDisplayComponent {
             // REFRESH WEAPON
             if (InternalState.hasStations) { // do not refresh weapon info if the player has no weapon stations
                 InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Weapons.GetActiveStationName());
-                InternalState.weaponDisplay.weaponAmmoLabel.SetText(Bindings.Player.Weapons.GetActiveStationAmmo().ToString());
+                if (InternalState.isReloading)
+                    InternalState.weaponDisplay.weaponAmmoLabel.SetText(((int)(Bindings.Player.Weapons.GetActiveStationReloadProgress()*100f)).ToString() + "%");
+                else
+                    InternalState.weaponDisplay.weaponAmmoLabel.SetText(Bindings.Player.Weapons.GetActiveStationAmmoString().Replace(" ", ""));
+                InternalState.weaponDisplay.weaponAmmoLabel.SetFontSize(
+                    InternalState.weaponDisplay.originalWeaponAmmoFontSize + (InternalState.reduceWeaponFontSize ? -15 : 0));
                 InternalState.weaponDisplay.weaponAmmoLabel.SetColor(InternalState.isOutOfAmmo ? Color.red : InternalState.textColor);
 
                 Image cloneImg = InternalState.weaponDisplay.weaponImageClone.GetComponent<Image>();
@@ -134,6 +146,7 @@ public class WeaponDisplayComponent {
         // Store original font sizes
         public int originalFlareFontSize;
         public int originalJammerFontSize;
+        public int originalWeaponAmmoFontSize;
         //Store the main color for the MFD, can be set by the MFDColorPlugin
         public bool removeOriginalMFDContent = true; // by default, we remove the original MFD content
 
@@ -318,6 +331,7 @@ public class WeaponDisplayComponent {
             // Store original font sizes
             originalFlareFontSize = flareFont;
             originalJammerFontSize = jammerFont;
+            originalWeaponAmmoFontSize = weaponAmmoFont;
 
             // Hide the existing MFD content and kill the layout
             if (removeOriginalMFDContent) {
@@ -393,6 +407,7 @@ public class WeaponDisplayComponent {
                 weaponNameFont,
                 0f
             );
+            weaponNameLabel.SetText("");
             weaponAmmoLabel = new(
                 "weaponAmmoLabel",
                 weaponAmmoPos,
@@ -402,6 +417,7 @@ public class WeaponDisplayComponent {
                 weaponAmmoFont,
                 0f
             );
+            weaponAmmoLabel.SetText("");
             // Clone the weapon image and set it as a child of the systems MFD
             if (Bindings.Player.Weapons.GetStationCount() != 0)
                 weaponImageClone = GameObject.Instantiate(Bindings.Player.Weapons.GetActiveStationImage().gameObject, destination);
