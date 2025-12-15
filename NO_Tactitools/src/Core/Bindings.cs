@@ -192,6 +192,23 @@ public class Bindings {
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetActiveStationAmmo] NullReferenceException: CombatHUD or ammo count text unavailable; returning 0 ammo."); return 0; }
             }
 
+            public static string GetActiveStationAmmoString() {
+                try {
+                    if (GetStationCount() == 0)
+                        return "0";
+                    else
+                        return SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation.GetAmmoReadout();
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetActiveStationAmmoString] NullReferenceException: CombatHUD or ammo count text unavailable; returning '0'."); return "0"; }
+            }
+
+            public static float GetActiveStationReloadProgress() {
+                try {
+                    return SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation.GetReloadStatusMax();
+                    }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetActiveStationReloadProgress] NullReferenceException: CombatHUD or weapon station unavailable; returning 0f."); return 0f; }
+            }
+
             public static Image GetActiveStationImage() {
                 try {
                     Type weaponIndicatorType = (Bindings.UI.Game.GetWeaponStatus()).GetType();
