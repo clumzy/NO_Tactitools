@@ -47,10 +47,11 @@ George
 - Per-airframe layouts
 
 ### 📋 Loadout Preview on main MFD
-- Displays weapon loadout on active slot switch
+- Displays weapon loadout on the MFD on active slot switch
 - Preview duration is configurable (default: 1 second)
 - Automatically hides after the specified duration for uncluttered gameplay
 - Can be setup to only be shown once when the airframe starts
+- Can be setup to display on the HMD (main UI)
 
 ### 📡 Unit marker distance indicator
 - Changes HMD marker orientation for enemy air units when within a configurable distance threshold
@@ -59,7 +60,7 @@ George
 - Optional “near” sound cue
 
 ### 🎨 Cockpit MFD color customization
-- Set main MFD color
+- Set main and texts MFD colors
 - Optional alternative attitude (horizon/ground) colors
 - Works with vanilla and modded cockpit UI elements
 - The MFD main color is updated in real time ingame
