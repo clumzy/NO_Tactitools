@@ -12,11 +12,11 @@ NEXT UPDATE LOG :
 -> add label mfd color setting
 -> ensure the custom controls are not activated when not in flight
 -> add a check to deactivate the target screen if its created before the boot animation is done
+-> loadout preview doesn't handle weapons with a loading stage properly, like the door guns on the ibis / the maximum cap changes depending on the ammo reserve
+-> fix exceptions when there are no weapon slots on the plane
 
 TODO :
--> loadout preview doesn't handle weapons with a loading stage properly, like the door guns on the ibis / the maximum cap changes depending on the ammo reserve
 -> same with sling, adapt it for the wpon screen
--> fix exceptions when there are no weapon slots on the plane
 
 NICE TO HAVE :
 -> make it so the weapon selector automatically skips over fully expended weapons
