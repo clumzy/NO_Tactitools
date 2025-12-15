@@ -32,6 +32,7 @@ public class LoadoutPreviewComponent {
             InternalState.onlyShowOnBoot = Plugin.loadoutPreviewOnlyShowOnBoot.Value;
             InternalState.sendToHMD = Plugin.loadoutPreviewSendToHMD.Value;
             InternalState.neverShown = true;
+            InternalState.hasStations = Bindings.Player.Weapons.GetStationCount() > 0;
             for (int i = 0; i < Bindings.Player.Weapons.GetStationCount(); i++) {
                 InternalState.WeaponStationInfo stationInfo = new() {
                     stationName = Bindings.Player.Weapons.GetStationNameByIndex(i),
@@ -40,11 +41,13 @@ public class LoadoutPreviewComponent {
                 };
                 InternalState.weaponStations.Add(stationInfo);
             }
-            InternalState.currentWeaponStation = Bindings.Player.Weapons.GetActiveStationName();
+            if (!InternalState.hasStations) {
+                InternalState.currentWeaponStation = Bindings.Player.Weapons.GetActiveStationName();
+            }
         }
 
         static public void Update() {
-            if (Bindings.GameState.IsGamePaused() || Bindings.Player.Aircraft.GetAircraft() == null)
+            if (Bindings.GameState.IsGamePaused() || Bindings.Player.Aircraft.GetAircraft() == null || !InternalState.hasStations)
                 return;
             if (InternalState.onlyShowOnBoot && InternalState.neverShown && BootScreenComponent.InternalState.hasBooted) {
                 InternalState.lastUpdateTime = Time.time;
@@ -84,6 +87,7 @@ public class LoadoutPreviewComponent {
         public static List<WeaponStationInfo> weaponStations = [];
         public static LoadoutPreview loadoutPreview;
         public static bool sendToHMD = false;
+        public static bool hasStations = true;
         public static float displayDuration = 1f;
         public static Color mainColor = Color.green;
         public static Color textColor = Color.green;
@@ -91,12 +95,14 @@ public class LoadoutPreviewComponent {
 
     static class DisplayEngine {
         static public void Init() {
-            InternalState.loadoutPreview = new LoadoutPreview(sendToHMD: InternalState.sendToHMD);
+            if (InternalState.hasStations)
+                InternalState.loadoutPreview = new LoadoutPreview(sendToHMD: InternalState.sendToHMD);
         }
 
         static public void Update() {
             if (Bindings.GameState.IsGamePaused() ||
-                Bindings.Player.Aircraft.GetAircraft() == null)
+                Bindings.Player.Aircraft.GetAircraft() == null ||
+                !InternalState.hasStations)
                 return;
             if (!InternalState.needsUpdate) {
                 // if loadout preview is active, hide it
