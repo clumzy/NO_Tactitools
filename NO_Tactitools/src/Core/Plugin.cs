@@ -407,8 +407,8 @@ namespace NO_Tactitools.Core {
             harmony = new Harmony("george.no_tactitools");
             Logger = base.Logger;
             // CORE PATCHES
-            harmony.PatchAll(typeof(ControllerInputInterceptionPatch));
             harmony.PatchAll(typeof(RegisterControllerPatch));
+            harmony.PatchAll(typeof(ControllerInputInterceptionPatch));
             //harmony.PatchAll(typeof(TestInput));
             // Patch MFD Color
             if (MFDColorEnabled.Value) {
