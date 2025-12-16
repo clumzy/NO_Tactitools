@@ -69,6 +69,7 @@ George
 - Horizon line always shown
 - Cardinal directions are indicated and hidden when in front of the main HUD
 - You can select for which airframe you want the Artificial Horizon to display by editing an included config file
+- The transparency is configurable
 
 ### 🛡️ AA unit icon recolor on the main map
 - Enemy AA units are recolored on the main map
