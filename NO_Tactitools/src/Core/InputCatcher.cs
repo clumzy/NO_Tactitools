@@ -218,6 +218,11 @@ class RegisterControllerPatch {
         string cleanedName = __instance.name.Trim();
         Plugin.Log($"[IC] Controller connected: {cleanedName}");
 
+        // Special case for keyboard
+        if (cleanedName == "Keyboard") {
+            InputCatcher.keyboardController = (Rewired.Keyboard)__instance;
+            Plugin.Log($"[IC] Keyboard controller pointer set.");
+        }
         if (!InputCatcher.controllerInputs.ContainsKey(__instance)) {
             InputCatcher.controllerInputs[__instance] = [];
             Plugin.Log($"[IC] Controller structure initialized for: {cleanedName}");
@@ -229,11 +234,6 @@ class RegisterControllerPatch {
                 Plugin.Log($"[IC] Registered pending button {btn.buttonNumber.ToString()} on controller {cleanedName}");
             }
             InputCatcher.pendingControllerInputs.Remove(cleanedName);
-        }
-        // Special case for keyboard
-        if (cleanedName == "Keyboard") {
-            InputCatcher.keyboardController = (Rewired.Keyboard)__instance;
-            Plugin.Log($"[IC] Keyboard controller pointer set.");
         }
     }
 }
