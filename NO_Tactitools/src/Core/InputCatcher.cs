@@ -1,6 +1,7 @@
 using HarmonyLib;
 using Rewired;
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Linq;
@@ -11,7 +12,7 @@ public class InputCatcher {
     // Dictionary mapping each controller to its list of buttons
     public static Dictionary<Rewired.Controller, List<ControllerInput>> controllerInputs = [];
     // Dictionary mapping controller names to pending buttons
-    public static Dictionary<string, List<ControllerInput>> pendingControllerInputs = [];
+    public static Dictionary<string, List<PendingInput>> pendingControllerInputs = [];
     // keyboard pointer for easy access
     public static Rewired.Keyboard keyboardController = null;
 
@@ -31,7 +32,41 @@ public class InputCatcher {
             Plugin.Log("[IC] No input code string provided for button registration. Skipping.");
             return;
         }
-        Plugin.Log($"[IC] Registering button {inputCodeString} on controller {controllerName.ToString()}");
+
+        bool found = false;
+        foreach (Controller controller in controllerInputs.Keys) {
+            if (controller.name.Trim() == controllerName) {
+                RegisterInputNow(controller, inputCodeString, longPressThreshold, onShortPress, onHold, onLongPress);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            if (!pendingControllerInputs.ContainsKey(controllerName))
+                pendingControllerInputs[controllerName] = [];
+            pendingControllerInputs[controllerName].Add(new PendingInput(inputCodeString, longPressThreshold, onShortPress, onHold, onLongPress));
+            Plugin.Log("[IC] Controller not connected, input " + inputCodeString + " added to pending list for " + controllerName);
+        }
+    }
+
+    public static IEnumerator RegisterPendingInputsRoutine(Controller controller, List<PendingInput> pendingInputs) {
+        yield return null;
+        foreach (PendingInput pending in pendingInputs) {
+            RegisterInputNow(controller, pending.inputCodeString, pending.longPressThreshold, pending.onShortPress, pending.onHold, pending.onLongPress);
+        }
+    }
+
+    public static void RegisterInputNow(
+        Controller controller,
+        string inputCodeString,
+        float longPressThreshold,
+        System.Action onShortPress,
+        System.Action onHold,
+        System.Action onLongPress
+    ) {
+        string controllerName = controller.name.Trim();
+        Plugin.Log("[IC] Registering button " + inputCodeString + " on controller " + controllerName);
         ControllerInput newInput;
         string inputType = ParseInputType(inputCodeString, controllerName);
 
@@ -67,21 +102,9 @@ public class InputCatcher {
                 Plugin.Log("[IC] Unknown input type for input code: " + inputCodeString + " on controller: " + controllerName);
                 return;
         }
-        bool found = false;
-        foreach (Controller controller in controllerInputs.Keys) {
-            if (controller.name.Trim() == controllerName) {
-                controllerInputs[controller].Add(newInput);
-                Plugin.Log($"[IC] Registered input {inputCodeString.ToString()} on controller {controllerName.ToString()}");
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            if (!pendingControllerInputs.ContainsKey(controllerName))
-                pendingControllerInputs[controllerName] = [];
-            pendingControllerInputs[controllerName].Add(newInput);
-            Plugin.Log($"[IC] Controller not connected, input {newInput.buttonNumber.ToString()} added to pending list for {controllerName}");
-        }
+        
+        controllerInputs[controller].Add(newInput);
+        Plugin.Log("[IC] Registered input " + inputCodeString + " on controller " + controllerName);
     }
 
     public static string ParseInputType(string inputCodeString, string controllerName) {
@@ -92,7 +115,7 @@ public class InputCatcher {
             return "ButtonNumber";
         }
         else if (inputCodeString.StartsWith("h_")) {
-            var parts = inputCodeString.Split('_');
+            string[] parts = inputCodeString.Split('_');
             if (parts.Length == 3 && parts[0] == "h" && int.TryParse(parts[1], out _)) {
                 string direction = parts[2].ToLower();
                 if (direction == "left" || direction == "right" || direction == "up" || direction == "down") {
@@ -162,6 +185,22 @@ public class ControllerInput {
     }
 }
 
+public class PendingInput {
+    public string inputCodeString;
+    public float longPressThreshold;
+    public System.Action onShortPress;
+    public System.Action onHold;
+    public System.Action onLongPress;
+
+    public PendingInput(string inputCodeString, float longPressThreshold, System.Action onShortPress, System.Action onHold, System.Action onLongPress) {
+        this.inputCodeString = inputCodeString;
+        this.longPressThreshold = longPressThreshold;
+        this.onShortPress = onShortPress;
+        this.onHold = onHold;
+        this.onLongPress = onLongPress;
+    }
+}
+
 
 [HarmonyPatch(typeof(Rewired.Controller), "pBrAJYWOGkILyqjLrMpmCdajATI")]
 class ControllerInputInterceptionPatch {
@@ -216,23 +255,21 @@ class ControllerInputInterceptionPatch {
 class RegisterControllerPatch {
     static void Postfix(Controller __instance) {
         string cleanedName = __instance.name.Trim();
-        Plugin.Log($"[IC] Controller connected: {cleanedName}");
+        Plugin.Log("[IC] Controller connected: " + cleanedName);
 
         // Special case for keyboard
         if (cleanedName == "Keyboard") {
             InputCatcher.keyboardController = (Rewired.Keyboard)__instance;
-            Plugin.Log($"[IC] Keyboard controller pointer set.");
+            Plugin.Log("[IC] Keyboard controller pointer set.");
         }
         if (!InputCatcher.controllerInputs.ContainsKey(__instance)) {
             InputCatcher.controllerInputs[__instance] = [];
-            Plugin.Log($"[IC] Controller structure initialized for: {cleanedName}");
+            Plugin.Log("[IC] Controller structure initialized for: " + cleanedName);
         }
 
         if (InputCatcher.pendingControllerInputs.ContainsKey(cleanedName)) {
-            foreach (var btn in InputCatcher.pendingControllerInputs[cleanedName]) {
-                InputCatcher.controllerInputs[__instance].Add(btn);
-                Plugin.Log($"[IC] Registered pending button {btn.buttonNumber.ToString()} on controller {cleanedName}");
-            }
+            List<PendingInput> pendingInputs = InputCatcher.pendingControllerInputs[cleanedName];
+            Plugin.Instance.StartCoroutine(InputCatcher.RegisterPendingInputsRoutine(__instance, pendingInputs));
             InputCatcher.pendingControllerInputs.Remove(cleanedName);
         }
     }

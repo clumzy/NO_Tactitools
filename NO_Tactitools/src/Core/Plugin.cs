@@ -52,8 +52,10 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<float> loadoutPreviewDuration;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
+        public static Plugin Instance;
 
         private void Awake() {
+            Instance = this;
             // Target Recall settings
             targetRecallEnabled = Config.Bind("Target Recall", //Category
                 "Target Recall - Enabled", // Setting name
