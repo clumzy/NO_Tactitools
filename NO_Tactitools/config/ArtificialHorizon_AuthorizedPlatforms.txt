@@ -12,3 +12,4 @@ UH-80 Ibis
 // EW-1 Medusa
 // SFB-81
 // A-19 Brawler
+// FQ-106 Kestrel
