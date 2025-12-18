@@ -157,7 +157,10 @@ public class WeaponDisplayComponent {
             }
             string platformName = Bindings.Player.Aircraft.GetPlatformName();
             Transform destination = platformName switch {
-                "T/A-30 Compass" or "FS-12 Revoker" or "FS-20 Vortex" or "KR-67 Ifrit" or "UH-80 Ibis" or "A-19 Brawler" => Get("SystemStatus"),
+                "T/A-30 Compass" or "FS-12 Revoker" or 
+                "FS-20 Vortex" or "KR-67 Ifrit" or 
+                "UH-80 Ibis" or "A-19 Brawler"
+                or "FQ-106 Kestrel" => Get("SystemStatus"),
                 "EW-1 Medusa" => Get("engPanel1"),
                 "CI-22 Cricket" => Get("EngPanel"),
                 "SAH-46 Chicane" => Get("BasicFlightInstrument"),
@@ -327,11 +330,24 @@ public class WeaponDisplayComponent {
                     weaponNameFont = 25;
                     weaponAmmoFont = 40;
                     break;
+                case "FQ-106 Kestrel":
+                    flarePos = new Vector2(0, -40);
+                    jammerPos = new Vector2(0, -80);
+                    lineStart = new Vector2(-60, -7);
+                    lineEnd = new Vector2(60, -7);
+                    weaponNamePos = new Vector2(0, 60);
+                    weaponAmmoPos = new Vector2(0, 22);
+                    weaponImagePos = new Vector2(0, 87);
+                    flareFont = 35;
+                    jammerFont = 35;
+                    weaponNameFont = 25;
+                    weaponAmmoFont = 45;
+                    break;
                 default:
                     flarePos = new Vector2(0, -40);
                     jammerPos = new Vector2(0, -80);
-                    lineStart = new Vector2(0, -60);
-                    lineEnd = new Vector2(0, 60);
+                    lineStart = new Vector2(-60, 0);
+                    lineEnd = new Vector2(60, 0);
                     weaponNamePos = new Vector2(0, 60);
                     weaponAmmoPos = new Vector2(0, 30);
                     weaponImagePos = new Vector2(0, 80);
@@ -356,7 +372,7 @@ public class WeaponDisplayComponent {
                 destination.localRotation = Quaternion.Euler(0, 0, -90);
                 destination.GetComponent<Image>().enabled = false; // hide the background image
             }
-            // move the BasicFlightInstruments higher on his screen
+            // move the BasicFlightInstruments higher on Chicane screen
             if (platformName == "SAH-46 Chicane") {
                 Transform toMove;
                 toMove = destination.Find("Heading");

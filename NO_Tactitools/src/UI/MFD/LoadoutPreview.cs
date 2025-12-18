@@ -202,6 +202,9 @@ public class LoadoutPreviewComponent {
                 case "A-19 Brawler":
                     verticalOffset = 70;
                     break;
+                case "FQ-106 Kestrel":
+                    verticalOffset = 75;
+                    break;
                 case "HMD":
                     horizontalOffset = 0;
                     verticalOffset = 0;
