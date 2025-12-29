@@ -14,14 +14,14 @@ class CountermeasureControlsPlugin {
             InputCatcher.RegisterNewInput(
                 Plugin.countermeasureControlsControllerName.Value,
                 Plugin.countermeasureControlsFlareButtonNumber.Value,
-                1000f,
-                onShortPress: HandleOnHoldFlare
+                0.0001f,
+                onLongPress: HandleOnHoldFlare
                 );
             InputCatcher.RegisterNewInput(
                 Plugin.countermeasureControlsControllerName.Value,
                 Plugin.countermeasureControlsJammerButtonNumber.Value,
-                1000f,
-                onShortPress: HandleOnHoldJammer
+                0.0001f,
+                onLongPress: HandleOnHoldJammer
                 );
             initialized = true;
             Plugin.Log("[CC] Countermeasure Controls plugin succesfully started !");

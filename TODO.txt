@@ -18,6 +18,7 @@ CHECKLIST WHEN ADDING A FEATURE :
 TODO :
 -> same with sling, adapt it for the wpon screen
 -> slightly mov the EW indicator to the left on the vortex, move the ir indicator slightly to the right too
+-> add functionalty to see if a targeted unit is being targeted by a friendly missile
 
 NICE TO HAVE :
 -> make it so the weapon selector automatically skips over fully expended weapons
