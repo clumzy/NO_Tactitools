@@ -228,6 +228,9 @@ public class Bindings {
             public static string GetStationNameByIndex(int index) {
                 try {
                     if (index < GetStationCount()) {
+                        if (SceneSingleton<CombatHUD>.i.aircraft.weaponStations[index].WeaponInfo.shortName == ""){
+                            return SceneSingleton<CombatHUD>.i.aircraft.weaponStations[index].WeaponInfo.weaponName;
+                        }
                         return SceneSingleton<CombatHUD>.i.aircraft.weaponStations[index].WeaponInfo.shortName;
                     }
                     else {
