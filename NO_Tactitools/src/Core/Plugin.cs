@@ -12,14 +12,15 @@ namespace NO_Tactitools.Core {
     [BepInPlugin("NO_Tactitools", "NOTT", "0.4.2")]
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;
-        public static ConfigEntry<bool> targetRecallEnabled;
+        public static ConfigEntry<bool> targetListControllerEnabled;
         public static ConfigEntry<string> targetRecallControllerName;
         public static ConfigEntry<string> targetRecallInput;
         public static ConfigEntry<bool> interceptionVectorEnabled;
         public static ConfigEntry<bool> onScreenVectorEnabled;
         public static ConfigEntry<bool> countermeasureControlsEnabled;
-        public static ConfigEntry<string> countermeasureControlsControllerName;
+        public static ConfigEntry<string> countermeasureControlsFlareControllerName;
         public static ConfigEntry<string> countermeasureControlsFlareButtonNumber;
+        public static ConfigEntry<string> countermeasureControlsJammerControllerName;
         public static ConfigEntry<string> countermeasureControlsJammerButtonNumber;
         public static ConfigEntry<bool> weaponSwitcherEnabled;
         public static ConfigEntry<string> weaponSwitcherControllerName;
@@ -57,16 +58,16 @@ namespace NO_Tactitools.Core {
         private void Awake() {
             Instance = this;
             // Target Recall settings
-            targetRecallEnabled = Config.Bind("Target Recall", //Category
-                "Target Recall - Enabled", // Setting name
+            targetListControllerEnabled = Config.Bind("Target List Controller", //Category
+                "Target List Controller - Enabled", // Setting name
                 true, // Default value
                 new ConfigDescription(
                     "Enable or disable the Target Recall feature.",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = 2})); // Description of the setting
-            targetRecallControllerName = Config.Bind("Target Recall",
-                "Target Recall - Controller Name",
+            targetRecallControllerName = Config.Bind("Target List Controller",
+                "Target List Controller - Target Recall - Controller Name",
                 "",
                 new ConfigDescription(
                     "Name of the peripheral",
@@ -74,8 +75,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 1
                     }));
-            targetRecallInput = Config.Bind("Target Recall",
-                "Target Recall - Input",
+            targetRecallInput = Config.Bind("Target List Controller",
+                "Target List Controller - Target Recall - Input",
                 "",
                 new ConfigDescription(
                     "Input you want to assign for Target Recall (short press to recall, long press to save)",
@@ -101,22 +102,31 @@ namespace NO_Tactitools.Core {
                     "Enable or disable the Countermeasure Controls feature.",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 3
+                        Order = 4
                     }));
-            countermeasureControlsControllerName = Config.Bind("Countermeasures",
-                "Countermeasure Controls - Controller Name",
+            countermeasureControlsFlareControllerName = Config.Bind("Countermeasures",
+                "Countermeasure Controls - Flares - Controller Name",
                 "",
                 new ConfigDescription(
                     "Name of the peripheral",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 2
+                        Order = 3
                     }));
             countermeasureControlsFlareButtonNumber = Config.Bind("Countermeasures",
                 "Countermeasure Controls - Flares - Input",
                 "",
                 new ConfigDescription(
                     "Input you want to assign for selecting Flares",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2
+                    }));
+            countermeasureControlsJammerControllerName = Config.Bind("Countermeasures",
+                "Countermeasure Controls - Jammer - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = 1
@@ -223,7 +233,7 @@ namespace NO_Tactitools.Core {
                         Order = 2
                     }));
             weaponDisplayControllerName = Config.Bind("CM & Weapon Display",
-                "CM & Weapon Display - Controller Name",
+                "CM & Weapon Display - Content Toggling - Controller Name",
                 "",
                 new ConfigDescription(
                     "Name of the peripheral",
@@ -419,9 +429,9 @@ namespace NO_Tactitools.Core {
             }
             // CONTROL PATCHES
             // Patch Target Recall
-            if (targetRecallEnabled.Value) {
+            if (targetListControllerEnabled.Value) {
                 Logger.LogInfo($"Target Recall is enabled, patching...");
-                harmony.PatchAll(typeof(TargetRecallPlugin));
+                harmony.PatchAll(typeof(TargetListControllerPlugin));
             }
             // Patch Countermeasure Controls
             if (countermeasureControlsEnabled.Value) {
