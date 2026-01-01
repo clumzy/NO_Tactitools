@@ -16,9 +16,13 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> fix exceptions when there are no weapon slots on the plane
 
 TODO :
+-> make the mod compatible with QOL mod
 -> same with sling, adapt it for the wpon screen
 -> slightly mov the EW indicator to the left on the vortex, move the ir indicator slightly to the right too
 -> add functionalty to see if a targeted unit is being targeted by a friendly missile
+-> a button to unmark targets that don't hav a known datalink position
+-> more generally, target list handling
+
 
 NICE TO HAVE :
 -> make it so the weapon selector automatically skips over fully expended weapons
@@ -26,6 +30,3 @@ NICE TO HAVE :
 -> investigate the POV up format encountered by some users
 -> more generally, find a new way to work with "non-standard" buttons
 -> add main menu patch reset, no need to restart the game
-
-DROPPED :
--> make the mod compatible with QOL mod
