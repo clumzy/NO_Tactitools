@@ -46,7 +46,7 @@ public class WeaponDisplayComponent {
             Plugin.Log("[WD] Initializing Logic Engine for platform " + name);
             InternalState.hasJammer = Bindings.Player.Aircraft.Countermeasures.HasJammer();
             InternalState.hasIRFlare = Bindings.Player.Aircraft.Countermeasures.HasIRFlare();
-            InternalState.hasStations = Bindings.Player.Weapons.GetStationCount() > 0;
+            InternalState.hasStations = Bindings.Player.Aircraft.Weapons.GetStationCount() > 0;
             InternalState.vanillaUIEnabled = Plugin.weaponDisplayVanillaUIEnabled.Value;
             Plugin.Log("[WD] Logic Engine initialized for platform " + name);
         }
@@ -61,9 +61,9 @@ public class WeaponDisplayComponent {
                 InternalState.jammerAmmo01 = Mathf.Clamp01(
                     (float)Bindings.Player.Aircraft.Countermeasures.GetJammerAmmo() / 100f);
             if (InternalState.hasStations) { // WRITE WEAPON STATE ONLY IF THE PLAYER HAS WEAPON STATIONS
-                InternalState.isOutOfAmmo = Bindings.Player.Weapons.GetActiveStationAmmo() == 0;
-                InternalState.reduceWeaponFontSize = Bindings.Player.Weapons.GetActiveStationAmmoString().Contains("/");
-                if (Bindings.Player.Weapons.GetActiveStationReloadProgress()> 0f)
+                InternalState.isOutOfAmmo = Bindings.Player.Aircraft.Weapons.GetActiveStationAmmo() == 0;
+                InternalState.reduceWeaponFontSize = Bindings.Player.Aircraft.Weapons.GetActiveStationAmmoString().Contains("/");
+                if (Bindings.Player.Aircraft.Weapons.GetActiveStationReloadProgress()> 0f)
                     InternalState.isReloading = true;
                 else
                     InternalState.isReloading = false;
@@ -105,17 +105,17 @@ public class WeaponDisplayComponent {
                 return; // do not refresh anything if the game is paused or the player aircraft is not available
             // REFRESH WEAPON
             if (InternalState.hasStations) { // do not refresh weapon info if the player has no weapon stations
-                InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Weapons.GetActiveStationName());
+                InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Aircraft.Weapons.GetActiveStationName());
                 if (InternalState.isReloading)
-                    InternalState.weaponDisplay.weaponAmmoLabel.SetText(((int)(Bindings.Player.Weapons.GetActiveStationReloadProgress()*100f)).ToString() + "%");
+                    InternalState.weaponDisplay.weaponAmmoLabel.SetText(((int)(Bindings.Player.Aircraft.Weapons.GetActiveStationReloadProgress()*100f)).ToString() + "%");
                 else
-                    InternalState.weaponDisplay.weaponAmmoLabel.SetText(Bindings.Player.Weapons.GetActiveStationAmmoString().Replace(" ", ""));
+                    InternalState.weaponDisplay.weaponAmmoLabel.SetText(Bindings.Player.Aircraft.Weapons.GetActiveStationAmmoString().Replace(" ", ""));
                 InternalState.weaponDisplay.weaponAmmoLabel.SetFontSize(
                     InternalState.weaponDisplay.originalWeaponAmmoFontSize + (InternalState.reduceWeaponFontSize ? -15 : 0));
                 InternalState.weaponDisplay.weaponAmmoLabel.SetColor(InternalState.isOutOfAmmo ? Color.red : InternalState.textColor);
 
                 Image cloneImg = InternalState.weaponDisplay.weaponImageClone.GetComponent<Image>();
-                Image srcImg = Bindings.Player.Weapons.GetActiveStationImage();
+                Image srcImg = Bindings.Player.Aircraft.Weapons.GetActiveStationImage();
                 cloneImg.sprite = srcImg.sprite;
                 cloneImg.color = InternalState.isOutOfAmmo ? Color.red : InternalState.mainColor;
                 // TODO : ENCAPSULATE IMAGES IN MY OWN CODE
@@ -448,8 +448,8 @@ public class WeaponDisplayComponent {
             );
             weaponAmmoLabel.SetText("");
             // Clone the weapon image and set it as a child of the systems MFD
-            if (Bindings.Player.Weapons.GetStationCount() != 0)
-                weaponImageClone = GameObject.Instantiate(Bindings.Player.Weapons.GetActiveStationImage().gameObject, destination);
+            if (Bindings.Player.Aircraft.Weapons.GetStationCount() != 0)
+                weaponImageClone = GameObject.Instantiate(Bindings.Player.Aircraft.Weapons.GetActiveStationImage().gameObject, destination);
             else
                 weaponImageClone = new Bindings.UI.Draw.UIRectangle(
                     "empty_texture",

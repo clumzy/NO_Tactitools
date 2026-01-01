@@ -171,7 +171,6 @@ public class Bindings {
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.SetJammer] NullReferenceException: countermeasure manager unavailable; cannot select jammer."); }
                 }
             }
-        }
 
         public class Weapons {
 
@@ -284,6 +283,8 @@ public class Bindings {
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.SetActiveStation] NullReferenceException: CombatHUD or aircraft/weaponManager was null; cannot set active station."); }
             }
+        }
+
         }
 
         public class TargetList {
