@@ -14,7 +14,7 @@ class CountermeasureControlsPlugin {
             InputCatcher.RegisterNewInput(
                 Plugin.countermeasureControlsControllerName.Value,
                 Plugin.countermeasureControlsFlareButtonNumber.Value,
-                0.0001f,
+                0.0001f, 
                 onLongPress: HandleOnHoldFlare
                 );
             InputCatcher.RegisterNewInput(
