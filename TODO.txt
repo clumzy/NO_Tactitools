@@ -22,6 +22,7 @@ TODO :
 -> add functionalty to see if a targeted unit is being targeted by a friendly missile
 -> a button to unmark targets that don't hav a known datalink position
 -> more generally, target list handling
+-> the target interceptor doesn't work when jammed
 
 
 NICE TO HAVE :
