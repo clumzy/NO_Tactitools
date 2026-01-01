@@ -428,7 +428,7 @@ namespace NO_Tactitools.Core {
                 harmony.PatchAll(typeof(MFDColorPlugin));
             }
             // CONTROL PATCHES
-            // Patch Target Recall
+            // Patch Target List Controller
             if (targetListControllerEnabled.Value) {
                 Logger.LogInfo($"Target Recall is enabled, patching...");
                 harmony.PatchAll(typeof(TargetListControllerPlugin));

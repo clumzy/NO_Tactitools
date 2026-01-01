@@ -28,7 +28,6 @@ class TargetListControllerPlugin {
 public static class TargetListControllerComponent {
     static class LogicEngine {
         public static void Init() {
-            InternalState.unitList.Clear();
             InternalState.targetIndex = 0;
         }
 
