@@ -60,11 +60,9 @@ public class Bindings {
 
                 public static int GetIRFlareAmmo() {
                     try {
-                        Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
-                        FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                        object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
-                        var IRStation = (stationsObj as IList)[HasECMPod() ? 1 : 0];
-                        int count = (int)IRStation.GetType().GetField("ammo", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).GetValue(IRStation);
+                        var stationsList = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).Field("countermeasureStations").GetValue<IList>();
+                        var IRStation = stationsList[HasECMPod() ? 1 : 0];
+                        int count = Traverse.Create(IRStation).Field("ammo").GetValue<int>();
                         return count;
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetIRAmmo] NullReferenceException: countermeasure manager or IR station unavailable; returning 0 IR flares."); return 0; }
@@ -72,14 +70,9 @@ public class Bindings {
 
                 public static int GetIRFlareMaxAmmo() {
                     try {
-                        Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
-                        FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                        object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
-                        var IRStation = (stationsObj as IList)[HasECMPod() ? 1 : 0];
-                        Type stationType = IRStation.GetType();
-                        FieldInfo counterField = stationType.GetField("countermeasures", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                        var ejectorStationObj = counterField.GetValue(IRStation);
-                        FlareEjector ejectorStation = (FlareEjector)(ejectorStationObj as IList)[0];
+                        var stationsList = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).Field("countermeasureStations").GetValue<IList>();
+                        var IRStation = stationsList[HasECMPod() ? 1 : 0];
+                        var ejectorStation = (FlareEjector)((IList)Traverse.Create(IRStation).Field("countermeasures").GetValue())[0];
                         int maxCount = ejectorStation.GetMaxAmmo();
                         return maxCount;
                     }
@@ -88,17 +81,10 @@ public class Bindings {
 
                 public static int GetJammerAmmo() {
                     try {
-                        Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
-                        FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                        object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
-                        var JammerStation = (stationsObj as IList)[HasECMPod() ? 0 : 1];
-                        Type stationType = JammerStation.GetType();
-                        FieldInfo counterField = stationType.GetField("countermeasures", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                        var jammerStationObj = counterField.GetValue(JammerStation);
-                        RadarJammer jammerStation = (RadarJammer)(jammerStationObj as IList)[0];
-                        Type powerSupplyType = jammerStation.GetType();
-                        FieldInfo powerSupplyField = powerSupplyType.GetField("powerSupply", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                        PowerSupply supply = (PowerSupply)powerSupplyField.GetValue(jammerStation);
+                        var stationsList = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).Field("countermeasureStations").GetValue<IList>();
+                        var JammerStation = stationsList[HasECMPod() ? 0 : 1];
+                        var jammerStation = (RadarJammer)((IList)Traverse.Create(JammerStation).Field("countermeasures").GetValue())[0];
+                        PowerSupply supply = Traverse.Create(jammerStation).Field("powerSupply").GetValue<PowerSupply>();
                         int charge = (int)(supply.GetCharge() * 100f);
                         return charge;
                     }
@@ -107,36 +93,33 @@ public class Bindings {
 
                 public static bool HasIRFlare() {
                     try {
-                        // Reflection to access private field 'countermeasureStations'
-                        Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
-                        FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                        object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
-
-                        return (stationsObj as IList).Count > 0;
+                        var stationsList = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).Field("countermeasureStations").GetValue<IList>();
+                        return stationsList.Count > 0;
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasIRFlare] NullReferenceException: countermeasure manager or stations list unavailable; assuming no IR flares (false)."); return false; }
                 }
 
                 public static bool HasECMPod() {
                     try {
-                        return (
-                            HasJammer() &&
-                                ((GetPlatformName() == "UH-80 Ibis") ||
-                                (GetPlatformName() == "SAH-46 Chicane") ||
-                                (GetPlatformName() == "VL-49 Tarantula") ||
-                                (GetPlatformName() == "CI-22 Cricket")));
+                        var stationsList = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).Field("countermeasureStations").GetValue<IList>();
+
+                        if (stationsList != null && stationsList.Count > 0) {
+                            var firstStation = stationsList[0];
+                            var countermeasuresList = Traverse.Create(firstStation).Field("countermeasures").GetValue<IList>();
+
+                            if (countermeasuresList != null && countermeasuresList.Count > 0) {
+                                return countermeasuresList[0] is RadarJammer;
+                            }
+                        }
+                        return false;
                     }
-                    catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasECMPod] NullReferenceException: countermeasure manager or stations list unavailable; assuming no ECM pod (false)."); return false; }
+                    catch (Exception) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasECMPod] Exception: countermeasure manager or stations list unavailable; assuming no ECM pod (false)."); return false; }
                 }
 
                 public static bool HasJammer() {
                     try {
-                        // Reflection to access private field 'countermeasureStations'
-                        Type mgrType = (SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).GetType();
-                        FieldInfo stationsField = mgrType.GetField("countermeasureStations", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                        object stationsObj = stationsField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager);
-
-                        return (stationsObj as IList).Count > 1;
+                        var stationsList = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).Field("countermeasureStations").GetValue<IList>();
+                        return stationsList.Count > 1;
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasJammer] NullReferenceException: countermeasure manager or stations list unavailable; assuming no jammer (false)."); return false; }
                 }
@@ -216,9 +199,7 @@ public class Bindings {
 
             public static Image GetActiveStationImage() {
                 try {
-                    Type weaponIndicatorType = (Bindings.UI.Game.GetWeaponStatus()).GetType();
-                    FieldInfo weaponImageField = weaponIndicatorType.GetField("weaponImage", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                    Image weaponImage = (Image)weaponImageField.GetValue(Bindings.UI.Game.GetWeaponStatus());
+                    Image weaponImage = Traverse.Create(Bindings.UI.Game.GetWeaponStatus()).Field("weaponImage").GetValue<Image>();
                     return weaponImage;
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetActiveStationImage] NullReferenceException: CombatHUD or weapon image unavailable; returning null."); return null; }
@@ -649,9 +630,7 @@ public class Bindings {
 
             public static Transform GetTargetScreen(bool nullIsOkay = false) {
                 try {
-                    Type targetCamType = (SceneSingleton<CombatHUD>.i.aircraft.targetCam).GetType();
-                    FieldInfo targetScreenField = targetCamType.GetField("targetScreenUI", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                    TargetScreenUI targetScreenUIObject = (TargetScreenUI)targetScreenField.GetValue(SceneSingleton<CombatHUD>.i.aircraft.targetCam);
+                    TargetScreenUI targetScreenUIObject = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.targetCam).Field("targetScreenUI").GetValue<TargetScreenUI>();
                     return targetScreenUIObject.transform;
                 }
                 catch (NullReferenceException) {
@@ -664,9 +643,7 @@ public class Bindings {
             public static Transform GetTacScreen() {
                 try {
                     foreach (Cockpit child in UnityEngine.Object.FindObjectsOfType<Cockpit>()) {
-                        Type cockpitType = child.GetType();
-                        FieldInfo tacScreenField = cockpitType.GetField("tacScreen", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                        TacScreen tacScreenObject = (TacScreen)tacScreenField.GetValue(child);
+                        TacScreen tacScreenObject = Traverse.Create(child).Field("tacScreen").GetValue<TacScreen>();
                         if (tacScreenObject != null) {
                             return tacScreenObject.transform.Find("Canvas").transform;
                         }
@@ -680,9 +657,7 @@ public class Bindings {
             public static TacScreen GetTacScreenComponent() {
                 try {
                     foreach (Cockpit child in UnityEngine.Object.FindObjectsOfType<Cockpit>()) {
-                        Type cockpitType = child.GetType();
-                        FieldInfo tacScreenField = cockpitType.GetField("tacScreen", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                        TacScreen tacScreenObject = (TacScreen)tacScreenField.GetValue(child);
+                        TacScreen tacScreenObject = Traverse.Create(child).Field("tacScreen").GetValue<TacScreen>();
                         if (tacScreenObject != null) {
                             return tacScreenObject;
                         }
