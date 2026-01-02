@@ -31,15 +31,26 @@ class TargetListControllerPlugin {
 public static class TargetListControllerComponent {
     static class LogicEngine {
         public static void Init() {
+            InternalState.previousTargetList = [];
             InternalState.targetIndex = 0;
         }
 
         public static void Update() {
+            if (InternalState.previousTargetList != Bindings.Player.TargetList.GetTargets()) {
+                InternalState.previousTargetList = Bindings.Player.TargetList.GetTargets();
+                InternalState.updateDisplay = true;
+                InternalState.targetIndex = InternalState.updateDisplay ? InternalState.previousTargetList.Count - 1 : 0;
+            }
+            else {
+                InternalState.updateDisplay = false;
+            }
         }
     }
 
     public static class InternalState {
         public static List<Unit> unitRecallList;
+        public static List <Unit> previousTargetList;
+        public static bool updateDisplay = false;
         public static int targetIndex = 0;
     }
     static class DisplayEngine {
@@ -48,14 +59,14 @@ public static class TargetListControllerComponent {
         public static void Update() {
             if (Bindings.UI.Game.GetCombatHUDTransform() != null && 
                 Bindings.Player.TargetList.GetTargets().Count > 0 &&
-                Bindings.UI.Game.GetTargetScreenTransform(nullIsOkay: true) != null) {
+                Bindings.UI.Game.GetTargetScreenTransform(nullIsOkay: true) != null &&
+                InternalState.updateDisplay
+                ) {
                 TargetScreenUI targetScreen = Bindings.UI.Game.GetTargetScreenUIComponent();
                 List<Image> targetIcons = Traverse.Create(targetScreen).Field("targetBoxes").GetValue<List<Image>>();
                 for (int i = 0; i < targetIcons.Count; i++) {
                     // Get or Add Outline component
-                    Outline outline = targetIcons[i].GetComponent<Outline>();
-                    if (outline == null) outline = targetIcons[i].gameObject.AddComponent<Outline>();
-
+                    Outline outline = targetIcons[i].GetComponent<Outline>() ?? targetIcons[i].gameObject.AddComponent<Outline>();
                     if (i == InternalState.targetIndex) {
                         targetIcons[i].color = Color.green;
                         targetIcons[i].transform.localScale = new Vector3(.6f, .6f, 1f);
