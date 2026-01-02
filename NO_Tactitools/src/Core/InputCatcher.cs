@@ -20,7 +20,7 @@ public class InputCatcher {
         string controllerName,
         string inputCodeString,
         float longPressThreshold = 0.2f,
-        System.Action onShortPress = null,
+        System.Action onRelease = null,
         System.Action onHold = null,
         System.Action onLongPress = null
         ) {
@@ -36,7 +36,7 @@ public class InputCatcher {
         bool found = false;
         foreach (Controller controller in controllerInputs.Keys) {
             if (controller.name.Trim() == controllerName) {
-                RegisterInputNow(controller, inputCodeString, longPressThreshold, onShortPress, onHold, onLongPress);
+                RegisterInputNow(controller, inputCodeString, longPressThreshold, onRelease, onHold, onLongPress);
                 found = true;
                 break;
             }
@@ -45,7 +45,7 @@ public class InputCatcher {
         if (!found) {
             if (!pendingControllerInputs.ContainsKey(controllerName))
                 pendingControllerInputs[controllerName] = [];
-            pendingControllerInputs[controllerName].Add(new PendingInput(inputCodeString, longPressThreshold, onShortPress, onHold, onLongPress));
+            pendingControllerInputs[controllerName].Add(new PendingInput(inputCodeString, longPressThreshold, onRelease, onHold, onLongPress));
             Plugin.Log("[IC] Controller not connected, input " + inputCodeString + " added to pending list for " + controllerName);
         }
     }
@@ -61,7 +61,7 @@ public class InputCatcher {
         Controller controller,
         string inputCodeString,
         float longPressThreshold,
-        System.Action onShortPress,
+        System.Action onRelease,
         System.Action onHold,
         System.Action onLongPress
     ) {
@@ -75,7 +75,7 @@ public class InputCatcher {
                 newInput = new ControllerInput(
                     keyboardController.GetButtonIndexByKeyCode((KeyCode)Enum.Parse(typeof(KeyCode), inputCodeString)),
                     longPressThreshold,
-                    onShortPress,
+                    onRelease,
                     onHold,
                     onLongPress
                     );
@@ -84,7 +84,7 @@ public class InputCatcher {
                 newInput = new ControllerInput(
                     int.Parse(inputCodeString),
                     longPressThreshold,
-                    onShortPress,
+                    onRelease,
                     onHold,
                     onLongPress
                     );
@@ -93,7 +93,7 @@ public class InputCatcher {
                 newInput = new ControllerInput(
                     ParseHatInput(inputCodeString),
                     longPressThreshold,
-                    onShortPress,
+                    onRelease,
                     onHold,
                     onLongPress
                     );

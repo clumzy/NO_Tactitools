@@ -37,7 +37,7 @@ public class ArtificialHorizonComponent {
                 }
                 return;
             }
-            InternalState.destination = Bindings.UI.Game.GetFlightHUD();
+            InternalState.destination = Bindings.UI.Game.GetFlightHUDTransform();
             InternalState.canvasRectTransform = InternalState.destination?.GetComponent<RectTransform>();
             InternalState.mainCamera = Bindings.UI.Game.GetCameraStateManager()?.mainCamera;
             Plugin.Log("[AH] Logic Engine initialized");

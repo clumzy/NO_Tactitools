@@ -79,14 +79,14 @@ class InterceptionVectorTask {
     static void HandleInitState() {
         if (
             Bindings.Player.TargetList.GetTargets().Count != 1 ||
-            Bindings.UI.Game.GetTacScreen() == null ||
-            Bindings.UI.Game.GetCombatHUD() == null) return; // Do not init if no target is selected
+            Bindings.UI.Game.GetTacScreenTransform() == null ||
+            Bindings.UI.Game.GetCombatHUDTransform() == null) return; // Do not init if no target is selected
         Plugin.Log("[IV] Init state");
         playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
         bearingLabel = new Bindings.UI.Draw.UILabel(
             "bearingLabel",
             new Vector2(0, -70),
-            Bindings.UI.Game.GetTargetScreen(),
+            Bindings.UI.Game.GetTargetScreenTransform(),
             FontStyle.Normal,
             Color.green,
             20
@@ -94,7 +94,7 @@ class InterceptionVectorTask {
         timerLabel = new Bindings.UI.Draw.UILabel(
             "timerLabel",
             new Vector2(0, -100),
-            Bindings.UI.Game.GetTargetScreen(),
+            Bindings.UI.Game.GetTargetScreenTransform(),
             FontStyle.Normal,
             Color.green,
             20
@@ -102,7 +102,7 @@ class InterceptionVectorTask {
         indicatorTargetLabel = new Bindings.UI.Draw.UILabel(
             "indicatorTargetLabel",
             new Vector2(0, 0),
-            Bindings.UI.Game.GetTargetScreen(),
+            Bindings.UI.Game.GetTargetScreenTransform(),
             FontStyle.Normal,
             Color.magenta,
             36,
@@ -112,7 +112,7 @@ class InterceptionVectorTask {
             "indicatorTargetLine",
             new Vector2(0, 0),
             new Vector2(0, 0),
-            Bindings.UI.Game.GetTargetScreen(),
+            Bindings.UI.Game.GetTargetScreenTransform(),
             Color.magenta,
             2f
         );

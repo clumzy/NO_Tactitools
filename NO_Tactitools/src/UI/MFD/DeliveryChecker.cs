@@ -69,13 +69,13 @@ class DeliveryIndicator {
             "DeliveryFrame" + randomString,
             new Vector2(0f, 0f),
             new Vector2(12f, 12f),
-            Bindings.UI.Game.GetTargetScreen(),
+            Bindings.UI.Game.GetTargetScreenTransform(),
             Color.black);
         indicator = new Bindings.UI.Draw.UIRectangle(
             "DeliveryIndicator" + randomString,
             new Vector2(0f, 0f),
             new Vector2(8f, 8f),
-            Bindings.UI.Game.GetTargetScreen(),
+            Bindings.UI.Game.GetTargetScreenTransform(),
             Color.yellow);
         frame.SetCenter(pos);
         indicator.SetCenter(pos);
@@ -128,7 +128,7 @@ class DeliveryIndicator {
 [HarmonyPatch(typeof(Missile), "StartMissile")]
 class StartMissilePatch {
     static void Postfix(Missile __instance) {
-        if (Bindings.UI.Game.GetTargetScreen(true) == null) return; // in case the targeting screen doesn't exist yet
+        if (Bindings.UI.Game.GetTargetScreenTransform(true) == null) return; // in case the targeting screen doesn't exist yet
         if (__instance.owner == SceneSingleton<CombatHUD>.i.aircraft) {
             DeliveryIndicator deliveryIndicator = new(
                 new Vector2(

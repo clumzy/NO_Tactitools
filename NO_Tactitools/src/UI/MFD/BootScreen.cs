@@ -27,7 +27,7 @@ public static class BootScreenComponent {
     // Mirrors WeaponDisplay structure: LogicEngine, InternalState, DisplayEngine
     static class LogicEngine {
         public static void Init() {
-            InternalState.tacScreenTransform = Bindings.UI.Game.GetTacScreen();
+            InternalState.tacScreenTransform = Bindings.UI.Game.GetTacScreenTransform();
             InternalState.previouslyActiveObjects.Clear();
             foreach (Transform child in InternalState.tacScreenTransform) {
                 if (child == null || child.gameObject == null || child.name.StartsWith("i_")) continue;

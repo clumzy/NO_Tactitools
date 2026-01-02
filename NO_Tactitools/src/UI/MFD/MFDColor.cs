@@ -61,7 +61,7 @@ public static class MFDColorComponent {
         public static void Init() {
             Plugin.Log("[MFD] Resetting MFD colors");
             // Now onto the original elements
-            Transform tacScreenTransform = Bindings.UI.Game.GetTacScreen();
+            Transform tacScreenTransform = Bindings.UI.Game.GetTacScreenTransform();
             foreach (Text text in tacScreenTransform.GetComponentsInChildren<Text>(true)) {
                 Color originalTextColor = text.color;
                 Color newTextColor = Color.HSVToRGB(

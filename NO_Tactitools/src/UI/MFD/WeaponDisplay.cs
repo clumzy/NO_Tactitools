@@ -18,7 +18,7 @@ class WeaponDisplayPlugin {
                 Plugin.weaponDisplayControllerName.Value,
                     Plugin.weaponDisplayButtonNumber.Value,
                     0.2f,
-                    onShortPress: HandleDisplayToggle
+                    onRelease: HandleDisplayToggle
             );
             initialized = true;
             Plugin.Log("[WD] Weapon Display plugin succesfully started !");
@@ -101,7 +101,7 @@ public class WeaponDisplayComponent {
         static public void Update() {
             if (Bindings.GameState.IsGamePaused() ||
                 Bindings.Player.Aircraft.GetAircraft() == null ||
-                Bindings.UI.Game.GetCombatHUD() == null)
+                Bindings.UI.Game.GetCombatHUDTransform() == null)
                 return; // do not refresh anything if the game is paused or the player aircraft is not available
             // REFRESH WEAPON
             if (InternalState.hasStations) { // do not refresh weapon info if the player has no weapon stations
@@ -153,7 +153,7 @@ public class WeaponDisplayComponent {
 
         public WeaponDisplay() {
             static Transform Get(string path) {
-                return Bindings.UI.Game.GetTacScreen().Find(path)?.transform;
+                return Bindings.UI.Game.GetTacScreenTransform().Find(path)?.transform;
             }
             string platformName = Bindings.Player.Aircraft.GetPlatformName();
             Transform destination = platformName switch {

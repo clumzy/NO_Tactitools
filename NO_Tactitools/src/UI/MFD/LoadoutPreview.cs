@@ -150,11 +150,11 @@ public class LoadoutPreviewComponent {
             List<InternalState.WeaponStationInfo> weaponStations = InternalState.weaponStations;
             string platformName;
             if (!sendToHMD) {
-                loadoutPreview_transform = Bindings.UI.Game.GetTacScreen();
+                loadoutPreview_transform = Bindings.UI.Game.GetTacScreenTransform();
                 platformName = Bindings.Player.Aircraft.GetPlatformName();
             }
             else {
-                loadoutPreview_transform = Bindings.UI.Game.GetCombatHUD();
+                loadoutPreview_transform = Bindings.UI.Game.GetCombatHUDTransform();
                 platformName = "HMD";
             }
             switch (platformName) {
