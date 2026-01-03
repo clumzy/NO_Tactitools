@@ -19,10 +19,8 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<string> targetNextInput;
         public static ConfigEntry<string> targetPreviousControllerName;
         public static ConfigEntry<string> targetPreviousInput;
-        public static ConfigEntry<string> targetDeselectControllerName;
-        public static ConfigEntry<string> targetDeselectInput;
-        public static ConfigEntry<string> targetKeepOnlyControllerName;
-        public static ConfigEntry<string> targetKeepOnlyInput;
+        public static ConfigEntry<string> targetPopOrKeepControllerName;
+        public static ConfigEntry<string> targetPopOrKeepInput;
         public static ConfigEntry<string> targetSmartControlControllerName;
         public static ConfigEntry<string> targetSmartControlInput;
         public static ConfigEntry<bool> interceptionVectorEnabled;
@@ -130,8 +128,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = -4
                     }));
-            targetDeselectControllerName = Config.Bind("Target List Controller",
-                "Target List Controller - Deselect Target - Controller Name",
+            targetPopOrKeepControllerName = Config.Bind("Target List Controller",
+                "Target List Controller - Remove or Keep Target - Controller Name",
                 "",
                 new ConfigDescription(
                     "Name of the peripheral",
@@ -139,32 +137,14 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = -5
                     }));
-            targetDeselectInput = Config.Bind("Target List Controller",
-                "Target List Controller - Deselect Target - Input",
+            targetPopOrKeepInput = Config.Bind("Target List Controller",
+                "Target List Controller - Remove or Keep Target - Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for Deselect Target",
+                    "Input you want to assign for Remove or Keep Target (short press to remove, long press to keep)",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = -6
-                    }));
-            targetKeepOnlyControllerName = Config.Bind("Target List Controller",
-                "Target List Controller - Keep Only Current Target - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -7
-                    }));
-            targetKeepOnlyInput = Config.Bind("Target List Controller",
-                "Target List Controller - Keep Only Current Target - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign for Keep Only Current Target",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -8
                     }));
             targetSmartControlControllerName = Config.Bind("Target List Controller",
                 "Target List Controller - Smart Control - Controller Name",
@@ -179,7 +159,7 @@ namespace NO_Tactitools.Core {
                 "Target List Controller - Smart Control - Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for Keep Only Data Linked Targets & Closest Targets Based on Ammo (LONG PRESS)",
+                    "Input you want to assign for Smart Control (short press to keep only datalinked targets, long press to keep closest targets based on remaining ammo)",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = -10
