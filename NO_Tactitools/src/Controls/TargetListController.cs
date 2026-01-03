@@ -34,15 +34,11 @@ class TargetListControllerPlugin {
                 0.2f,
                 onRelease: TargetListControllerComponent.PreviousTarget);
             InputCatcher.RegisterNewInput(
-                Plugin.targetDeselectControllerName.Value,
-                Plugin.targetDeselectInput.Value,
+                Plugin.targetPopOrKeepControllerName.Value,
+                Plugin.targetPopOrKeepInput.Value,
                 0.2f,
-                onRelease: TargetListControllerComponent.PopCurrentTarget);
-            InputCatcher.RegisterNewInput(
-                Plugin.targetKeepOnlyControllerName.Value,
-                Plugin.targetKeepOnlyInput.Value,
-                0.2f,
-                onRelease: TargetListControllerComponent.KeepOnlyCurrentTarget);
+                onRelease: TargetListControllerComponent.PopCurrentTarget,
+                onLongPress: TargetListControllerComponent.KeepOnlyCurrentTarget);
             InputCatcher.RegisterNewInput(
                 Plugin.targetSmartControlControllerName.Value,
                 Plugin.targetSmartControlInput.Value,
