@@ -278,8 +278,8 @@ public static class TargetListControllerComponent {
         Plugin.Log($"[TR] KeepClosestTargetsBasedOnAmmo");
         List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
         currentTargets.Sort((a, b) => {
-            float distanceA = Vector3.Distance(InternalState.playerFactionHQ.transform.position, a.transform.position);
-            float distanceB = Vector3.Distance(InternalState.playerFactionHQ.transform.position, b.transform.position);
+            float distanceA = Vector3.Distance(SceneSingleton<CombatHUD>.i.aircraft.transform.position, a.transform.position);
+            float distanceB = Vector3.Distance(SceneSingleton<CombatHUD>.i.aircraft.transform.position, b.transform.position);
             return distanceA.CompareTo(distanceB);
         });
         List<Unit> closestTargets = currentTargets.GetRange(0, Mathf.Min(count, currentTargets.Count));
