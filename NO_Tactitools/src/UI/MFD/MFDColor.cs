@@ -128,6 +128,7 @@ public static class MFDColorComponent {
                 LoadoutPreviewComponent.InternalState.textColor = newComponentTextColor;
             }
             TargetListControllerComponent.InternalState.mainColor = newMainColor;
+            InterceptionVectorTask.mainColor = newMainColor;
         }
 
         public static void Update() {

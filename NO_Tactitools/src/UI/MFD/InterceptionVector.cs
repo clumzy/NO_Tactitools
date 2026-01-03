@@ -48,6 +48,7 @@ class InterceptionVectorTask {
     static Vector3 interceptPosition;
     static List<Vector3> interceptArray = [];
     const int interceptArraySize = 180; // Number of entries to keep in the intercept array
+    public static Color mainColor = Color.green;
 
     static void Postfix() {
         CheckForUIElements();
@@ -88,7 +89,7 @@ class InterceptionVectorTask {
             new Vector2(0, -70),
             Bindings.UI.Game.GetTargetScreenTransform(),
             FontStyle.Normal,
-            Color.green,
+            mainColor,
             20
         );
         timerLabel = new Bindings.UI.Draw.UILabel(
@@ -96,7 +97,7 @@ class InterceptionVectorTask {
             new Vector2(0, -100),
             Bindings.UI.Game.GetTargetScreenTransform(),
             FontStyle.Normal,
-            Color.green,
+            mainColor,
             20
         );
         indicatorTargetLabel = new Bindings.UI.Draw.UILabel(
@@ -194,8 +195,8 @@ class InterceptionVectorTask {
     }
 
     static void HandleTracked() {
-        bearingLabel.SetColor(Color.green);
-        timerLabel.SetColor(Color.green);
+        bearingLabel.SetColor(mainColor);
+        timerLabel.SetColor(mainColor);
     }
 
     static void HandleUntracked() {
