@@ -2,6 +2,7 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using NO_Tactitools.Core;
+using NO_Tactitools.Controls;
 
 namespace NO_Tactitools.UI.MFD;
 
@@ -126,6 +127,7 @@ public static class MFDColorComponent {
                 LoadoutPreviewComponent.InternalState.mainColor = newLoadoutColor;
                 LoadoutPreviewComponent.InternalState.textColor = newComponentTextColor;
             }
+            TargetListControllerComponent.InternalState.mainColor = newMainColor;
         }
 
         public static void Update() {

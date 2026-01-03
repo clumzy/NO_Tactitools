@@ -285,6 +285,13 @@ public class Bindings {
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.TargetList.DeselectAll] NullReferenceException: CombatHUD not available; cannot deselect targets."); }
             }
 
+            public static void DeselectUnit(Unit unit) {
+                try {
+                    SceneSingleton<CombatHUD>.i.DeSelectUnit(unit);
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.Player.TargetList.DeslectUnit] NullReferenceException: CombatHUD target deselection unavailable; cannot deselect target."); }
+            }
+
             public static List<Unit> GetTargets() {
                 try {
                     return [.. (List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()];

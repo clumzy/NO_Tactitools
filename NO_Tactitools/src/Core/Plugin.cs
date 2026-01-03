@@ -15,6 +15,16 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> targetListControllerEnabled;
         public static ConfigEntry<string> targetRecallControllerName;
         public static ConfigEntry<string> targetRecallInput;
+        public static ConfigEntry<string> targetNextControllerName;
+        public static ConfigEntry<string> targetNextInput;
+        public static ConfigEntry<string> targetPreviousControllerName;
+        public static ConfigEntry<string> targetPreviousInput;
+        public static ConfigEntry<string> targetDeselectControllerName;
+        public static ConfigEntry<string> targetDeselectInput;
+        public static ConfigEntry<string> targetKeepOnlyControllerName;
+        public static ConfigEntry<string> targetKeepOnlyInput;
+        public static ConfigEntry<string> targetSmartControlControllerName;
+        public static ConfigEntry<string> targetSmartControlInput;
         public static ConfigEntry<bool> interceptionVectorEnabled;
         public static ConfigEntry<bool> onScreenVectorEnabled;
         public static ConfigEntry<bool> countermeasureControlsEnabled;
@@ -83,6 +93,96 @@ namespace NO_Tactitools.Core {
                     null,
                     new ConfigurationManagerAttributes {
                         Order = 0
+                    }));
+            targetNextControllerName = Config.Bind("Target List Controller",
+                "Target List Controller - Next Target - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -1
+                    }));
+            targetNextInput = Config.Bind("Target List Controller",
+                "Target List Controller - Next Target - Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign for Next Target",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -2
+                    }));
+            targetPreviousControllerName = Config.Bind("Target List Controller",
+                "Target List Controller - Previous Target - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -3
+                    }));
+            targetPreviousInput = Config.Bind("Target List Controller",
+                "Target List Controller - Previous Target - Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign for Previous Target",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -4
+                    }));
+            targetDeselectControllerName = Config.Bind("Target List Controller",
+                "Target List Controller - Deselect Target - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -5
+                    }));
+            targetDeselectInput = Config.Bind("Target List Controller",
+                "Target List Controller - Deselect Target - Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign for Deselect Target",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -6
+                    }));
+            targetKeepOnlyControllerName = Config.Bind("Target List Controller",
+                "Target List Controller - Keep Only Current Target - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -7
+                    }));
+            targetKeepOnlyInput = Config.Bind("Target List Controller",
+                "Target List Controller - Keep Only Current Target - Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign for Keep Only Current Target",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -8
+                    }));
+            targetSmartControlControllerName = Config.Bind("Target List Controller",
+                "Target List Controller - Smart Control - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -9
+                    }));
+            targetSmartControlInput = Config.Bind("Target List Controller",
+                "Target List Controller - Smart Control - Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign for Keep Only Data Linked Targets & Closest Targets Based on Ammo (LONG PRESS)",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -10
                     }));
             // Interception Vector settings
             interceptionVectorEnabled = Config.Bind("Interception Vector",
