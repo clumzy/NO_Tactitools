@@ -162,6 +162,10 @@ public static class TargetListControllerComponent {
         Text rel_speed = traverse.Field("rel_speed").GetValue<Text>();
         Text pilotText = traverse.Field("pilotText").GetValue<Text>();
 
+        Text distance = traverse.Field("distance").GetValue<Text>();
+        Text bearingText = traverse.Field("bearingText").GetValue<Text>();
+        Image bearingImg = traverse.Field("bearingImg").GetValue<Image>();
+
         bool isAirOrMissile = unit is Aircraft || unit is Missile;
 
         if (unit.NetworkHQ == null) {
@@ -203,8 +207,8 @@ public static class TargetListControllerComponent {
             speed.text = "SPD -";
             rel_speed.text = "REL -";
         }
-
-        typeText.text = string.Format("[{0}/{1}] ", index + 1, targets.Count) + ((unit is Aircraft) ? unit.definition.unitName : unit.unitName);
+        distance.text = "RNG " + UnitConverter.DistanceReading(Vector3.Distance(SceneSingleton<CombatHUD>.i.aircraft.transform.position, unit.transform.position));
+        typeText.text = string.Format("[{0}/{1}] ", targets.Count - index, targets.Count) + ((unit is Aircraft) ? unit.definition.unitName : unit.unitName);
     }
 
     public static void NextTarget() {
@@ -263,7 +267,7 @@ public static class TargetListControllerComponent {
             InternalState.targetIndex = 0;
             InternalState.updateDisplay = true;
         }
-        Bindings.UI.Game.DisplayToast($"Kept <b>{dataLinkedTargets.Count.ToString()}</b> data linked targets", 3f);
+        Bindings.UI.Game.DisplayToast($"Kept <b>{dataLinkedTargets.Count.ToString()}</b> data linked target"+(dataLinkedTargets.Count>1 ? "s" : ""), 3f);
     }
 
     public static void KeepClosestTargetsBasedOnAmmo() {
