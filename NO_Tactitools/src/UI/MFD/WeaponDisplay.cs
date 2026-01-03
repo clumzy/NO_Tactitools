@@ -197,8 +197,8 @@ public class WeaponDisplayComponent {
                     weaponNamePos = new Vector2(0, -45);
                     weaponAmmoPos = new Vector2(0, -70);
                     weaponImagePos = new Vector2(0, -25);
-                    flareFont = 15;
-                    jammerFont = 15;
+                    flareFont = 18;
+                    jammerFont = 18;
                     weaponNameFont = 20;
                     weaponAmmoFont = 35;
                     imageScaleFactor = 0.4f; // Scale the image for SAH-46 Chicane
