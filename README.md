@@ -19,12 +19,21 @@ George
 - Takes 3 seconds to spool up
 - ETA and bearing are displayed at the bottom of the target screen
 - The interception solution is not updated if the target is not tracked
+- The interception solution is reset and deactivated when you are being jammed
 
-### 💾 Target group save and recall (HOTAS and Keyboard)
-- Can be assigned to any peripheral button
+### 💾 Target list handling (HOTAS and Keyboard)
+- **Save/Recall Group**: Can be assigned to any peripheral button
   - **Long press** -> Save target group
   - **Short press** -> Recall target group
-- Saved target group persists after respawn
+  - Saved target group is reset on respawn
+- **Target Navigation**: Can be assigned to separate buttons
+  - Cycle through selected targets (Next/Previous)
+- **Target Selection**: Can be assigned to any peripheral button
+  - **Short press** -> Deselect current target
+  - **Long press** -> Keep ONLY current target
+- **Smart Filter**: Can be assigned to any peripheral button
+  - **Short press** -> Keep only data-linked targets
+  - **Long press** -> Keep closest targets based on available ammo count
 
 ### 🔘 Separate, dedicated buttons for slot selection (HOTAS and Keyboard)
 - Can be assigned to any peripheral button
@@ -71,7 +80,9 @@ George
 - You can select for which airframe you want the Artificial Horizon to display by editing an included config file
 - The transparency is configurable
 
-### 🛡️ AA unit icon recolor on the main map
+### 🛡️ AA unit icon recolor on the main map (**DEPRECATED**)
+- I recommend you switch to the excellent Vanilla Icons Plus mod for the same
+functionnality and more. Download it [here](https://discord.com/channels/909034158205059082/1452350628155228342).
 - Enemy AA units are recolored on the main map
 - The color is configurable
 - You can select which units are recolored by editing an included config file
