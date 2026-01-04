@@ -271,9 +271,17 @@ public class Bindings {
         public class TargetList {
             public static void AddTargets(List<Unit> units) {
                 try {
-                    foreach (Unit t_unit in units) {
-                        SceneSingleton<CombatHUD>.i.SelectUnit(t_unit);
+                    var markerLookup = Traverse.Create(Bindings.UI.Game.GetCombatHUDComponent()).Field("markerLookup").GetValue<Dictionary<Unit, HUDUnitMarker>>();
+                    AudioClip selectSound = Traverse.Create(Bindings.UI.Game.GetCombatHUDComponent()).Field("selectSound").GetValue<AudioClip>();
+                    List<Unit> currentTargets = [.. units];
+                    currentTargets.Reverse();
+                    foreach (Unit t_unit in currentTargets) {
+                        if (markerLookup.ContainsKey(t_unit)) {
+                            markerLookup[t_unit].SelectMarker();
+                            Bindings.Player.Aircraft.GetAircraft().weaponManager.AddTargetList(t_unit);
+                        }
                     }
+                    SoundManager.PlayInterfaceOneShot(selectSound);
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.TargetList.AddTargets] NullReferenceException: CombatHUD target selection unavailable; cannot add targets."); }
             }
@@ -568,20 +576,20 @@ public class Bindings {
 
                     // Inward borders
                     // Top Border: Full width, thickness t, at top edge
-                    Vector2 topLeft_Top = new Vector2(-halfSize.x, halfSize.y);
-                    Vector2 bottomRight_Top = new Vector2(halfSize.x, halfSize.y - t);
+                    Vector2 topLeft_Top = new(-halfSize.x, halfSize.y);
+                    Vector2 bottomRight_Top = new(halfSize.x, halfSize.y - t);
 
                     // Bottom Border: Full width, thickness t, at bottom edge
-                    Vector2 topLeft_Bottom = new Vector2(-halfSize.x, -halfSize.y + t);
-                    Vector2 bottomRight_Bottom = new Vector2(halfSize.x, -halfSize.y);
+                    Vector2 topLeft_Bottom = new(-halfSize.x, -halfSize.y + t);
+                    Vector2 bottomRight_Bottom = new(halfSize.x, -halfSize.y);
 
                     // Left Border: Height - 2t, thickness t, at left edge (between top and bottom borders)
-                    Vector2 topLeft_Left = new Vector2(-halfSize.x, halfSize.y - t);
-                    Vector2 bottomRight_Left = new Vector2(-halfSize.x + t, -halfSize.y + t);
+                    Vector2 topLeft_Left = new(-halfSize.x, halfSize.y - t);
+                    Vector2 bottomRight_Left = new(-halfSize.x + t, -halfSize.y + t);
 
                     // Right Border: Height - 2t, thickness t, at right edge (between top and bottom borders)
-                    Vector2 topLeft_Right = new Vector2(halfSize.x - t, halfSize.y - t);
-                    Vector2 bottomRight_Right = new Vector2(halfSize.x, -halfSize.y + t);
+                    Vector2 topLeft_Right = new(halfSize.x - t, halfSize.y - t);
+                    Vector2 bottomRight_Right = new(halfSize.x, -halfSize.y + t);
 
                     topBorder.SetCorners(topLeft_Top, bottomRight_Top);
                     bottomBorder.SetCorners(topLeft_Bottom, bottomRight_Bottom);
@@ -626,6 +634,13 @@ public class Bindings {
                     return SceneSingleton<CombatHUD>.i.transform;
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetCombatHUD] NullReferenceException: CombatHUD singleton not available; returning null."); return null; }
+            }
+
+            public static CombatHUD GetCombatHUDComponent() {
+                try {
+                    return SceneSingleton<CombatHUD>.i;
+                }
+                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetCombatHUDComponent] NullReferenceException: CombatHUD singleton not available; returning null."); return null; }
             }
 
             public static Transform GetFlightHUDTransform() { // HUD
@@ -738,7 +753,6 @@ public class Bindings {
         }
 
         public class Sound {
-            private static AudioSource audioSource;
 
             public static void PlaySound(string soundFileName) {
                 static IEnumerator<UnityWebRequestAsyncOperation> LoadAndPlayAudio(string path) {
@@ -750,15 +764,14 @@ public class Bindings {
                     }
                     else {
                         AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
-                        audioSource.PlayOneShot(clip);
+                        if (clip == null) {
+                            Plugin.Logger.LogError("[UIUtils] Loaded audio clip is null.");
+                            yield break;
+                        }
+                        SoundManager.PlayInterfaceOneShot(clip);
                     }
                 }
 
-                if (audioSource == null) {
-                    GameObject audioGO = new("NOTT_AudioSource");
-                    audioSource = audioGO.AddComponent<AudioSource>();
-                    UnityEngine.Object.DontDestroyOnLoad(audioGO);
-                }
 
                 string soundPath = Path.Combine(Path.GetDirectoryName(typeof(Plugin).Assembly.Location), "assets", "sounds", soundFileName);
                 if (!File.Exists(soundPath)) {
