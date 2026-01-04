@@ -22,6 +22,8 @@ George
 - The interception solution is reset and deactivated when you are being jammed
 
 ### 💾 Target list handling (HOTAS, Mouse and Keyboard)
+- Control and navigate through your target list
+- Currently focused target is displayed on the targeting screen
 - **Save/Recall Group**: Can be assigned to any peripheral button
   - **Long press** -> Save target group
   - **Short press** -> Recall target group
