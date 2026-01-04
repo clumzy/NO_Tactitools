@@ -233,12 +233,12 @@ public class WeaponDisplayComponent {
                     imageScaleFactor = 0.8f; // Scale the image for FS-12 Revoker
                     break;
                 case "FS-20 Vortex":
-                    flarePos = new Vector2(-70, -70);
-                    jammerPos = new Vector2(70, -70);
+                    flarePos = new Vector2(-60, -70);
+                    jammerPos = new Vector2(60, -70);
                     lineStart = new Vector2(-120, -20);
                     lineEnd = new Vector2(120, -20);
                     weaponNamePos = new Vector2(0, 70);
-                    weaponAmmoPos = new Vector2(70, 20);
+                    weaponAmmoPos = new Vector2(60, 20);
                     weaponImagePos = new Vector2(-60, 20);
                     flareFont = 35;
                     jammerFont = 35;

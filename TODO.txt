@@ -24,21 +24,20 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> more generally, target list handling
 -> interface sounds now follow the game's set volume
 -> target sounds don't play more than once
+-> fixed a bug where the loadout display would show on boot, always
+-> slightly mov the EW indicator to the left on the vortex, move the ir indicator slightly to the right too
+-> recolor the system status elements and fix some color consistency issues
+
+TO TEST :
 -> the target interceptor doesn't work when jammed
 
 
 TODO :
--> recolor the system status elements
 -> add a tip to deactivate the unit recoloring part when using Vanilla Icons Plus on my README
 -> same with sling, adapt it for the wpon screen
--> slightly mov the EW indicator to the left on the vortex, move the ir indicator slightly to the right too
 
 
 NICE TO HAVE :
--> update uniticonrecolor so that the colors show even when not in a team yet
 -> investigate the POV up format encountered by some users
 -> more generally, find a new way to work with "non-standard" buttons
 -> add main menu patch reset, no need to restart the game
-
-NOT SURE :
--> make it so the weapon selector automatically skips over fully expended weapons
