@@ -31,7 +31,8 @@ public static class UnitIconRecolorComponent {
         }
 
         public static void Update(UnitMapIcon __instance) {
-            InternalState.needsUpdate = __instance.unit.NetworkHQ != SceneSingleton<DynamicMap>.i.HQ &&
+            InternalState.needsUpdate = 
+            __instance.unit.NetworkHQ != SceneSingleton<DynamicMap>.i.HQ &&
             InternalState.targetUnitNames.Contains(__instance.unit.unitName) &&
             __instance.iconImage.color != InternalState.unitIconRecolorEnemyColor;
         }
