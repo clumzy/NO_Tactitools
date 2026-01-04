@@ -21,7 +21,7 @@ George
 - The interception solution is not updated if the target is not tracked
 - The interception solution is reset and deactivated when you are being jammed
 
-### 💾 Target list handling (HOTAS and Keyboard)
+### 💾 Target list handling (HOTAS, Mouse and Keyboard)
 - **Save/Recall Group**: Can be assigned to any peripheral button
   - **Long press** -> Save target group
   - **Short press** -> Recall target group
@@ -35,13 +35,13 @@ George
   - **Short press** -> Keep only data-linked targets
   - **Long press** -> Keep closest targets based on available ammo count
 
-### 🔘 Separate, dedicated buttons for slot selection (HOTAS and Keyboard)
+### 🔘 Separate, dedicated buttons for slot selection (HOTAS, Mouse and Keyboard)
 - Can be assigned to any peripheral button
 - Direct-select weapon slots via dedicated buttons (0–5)
 - Slot order is based on the order weapons are first shown on the loadout screen
 - Long-press on slot 0 toggles Turret Auto Control
 
-### 💥 Separate, dedicated buttons for Flares and Jammer selection
+### 💥 Separate, dedicated buttons for Flares and Jammer selection (HOTAS, Mouse and Keyboard)
 - Can be assigned to any peripheral button
 
 ### 💣 HUD delivery bar and per-shot indicators to indicate launch/detonation “delivery” status
@@ -49,7 +49,7 @@ George
 - Color delivery: green = armor hit, red = miss for instant outcome feedback
 - Distinct shapes: missiles are diamond-shaped, bombs are square-shaped for quick ordnance ID
 
-### 📊 Weapon & Countermeasure Display MFD (HOTAS and Keyboard support)
+### 📊 Weapon & Countermeasure Display MFD (HOTAS, Mouse and Keyboard support)
 - Shows flares/jammer status, current weapon name, and ammo in the cockpit
 - Toggle between modded and original content
   - Can be assigned to any peripheral button
@@ -80,16 +80,18 @@ George
 - You can select for which airframe you want the Artificial Horizon to display by editing an included config file
 - The transparency is configurable
 
-### 🛡️ AA unit icon recolor on the main map (**DEPRECATED**)
-- I recommend you switch to the excellent Vanilla Icons Plus mod for the same
-functionnality and more. Download it [here](https://discord.com/channels/909034158205059082/1452350628155228342).
-- Enemy AA units are recolored on the main map
-- The color is configurable
-- You can select which units are recolored by editing an included config file
-
 ### ⚡ Boot Screen animation
 - A short booting animation is displayed on airframe start
 - The animation lasts for 2 seconds
+
+### 🛡️ AA unit icon recolor on the main map (**DEPRECATED**)
+- **I recommend you switch to the excellent Vanilla Icons Plus mod for the same
+functionnality and more**
+- **Download it [here](https://discord.com/channels/909034158205059082/1452350628155228342)**
+- **Current mod users should deactivate the feature using Config Manager**
+- Enemy AA units are recolored on the main map
+- The color is configurable
+- You can select which units are recolored by editing an included config file
 
 ## Installing
 
@@ -163,6 +165,9 @@ The process is a bit convoluted, I admit. Since the game is using ReWired for it
 <IMG src="readme_content/hotas_hat_1.png"  alt="1.png"/>
 <IMG src="readme_content/hotas_hat_2.png"  alt="2.png"/>
 </details>
+
+#### Setting up mouse inputs
+- Same procedure as with HOTAS buttons except that the peripheral is **Mouse**
 
 #### Setting up keyboard inputs
 - Go to the ingame bindings menu
