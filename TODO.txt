@@ -15,19 +15,30 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> loadout preview doesn't handle weapons with a loading stage properly, like the door guns on the ibis / the maximum cap changes depending on the ammo reserve
 -> fix exceptions when there are no weapon slots on the plane
 
-TODO :
+0.5.0 :
 -> make the mod compatible with QOL mod
--> same with sling, adapt it for the wpon screen
--> slightly mov the EW indicator to the left on the vortex, move the ir indicator slightly to the right too
+--> fixed broken functions
+--> added new ground units
 -> add functionalty to see if a targeted unit is being targeted by a friendly missile
 -> a button to unmark targets that don't hav a known datalink position
 -> more generally, target list handling
+-> interface sounds now follow the game's set volume
+-> target sounds don't play more than once
 -> the target interceptor doesn't work when jammed
 
 
+TODO :
+-> recolor the system status elements
+-> add a tip to deactivate the unit recoloring part when using Vanilla Icons Plus on my README
+-> same with sling, adapt it for the wpon screen
+-> slightly mov the EW indicator to the left on the vortex, move the ir indicator slightly to the right too
+
+
 NICE TO HAVE :
--> make it so the weapon selector automatically skips over fully expended weapons
--> update uniticonrecolor so that the colors show even when not in a plane yet
+-> update uniticonrecolor so that the colors show even when not in a team yet
 -> investigate the POV up format encountered by some users
 -> more generally, find a new way to work with "non-standard" buttons
 -> add main menu patch reset, no need to restart the game
+
+NOT SURE :
+-> make it so the weapon selector automatically skips over fully expended weapons
