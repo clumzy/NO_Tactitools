@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine;
 using NuclearOption.SceneLoading;
 using Unity.Properties;
+using System.Linq;
 
 namespace NO_Tactitools.Controls;
 
@@ -62,8 +63,6 @@ public static class TargetListControllerComponent {
         public static void Update() {
             int currentCount = Bindings.Player.TargetList.GetTargets().Count;
             if (InternalState.previousTargetList.Count != currentCount) {
-                Plugin.Log("[TR] Target list changed");
-                Plugin.Log("[TR] Previous target count: " + InternalState.previousTargetList.Count + ", Current target count: " + currentCount);
                 if (currentCount <= 1) {
                     InternalState.targetIndex = 0;
                 }
@@ -77,7 +76,6 @@ public static class TargetListControllerComponent {
                 }
                 InternalState.targetIndex = Mathf.Clamp(InternalState.targetIndex, 0, Mathf.Max(0, currentCount - 1));
                 InternalState.previousTargetList = Bindings.Player.TargetList.GetTargets();
-                Plugin.Log("[TR] New target index: " + InternalState.targetIndex);
                 InternalState.updateDisplay = true;
             }
         }
@@ -112,23 +110,27 @@ public static class TargetListControllerComponent {
                 }
 
                 for (int i = 0; i < targetIcons.Count; i++) {
-                    // Get or Add Outline component
-                    Outline outline = targetIcons[i].GetComponent<Outline>() ?? targetIcons[i].gameObject.AddComponent<Outline>();
-                    if (i == InternalState.targetIndex) {
-                        targetIcons[i].color = InternalState.mainColor;
-                        targetIcons[i].transform.localScale = new Vector3(.6f, .6f, 1f);
 
-                        // Configure Outline for selected item
-                        outline.enabled = true;
-                        outline.effectColor = InternalState.mainColor;
-                        outline.effectDistance = new Vector2(1f, -1f); // Adjust this value for thickness
+                    Rect rect = targetIcons[i].rectTransform.rect;
+                    Vector2 size = rect.size + new Vector2(10f, 10f);
+                    Vector2 halfSize = size / 2f;
+
+                    Bindings.UI.Draw.UIAdvancedRectangle selectionRect = new(
+                        "SelectionOutline",
+                        -halfSize,
+                        halfSize,
+                        InternalState.mainColor,
+                        4f,
+                        targetIcons[i].transform,
+                        Color.clear
+                    );
+                    selectionRect.GetImageComponent().raycastTarget = false;
+
+                    if (i == InternalState.targetIndex) {
+                        selectionRect.GetGameObject().SetActive(true);
                     }
                     else {
-                        targetIcons[i].color = Color.white;
-                        targetIcons[i].transform.localScale = new Vector3(.5f, .5f, 1f);
-
-                        // Disable Outline for others
-                        outline.enabled = false;
+                        selectionRect.GetGameObject().SetActive(false);
                     }
                 }
 
@@ -163,8 +165,8 @@ public static class TargetListControllerComponent {
         Text pilotText = traverse.Field("pilotText").GetValue<Text>();
 
         Text distance = traverse.Field("distance").GetValue<Text>();
-        Text bearingText = traverse.Field("bearingText").GetValue<Text>();
-        Image bearingImg = traverse.Field("bearingImg").GetValue<Image>();
+        /* Text bearingText = traverse.Field("bearingText").GetValue<Text>();
+        Image bearingImg = traverse.Field("bearingImg").GetValue<Image>(); */
 
         bool isAirOrMissile = unit is Aircraft || unit is Missile;
 
@@ -257,7 +259,7 @@ public static class TargetListControllerComponent {
         List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
         List<Unit> dataLinkedTargets = [];
         foreach (Unit target in currentTargets) {
-            if (InternalState.playerFactionHQ.IsTargetBeingTracked(target)) {
+            if (InternalState.playerFactionHQ.IsTargetPositionAccurate(target, 20f)) {
                 dataLinkedTargets.Add(target);
             }
         }
@@ -278,14 +280,19 @@ public static class TargetListControllerComponent {
         Plugin.Log($"[TR] KeepClosestTargetsBasedOnAmmo");
         List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
         currentTargets.Sort((a, b) => {
-            float distanceA = Vector3.Distance(InternalState.playerFactionHQ.transform.position, a.transform.position);
-            float distanceB = Vector3.Distance(InternalState.playerFactionHQ.transform.position, b.transform.position);
+            
+            float distanceA = Vector3.Distance(
+                Bindings.Player.Aircraft.GetAircraft().transform.position.ToGlobalPosition().AsVector3(), 
+                (Vector3)(Bindings.Player.Aircraft.GetAircraft().NetworkHQ.GetKnownPosition(a)?.AsVector3()));
+            float distanceB = Vector3.Distance(
+                Bindings.Player.Aircraft.GetAircraft().transform.position.ToGlobalPosition().AsVector3(),
+                (Vector3)(Bindings.Player.Aircraft.GetAircraft().NetworkHQ.GetKnownPosition(b)?.AsVector3()));
             return distanceA.CompareTo(distanceB);
         });
         List<Unit> closestTargets = currentTargets.GetRange(0, Mathf.Min(count, currentTargets.Count));
         if (closestTargets.Count > 0) {
             Bindings.Player.TargetList.DeselectAll();
-            Bindings.Player.TargetList.AddTargets(closestTargets);
+            Bindings.Player.TargetList.AddTargets(closestTargets.Reverse<Unit>().ToList());
             InternalState.targetIndex = 0;
             InternalState.updateDisplay = true;
         }
