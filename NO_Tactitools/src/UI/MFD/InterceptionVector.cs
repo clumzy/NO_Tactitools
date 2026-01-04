@@ -139,7 +139,7 @@ class InterceptionVectorTask {
     static void HandleIdleState() {
         if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count == 1) {
             targetUnit = ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0];
-            if (playerFactionHQ.IsTargetBeingTracked(targetUnit)) {
+            if (playerFactionHQ.IsTargetPositionAccurate(targetUnit, 20f)) {
                 currentState = State.Intercepting;
                 Plugin.Log("[IV] Target is being tracked");
                 return;
@@ -266,6 +266,14 @@ class InterceptionVectorTask {
     }
 
     static void UpdateInterceptionPosition() {
+        // ADD JAMMING CHECK HERE
+        if (Traverse.Create(Bindings.Player.Aircraft.GetAircraft()).Field("radar").GetValue<Radar>() != null) {
+            Radar radar = Traverse.Create(Bindings.Player.Aircraft.GetAircraft()).Field("radar").GetValue<Radar>();
+            if (radar.IsJammed()){
+                interceptArray.Clear();
+                return;
+            }
+        }
         Vector3 currentPosition = targetPosition + targetVelocity * solutionTime;
         if (interceptArray.Count < interceptArraySize) {
             interceptArray.Add(currentPosition);
