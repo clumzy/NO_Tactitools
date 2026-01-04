@@ -174,6 +174,12 @@ class InterceptionVectorTask {
             Plugin.Log("[IV] Switched target, returning to Reset state");
             return;
         }
+
+        if (Bindings.Player.Aircraft.IsRadarJammed()) {
+            HandleJammed();
+            return;
+        }
+
         playerPosition = SceneSingleton<CombatHUD>.i.aircraft.rb.transform.position;
         playerVelocity = SceneSingleton<CombatHUD>.i.aircraft.rb.velocity;
         if (playerFactionHQ.IsTargetBeingTracked(targetUnit)) {
@@ -250,7 +256,7 @@ class InterceptionVectorTask {
         else {
             if (interceptArray.Count == interceptArraySize) indicatorTargetLabel.SetText("↶");
             else {
-                indicatorTargetLabel.SetText("." + new string('.', (int)(interceptArray.Count / 60)));
+                indicatorTargetLabel.SetText("" + new string('.', (int)(interceptArray.Count / 45)));
             }
             indicatorTargetLabel.SetPosition(new Vector2(0, -40));
             indicatorTargetLine.SetThickness(0f);
@@ -265,15 +271,15 @@ class InterceptionVectorTask {
         indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(0, 0));
     }
 
+    static void HandleJammed() {
+        bearingLabel.SetText("");
+        timerLabel.SetText("");
+        interceptArray.Clear();
+        indicatorTargetLabel.SetText("");
+        indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(0, 0));
+    }
+
     static void UpdateInterceptionPosition() {
-        // ADD JAMMING CHECK HERE
-        if (Traverse.Create(Bindings.Player.Aircraft.GetAircraft()).Field("radar").GetValue<Radar>() != null) {
-            Radar radar = Traverse.Create(Bindings.Player.Aircraft.GetAircraft()).Field("radar").GetValue<Radar>();
-            if (radar.IsJammed()){
-                interceptArray.Clear();
-                return;
-            }
-        }
         Vector3 currentPosition = targetPosition + targetVelocity * solutionTime;
         if (interceptArray.Count < interceptArraySize) {
             interceptArray.Add(currentPosition);
