@@ -36,7 +36,7 @@ class UnitDistanceTask {
     static void Postfix(HUDUnitMarker __instance) {
         if (__instance.unit is not Aircraft || __instance.unit.NetworkHQ == SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ) return; // Only apply to enemy aircraft units
         Transform markerTransform = (Transform)Traverse.Create(__instance).Field("_transform").GetValue();
-        if (SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ.IsTargetBeingTracked(__instance.unit)) {
+        if (SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ.IsTargetPositionAccurate(__instance.unit, 20f)) {
             int distanceToPlayer = Mathf.RoundToInt(Vector3.Distance(__instance.unit.rb.transform.position, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.position));
             int threshold = UnitDistancePlugin.unitDistanceThreshold;
             int rotationThreshold = threshold + 250; // Convert threshold from kilometers to Unity units (1 unit = 1 meter)
