@@ -112,7 +112,6 @@ public static class TargetListControllerComponent {
 
                 if (InternalState.resetIndex) { // don't forget that the list is in reverse order (LIFO), this is why we set to count - 1
                     InternalState.targetIndex = targets.Count - 1;
-                    Plugin.Log($"[TR] Resetting target index to {InternalState.targetIndex.ToString()}");
                     InternalState.resetIndex = false;
                 }
                 for (int i = 0; i < targetIcons.Count; i++) {
