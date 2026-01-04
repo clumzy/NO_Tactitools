@@ -1,19 +1,29 @@
 // You can add additional units that you want recolored on the main map
-AeroSentry SPAAG
+23mm AAA Emplacement
+AF8-SAM
+AFV-6 AA
 AFV6 AA
 AFV8 Mobile Air Defense
+AeroSentry SPAAG
 FGA-57 Anvil
-Hexhound SAM
+HLT LADS
+HLT CRAM
+HLT R9 Launcher
 HLT Radar Truck
 HLT-CRAM
 HLT-HEL
+Hexhound SAM
+IRM-S1 Emplacement
+LCV-25 AA
 LCV25 AA
 Linebreaker SAM
+Linebreaker SPG
 MSV CRAM
 MSV LADS
+MSV R9 Launcher
 MSV R9 Stratolance Launcher
 MSV Radar
+SPG-30 Aerosentry
 StratoLance R9 Launcher
 T9K41 Boltstrike
-23mm AAA Emplacement
-IRM-S1 Emplacement
+Type-14 LRAA
