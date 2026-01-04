@@ -1,7 +1,7 @@
 // You can add additional units that you want recolored on the main map
 23mm AAA Emplacement
-AF8-SAM
 AFV-6 AA
+AFV-8 SAM
 AFV6 AA
 AFV8 Mobile Air Defense
 AeroSentry SPAAG
