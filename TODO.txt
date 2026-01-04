@@ -19,7 +19,6 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> make the mod compatible with QOL mod
 --> fixed broken functions
 --> added new ground units
--> add functionalty to see if a targeted unit is being targeted by a friendly missile
 -> a button to unmark targets that don't hav a known datalink position
 -> more generally, target list handling
 -> interface sounds now follow the game's set volume
@@ -33,6 +32,7 @@ TO TEST :
 
 
 TODO :
+-> add functionalty to see if a targeted unit is being targeted by a friendly missile
 -> add a tip to deactivate the unit recoloring part when using Vanilla Icons Plus on my README
 -> same with sling, adapt it for the wpon screen
 
