@@ -87,6 +87,7 @@ public static class TargetListControllerComponent {
         public static List<Unit> previousTargetList;
         public static Color mainColor = Color.green;
         public static bool updateDisplay = false;
+        public static bool resetIndex = false;
         public static int targetIndex = 0;
     }
     static class DisplayEngine {
@@ -109,6 +110,11 @@ public static class TargetListControllerComponent {
                     return;
                 }
 
+                if (InternalState.resetIndex) { // don't forget that the list is in reverse order (LIFO), this is why we set to count - 1
+                    InternalState.targetIndex = targets.Count - 1;
+                    Plugin.Log($"[TR] Resetting target index to {InternalState.targetIndex.ToString()}");
+                    InternalState.resetIndex = false;
+                }
                 for (int i = 0; i < targetIcons.Count; i++) {
 
                     Rect rect = targetIcons[i].rectTransform.rect;
@@ -133,7 +139,6 @@ public static class TargetListControllerComponent {
                         selectionRect.GetGameObject().SetActive(false);
                     }
                 }
-
                 InternalState.updateDisplay = false;
             }
 
@@ -219,6 +224,7 @@ public static class TargetListControllerComponent {
         if (targetCount > 0) {
             InternalState.targetIndex = (InternalState.targetIndex - 1 + targetCount) % targetCount;
             InternalState.updateDisplay = true;
+            Bindings.UI.Sound.PlaySound("beep_scroll.mp3");
         }
     }
 
@@ -228,6 +234,7 @@ public static class TargetListControllerComponent {
         if (targetCount > 0) {
             InternalState.targetIndex = (InternalState.targetIndex + 1) % targetCount;
             InternalState.updateDisplay = true;
+            Bindings.UI.Sound.PlaySound("beep_scroll.mp3");
         }
     }
 
@@ -249,7 +256,6 @@ public static class TargetListControllerComponent {
             Unit targetToKeep = currentTargets[InternalState.targetIndex];
             Bindings.Player.TargetList.DeselectAll();
             Bindings.Player.TargetList.AddTargets([targetToKeep]);
-            InternalState.targetIndex = 0;
             InternalState.updateDisplay = true;
         }
     }
@@ -263,13 +269,13 @@ public static class TargetListControllerComponent {
                 dataLinkedTargets.Add(target);
             }
         }
-        if (dataLinkedTargets.Count > 0) {
+        if (dataLinkedTargets.Count >= 0) {
             Bindings.Player.TargetList.DeselectAll();
             Bindings.Player.TargetList.AddTargets(dataLinkedTargets);
-            InternalState.targetIndex = 0;
+            InternalState.resetIndex = true;
             InternalState.updateDisplay = true;
+            Bindings.UI.Game.DisplayToast($"Kept <b>{dataLinkedTargets.Count.ToString()}</b> data linked target"+(dataLinkedTargets.Count>1 ? "s" : ""), 3f);
         }
-        Bindings.UI.Game.DisplayToast($"Kept <b>{dataLinkedTargets.Count.ToString()}</b> data linked target"+(dataLinkedTargets.Count>1 ? "s" : ""), 3f);
     }
 
     public static void KeepClosestTargetsBasedOnAmmo() {
@@ -279,7 +285,8 @@ public static class TargetListControllerComponent {
         }
         Plugin.Log($"[TR] KeepClosestTargetsBasedOnAmmo");
         List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
-        currentTargets.Sort((a, b) => {
+        List<Unit> sortedTargets = [.. currentTargets];
+        sortedTargets.Sort((a, b) => {
             
             float distanceA = Vector3.Distance(
                 Bindings.Player.Aircraft.GetAircraft().transform.position.ToGlobalPosition().AsVector3(), 
@@ -289,14 +296,16 @@ public static class TargetListControllerComponent {
                 (Vector3)(Bindings.Player.Aircraft.GetAircraft().NetworkHQ.GetKnownPosition(b)?.AsVector3()));
             return distanceA.CompareTo(distanceB);
         });
-        List<Unit> closestTargets = currentTargets.GetRange(0, Mathf.Min(count, currentTargets.Count));
-        if (closestTargets.Count > 0) {
+        List<Unit> closestTargets = sortedTargets.GetRange(0, Mathf.Min(count, sortedTargets.Count));
+        List<Unit> targetsToKeep = [.. currentTargets.Where(closestTargets.Contains)];
+
+        if (targetsToKeep.Count >= 0) {
             Bindings.Player.TargetList.DeselectAll();
-            Bindings.Player.TargetList.AddTargets(closestTargets.Reverse<Unit>().ToList());
-            InternalState.targetIndex = 0;
+            Bindings.Player.TargetList.AddTargets(targetsToKeep);
+            InternalState.resetIndex = true;
             InternalState.updateDisplay = true;
+            Bindings.UI.Game.DisplayToast($"Kept <b>{targetsToKeep.Count.ToString()}</b> closest targets", 3f);
         }
-        Bindings.UI.Game.DisplayToast($"Kept <b>{closestTargets.Count.ToString()}</b> closest targets", 3f);
     }
 
     public static void RememberTargets() {
@@ -320,8 +329,9 @@ public static class TargetListControllerComponent {
                 Bindings.Player.TargetList.AddTargets(InternalState.unitRecallList);
                 InternalState.unitRecallList = Bindings.Player.TargetList.GetTargets();
                 string report = $"Recalled <b>{InternalState.unitRecallList.Count.ToString()}</b> targets";
-                Bindings.UI.Game.DisplayToast(report, 3f);
+                InternalState.resetIndex = true;
                 InternalState.updateDisplay = true;
+                Bindings.UI.Game.DisplayToast(report, 3f);
             }
         }
     }
