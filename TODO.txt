@@ -27,9 +27,9 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> fixed a bug where the loadout display would show on boot, always
 -> slightly mov the EW indicator to the left on the vortex, move the ir indicator slightly to the right too
 -> recolor the system status elements and fix some color consistency issues
+-> the target interceptor doesn't work when jammed
 
 TO TEST :
--> the target interceptor doesn't work when jammed
 
 
 TODO :
