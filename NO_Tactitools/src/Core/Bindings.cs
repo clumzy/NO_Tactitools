@@ -49,6 +49,19 @@ public class Bindings {
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.ToggleAutoControl] NullReferenceException: CombatHUD or aircraft not available; unable to toggle auto control."); }
             }
+
+            public static bool IsRadarJammed() {
+                try {
+                    global::Aircraft aircraft = GetAircraft();
+                    if (aircraft == null) return false;
+                    Radar radar = Traverse.Create(aircraft).Field("radar").GetValue<Radar>();
+                    return radar != null && radar.IsJammed();
+                }
+                catch (Exception e) {
+                    Plugin.Log($"[Bindings.Player.Aircraft.IsRadarJammed] Exception: {e.Message}");
+                    return false;
+                }
+            }
             public class Countermeasures {
 
                 public static int GetCurrentIndex() {
