@@ -41,9 +41,8 @@ public class LoadoutPreviewComponent {
                 };
                 InternalState.weaponStations.Add(stationInfo);
             }
-            if (!InternalState.hasStations) {
-                InternalState.currentWeaponStation = Bindings.Player.Aircraft.Weapons.GetActiveStationName();
-            }
+            if (InternalState.hasStations){
+                InternalState.currentWeaponStation = Bindings.Player.Aircraft.Weapons.GetActiveStationName();}
         }
 
         static public void Update() {
