@@ -408,7 +408,7 @@ namespace NO_Tactitools.Core {
             // Unit Icon Recolor settings
             unitIconRecolorEnabled = Config.Bind("AA Units Icon Recolor",
                 "AA Units Icon Recolor - Enabled",
-                true,
+                false,
                 new ConfigDescription(
                     "Enable or disable the AA Units Icon Recolor feature.",
                     null,
