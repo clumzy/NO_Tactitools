@@ -286,7 +286,7 @@ public class LoadoutPreviewComponent {
         public void SetActive(bool active) {
             borderRect.GetGameObject().SetActive(active);
             foreach (var label in stationLabels) {
-                label.GetGameObject().SetActive(active);
+                label?.GetGameObject()?.SetActive(active);
             }
         }
         public void Reset() {
