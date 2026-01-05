@@ -86,7 +86,7 @@
 
   <Target Name="CreateReleaseZip" AfterTargets="Build">
     <!-- Ensure output folder exists, remove old zip, then compress the NOTT folder so the root in the archive is NOTT/ -->
-    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;$zipOut='$(ReleaseZipPath)'; $src='$(NottSourceDir)'; $outDir=[System.IO.Path]::GetDirectoryName($zipOut); New-Item -ItemType Directory -Force -Path $outDir ^| Out-Null; if (Test-Path $zipOut) { Remove-Item -Force $zipOut }; Compress-Archive -Path $src -DestinationPath $zipOut -Force&quot;" />
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;$zipOut='$(ReleaseZipPath)'; $src='$(NottSourceDir)'; $7z='C:\Users\georg\scoop\apps\7zip\current\7z.exe'; $outDir=[System.IO.Path]::GetDirectoryName($zipOut); New-Item -ItemType Directory -Force -Path $outDir ^| Out-Null; if (Test-Path $zipOut) { Remove-Item -Force $zipOut }; &amp; $7z a $zipOut $src&quot;" />
   </Target>
 
   <Target Name="RunGameAfterBuild" AfterTargets="Build" DependsOnTargets="CreateReleaseZip">
