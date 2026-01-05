@@ -240,7 +240,7 @@ public static class TargetListControllerComponent {
     public static void PopCurrentTarget() {
         Plugin.Log($"[TR] DeselectCurrentTarget");
         List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
-        if (currentTargets.Count > 1 && InternalState.targetIndex < currentTargets.Count) {
+        if (currentTargets.Count > 0 && InternalState.targetIndex < currentTargets.Count) {
             Unit targetToDeselect = currentTargets[InternalState.targetIndex];
             InternalState.targetIndex = Mathf.Clamp(InternalState.targetIndex, 0, Mathf.Max(0, currentTargets.Count - 1));
             Bindings.Player.TargetList.DeselectUnit(targetToDeselect);
