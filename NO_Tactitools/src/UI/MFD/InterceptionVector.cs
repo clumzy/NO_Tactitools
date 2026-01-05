@@ -169,9 +169,10 @@ class InterceptionVectorTask {
 
     static void HandleInterception() {
         if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count != 1
-            || ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0] != targetUnit) {
+            || ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0] != targetUnit ||
+            Bindings.Player.Aircraft.GetAircraft() == null) {
             currentState = State.Reset;
-            Plugin.Log("[IV] Switched target, returning to Reset state");
+            Plugin.Log("[IV] Returning to Reset state");
             return;
         }
 
@@ -211,11 +212,6 @@ class InterceptionVectorTask {
     }
 
     static void HandleTargetReachable() {
-        if (Bindings.Player.Aircraft.GetAircraft() == null) {
-            currentState = State.Reset;
-            Plugin.Log("[IV] Player aircraft was null, returning to Reset state");
-            return;
-        }
         Vector3 interceptVector = interceptPosition;
         Vector3 interceptVectorXZ = Vector3.Scale(interceptVector, new Vector3(1f, 0f, 1f)).normalized;
         int interceptBearing = (int)(Vector3.SignedAngle(Vector3.forward, interceptVectorXZ, Vector3.up) + 360) % 360;
