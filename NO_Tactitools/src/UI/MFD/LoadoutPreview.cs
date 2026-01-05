@@ -130,7 +130,7 @@ public class LoadoutPreviewComponent {
             InternalState.loadoutPreview.SetActive(true);
             for (int i = 0; i < InternalState.weaponStations.Count; i++) {
                 InternalState.loadoutPreview.stationLabels[i].SetColor(
-                    (InternalState.weaponStations[i].ammo == 0) ? Color.red : InternalState.textColor);
+                    (InternalState.weaponStations[i].ammo == 0) ? Color.red : InternalState.sendToHMD ? Color.green : InternalState.textColor);
             }
             for (int i = 0; i < InternalState.weaponStations.Count; i++) {
                 InternalState.WeaponStationInfo ws = InternalState.weaponStations[i];
