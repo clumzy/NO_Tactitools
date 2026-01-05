@@ -399,6 +399,7 @@ public class Bindings {
                     textRect.offsetMax = Vector2.zero;
                     var textComp = textObj.AddComponent<Text>();
                     textComp.font = Bindings.UI.Draw.GetDefaultFont();
+                    textComp.material = Bindings.UI.Draw.GetDefaultTextMaterial();
                     textComp.fontSize = fontSize;
                     textComp.fontStyle = fontStyle;
                     textComp.color = color ?? Color.white;
@@ -634,6 +635,11 @@ public class Bindings {
             public static Font GetDefaultFont() {
                 Text weaponText = Bindings.UI.Game.GetFlightHUDTransform().GetComponentInChildren<Text>();
                 return weaponText.font;
+            }
+
+            public static Material GetDefaultTextMaterial() {
+                Text weaponText = Bindings.UI.Game.GetFlightHUDTransform().GetComponentInChildren<Text>();
+                return weaponText.material;
             }
         }
 

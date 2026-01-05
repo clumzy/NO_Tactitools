@@ -118,15 +118,13 @@ public static class MFDColorComponent {
                 InternalState.textSaturation,
                 InternalState.textBrightness); // We keep the brightness for the text
             InternalState.otherComponentTextColor.a = 1;
+            // normally in logic engine but we want to compute newMainColor first
             WeaponDisplayComponent.InternalState.mainColor = InternalState.otherComponentMainColor;
             WeaponDisplayComponent.InternalState.textColor = InternalState.otherComponentTextColor;
             // Apply the main color to loadout preview
-            if (!LoadoutPreviewComponent.InternalState.sendToHMD) {
-                LoadoutPreviewComponent.InternalState.mainColor = InternalState.otherComponentMainColor;
-                LoadoutPreviewComponent.InternalState.textColor = InternalState.otherComponentTextColor;
-            }
+            LoadoutPreviewComponent.InternalState.mainColor = InternalState.otherComponentMainColor;
+            LoadoutPreviewComponent.InternalState.textColor = InternalState.otherComponentTextColor;
             // apply the color to target list and interception vector task
-            // normally in logic engine but we want to compute newMainColor first
             TargetListControllerComponent.InternalState.mainColor = InternalState.otherComponentMainColor;
             InterceptionVectorTask.mainColor = InternalState.otherComponentMainColor;
         }

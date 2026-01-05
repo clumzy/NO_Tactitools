@@ -574,11 +574,6 @@ namespace NO_Tactitools.Core {
                 harmony.PatchAll(typeof(WeaponSwitcherPlugin));
             }
             // COCKPIT DISPLAY PATCHES
-            // Patch Loadout Preview
-            if (loadoutPreviewEnabled.Value) {
-                Logger.LogInfo($"Loadout Preview is enabled, patching...");
-                harmony.PatchAll(typeof(LoadoutPreviewPlugin));
-            }
             // Patch Interception Vector
             if (interceptionVectorEnabled.Value) {
                 Logger.LogInfo($"Interception Vector is enabled, patching...");
@@ -588,6 +583,11 @@ namespace NO_Tactitools.Core {
             if (weaponDisplayEnabled.Value) {
                 Logger.LogInfo($"Weapon Display is enabled, patching...");
                 harmony.PatchAll(typeof(WeaponDisplayPlugin));
+            }
+            // Patch Loadout Preview
+            if (loadoutPreviewEnabled.Value) {
+                Logger.LogInfo($"Loadout Preview is enabled, patching...");
+                harmony.PatchAll(typeof(LoadoutPreviewPlugin));
             }
             // Patch Delivery Checker
             if (deliveryCheckerEnabled.Value) {

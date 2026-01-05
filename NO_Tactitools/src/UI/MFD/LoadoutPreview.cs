@@ -106,6 +106,13 @@ public class LoadoutPreviewComponent {
     static class DisplayEngine {
         static public void Init() {
             if (InternalState.hasStations) {
+                if (InternalState.sendToHMD) {
+                    InternalState.mainColor = Color.green;
+                    InternalState.textColor = Color.green;
+                }
+                else {
+                    Plugin.Log("[LP] Initializing Loadout Preview for Tac Screen");
+                }
                 InternalState.loadoutPreview = new LoadoutPreview(sendToHMD: InternalState.sendToHMD);
             }
         }
@@ -138,14 +145,7 @@ public class LoadoutPreviewComponent {
                 InternalState.loadoutPreview.stationLabels[i].SetFontStyle(
                     (Bindings.Player.Aircraft.Weapons.GetActiveStationName() == ws.stationName) ? FontStyle.Bold : FontStyle.Normal);
             }
-            for (int i = 0; i < InternalState.loadoutPreview.stationLabels.Count; i++) {
-                Vector2 labelPos = InternalState.loadoutPreview.stationLabels[i].GetPosition();
-                Vector2 textSize = InternalState.loadoutPreview.stationLabels[i].GetTextSize();
-                InternalState.loadoutPreview.stationLabels[i].SetPosition(
-                    new Vector2(
-                        -(InternalState.loadoutPreview.maxLabelWidth - textSize.x) / 2f + InternalState.loadoutPreview.horizontalOffset,
-                        labelPos.y));
-            }
+            InternalState.loadoutPreview.UpdateLabelPositions();
         }
     }
 
@@ -156,6 +156,7 @@ public class LoadoutPreviewComponent {
         public int maxLabelWidth = 0;
         public int verticalOffset = 0;
         public int horizontalOffset = 0;
+        public int padding = 0;
         public int fontSize = 34;
         public LoadoutPreview(bool sendToHMD = false) {
             List<InternalState.WeaponStationInfo> weaponStations = InternalState.weaponStations;
@@ -197,6 +198,7 @@ public class LoadoutPreviewComponent {
                 case "VL-49 Tarantula":
                     horizontalOffset = -255;
                     verticalOffset = 60;
+                    fontSize = 28;
                     break;
                 case "EW-1 Medusa":
                     horizontalOffset = -225;
@@ -267,38 +269,52 @@ public class LoadoutPreviewComponent {
                     maxLabelWidth = (int)textSize.x;
                 }
             }
-            int padding = (fontSize + 6) / 4;
-            float rectHalfWidth = maxLabelWidth / 2f + padding;
-            float rectHalfHeight = weaponStations.Count / 2f * (fontSize + 6) + padding;
+            padding = (fontSize + 6) / 4;
+            float rectHalfWidth = maxLabelWidth / 2f;
+            float rectHalfHeight = weaponStations.Count / 2f * (fontSize + 6);
             if (sendToHMD) {
                 if (InternalState.manualPlacement) {
                     horizontalOffset += InternalState.horizontalOffset;
                     verticalOffset += InternalState.verticalOffset;
                 }
                 else {
-                    horizontalOffset += ((int)1920 / 2) - (int)rectHalfWidth - border - padding;
-                    verticalOffset += ((int)1080 / 2) - (int)rectHalfHeight - border - padding;
                     if (WeaponDisplayComponent.InternalState.vanillaUIEnabled) {
-                        verticalOffset -= 100;
+                        GameObject topRightPanel = Traverse.Create(Bindings.UI.Game.GetCombatHUDComponent()).Field<GameObject>("topRightPanel").Value;
+                        horizontalOffset = 
+                            (int)topRightPanel.transform.localPosition.x 
+                            - (int)rectHalfWidth - border - padding;
+                        verticalOffset = 
+                            (int)topRightPanel.transform.localPosition.y
+                            - (int)rectHalfHeight - border - padding
+                            - 170;
                         if (Bindings.Player.Aircraft.Countermeasures.HasJammer()) {
-                            verticalOffset -= 45;
+                            Plugin.Log("[LP] Adjusting Loadout Preview position to avoid jammer display overlap.");
+                            verticalOffset -= 40;
                         }
+                    }
+                    else {
+                        horizontalOffset = ((int)1920 / 2) - (int)rectHalfWidth - border - padding;
+                        verticalOffset = ((int)1080 / 2) - (int)rectHalfHeight - border - padding;
                     }
                 }
             }
             // Center labels based on max width
+            UpdateLabelPositions();
+            // Set background size
+            borderRect.SetCorners(
+                new Vector2(-rectHalfWidth - padding + horizontalOffset, -rectHalfHeight - padding + verticalOffset),
+                new Vector2(rectHalfWidth + padding + horizontalOffset, rectHalfHeight + padding + verticalOffset)
+            );
+        }
+
+        public void UpdateLabelPositions() {
             for (int i = 0; i < stationLabels.Count; i++) {
                 Vector2 textSize = stationLabels[i].GetTextSize();
                 stationLabels[i].SetPosition(
                     new Vector2(
-                        -(maxLabelWidth - textSize.x) / 2f + horizontalOffset,
+                        -(maxLabelWidth - textSize.x) / 2f + horizontalOffset - padding/2,
                         (stationLabels.Count - 1) * padding * 2f - i * (fontSize + 6) + verticalOffset));
             }
-            // Set background size
-            borderRect.SetCorners(
-                new Vector2(-rectHalfWidth - border + horizontalOffset, -rectHalfHeight - border + verticalOffset),
-                new Vector2(rectHalfWidth + border + horizontalOffset, rectHalfHeight + border + verticalOffset)
-            );
         }
 
         public void SetActive(bool active) {
