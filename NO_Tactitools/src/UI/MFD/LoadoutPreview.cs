@@ -45,8 +45,9 @@ public class LoadoutPreviewComponent {
                 };
                 InternalState.weaponStations.Add(stationInfo);
             }
-            if (InternalState.hasStations){
-                InternalState.currentWeaponStation = Bindings.Player.Aircraft.Weapons.GetActiveStationName();}
+            if (InternalState.hasStations) {
+                InternalState.currentWeaponStation = Bindings.Player.Aircraft.Weapons.GetActiveStationName();
+            }
         }
 
         static public void Update() {
@@ -112,7 +113,7 @@ public class LoadoutPreviewComponent {
                 !InternalState.hasStations)
                 return;
             if (!InternalState.needsUpdate) {
-                // if loadout preview is active, hide it
+                // if loadout preview is inactive, hide it
                 InternalState.loadoutPreview.SetActive(false);
                 return;
             }
@@ -213,8 +214,8 @@ public class LoadoutPreviewComponent {
                     verticalOffset = 75;
                     break;
                 case "HMD":
-                    horizontalOffset = InternalState.horizontalOffset;
-                    verticalOffset = InternalState.verticalOffset;
+                    horizontalOffset = 0;
+                    verticalOffset = 0;
                     fontSize = 14;
                     break;
                 default:
@@ -267,12 +268,18 @@ public class LoadoutPreviewComponent {
             float rectHalfWidth = maxLabelWidth / 2f + padding;
             float rectHalfHeight = weaponStations.Count / 2f * (fontSize + 6) + padding;
             if (sendToHMD) {
-                horizontalOffset += ((int)1920 / 2) - (int)rectHalfWidth - border - padding;
-                verticalOffset += ((int)1080 / 2) - (int)rectHalfHeight - border - padding;
-                if (WeaponDisplayComponent.InternalState.vanillaUIEnabled) {
-                    verticalOffset -= 100;
-                    if (Bindings.Player.Aircraft.Countermeasures.HasJammer()) {
-                        verticalOffset -= 45;
+                if (InternalState.manualPlacement) {
+                    horizontalOffset += InternalState.horizontalOffset;
+                    verticalOffset += InternalState.verticalOffset;
+                }
+                else {
+                    horizontalOffset += ((int)1920 / 2) - (int)rectHalfWidth - border - padding;
+                    verticalOffset += ((int)1080 / 2) - (int)rectHalfHeight - border - padding;
+                    if (WeaponDisplayComponent.InternalState.vanillaUIEnabled) {
+                        verticalOffset -= 100;
+                        if (Bindings.Player.Aircraft.Countermeasures.HasJammer()) {
+                            verticalOffset -= 45;
+                        }
                     }
                 }
             }
@@ -292,9 +299,9 @@ public class LoadoutPreviewComponent {
         }
 
         public void SetActive(bool active) {
-            borderRect.GetGameObject().SetActive(active);
-            foreach (var label in stationLabels) {
-                label?.GetGameObject()?.SetActive(active);
+            borderRect.GetGameObject()?.SetActive(active);
+            foreach (Bindings.UI.Draw.UILabel label in stationLabels) {
+                label.GetGameObject()?.SetActive(active);
             }
         }
         public void Reset() {
