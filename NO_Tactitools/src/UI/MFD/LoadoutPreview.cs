@@ -31,6 +31,10 @@ public class LoadoutPreviewComponent {
             InternalState.displayDuration = Plugin.loadoutPreviewDuration.Value;
             InternalState.onlyShowOnBoot = Plugin.loadoutPreviewOnlyShowOnBoot.Value;
             InternalState.sendToHMD = Plugin.loadoutPreviewSendToHMD.Value;
+            InternalState.manualPlacement = Plugin.loadoutPreviewManualPlacement.Value;
+            InternalState.horizontalOffset = Plugin.loadoutPreviewPositionX.Value;
+            InternalState.verticalOffset = Plugin.loadoutPreviewPositionY.Value;
+            InternalState.transparency = Plugin.loadoutPreviewTransparency.Value;
             InternalState.neverShown = true;
             InternalState.hasStations = Bindings.Player.Aircraft.Weapons.GetStationCount() > 0;
             for (int i = 0; i < Bindings.Player.Aircraft.Weapons.GetStationCount(); i++) {
@@ -86,6 +90,10 @@ public class LoadoutPreviewComponent {
         public static List<WeaponStationInfo> weaponStations = [];
         public static LoadoutPreview loadoutPreview;
         public static bool sendToHMD = false;
+        public static bool manualPlacement = false;
+        public static int horizontalOffset = 0;
+        public static int verticalOffset = 0;
+        public static float transparency = 0.6f;
         public static bool hasStations = true;
         public static float displayDuration = 1f;
         public static Color mainColor = Color.green;
@@ -205,8 +213,8 @@ public class LoadoutPreviewComponent {
                     verticalOffset = 75;
                     break;
                 case "HMD":
-                    horizontalOffset = 0;
-                    verticalOffset = 0;
+                    horizontalOffset = InternalState.horizontalOffset;
+                    verticalOffset = InternalState.verticalOffset;
                     fontSize = 14;
                     break;
                 default:
@@ -217,7 +225,7 @@ public class LoadoutPreviewComponent {
             if (sendToHMD) {
                 InternalState.mainColor = new(0f, 1f, 0f, 0.9f);
                 InternalState.textColor = new(0f, 1f, 0f, 0.9f);
-                backgroundColor = new(0f, 0f, 0f, 0.6f);
+                backgroundColor = new(0f, 0f, 0f, InternalState.transparency);
             }
             // Create background rectangle
             borderRect = new(

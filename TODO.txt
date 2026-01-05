@@ -28,14 +28,18 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> recolor the system status elements and fix some color consistency issues
 -> the target interceptor doesn't work when jammed
 
-TO TEST :
+0.5.0.1 :
+-> null check in loadoutPreview
+-> null check in interception vector
+-> can now pop 1 target
+-> F/ rendre loadout preview modifiable
 
 
 TODO :
--> add functionalty to see if a targeted unit is being targeted by a friendly missile
--> add a tip to deactivate the unit recoloring part when using Vanilla Icons Plus on my README
--> same with sling, adapt it for the wpon screen
+-> F/ add functionalty to see if a targeted unit is being targeted by a friendly missile
+-> F/ same with sling, adapt it for the wpon screen
 
+TO TEST :
 
 NICE TO HAVE :
 -> investigate the POV up format encountered by some users

@@ -56,9 +56,13 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> artificialHorizonEnabled;
         public static ConfigEntry<float> artificialHorizonTransparency;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
-        public static ConfigEntry<bool> loadoutPreviewSendToHMD;
         public static ConfigEntry<bool> loadoutPreviewOnlyShowOnBoot;
         public static ConfigEntry<float> loadoutPreviewDuration;
+        public static ConfigEntry<bool> loadoutPreviewSendToHMD;
+        public static ConfigEntry<bool> loadoutPreviewManualPlacement;
+        public static ConfigEntry<int> loadoutPreviewPositionX;
+        public static ConfigEntry<int> loadoutPreviewPositionY;
+        public static ConfigEntry<float> loadoutPreviewTransparency;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
         public static Plugin Instance;
@@ -463,15 +467,6 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 3
                     }));
-            loadoutPreviewSendToHMD = Config.Bind("Loadout Preview",
-                "Loadout Preview - Send To HMD",
-                false,
-                new ConfigDescription(
-                    "If enabled, the loadout preview will also be sent to the HMD display.",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 2
-                    }));
             loadoutPreviewOnlyShowOnBoot = Config.Bind("Loadout Preview",
                 "Loadout Preview - Only Show On Boot",
                 false,
@@ -489,6 +484,51 @@ namespace NO_Tactitools.Core {
                     new AcceptableValueRange<float>(0.5f, 3f),
                     new ConfigurationManagerAttributes {
                         Order = 0
+                    }));
+            loadoutPreviewSendToHMD = Config.Bind("Loadout Preview",
+                "Loadout Preview - Send To HMD",
+                false,
+                new ConfigDescription(
+                    "If enabled, the loadout preview will also be sent to the HMD display.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2
+                    }));
+            loadoutPreviewManualPlacement = Config.Bind("Loadout Preview",
+                "Loadout Preview - Send To HMD - Manual Placement",
+                false,
+                new ConfigDescription(
+                    "If enabled, allows manual placement of the loadout preview on the MFD.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -1
+                    }));
+            loadoutPreviewPositionX = Config.Bind("Loadout Preview",
+                "Loadout Preview - Send To HMD - Position X",
+                0,
+                new ConfigDescription(
+                    "X position offset for the loadout preview when manual placement is enabled.",
+                    new AcceptableValueRange<int>(-Screen.width/2, +Screen.width/2),
+                    new ConfigurationManagerAttributes {
+                        Order = -2
+                    }));
+            loadoutPreviewPositionY = Config.Bind("Loadout Preview",
+                "Loadout Preview - Send To HMD - Position Y",
+                0,
+                new ConfigDescription(
+                    "Y position offset for the loadout preview when manual placement is enabled.",
+                    new AcceptableValueRange<int>(-Screen.height/2, +Screen.height/2),
+                    new ConfigurationManagerAttributes {
+                        Order = -3
+                    }));
+            loadoutPreviewTransparency = Config.Bind("Loadout Preview",
+                "Loadout Preview - Send To HMD - Transparency",
+                0.6f,
+                new ConfigDescription(
+                    "Transparency level for the Loadout Preview display when sent to the HMD (0 = transparent, 0.8 = fully opaque).",
+                    new AcceptableValueRange<float>(0.0f, 1.0f),
+                    new ConfigurationManagerAttributes {
+                        Order = -4
                     }));
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",
