@@ -94,6 +94,7 @@ public class WeaponDisplayComponent {
             if (InternalState.hasIRFlare) { // In reality, this checks if the player's plane has spawned
                 InternalState.weaponDisplay = new WeaponDisplay();
                 if (!InternalState.vanillaUIEnabled) Bindings.UI.Game.HideWeaponPanel();
+                else Bindings.UI.Game.ShowWeaponPanel();
             }
             Plugin.Log("[WD] Display Engine initialized for platform " + Bindings.Player.Aircraft.GetPlatformName());
         }

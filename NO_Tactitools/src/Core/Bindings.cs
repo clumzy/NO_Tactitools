@@ -747,12 +747,12 @@ public class Bindings {
 
             public static void HideWeaponPanel() {
                 GameObject topRightPanel = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("topRightPanel").GetValue();
-                CanvasGroup cg = topRightPanel.GetComponent<CanvasGroup>() ?? topRightPanel.AddComponent<CanvasGroup>();
-                if (cg != null) {
-                    cg.alpha = 0f;
-                    cg.interactable = false;
-                    cg.blocksRaycasts = false;
-                }
+                topRightPanel.SetActive(false);
+            }
+
+            public static void ShowWeaponPanel() {
+                GameObject topRightPanel = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("topRightPanel").GetValue();
+                topRightPanel.SetActive(true);
             }
         }
 
