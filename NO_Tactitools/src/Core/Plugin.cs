@@ -9,7 +9,7 @@ using NO_Tactitools.UI.HMD;
 using NO_Tactitools.UI.MFD;
 
 namespace NO_Tactitools.Core {
-    [BepInPlugin("NO_Tactitools", "NOTT", "0.5.0")]
+    [BepInPlugin("NO_Tactitools", "NOTT", "0.5.0.1")]
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;
         public static ConfigEntry<bool> targetListControllerEnabled;
@@ -62,7 +62,8 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> loadoutPreviewManualPlacement;
         public static ConfigEntry<int> loadoutPreviewPositionX;
         public static ConfigEntry<int> loadoutPreviewPositionY;
-        public static ConfigEntry<float> loadoutPreviewTransparency;
+        public static ConfigEntry<float> loadoutPreviewBackgroundTransparency;
+        public static ConfigEntry<float> loadoutPreviewTextAndBorderTransparency;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
         public static Plugin Instance;
@@ -508,7 +509,7 @@ namespace NO_Tactitools.Core {
                 0,
                 new ConfigDescription(
                     "X position offset for the loadout preview when manual placement is enabled.",
-                    new AcceptableValueRange<int>(-Screen.width/2, +Screen.width/2),
+                    new AcceptableValueRange<int>(-1920/2, +1920/2),
                     new ConfigurationManagerAttributes {
                         Order = -2
                     }));
@@ -517,11 +518,11 @@ namespace NO_Tactitools.Core {
                 0,
                 new ConfigDescription(
                     "Y position offset for the loadout preview when manual placement is enabled.",
-                    new AcceptableValueRange<int>(-Screen.height/2, +Screen.height/2),
+                    new AcceptableValueRange<int>(-(int)1080/2, +(int)1080/2),
                     new ConfigurationManagerAttributes {
                         Order = -3
                     }));
-            loadoutPreviewTransparency = Config.Bind("Loadout Preview",
+            loadoutPreviewBackgroundTransparency = Config.Bind("Loadout Preview",
                 "Loadout Preview - Send To HMD - Transparency",
                 0.6f,
                 new ConfigDescription(
@@ -529,6 +530,15 @@ namespace NO_Tactitools.Core {
                     new AcceptableValueRange<float>(0.0f, 1.0f),
                     new ConfigurationManagerAttributes {
                         Order = -4
+                    }));
+            loadoutPreviewTextAndBorderTransparency = Config.Bind("Loadout Preview",
+                "Loadout Preview - Send To HMD - Text and Border Transparency",
+                0.9f,
+                new ConfigDescription(
+                    "Transparency level for the Loadout Preview text and border when sent to the HMD (0 = transparent, 1 = fully opaque).",
+                    new AcceptableValueRange<float>(0.0f, 1.0f),
+                    new ConfigurationManagerAttributes {
+                        Order = -5
                     }));
             // Debug Mode settings
             debugModeEnabled = Config.Bind("Debug Mode",

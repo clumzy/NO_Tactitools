@@ -26,7 +26,7 @@ public class LoadoutPreviewComponent {
     // LOGIC ENGINE, INTERNAL STATE, DISPLAY ENGINE
     static class LogicEngine {
         static public void Init() {
-            InternalState.loadoutPreview?.Reset();
+            InternalState.loadoutPreview = null;
             InternalState.weaponStations.Clear();
             InternalState.displayDuration = Plugin.loadoutPreviewDuration.Value;
             InternalState.onlyShowOnBoot = Plugin.loadoutPreviewOnlyShowOnBoot.Value;
@@ -34,7 +34,8 @@ public class LoadoutPreviewComponent {
             InternalState.manualPlacement = Plugin.loadoutPreviewManualPlacement.Value;
             InternalState.horizontalOffset = Plugin.loadoutPreviewPositionX.Value;
             InternalState.verticalOffset = Plugin.loadoutPreviewPositionY.Value;
-            InternalState.transparency = Plugin.loadoutPreviewTransparency.Value;
+            InternalState.backgroundTransparency = Plugin.loadoutPreviewBackgroundTransparency.Value;
+            InternalState.textAndBorderTransparency = Plugin.loadoutPreviewTextAndBorderTransparency.Value;
             InternalState.neverShown = true;
             InternalState.hasStations = Bindings.Player.Aircraft.Weapons.GetStationCount() > 0;
             for (int i = 0; i < Bindings.Player.Aircraft.Weapons.GetStationCount(); i++) {
@@ -94,7 +95,8 @@ public class LoadoutPreviewComponent {
         public static bool manualPlacement = false;
         public static int horizontalOffset = 0;
         public static int verticalOffset = 0;
-        public static float transparency = 0.6f;
+        public static float backgroundTransparency = 0.6f;
+        public static float textAndBorderTransparency = 0.9f;
         public static bool hasStations = true;
         public static float displayDuration = 1f;
         public static Color mainColor = Color.green;
@@ -103,8 +105,9 @@ public class LoadoutPreviewComponent {
 
     static class DisplayEngine {
         static public void Init() {
-            if (InternalState.hasStations)
+            if (InternalState.hasStations) {
                 InternalState.loadoutPreview = new LoadoutPreview(sendToHMD: InternalState.sendToHMD);
+            }
         }
 
         static public void Update() {
@@ -224,9 +227,9 @@ public class LoadoutPreviewComponent {
             Color backgroundColor = Color.black;
             int border = 2;
             if (sendToHMD) {
-                InternalState.mainColor = new(0f, 1f, 0f, 0.9f);
-                InternalState.textColor = new(0f, 1f, 0f, 0.9f);
-                backgroundColor = new(0f, 0f, 0f, InternalState.transparency);
+                InternalState.mainColor = new(0f, 1f, 0f, InternalState.textAndBorderTransparency);
+                InternalState.textColor = new(0f, 1f, 0f, InternalState.textAndBorderTransparency);
+                backgroundColor = new(0f, 0f, 0f, InternalState.backgroundTransparency);
             }
             // Create background rectangle
             borderRect = new(

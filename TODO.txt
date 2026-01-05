@@ -30,9 +30,10 @@ CHECKLIST WHEN ADDING A FEATURE :
 
 0.5.0.1 :
 -> null check in loadoutPreview
+-> loadoutpreview force reset on respawn
 -> null check in interception vector
 -> can now pop 1 target
--> F/ rendre loadout preview modifiable
+-> modifiable loadout preview 
 
 
 TODO :
