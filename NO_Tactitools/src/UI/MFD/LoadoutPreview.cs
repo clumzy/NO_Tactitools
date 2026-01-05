@@ -155,12 +155,13 @@ public class LoadoutPreviewComponent {
         public Transform loadoutPreview_transform;
         public List<Bindings.UI.Draw.UILabel> stationLabels = [];
         public Bindings.UI.Draw.UIAdvancedRectangle borderRect;
-        public int maxLabelWidth = 0;
+        public int maxLabelWidth;
         public int verticalOffset = 0;
         public int horizontalOffset = 0;
         public int padding = 0;
         public int fontSize = 34;
         public LoadoutPreview(bool sendToHMD = false) {
+            maxLabelWidth = 0;
             List<InternalState.WeaponStationInfo> weaponStations = InternalState.weaponStations;
             string platformName;
             if (!sendToHMD) {
@@ -261,10 +262,10 @@ public class LoadoutPreviewComponent {
                     weaponStations[i].stationName + ": " +
                     weaponStations[i].ammo + "/" +
                     weaponStations[i].maxAmmo);
+                stationLabel.SetFontSize(fontSize+6); // WE FORCE IT, otherwise the max size might not get taken into account
                 Vector2 textSize = stationLabel.GetTextSize();
                 if (textSize.x > maxLabelWidth) {
                     maxLabelWidth = (int)textSize.x;
-                    Plugin.Log($"[LP] New max label width: {maxLabelWidth.ToString()}");
                 }
                 stationLabels.Add(stationLabel);
             }
