@@ -189,6 +189,12 @@ The process is a bit convoluted, I admit. Since the game is using ReWired for it
 <IMG src="readme_content/keyboard_3.png"  alt="3.png"/>
 </details>
 
+## Compatibility
+### Compatible mods
+- QoL (qol_1.1.6.1b3)
+- FQ-106 Kestrel (fq106_2.0.2)
+- Vanilla Icons PLUS (VanillaIconsPLUS_1.5.0)
+
 ## Common issues
 
 ### My settings haven't been applied
