@@ -63,6 +63,9 @@ George
 - Automatically hides after the specified duration for uncluttered gameplay
 - Can be setup to only be shown once when the airframe starts
 - Can be setup to display on the HMD (main UI)
+  - By default if the vanilla weapon panel is present, the loadout preview will follow its position
+  - By default if the vanilla weapon panel is not present, the loadout preview will stay in the top right corner
+  - The loadout preview's position is overridable with settings in Config Manager if you don't like the default behaviour
 
 ### 📡 Unit marker distance indicator
 - Changes HMD marker orientation for enemy air units when within a configurable distance threshold
