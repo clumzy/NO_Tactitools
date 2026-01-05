@@ -38,8 +38,10 @@ public class LoadoutPreviewComponent {
             InternalState.backgroundTransparency = Plugin.loadoutPreviewBackgroundTransparency.Value;
             InternalState.textAndBorderTransparency = Plugin.loadoutPreviewTextAndBorderTransparency.Value;
             InternalState.neverShown = true;
-            InternalState.hasStations = Bindings.Player.Aircraft.Weapons.GetStationCount() > 0;
-            for (int i = 0; i < Bindings.Player.Aircraft.Weapons.GetStationCount(); i++) {
+            InternalState.hasStations = Bindings.Player.Aircraft.Weapons.GetStationCount() > 1;
+            if (InternalState.hasStations) {
+                InternalState.currentWeaponStation = Bindings.Player.Aircraft.Weapons.GetActiveStationName();
+                for (int i = 0; i < Bindings.Player.Aircraft.Weapons.GetStationCount(); i++) {
                 InternalState.WeaponStationInfo stationInfo = new() {
                     stationName = Bindings.Player.Aircraft.Weapons.GetStationNameByIndex(i),
                     ammo = Bindings.Player.Aircraft.Weapons.GetStationAmmoByIndex(i),
@@ -47,8 +49,6 @@ public class LoadoutPreviewComponent {
                 };
                 InternalState.weaponStations.Add(stationInfo);
             }
-            if (InternalState.hasStations) {
-                InternalState.currentWeaponStation = Bindings.Player.Aircraft.Weapons.GetActiveStationName();
             }
         }
 
@@ -261,16 +261,14 @@ public class LoadoutPreviewComponent {
                     weaponStations[i].stationName + ": " +
                     weaponStations[i].ammo + "/" +
                     weaponStations[i].maxAmmo);
+                Vector2 textSize = stationLabel.GetTextSize();
+                if (textSize.x > maxLabelWidth) {
+                    maxLabelWidth = (int)textSize.x;
+                    Plugin.Log($"[LP] New max label width: {maxLabelWidth.ToString()}");
+                }
                 stationLabels.Add(stationLabel);
             }
             // Adjust sizes and positions
-            // Find max label width
-            foreach (var label in stationLabels) {
-                Vector2 textSize = label.GetTextSize();
-                if (textSize.x > maxLabelWidth) {
-                    maxLabelWidth = (int)textSize.x;
-                }
-            }
             padding = (fontSize + 6) / 4;
             float rectHalfWidth = maxLabelWidth / 2f;
             float rectHalfHeight = weaponStations.Count / 2f * (fontSize + 6);
