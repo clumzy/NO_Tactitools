@@ -31,6 +31,7 @@ public class LoadoutPreviewComponent {
             InternalState.displayDuration = Plugin.loadoutPreviewDuration.Value;
             InternalState.onlyShowOnBoot = Plugin.loadoutPreviewOnlyShowOnBoot.Value;
             InternalState.sendToHMD = Plugin.loadoutPreviewSendToHMD.Value;
+            InternalState.vanillaUIEnabled = Plugin.weaponDisplayVanillaUIEnabled.Value; // WE READ THIS SETTING HERE BECAUSE WE NEED IT, WE COULD CALL IT FROM WEAPON DISPLAY BUT THIS LETS US AVOID LOAD ORDER ISSUES
             InternalState.manualPlacement = Plugin.loadoutPreviewManualPlacement.Value;
             InternalState.horizontalOffset = Plugin.loadoutPreviewPositionX.Value;
             InternalState.verticalOffset = Plugin.loadoutPreviewPositionY.Value;
@@ -92,6 +93,7 @@ public class LoadoutPreviewComponent {
         public static List<WeaponStationInfo> weaponStations = [];
         public static LoadoutPreview loadoutPreview;
         public static bool sendToHMD = false;
+        public static bool vanillaUIEnabled = true;
         public static bool manualPlacement = false;
         public static int horizontalOffset = 0;
         public static int verticalOffset = 0;
@@ -278,7 +280,7 @@ public class LoadoutPreviewComponent {
                     verticalOffset += InternalState.verticalOffset;
                 }
                 else {
-                    if (WeaponDisplayComponent.InternalState.vanillaUIEnabled) {
+                    if (InternalState.vanillaUIEnabled) {
                         GameObject topRightPanel = Traverse.Create(Bindings.UI.Game.GetCombatHUDComponent()).Field<GameObject>("topRightPanel").Value;
                         horizontalOffset = 
                             (int)topRightPanel.transform.localPosition.x 

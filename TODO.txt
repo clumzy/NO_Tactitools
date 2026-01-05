@@ -34,6 +34,7 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> null check in interception vector
 -> can now pop 1 target
 -> modifiable loadout preview 
+-> loadout preview now follows UI element
 
 
 TODO :
