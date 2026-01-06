@@ -32,7 +32,6 @@ public class LoadoutPreviewComponent {
             InternalState.loadoutPreview = null;
             InternalState.weaponStations.Clear();
             InternalState.neverShown = true;
-            InternalState.lastUpdateTime = 0;
             InternalState.needsUpdate = false;
             InternalState.displayDuration = Plugin.loadoutPreviewDuration.Value;
             InternalState.onlyShowOnBoot = Plugin.loadoutPreviewOnlyShowOnBoot.Value;
@@ -60,15 +59,17 @@ public class LoadoutPreviewComponent {
         static public void Update() {
             if (Bindings.GameState.IsGamePaused() || Bindings.Player.Aircraft.GetAircraft() == null || !InternalState.hasStations)
                 return;
-            if (InternalState.onlyShowOnBoot && InternalState.neverShown && BootScreenComponent.InternalState.hasBooted) {
+            if (InternalState.onlyShowOnBoot 
+                && InternalState.neverShown 
+                && BootScreenComponent.InternalState.hasBooted) {
                 InternalState.lastUpdateTime = Time.time;
                 InternalState.currentWeaponStation = Bindings.Player.Aircraft.Weapons.GetActiveStationName();
                 InternalState.neverShown = false;
             }
             else if (
-                InternalState.currentWeaponStation != Bindings.Player.Aircraft.Weapons.GetActiveStationName() &&
-                BootScreenComponent.InternalState.hasBooted &&
-                !InternalState.onlyShowOnBoot) {
+                InternalState.currentWeaponStation != Bindings.Player.Aircraft.Weapons.GetActiveStationName() 
+                && BootScreenComponent.InternalState.hasBooted 
+                && !InternalState.onlyShowOnBoot) {
                 InternalState.lastUpdateTime = Time.time;
                 InternalState.currentWeaponStation = Bindings.Player.Aircraft.Weapons.GetActiveStationName();
             }
@@ -182,7 +183,7 @@ public class LoadoutPreviewComponent {
             }
             
             // Create container GameObject to hold all LoadoutPreview elements
-            containerObject = new GameObject("LoadoutPreviewContainer");
+            containerObject = new GameObject("i_lp_LoadoutPreviewContainer");
             containerObject.AddComponent<RectTransform>();
             containerTransform = containerObject.transform;
             containerTransform.SetParent(parentTransform, false);
