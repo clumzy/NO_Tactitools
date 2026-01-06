@@ -28,7 +28,8 @@ public class LoadoutPreviewComponent {
     static class LogicEngine {
         static public void Init() {
             InternalState.weaponStations.Clear();
-            //if loadout preview is not null, reset it
+            //if loadout preview is not null, destroy it properly
+            InternalState.loadoutPreview?.Destroy();
             InternalState.loadoutPreview = null;
             InternalState.neverShown = true;
             InternalState.lastUpdateTime = 0;
@@ -157,7 +158,8 @@ public class LoadoutPreviewComponent {
     }
 
     public class LoadoutPreview {
-        public Transform loadoutPreview_transform;
+        public GameObject containerObject;
+        public Transform containerTransform;
         public List<Bindings.UI.Draw.UILabel> stationLabels = [];
         public Bindings.UI.Draw.UIAdvancedRectangle borderRect;
         public int maxLabelWidth;
@@ -169,14 +171,21 @@ public class LoadoutPreviewComponent {
             maxLabelWidth = 0;
             List<InternalState.WeaponStationInfo> weaponStations = InternalState.weaponStations;
             string platformName;
+            Transform parentTransform;
             if (!sendToHMD) {
-                loadoutPreview_transform = Bindings.UI.Game.GetTacScreenTransform();
+                parentTransform = Bindings.UI.Game.GetTacScreenTransform();
                 platformName = Bindings.Player.Aircraft.GetPlatformName();
             }
             else {
-                loadoutPreview_transform = Bindings.UI.Game.GetCombatHUDTransform();
+                parentTransform = Bindings.UI.Game.GetCombatHUDTransform();
                 platformName = "HMD";
             }
+            
+            // Create container GameObject to hold all LoadoutPreview elements
+            containerObject = new GameObject("LoadoutPreviewContainer");
+            containerObject.AddComponent<RectTransform>();
+            containerTransform = containerObject.transform;
+            containerTransform.SetParent(parentTransform, false);
             switch (platformName) {
                 case "CI-22 Cricket":
                     horizontalOffset = -105;
@@ -250,7 +259,7 @@ public class LoadoutPreviewComponent {
                 new Vector2(1, 1),
                 InternalState.mainColor,
                 border,
-                loadoutPreview_transform,
+                containerTransform,
                 backgroundColor
             );
             // Create labels
@@ -258,7 +267,7 @@ public class LoadoutPreviewComponent {
                 Bindings.UI.Draw.UILabel stationLabel = new(
                     "i_lp_Slot " + i,
                     new Vector2(0, 0),
-                    loadoutPreview_transform,
+                    containerTransform,
                     fontStyle: FontStyle.Bold, // Default to bold; will be updated in DisplayEngine
                     color: InternalState.textColor,
                     fontSize: fontSize + 6, // Default to 40; will be updated in DisplayEngine
@@ -327,10 +336,16 @@ public class LoadoutPreviewComponent {
         }
 
         public void SetActive(bool active) {
-            borderRect.GetGameObject()?.SetActive(active);
-            foreach (Bindings.UI.Draw.UILabel label in stationLabels) {
-                label.GetGameObject()?.SetActive(active);
+            containerObject?.SetActive(active);
+        }
+
+        public void Destroy() {
+            if (containerObject != null) {
+                Object.Destroy(containerObject);
+                containerObject = null;
             }
+            stationLabels.Clear();
+            borderRect = null;
         }
     }
 
