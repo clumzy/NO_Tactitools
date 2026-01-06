@@ -28,14 +28,12 @@ class TargetListControllerPlugin {
                 Plugin.targetNextControllerName.Value,
                 Plugin.targetNextInput.Value,
                 0.2f,
-                onRelease: NextTarget,
-                onLongPress: Redo);
+                onRelease: NextTarget);
             InputCatcher.RegisterNewInput(
                 Plugin.targetPreviousControllerName.Value,
                 Plugin.targetPreviousInput.Value,
                 0.2f,
-                onRelease: PreviousTarget,
-                onLongPress: Undo);
+                onRelease: PreviousTarget);
             InputCatcher.RegisterNewInput(
                 Plugin.targetPopOrKeepControllerName.Value,
                 Plugin.targetPopOrKeepInput.Value,
@@ -56,7 +54,7 @@ class TargetListControllerPlugin {
     private static void NextTarget() {
         Plugin.Log($"[TC] NextTarget");
         int targetCount = Bindings.Player.TargetList.GetTargets().Count;
-        if (targetCount > 1) {
+        if (targetCount > 0) {
             TargetListControllerComponent.InternalState.targetIndex = (TargetListControllerComponent.InternalState.targetIndex - 1 + targetCount) % targetCount;
             TargetListControllerComponent.InternalState.updateDisplay = true;
             Bindings.UI.Sound.PlaySound("beep_scroll.mp3");
@@ -66,7 +64,7 @@ class TargetListControllerPlugin {
     private static void PreviousTarget() {
         Plugin.Log($"[TC] PreviousTarget");
         int targetCount = Bindings.Player.TargetList.GetTargets().Count;
-        if (targetCount > 1) {
+        if (targetCount > 0) {
             TargetListControllerComponent.InternalState.targetIndex = (TargetListControllerComponent.InternalState.targetIndex + 1) % targetCount;
             TargetListControllerComponent.InternalState.updateDisplay = true;
             Bindings.UI.Sound.PlaySound("beep_scroll.mp3");
@@ -87,7 +85,7 @@ class TargetListControllerPlugin {
     private static void KeepOnlyCurrentTarget() {
         Plugin.Log($"[TC] KeepOnlyCurrentTarget");
         List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
-        if (currentTargets.Count > 1 && TargetListControllerComponent.InternalState.targetIndex < currentTargets.Count) {
+        if (currentTargets.Count > 0 && TargetListControllerComponent.InternalState.targetIndex < currentTargets.Count) {
             Unit targetToKeep = currentTargets[TargetListControllerComponent.InternalState.targetIndex];
             Bindings.Player.TargetList.DeselectAll();
             Bindings.Player.TargetList.AddTargets([targetToKeep]);
@@ -98,7 +96,6 @@ class TargetListControllerPlugin {
     private static void KeepOnlyDataLinkedTargets() {
         Plugin.Log($"[TC] KeepOnlyDataLinkedTargets");
         List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
-        if (currentTargets.Count <= 1) return;
         List<Unit> dataLinkedTargets = [];
         foreach (Unit target in currentTargets) {
             if (TargetListControllerComponent.InternalState.playerFactionHQ.IsTargetPositionAccurate(target, 20f)) {
@@ -106,7 +103,6 @@ class TargetListControllerPlugin {
             }
         }
         if (dataLinkedTargets.Count >= 0) {
-            TargetListControllerComponent.InternalState.nextChangeActionType = TargetListControllerComponent.TargetActionType.SmartDataLink;
             Bindings.Player.TargetList.DeselectAll();
             Bindings.Player.TargetList.AddTargets(dataLinkedTargets);
             TargetListControllerComponent.InternalState.resetIndex = true;
@@ -122,7 +118,6 @@ class TargetListControllerPlugin {
         }
         Plugin.Log($"[TC] KeepClosestTargetsBasedOnAmmo");
         List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
-        if (currentTargets.Count <= 1) return;
         List<Unit> sortedTargets = [.. currentTargets];
         sortedTargets.Sort((a, b) => {
 
@@ -138,7 +133,6 @@ class TargetListControllerPlugin {
         List<Unit> targetsToKeep = [.. currentTargets.Where(closestTargets.Contains)];
 
         if (targetsToKeep.Count >= 0) {
-            TargetListControllerComponent.InternalState.nextChangeActionType = TargetListControllerComponent.TargetActionType.SmartAmmo;
             Bindings.Player.TargetList.DeselectAll();
             Bindings.Player.TargetList.AddTargets(targetsToKeep);
             TargetListControllerComponent.InternalState.resetIndex = true;
@@ -164,7 +158,6 @@ class TargetListControllerPlugin {
         Plugin.Log($"[TC] HandleClick");
         if (TargetListControllerComponent.InternalState.unitRecallList != null) {
             if (TargetListControllerComponent.InternalState.unitRecallList.Count > 0) {
-                TargetListControllerComponent.InternalState.nextChangeActionType = TargetListControllerComponent.TargetActionType.Explicit;
                 Bindings.Player.TargetList.DeselectAll();
                 Bindings.Player.TargetList.AddTargets(TargetListControllerComponent.InternalState.unitRecallList);
                 TargetListControllerComponent.InternalState.unitRecallList = Bindings.Player.TargetList.GetTargets();
@@ -175,134 +168,19 @@ class TargetListControllerPlugin {
             }
         }
     }
-
-    private static void Undo() {
-        if (TargetListControllerComponent.InternalState.historyIndex > 0) {
-            Plugin.Log("[TC] Undo");
-            // Check if the previous state is empty
-            TargetListControllerComponent.HistoryItem previousState = TargetListControllerComponent.InternalState.history[TargetListControllerComponent.InternalState.historyIndex - 1];
-            if (previousState.targets.Count == 0) {
-                return;
-            }
-
-            TargetListControllerComponent.InternalState.historyIndex--;
-            ApplyState(previousState.targets);
-            // Restore the action type that created this state, so we can potentially resume it
-            TargetListControllerComponent.InternalState.lastActionType = previousState.actionType;
-            
-            Bindings.UI.Sound.PlaySound("beep_undo_redo.mp3");
-        }
-    }
-
-    private static void Redo() {
-        if (TargetListControllerComponent.InternalState.historyIndex < TargetListControllerComponent.InternalState.history.Count - 1) {
-            Plugin.Log("[TC] Redo");
-            TargetListControllerComponent.InternalState.historyIndex++;
-            TargetListControllerComponent.HistoryItem targetState = TargetListControllerComponent.InternalState.history[TargetListControllerComponent.InternalState.historyIndex];
-            ApplyState(targetState.targets);
-            TargetListControllerComponent.InternalState.lastActionType = targetState.actionType;
-
-            Bindings.UI.Sound.PlaySound("beep_undo_redo.mp3");
-        }
-    }
-
-    private static void ApplyState(List<Unit> targets) {
-        TargetListControllerComponent.InternalState.isRestoringHistory = true;
-        Bindings.Player.TargetList.DeselectAll();
-        Bindings.Player.TargetList.AddTargets(targets, muteSound: true);
-        TargetListControllerComponent.InternalState.resetIndex = true;
-        TargetListControllerComponent.InternalState.updateDisplay = true;
-    }
 }
 
 public static class TargetListControllerComponent {
     static class LogicEngine {
         public static void Init() {
+            InternalState.previousTargetList = [];
             InternalState.targetIndex = 0;
             InternalState.playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
-
-            InternalState.previousTargetList = Bindings.Player.TargetList.GetTargets();
-            InternalState.history.Clear();
-            InternalState.history.Add(new HistoryItem([.. InternalState.previousTargetList], TargetActionType.None));
-            InternalState.historyIndex = 0;
-            InternalState.lastActionType = TargetActionType.None;
-            InternalState.nextChangeActionType = TargetActionType.None;
-            InternalState.isRestoringHistory = false;
         }
 
         public static void Update() {
-            List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
-            bool listChanged = false;
-
-            if (InternalState.previousTargetList.Count != currentTargets.Count || !InternalState.previousTargetList.SequenceEqual(currentTargets)) {
-                listChanged = true;
-            }
-
-            if (listChanged) {
-                if (InternalState.isRestoringHistory) {
-                    InternalState.isRestoringHistory = false;
-                }
-                else {
-                    bool isPassiveUpdate = false;
-                    // Detect if targets were removed because they were destroyed (null)
-                    if (InternalState.previousTargetList.Count > currentTargets.Count) {
-                        IEnumerable<Unit> missing = InternalState.previousTargetList.Except(currentTargets);
-                        if (missing.All(u => u == null)) {
-                            isPassiveUpdate = true;
-                        }
-                    }
-                    if (isPassiveUpdate) {
-                        // update the current history state to reflect the reality (dead units gone)
-                        // do not trigger divergence or new history entry
-                        if (InternalState.historyIndex >= 0 && InternalState.historyIndex < InternalState.history.Count) {
-                            InternalState.history[InternalState.historyIndex] = new HistoryItem([.. currentTargets], InternalState.history[InternalState.historyIndex].actionType);
-                        }
-                    }
-                    else {
-                        TargetActionType currentAction = TargetActionType.None;
-
-                        if (InternalState.nextChangeActionType != TargetActionType.None) {
-                            currentAction = InternalState.nextChangeActionType;
-                            InternalState.nextChangeActionType = TargetActionType.None;
-                        }
-                        else if (currentTargets.Count > InternalState.previousTargetList.Count) {
-                            currentAction = TargetActionType.Adding;
-                        }
-                        else if (currentTargets.Count < InternalState.previousTargetList.Count) {
-                            currentAction = TargetActionType.Removing;
-                        }
-                        else {
-                            currentAction = TargetActionType.Explicit;
-                        }
-
-                        if (InternalState.historyIndex < InternalState.history.Count - 1) {
-                            InternalState.history.RemoveRange(InternalState.historyIndex + 1, InternalState.history.Count - (InternalState.historyIndex + 1));
-                            // ig we diverge, we keep the lastActionType of the current state, because we might be continuing the same action
-                            // Add -> Undo -> Add (should merge)
-                        }
-
-                        bool merge = false;
-                        if (currentAction == InternalState.lastActionType && currentAction != TargetActionType.Explicit && currentAction != TargetActionType.None) {
-                            merge = true;
-                        }
-
-                        if (merge && InternalState.historyIndex >= 0) {
-                            InternalState.history[InternalState.historyIndex] = new HistoryItem([.. currentTargets], currentAction);
-                        }
-                        else {
-                            InternalState.history.Add(new HistoryItem([.. currentTargets], currentAction));
-                            InternalState.historyIndex++;
-                            InternalState.lastActionType = currentAction;
-
-                            if (InternalState.history.Count > 10) {
-                                InternalState.history.RemoveAt(0);
-                                InternalState.historyIndex--;
-                            }
-                        }
-                    }
-                }
-                // TARGET FOCUSING CODE
-                int currentCount = currentTargets.Count;
+            int currentCount = Bindings.Player.TargetList.GetTargets().Count;
+            if (InternalState.previousTargetList.Count != currentCount) {
                 if (currentCount <= 1) {
                     InternalState.targetIndex = 0;
                 }
@@ -315,32 +193,13 @@ public static class TargetListControllerComponent {
                     }
                 }
                 InternalState.targetIndex = Mathf.Clamp(InternalState.targetIndex, 0, Mathf.Max(0, currentCount - 1));
-                InternalState.previousTargetList = [.. currentTargets];
+                InternalState.previousTargetList = Bindings.Player.TargetList.GetTargets();
                 if (InternalState.resetIndex) { // don't forget that the list is in reverse order (LIFO), this is why we set to count - 1
                     InternalState.targetIndex = currentCount - 1;
                     InternalState.resetIndex = false;
                 }
                 InternalState.updateDisplay = true;
             }
-        }
-    }
-
-    public enum TargetActionType {
-        None,
-        Adding,
-        Removing,
-        Explicit,
-        SmartDataLink,
-        SmartAmmo
-    }
-
-    public struct HistoryItem {
-        public List<Unit> targets;
-        public TargetActionType actionType;
-
-        public HistoryItem(List<Unit> t, TargetActionType a) {
-            targets = t;
-            actionType = a;
         }
     }
 
@@ -352,12 +211,6 @@ public static class TargetListControllerComponent {
         public static bool updateDisplay = false;
         public static bool resetIndex = false;
         public static int targetIndex = 0;
-
-        public static List<HistoryItem> history = [];
-        public static int historyIndex = -1;
-        public static TargetActionType lastActionType = TargetActionType.None;
-        public static TargetActionType nextChangeActionType = TargetActionType.None;
-        public static bool isRestoringHistory = false;
     }
     static class DisplayEngine {
         public static void Init() {
