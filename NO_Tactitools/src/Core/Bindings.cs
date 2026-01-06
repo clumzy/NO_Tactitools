@@ -282,7 +282,7 @@ public class Bindings {
         }
 
         public class TargetList {
-            public static void AddTargets(List<Unit> units) {
+            public static void AddTargets(List<Unit> units, bool muteSound = false) {
                 try {
                     var markerLookup = Traverse.Create(Bindings.UI.Game.GetCombatHUDComponent()).Field("markerLookup").GetValue<Dictionary<Unit, HUDUnitMarker>>();
                     AudioClip selectSound = Traverse.Create(Bindings.UI.Game.GetCombatHUDComponent()).Field("selectSound").GetValue<AudioClip>();
@@ -294,7 +294,8 @@ public class Bindings {
                             Bindings.Player.Aircraft.GetAircraft().weaponManager.AddTargetList(t_unit);
                         }
                     }
-                    SoundManager.PlayInterfaceOneShot(selectSound);
+                    if (!muteSound)
+                        SoundManager.PlayInterfaceOneShot(selectSound);
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.TargetList.AddTargets] NullReferenceException: CombatHUD target selection unavailable; cannot add targets."); }
             }
