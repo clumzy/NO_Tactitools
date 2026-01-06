@@ -30,7 +30,7 @@ public static class BootScreenComponent {
             InternalState.tacScreenTransform = Bindings.UI.Game.GetTacScreenTransform();
             InternalState.previouslyActiveObjects.Clear();
             foreach (Transform child in InternalState.tacScreenTransform) {
-                if (child == null || child.gameObject == null || child.name.StartsWith("i_")) continue;
+                if (child == null || child.gameObject == null || child.name.StartsWith("i_lp_")) continue;
                 if (child.gameObject.activeSelf) InternalState.previouslyActiveObjects.Add(child.gameObject);
                 child.gameObject.SetActive(false);
             }
