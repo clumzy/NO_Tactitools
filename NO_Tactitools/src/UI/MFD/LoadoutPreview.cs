@@ -27,10 +27,10 @@ public class LoadoutPreviewComponent {
     // LOGIC ENGINE, INTERNAL STATE, DISPLAY ENGINE
     static class LogicEngine {
         static public void Init() {
-            InternalState.weaponStations.Clear();
             //if loadout preview is not null, destroy it properly
             InternalState.loadoutPreview?.Destroy();
             InternalState.loadoutPreview = null;
+            InternalState.weaponStations.Clear();
             InternalState.neverShown = true;
             InternalState.lastUpdateTime = 0;
             InternalState.needsUpdate = false;
