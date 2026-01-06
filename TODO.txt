@@ -36,6 +36,9 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> modifiable loadout preview 
 -> loadout preview now follows UI element
 
+0.5.0.0 :
+-> Fixed a minor bug where if you had the loadout preview open and on the HMD when disembarking, selecting an airframe with less slots would cause "ghost" labels to appear
+-> Fixed a QoL specific bug where the loadout preview would clip with the always-on capacitor panel when on the HMD and aboard an ECM-less aircraft
 
 TODO :
 -> F/ add functionalty to see if a targeted unit is being targeted by a friendly missile
