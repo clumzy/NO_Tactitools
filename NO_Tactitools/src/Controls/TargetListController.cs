@@ -76,6 +76,10 @@ public static class TargetListControllerComponent {
                 }
                 InternalState.targetIndex = Mathf.Clamp(InternalState.targetIndex, 0, Mathf.Max(0, currentCount - 1));
                 InternalState.previousTargetList = Bindings.Player.TargetList.GetTargets();
+                if (InternalState.resetIndex) { // don't forget that the list is in reverse order (LIFO), this is why we set to count - 1
+                    InternalState.targetIndex = currentCount - 1;
+                    InternalState.resetIndex = false;
+                }
                 InternalState.updateDisplay = true;
             }
         }
@@ -108,11 +112,6 @@ public static class TargetListControllerComponent {
                 // Wait until the UI has instantiated the boxes for the new targets
                 if (targetIcons.Count < targets.Count) {
                     return;
-                }
-
-                if (InternalState.resetIndex) { // don't forget that the list is in reverse order (LIFO), this is why we set to count - 1
-                    InternalState.targetIndex = targets.Count - 1;
-                    InternalState.resetIndex = false;
                 }
                 for (int i = 0; i < targetIcons.Count; i++) {
 
