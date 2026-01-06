@@ -2,6 +2,7 @@ using HarmonyLib;
 using UnityEngine;
 using NO_Tactitools.Core;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 namespace NO_Tactitools.UI.MFD;
 
@@ -26,8 +27,12 @@ public class LoadoutPreviewComponent {
     // LOGIC ENGINE, INTERNAL STATE, DISPLAY ENGINE
     static class LogicEngine {
         static public void Init() {
-            InternalState.loadoutPreview = null;
             InternalState.weaponStations.Clear();
+            //if loadout preview is not null, reset it
+            InternalState.loadoutPreview = null;
+            InternalState.neverShown = true;
+            InternalState.lastUpdateTime = 0;
+            InternalState.needsUpdate = false;
             InternalState.displayDuration = Plugin.loadoutPreviewDuration.Value;
             InternalState.onlyShowOnBoot = Plugin.loadoutPreviewOnlyShowOnBoot.Value;
             InternalState.sendToHMD = Plugin.loadoutPreviewSendToHMD.Value;
@@ -37,7 +42,6 @@ public class LoadoutPreviewComponent {
             InternalState.verticalOffset = Plugin.loadoutPreviewPositionY.Value;
             InternalState.backgroundTransparency = Plugin.loadoutPreviewBackgroundTransparency.Value;
             InternalState.textAndBorderTransparency = Plugin.loadoutPreviewTextAndBorderTransparency.Value;
-            InternalState.neverShown = true;
             InternalState.hasStations = Bindings.Player.Aircraft.Weapons.GetStationCount() > 1;
             if (InternalState.hasStations) {
                 InternalState.currentWeaponStation = Bindings.Player.Aircraft.Weapons.GetActiveStationName();
@@ -116,6 +120,7 @@ public class LoadoutPreviewComponent {
                     Plugin.Log("[LP] Initializing Loadout Preview for Tac Screen");
                 }
                 InternalState.loadoutPreview = new LoadoutPreview(sendToHMD: InternalState.sendToHMD);
+                Plugin.Log("[LP] Loadout Preview initialized.");
             }
         }
 
@@ -229,6 +234,8 @@ public class LoadoutPreviewComponent {
                 default:
                     break;
             }
+
+
             Color backgroundColor = Color.black;
             int border = 2;
             if (sendToHMD) {
@@ -238,7 +245,7 @@ public class LoadoutPreviewComponent {
             }
             // Create background rectangle
             borderRect = new(
-                "i_LoadoutPreviewBorder",
+                "i_lp_LoadoutPreviewBorder",
                 new Vector2(-1, -1),
                 new Vector2(1, 1),
                 InternalState.mainColor,
@@ -249,7 +256,7 @@ public class LoadoutPreviewComponent {
             // Create labels
             for (int i = 0; i < weaponStations.Count; i++) {
                 Bindings.UI.Draw.UILabel stationLabel = new(
-                    "i_Slot " + i,
+                    "i_lp_Slot " + i,
                     new Vector2(0, 0),
                     loadoutPreview_transform,
                     fontStyle: FontStyle.Bold, // Default to bold; will be updated in DisplayEngine
@@ -281,6 +288,7 @@ public class LoadoutPreviewComponent {
                 else {
                     if (InternalState.vanillaUIEnabled) {
                         GameObject topRightPanel = Traverse.Create(Bindings.UI.Game.GetCombatHUDComponent()).Field<GameObject>("topRightPanel").Value;
+                        GameObject powerPanel = topRightPanel.transform.Find("PowerPanel").gameObject;
                         horizontalOffset = 
                             (int)topRightPanel.transform.localPosition.x 
                             - (int)rectHalfWidth - border - padding;
@@ -288,7 +296,7 @@ public class LoadoutPreviewComponent {
                             (int)topRightPanel.transform.localPosition.y
                             - (int)rectHalfHeight - border - padding
                             - 170;
-                        if (Bindings.Player.Aircraft.Countermeasures.HasJammer()) {
+                        if (Bindings.Player.Aircraft.Countermeasures.HasJammer() || powerPanel.activeSelf) {
                             Plugin.Log("[LP] Adjusting Loadout Preview position to avoid jammer display overlap.");
                             verticalOffset -= 40;
                         }
@@ -323,12 +331,6 @@ public class LoadoutPreviewComponent {
             foreach (Bindings.UI.Draw.UILabel label in stationLabels) {
                 label.GetGameObject()?.SetActive(active);
             }
-        }
-        public void Reset() {
-            foreach (var label in stationLabels) {
-                label.Destroy();
-            }
-            stationLabels.Clear();
         }
     }
 
