@@ -27,13 +27,15 @@ class TargetListControllerPlugin {
             InputCatcher.RegisterNewInput(
                 Plugin.targetNextControllerName.Value,
                 Plugin.targetNextInput.Value,
-                0.2f,
-                onRelease: NextTarget);
+                0.5f,
+                onRelease: NextTarget,
+                onLongPress: SortTargetsByDistance);
             InputCatcher.RegisterNewInput(
                 Plugin.targetPreviousControllerName.Value,
                 Plugin.targetPreviousInput.Value,
-                0.2f,
-                onRelease: PreviousTarget);
+                0.5f,
+                onRelease: PreviousTarget,
+                onLongPress: SortTargetsByName);
             InputCatcher.RegisterNewInput(
                 Plugin.targetPopOrKeepControllerName.Value,
                 Plugin.targetPopOrKeepInput.Value,
@@ -54,7 +56,7 @@ class TargetListControllerPlugin {
     private static void NextTarget() {
         Plugin.Log($"[TC] NextTarget");
         int targetCount = Bindings.Player.TargetList.GetTargets().Count;
-        if (targetCount > 0) {
+        if (targetCount > 1) {
             TargetListControllerComponent.InternalState.targetIndex = (TargetListControllerComponent.InternalState.targetIndex - 1 + targetCount) % targetCount;
             TargetListControllerComponent.InternalState.updateDisplay = true;
             Bindings.UI.Sound.PlaySound("beep_scroll.mp3");
@@ -64,7 +66,7 @@ class TargetListControllerPlugin {
     private static void PreviousTarget() {
         Plugin.Log($"[TC] PreviousTarget");
         int targetCount = Bindings.Player.TargetList.GetTargets().Count;
-        if (targetCount > 0) {
+        if (targetCount > 1) {
             TargetListControllerComponent.InternalState.targetIndex = (TargetListControllerComponent.InternalState.targetIndex + 1) % targetCount;
             TargetListControllerComponent.InternalState.updateDisplay = true;
             Bindings.UI.Sound.PlaySound("beep_scroll.mp3");
@@ -77,7 +79,10 @@ class TargetListControllerPlugin {
         if (currentTargets.Count > 0 && TargetListControllerComponent.InternalState.targetIndex < currentTargets.Count) {
             Unit targetToDeselect = currentTargets[TargetListControllerComponent.InternalState.targetIndex];
             TargetListControllerComponent.InternalState.targetIndex = Mathf.Clamp(TargetListControllerComponent.InternalState.targetIndex, 0, Mathf.Max(0, currentTargets.Count - 1));
-            Bindings.Player.TargetList.DeselectUnit(targetToDeselect);
+            if (currentTargets.Count == 1)
+                Bindings.Player.TargetList.DeselectAll();
+            else
+                Bindings.Player.TargetList.DeselectUnit(targetToDeselect);
             TargetListControllerComponent.InternalState.updateDisplay = true;
         }
     }
@@ -95,6 +100,9 @@ class TargetListControllerPlugin {
 
     private static void KeepOnlyDataLinkedTargets() {
         Plugin.Log($"[TC] KeepOnlyDataLinkedTargets");
+        if (Bindings.Player.TargetList.GetTargets().Count == 0) {
+            return;
+        }
         List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
         List<Unit> dataLinkedTargets = [];
         foreach (Unit target in currentTargets) {
@@ -112,11 +120,11 @@ class TargetListControllerPlugin {
     }
 
     private static void KeepClosestTargetsBasedOnAmmo() {
-        int count = Bindings.Player.Aircraft.Weapons.GetActiveStationAmmo();
-        if (count == 0) {
+        Plugin.Log($"[TC] KeepClosestTargetsBasedOnAmmo");
+        int activeStationAmmo = Bindings.Player.Aircraft.Weapons.GetActiveStationAmmo();
+        if (activeStationAmmo == 0 || Bindings.Player.TargetList.GetTargets().Count == 0) {
             return;
         }
-        Plugin.Log($"[TC] KeepClosestTargetsBasedOnAmmo");
         List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
         List<Unit> sortedTargets = [.. currentTargets];
         sortedTargets.Sort((a, b) => {
@@ -129,7 +137,7 @@ class TargetListControllerPlugin {
                 (Vector3)(Bindings.Player.Aircraft.GetAircraft().NetworkHQ.GetKnownPosition(b)?.AsVector3()));
             return distanceA.CompareTo(distanceB);
         });
-        List<Unit> closestTargets = sortedTargets.GetRange(0, Mathf.Min(count, sortedTargets.Count));
+        List<Unit> closestTargets = sortedTargets.GetRange(0, Mathf.Min(activeStationAmmo, sortedTargets.Count));
         List<Unit> targetsToKeep = [.. currentTargets.Where(closestTargets.Contains)];
 
         if (targetsToKeep.Count >= 0) {
@@ -144,10 +152,10 @@ class TargetListControllerPlugin {
     private static void RememberTargets() {
         Plugin.Log($"[TC] HandleLongPress");
         if (Bindings.UI.Game.GetCombatHUDTransform() != null) {
-            TargetListControllerComponent.InternalState.unitRecallList = Bindings.Player.TargetList.GetTargets();
-            if (TargetListControllerComponent.InternalState.unitRecallList.Count == 0) {
+            if (Bindings.Player.TargetList.GetTargets().Count == 0) {
                 return;
             }
+            TargetListControllerComponent.InternalState.unitRecallList = Bindings.Player.TargetList.GetTargets();
             string report = $"Saved <b>{TargetListControllerComponent.InternalState.unitRecallList.Count.ToString()}</b> targets";
             Bindings.UI.Game.DisplayToast(report, 3f);
             Bindings.UI.Sound.PlaySound("beep_target.mp3");
@@ -168,185 +176,228 @@ class TargetListControllerPlugin {
             }
         }
     }
-}
 
-public static class TargetListControllerComponent {
-    static class LogicEngine {
-        public static void Init() {
-            InternalState.previousTargetList = [];
-            InternalState.targetIndex = 0;
-            InternalState.playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
+    private static void SortTargetsByDistance() {
+        Plugin.Log($"[TC] SortTargetsByDistance");
+        if (Bindings.Player.TargetList.GetTargets().Count < 2) {
+            return;
         }
+        List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
+        List<Unit> sortedTargets = [.. currentTargets];
+        sortedTargets.Sort((a, b) => {
 
-        public static void Update() {
-            int currentCount = Bindings.Player.TargetList.GetTargets().Count;
-            if (InternalState.previousTargetList.Count != currentCount) {
-                if (currentCount <= 1) {
-                    InternalState.targetIndex = 0;
-                }
-                else {
-                    if (currentCount > InternalState.previousTargetList.Count) {
-                        InternalState.targetIndex++;
+            float distanceA = Vector3.Distance(
+                Bindings.Player.Aircraft.GetAircraft().transform.position.ToGlobalPosition().AsVector3(),
+                (Vector3)(Bindings.Player.Aircraft.GetAircraft().NetworkHQ.GetKnownPosition(a)?.AsVector3()));
+            float distanceB = Vector3.Distance(
+                Bindings.Player.Aircraft.GetAircraft().transform.position.ToGlobalPosition().AsVector3(),
+                (Vector3)(Bindings.Player.Aircraft.GetAircraft().NetworkHQ.GetKnownPosition(b)?.AsVector3()));
+            return distanceA.CompareTo(distanceB);
+        });
+        Bindings.Player.TargetList.DeselectAll();
+        Bindings.Player.TargetList.AddTargets(sortedTargets, muteSound: true);
+        string report = $"Sorted <b>{sortedTargets.Count.ToString()}</b> targets by distance";
+        TargetListControllerComponent.InternalState.resetIndex = true;
+        TargetListControllerComponent.InternalState.updateDisplay = true;
+        Bindings.UI.Game.DisplayToast(report, 3f);
+    }
+
+    private static void SortTargetsByName() {
+        Plugin.Log($"[TC] SortTargetsByName");
+        if (Bindings.Player.TargetList.GetTargets().Count < 2) {
+            return;
+        }
+        List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
+        List<Unit> sortedTargets = [.. currentTargets];
+        sortedTargets.Sort((a, b) => {
+            return a.unitName.CompareTo(b.unitName);
+        });
+        Bindings.Player.TargetList.DeselectAll();
+        Bindings.Player.TargetList.AddTargets(sortedTargets, muteSound: true);
+        string report = $"Sorted <b>{sortedTargets.Count.ToString()}</b> targets by name";
+        TargetListControllerComponent.InternalState.resetIndex = true;
+        TargetListControllerComponent.InternalState.updateDisplay = true;
+        Bindings.UI.Game.DisplayToast(report, 3f);
+    }
+
+    public static class TargetListControllerComponent {
+        static class LogicEngine {
+            public static void Init() {
+                InternalState.previousTargetList = [];
+                InternalState.targetIndex = 0;
+                InternalState.playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
+            }
+
+            public static void Update() {
+                int currentCount = Bindings.Player.TargetList.GetTargets().Count;
+                if (InternalState.previousTargetList.Count != currentCount) {
+                    if (currentCount <= 1) {
+                        InternalState.targetIndex = 0;
                     }
                     else {
-                        InternalState.targetIndex--;
+                        if (currentCount > InternalState.previousTargetList.Count) {
+                            InternalState.targetIndex++;
+                        }
+                        else {
+                            InternalState.targetIndex--;
+                        }
                     }
+                    InternalState.targetIndex = Mathf.Clamp(InternalState.targetIndex, 0, Mathf.Max(0, currentCount - 1));
+                    InternalState.previousTargetList = Bindings.Player.TargetList.GetTargets();
+                    if (InternalState.resetIndex) { // don't forget that the list is in reverse order (LIFO), this is why we set to count - 1
+                        InternalState.targetIndex = currentCount - 1;
+                        InternalState.resetIndex = false;
+                    }
+                    InternalState.updateDisplay = true;
                 }
-                InternalState.targetIndex = Mathf.Clamp(InternalState.targetIndex, 0, Mathf.Max(0, currentCount - 1));
-                InternalState.previousTargetList = Bindings.Player.TargetList.GetTargets();
-                if (InternalState.resetIndex) { // don't forget that the list is in reverse order (LIFO), this is why we set to count - 1
-                    InternalState.targetIndex = currentCount - 1;
-                    InternalState.resetIndex = false;
-                }
-                InternalState.updateDisplay = true;
             }
         }
-    }
 
-    public static class InternalState {
-        public static List<Unit> unitRecallList;
-        public static FactionHQ playerFactionHQ;
-        public static List<Unit> previousTargetList;
-        public static Color mainColor = Color.green;
-        public static bool updateDisplay = false;
-        public static bool resetIndex = false;
-        public static int targetIndex = 0;
-    }
-    static class DisplayEngine {
-        public static void Init() {
+        public static class InternalState {
+            public static List<Unit> unitRecallList;
+            public static FactionHQ playerFactionHQ;
+            public static List<Unit> previousTargetList;
+            public static Color mainColor = Color.green;
+            public static bool updateDisplay = false;
+            public static bool resetIndex = false;
+            public static int targetIndex = 0;
         }
-        public static void Update() {
-            static void UpdateTargetTexts() {
-                TargetScreenUI targetScreen = Bindings.UI.Game.GetTargetScreenUIComponent();
-                if (targetScreen == null) return;
-                Traverse traverse = Traverse.Create(targetScreen);
+        static class DisplayEngine {
+            public static void Init() {
+            }
+            public static void Update() {
+                static void UpdateTargetTexts() {
+                    TargetScreenUI targetScreen = Bindings.UI.Game.GetTargetScreenUIComponent();
+                    if (targetScreen == null) return;
+                    Traverse traverse = Traverse.Create(targetScreen);
 
-                List<Unit> targets = Bindings.Player.TargetList.GetTargets();
-                int index = InternalState.targetIndex;
-                if (index >= targets.Count) return;
+                    List<Unit> targets = Bindings.Player.TargetList.GetTargets();
+                    int index = InternalState.targetIndex;
+                    if (index >= targets.Count) return;
 
-                Unit unit = targets[index];
-                FactionHQ hq = traverse.Field("hq").GetValue<FactionHQ>();
+                    Unit unit = targets[index];
+                    FactionHQ hq = traverse.Field("hq").GetValue<FactionHQ>();
 
-                Text typeText = traverse.Field("typeText").GetValue<Text>();
-                Text heading = traverse.Field("heading").GetValue<Text>();
-                Text altitude = traverse.Field("altitude").GetValue<Text>();
-                Text rel_altitude = traverse.Field("rel_altitude").GetValue<Text>();
-                Text speed = traverse.Field("speed").GetValue<Text>();
-                Text rel_speed = traverse.Field("rel_speed").GetValue<Text>();
-                Text pilotText = traverse.Field("pilotText").GetValue<Text>();
+                    Text typeText = traverse.Field("typeText").GetValue<Text>();
+                    Text heading = traverse.Field("heading").GetValue<Text>();
+                    Text altitude = traverse.Field("altitude").GetValue<Text>();
+                    Text rel_altitude = traverse.Field("rel_altitude").GetValue<Text>();
+                    Text speed = traverse.Field("speed").GetValue<Text>();
+                    Text rel_speed = traverse.Field("rel_speed").GetValue<Text>();
+                    Text pilotText = traverse.Field("pilotText").GetValue<Text>();
 
-                Text distance = traverse.Field("distance").GetValue<Text>();
-                /* Text bearingText = traverse.Field("bearingText").GetValue<Text>();
-                Image bearingImg = traverse.Field("bearingImg").GetValue<Image>(); */
+                    Text distance = traverse.Field("distance").GetValue<Text>();
+                    /* Text bearingText = traverse.Field("bearingText").GetValue<Text>();
+                    Image bearingImg = traverse.Field("bearingImg").GetValue<Image>(); */
 
-                bool isAirOrMissile = unit is Aircraft || unit is Missile;
+                    bool isAirOrMissile = unit is Aircraft || unit is Missile;
 
-                if (unit.NetworkHQ == null) {
-                    typeText.color = Color.white;
-                }
-                else {
-                    typeText.color = (unit.NetworkHQ == hq) ? GameAssets.i.HUDFriendly : GameAssets.i.HUDHostile;
-                }
+                    if (unit.NetworkHQ == null) {
+                        typeText.color = Color.white;
+                    }
+                    else {
+                        typeText.color = (unit.NetworkHQ == hq) ? GameAssets.i.HUDFriendly : GameAssets.i.HUDHostile;
+                    }
 
-                if (isAirOrMissile) {
-                    Aircraft aircraft = unit as Aircraft;
-                    if (aircraft != null && aircraft.pilots[0].player != null) {
-                        pilotText.gameObject.SetActive(true);
-                        pilotText.text = "Pilot : " + aircraft.pilots[0].player.PlayerName;
-                        pilotText.color = typeText.color;
+                    if (isAirOrMissile) {
+                        Aircraft aircraft = unit as Aircraft;
+                        if (aircraft != null && aircraft.pilots[0].player != null) {
+                            pilotText.gameObject.SetActive(true);
+                            pilotText.text = "Pilot : " + aircraft.pilots[0].player.PlayerName;
+                            pilotText.color = typeText.color;
+                        }
+                        else {
+                            pilotText.gameObject.SetActive(false);
+                        }
                     }
                     else {
                         pilotText.gameObject.SetActive(false);
                     }
-                }
-                else {
-                    pilotText.gameObject.SetActive(false);
-                }
 
-                if (hq.IsTargetPositionAccurate(unit, 20f) && isAirOrMissile) {
-                    GlobalPosition globalPos = unit.GlobalPosition();
-                    Vector3 relPos = globalPos - SceneSingleton<CombatHUD>.i.aircraft.GlobalPosition();
+                    if (hq.IsTargetPositionAccurate(unit, 20f) && isAirOrMissile) {
+                        GlobalPosition globalPos = unit.GlobalPosition();
+                        Vector3 relPos = globalPos - SceneSingleton<CombatHUD>.i.aircraft.GlobalPosition();
 
-                    heading.text = string.Format("HDG {0:F0}°", unit.transform.eulerAngles.y);
-                    altitude.text = "ALT " + UnitConverter.AltitudeReading(globalPos.y);
-                    rel_altitude.text = "REL " + UnitConverter.AltitudeReading(relPos.y);
-                    speed.text = "SPD " + UnitConverter.SpeedReading(unit.speed);
-                    rel_speed.text = "REL " + UnitConverter.SpeedReading(Vector3.Dot(SceneSingleton<CombatHUD>.i.aircraft.rb.velocity, relPos.normalized) - Vector3.Dot(unit.rb.velocity, relPos.normalized));
-                }
-                else {
-                    heading.text = "HDG -";
-                    altitude.text = "ALT -";
-                    rel_altitude.text = "REL -";
-                    speed.text = "SPD -";
-                    rel_speed.text = "REL -";
-                }
-                distance.text = "RNG " + UnitConverter.DistanceReading(Vector3.Distance(SceneSingleton<CombatHUD>.i.aircraft.transform.position, unit.transform.position));
-                typeText.text = string.Format("[{0}/{1}] ", targets.Count - index, targets.Count) + ((unit is Aircraft) ? unit.definition.unitName : unit.unitName);
-            }
-            // PROPER UPDATE START
-            if (Bindings.UI.Game.GetCombatHUDTransform() == null ||
-                Bindings.UI.Game.GetTargetScreenTransform(nullIsOkay: true) == null) {
-                return;
-            }
-
-            List<Unit> targets = Bindings.Player.TargetList.GetTargets();
-            if (targets.Count == 0) return;
-
-            if (InternalState.updateDisplay) {
-                TargetScreenUI targetScreen = Bindings.UI.Game.GetTargetScreenUIComponent();
-                List<Image> targetIcons = Traverse.Create(targetScreen).Field("targetBoxes").GetValue<List<Image>>();
-                // Wait until the UI has instantiated the boxes for the new targets
-                if (targetIcons.Count < targets.Count) {
-                    return;
-                }
-                for (int i = 0; i < targetIcons.Count; i++) {
-
-                    Rect rect = targetIcons[i].rectTransform.rect;
-                    Vector2 size = rect.size + new Vector2(10f, 10f);
-                    Vector2 halfSize = size / 2f;
-
-                    Bindings.UI.Draw.UIAdvancedRectangle selectionRect = new(
-                        "SelectionOutline",
-                        -halfSize,
-                        halfSize,
-                        InternalState.mainColor,
-                        4f,
-                        targetIcons[i].transform,
-                        Color.clear
-                    );
-                    selectionRect.GetImageComponent().raycastTarget = false;
-
-                    if (i == InternalState.targetIndex) {
-                        selectionRect.GetGameObject().SetActive(true);
+                        heading.text = string.Format("HDG {0:F0}°", unit.transform.eulerAngles.y);
+                        altitude.text = "ALT " + UnitConverter.AltitudeReading(globalPos.y);
+                        rel_altitude.text = "REL " + UnitConverter.AltitudeReading(relPos.y);
+                        speed.text = "SPD " + UnitConverter.SpeedReading(unit.speed);
+                        rel_speed.text = "REL " + UnitConverter.SpeedReading(Vector3.Dot(SceneSingleton<CombatHUD>.i.aircraft.rb.velocity, relPos.normalized) - Vector3.Dot(unit.rb.velocity, relPos.normalized));
                     }
                     else {
-                        selectionRect.GetGameObject().SetActive(false);
+                        heading.text = "HDG -";
+                        altitude.text = "ALT -";
+                        rel_altitude.text = "REL -";
+                        speed.text = "SPD -";
+                        rel_speed.text = "REL -";
                     }
+                    distance.text = "RNG " + UnitConverter.DistanceReading(Vector3.Distance(SceneSingleton<CombatHUD>.i.aircraft.transform.position, unit.transform.position));
+                    typeText.text = string.Format("[{0}/{1}] ", targets.Count - index, targets.Count) + ((unit is Aircraft) ? unit.definition.unitName : unit.unitName);
                 }
-                InternalState.updateDisplay = false;
+                // PROPER UPDATE START
+                if (Bindings.UI.Game.GetCombatHUDTransform() == null ||
+                    Bindings.UI.Game.GetTargetScreenTransform(nullIsOkay: true) == null) {
+                    return;
+                }
+
+                List<Unit> targets = Bindings.Player.TargetList.GetTargets();
+                if (targets.Count == 0) return;
+
+                if (InternalState.updateDisplay) {
+                    TargetScreenUI targetScreen = Bindings.UI.Game.GetTargetScreenUIComponent();
+                    List<Image> targetIcons = Traverse.Create(targetScreen).Field("targetBoxes").GetValue<List<Image>>();
+                    // Wait until the UI has instantiated the boxes for the new targets
+                    if (targetIcons.Count < targets.Count) {
+                        return;
+                    }
+                    for (int i = 0; i < targetIcons.Count; i++) {
+
+                        Rect rect = targetIcons[i].rectTransform.rect;
+                        Vector2 size = rect.size + new Vector2(10f, 10f);
+                        Vector2 halfSize = size / 2f;
+
+                        Bindings.UI.Draw.UIAdvancedRectangle selectionRect = new(
+                            "SelectionOutline",
+                            -halfSize,
+                            halfSize,
+                            InternalState.mainColor,
+                            4f,
+                            targetIcons[i].transform,
+                            Color.clear
+                        );
+                        selectionRect.GetImageComponent().raycastTarget = false;
+
+                        if (i == InternalState.targetIndex) {
+                            selectionRect.GetGameObject().SetActive(true);
+                        }
+                        else {
+                            selectionRect.GetGameObject().SetActive(false);
+                        }
+                    }
+                    InternalState.updateDisplay = false;
+                }
+
+                if (targets.Count > 1) {
+                    UpdateTargetTexts();
+                }
             }
 
-            if (targets.Count > 1) {
-                UpdateTargetTexts();
+        }
+
+        [HarmonyPatch(typeof(TacScreen), "Initialize")]
+        public static class OnPlatformStart {
+            static void Postfix() {
+                LogicEngine.Init();
+                DisplayEngine.Init();
             }
         }
 
-    }
-
-    [HarmonyPatch(typeof(TacScreen), "Initialize")]
-    public static class OnPlatformStart {
-        static void Postfix() {
-            LogicEngine.Init();
-            DisplayEngine.Init();
-        }
-    }
-
-    [HarmonyPatch(typeof(TacScreen), "Update")]
-    public static class OnPlatformUpdate {
-        static void Postfix() {
-            LogicEngine.Update();
-            DisplayEngine.Update();
+        [HarmonyPatch(typeof(TacScreen), "Update")]
+        public static class OnPlatformUpdate {
+            static void Postfix() {
+                LogicEngine.Update();
+                DisplayEngine.Update();
+            }
         }
     }
 }
