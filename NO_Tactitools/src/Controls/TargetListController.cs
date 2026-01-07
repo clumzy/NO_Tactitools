@@ -219,185 +219,185 @@ class TargetListControllerPlugin {
         TargetListControllerComponent.InternalState.updateDisplay = true;
         Bindings.UI.Game.DisplayToast(report, 3f);
     }
+}
 
-    public static class TargetListControllerComponent {
-        static class LogicEngine {
-            public static void Init() {
-                InternalState.previousTargetList = [];
-                InternalState.targetIndex = 0;
-                InternalState.playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
-            }
+public static class TargetListControllerComponent {
+    static class LogicEngine {
+        public static void Init() {
+            InternalState.previousTargetList = [];
+            InternalState.targetIndex = 0;
+            InternalState.playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
+        }
 
-            public static void Update() {
-                int currentCount = Bindings.Player.TargetList.GetTargets().Count;
-                if (InternalState.previousTargetList.Count != currentCount) {
-                    if (currentCount <= 1) {
-                        InternalState.targetIndex = 0;
-                    }
-                    else {
-                        if (currentCount > InternalState.previousTargetList.Count) {
-                            InternalState.targetIndex++;
-                        }
-                        else {
-                            InternalState.targetIndex--;
-                        }
-                    }
-                    InternalState.targetIndex = Mathf.Clamp(InternalState.targetIndex, 0, Mathf.Max(0, currentCount - 1));
-                    InternalState.previousTargetList = Bindings.Player.TargetList.GetTargets();
-                    if (InternalState.resetIndex) { // don't forget that the list is in reverse order (LIFO), this is why we set to count - 1
-                        InternalState.targetIndex = currentCount - 1;
-                        InternalState.resetIndex = false;
-                    }
-                    InternalState.updateDisplay = true;
+        public static void Update() {
+            int currentCount = Bindings.Player.TargetList.GetTargets().Count;
+            if (InternalState.previousTargetList.Count != currentCount) {
+                if (currentCount <= 1) {
+                    InternalState.targetIndex = 0;
                 }
-            }
-        }
-
-        public static class InternalState {
-            public static List<Unit> unitRecallList;
-            public static FactionHQ playerFactionHQ;
-            public static List<Unit> previousTargetList;
-            public static Color mainColor = Color.green;
-            public static bool updateDisplay = false;
-            public static bool resetIndex = false;
-            public static int targetIndex = 0;
-        }
-        static class DisplayEngine {
-            public static void Init() {
-            }
-            public static void Update() {
-                static void UpdateTargetTexts() {
-                    TargetScreenUI targetScreen = Bindings.UI.Game.GetTargetScreenUIComponent();
-                    if (targetScreen == null) return;
-                    Traverse traverse = Traverse.Create(targetScreen);
-
-                    List<Unit> targets = Bindings.Player.TargetList.GetTargets();
-                    int index = InternalState.targetIndex;
-                    if (index >= targets.Count) return;
-
-                    Unit unit = targets[index];
-                    FactionHQ hq = traverse.Field("hq").GetValue<FactionHQ>();
-
-                    Text typeText = traverse.Field("typeText").GetValue<Text>();
-                    Text heading = traverse.Field("heading").GetValue<Text>();
-                    Text altitude = traverse.Field("altitude").GetValue<Text>();
-                    Text rel_altitude = traverse.Field("rel_altitude").GetValue<Text>();
-                    Text speed = traverse.Field("speed").GetValue<Text>();
-                    Text rel_speed = traverse.Field("rel_speed").GetValue<Text>();
-                    Text pilotText = traverse.Field("pilotText").GetValue<Text>();
-
-                    Text distance = traverse.Field("distance").GetValue<Text>();
-                    /* Text bearingText = traverse.Field("bearingText").GetValue<Text>();
-                    Image bearingImg = traverse.Field("bearingImg").GetValue<Image>(); */
-
-                    bool isAirOrMissile = unit is Aircraft || unit is Missile;
-
-                    if (unit.NetworkHQ == null) {
-                        typeText.color = Color.white;
+                else {
+                    if (currentCount > InternalState.previousTargetList.Count) {
+                        InternalState.targetIndex++;
                     }
                     else {
-                        typeText.color = (unit.NetworkHQ == hq) ? GameAssets.i.HUDFriendly : GameAssets.i.HUDHostile;
+                        InternalState.targetIndex--;
                     }
+                }
+                InternalState.targetIndex = Mathf.Clamp(InternalState.targetIndex, 0, Mathf.Max(0, currentCount - 1));
+                InternalState.previousTargetList = Bindings.Player.TargetList.GetTargets();
+                if (InternalState.resetIndex) { // don't forget that the list is in reverse order (LIFO), this is why we set to count - 1
+                    InternalState.targetIndex = currentCount - 1;
+                    InternalState.resetIndex = false;
+                }
+                InternalState.updateDisplay = true;
+            }
+        }
+    }
 
-                    if (isAirOrMissile) {
-                        Aircraft aircraft = unit as Aircraft;
-                        if (aircraft != null && aircraft.pilots[0].player != null) {
-                            pilotText.gameObject.SetActive(true);
-                            pilotText.text = "Pilot : " + aircraft.pilots[0].player.PlayerName;
-                            pilotText.color = typeText.color;
-                        }
-                        else {
-                            pilotText.gameObject.SetActive(false);
-                        }
+    public static class InternalState {
+        public static List<Unit> unitRecallList;
+        public static FactionHQ playerFactionHQ;
+        public static List<Unit> previousTargetList;
+        public static Color mainColor = Color.green;
+        public static bool updateDisplay = false;
+        public static bool resetIndex = false;
+        public static int targetIndex = 0;
+    }
+    static class DisplayEngine {
+        public static void Init() {
+        }
+        public static void Update() {
+            static void UpdateTargetTexts() {
+                TargetScreenUI targetScreen = Bindings.UI.Game.GetTargetScreenUIComponent();
+                if (targetScreen == null) return;
+                Traverse traverse = Traverse.Create(targetScreen);
+
+                List<Unit> targets = Bindings.Player.TargetList.GetTargets();
+                int index = InternalState.targetIndex;
+                if (index >= targets.Count) return;
+
+                Unit unit = targets[index];
+                FactionHQ hq = traverse.Field("hq").GetValue<FactionHQ>();
+
+                Text typeText = traverse.Field("typeText").GetValue<Text>();
+                Text heading = traverse.Field("heading").GetValue<Text>();
+                Text altitude = traverse.Field("altitude").GetValue<Text>();
+                Text rel_altitude = traverse.Field("rel_altitude").GetValue<Text>();
+                Text speed = traverse.Field("speed").GetValue<Text>();
+                Text rel_speed = traverse.Field("rel_speed").GetValue<Text>();
+                Text pilotText = traverse.Field("pilotText").GetValue<Text>();
+
+                Text distance = traverse.Field("distance").GetValue<Text>();
+                /* Text bearingText = traverse.Field("bearingText").GetValue<Text>();
+                Image bearingImg = traverse.Field("bearingImg").GetValue<Image>(); */
+
+                bool isAirOrMissile = unit is Aircraft || unit is Missile;
+
+                if (unit.NetworkHQ == null) {
+                    typeText.color = Color.white;
+                }
+                else {
+                    typeText.color = (unit.NetworkHQ == hq) ? GameAssets.i.HUDFriendly : GameAssets.i.HUDHostile;
+                }
+
+                if (isAirOrMissile) {
+                    Aircraft aircraft = unit as Aircraft;
+                    if (aircraft != null && aircraft.pilots[0].player != null) {
+                        pilotText.gameObject.SetActive(true);
+                        pilotText.text = "Pilot : " + aircraft.pilots[0].player.PlayerName;
+                        pilotText.color = typeText.color;
                     }
                     else {
                         pilotText.gameObject.SetActive(false);
                     }
-
-                    if (hq.IsTargetPositionAccurate(unit, 20f) && isAirOrMissile) {
-                        GlobalPosition globalPos = unit.GlobalPosition();
-                        Vector3 relPos = globalPos - SceneSingleton<CombatHUD>.i.aircraft.GlobalPosition();
-
-                        heading.text = string.Format("HDG {0:F0}°", unit.transform.eulerAngles.y);
-                        altitude.text = "ALT " + UnitConverter.AltitudeReading(globalPos.y);
-                        rel_altitude.text = "REL " + UnitConverter.AltitudeReading(relPos.y);
-                        speed.text = "SPD " + UnitConverter.SpeedReading(unit.speed);
-                        rel_speed.text = "REL " + UnitConverter.SpeedReading(Vector3.Dot(SceneSingleton<CombatHUD>.i.aircraft.rb.velocity, relPos.normalized) - Vector3.Dot(unit.rb.velocity, relPos.normalized));
-                    }
-                    else {
-                        heading.text = "HDG -";
-                        altitude.text = "ALT -";
-                        rel_altitude.text = "REL -";
-                        speed.text = "SPD -";
-                        rel_speed.text = "REL -";
-                    }
-                    distance.text = "RNG " + UnitConverter.DistanceReading(Vector3.Distance(SceneSingleton<CombatHUD>.i.aircraft.transform.position, unit.transform.position));
-                    typeText.text = string.Format("[{0}/{1}] ", targets.Count - index, targets.Count) + ((unit is Aircraft) ? unit.definition.unitName : unit.unitName);
                 }
-                // PROPER UPDATE START
-                if (Bindings.UI.Game.GetCombatHUDTransform() == null ||
-                    Bindings.UI.Game.GetTargetScreenTransform(nullIsOkay: true) == null) {
+                else {
+                    pilotText.gameObject.SetActive(false);
+                }
+
+                if (hq.IsTargetPositionAccurate(unit, 20f) && isAirOrMissile) {
+                    GlobalPosition globalPos = unit.GlobalPosition();
+                    Vector3 relPos = globalPos - SceneSingleton<CombatHUD>.i.aircraft.GlobalPosition();
+
+                    heading.text = string.Format("HDG {0:F0}°", unit.transform.eulerAngles.y);
+                    altitude.text = "ALT " + UnitConverter.AltitudeReading(globalPos.y);
+                    rel_altitude.text = "REL " + UnitConverter.AltitudeReading(relPos.y);
+                    speed.text = "SPD " + UnitConverter.SpeedReading(unit.speed);
+                    rel_speed.text = "REL " + UnitConverter.SpeedReading(Vector3.Dot(SceneSingleton<CombatHUD>.i.aircraft.rb.velocity, relPos.normalized) - Vector3.Dot(unit.rb.velocity, relPos.normalized));
+                }
+                else {
+                    heading.text = "HDG -";
+                    altitude.text = "ALT -";
+                    rel_altitude.text = "REL -";
+                    speed.text = "SPD -";
+                    rel_speed.text = "REL -";
+                }
+                distance.text = "RNG " + UnitConverter.DistanceReading(Vector3.Distance(SceneSingleton<CombatHUD>.i.aircraft.transform.position, unit.transform.position));
+                typeText.text = string.Format("[{0}/{1}] ", targets.Count - index, targets.Count) + ((unit is Aircraft) ? unit.definition.unitName : unit.unitName);
+            }
+            // PROPER UPDATE START
+            if (Bindings.UI.Game.GetCombatHUDTransform() == null ||
+                Bindings.UI.Game.GetTargetScreenTransform(nullIsOkay: true) == null) {
+                return;
+            }
+
+            List<Unit> targets = Bindings.Player.TargetList.GetTargets();
+            if (targets.Count == 0) return;
+
+            if (InternalState.updateDisplay) {
+                TargetScreenUI targetScreen = Bindings.UI.Game.GetTargetScreenUIComponent();
+                List<Image> targetIcons = Traverse.Create(targetScreen).Field("targetBoxes").GetValue<List<Image>>();
+                // Wait until the UI has instantiated the boxes for the new targets
+                if (targetIcons.Count < targets.Count) {
                     return;
                 }
+                for (int i = 0; i < targetIcons.Count; i++) {
 
-                List<Unit> targets = Bindings.Player.TargetList.GetTargets();
-                if (targets.Count == 0) return;
+                    Rect rect = targetIcons[i].rectTransform.rect;
+                    Vector2 size = rect.size + new Vector2(10f, 10f);
+                    Vector2 halfSize = size / 2f;
 
-                if (InternalState.updateDisplay) {
-                    TargetScreenUI targetScreen = Bindings.UI.Game.GetTargetScreenUIComponent();
-                    List<Image> targetIcons = Traverse.Create(targetScreen).Field("targetBoxes").GetValue<List<Image>>();
-                    // Wait until the UI has instantiated the boxes for the new targets
-                    if (targetIcons.Count < targets.Count) {
-                        return;
+                    Bindings.UI.Draw.UIAdvancedRectangle selectionRect = new(
+                        "SelectionOutline",
+                        -halfSize,
+                        halfSize,
+                        InternalState.mainColor,
+                        4f,
+                        targetIcons[i].transform,
+                        Color.clear
+                    );
+                    selectionRect.GetImageComponent().raycastTarget = false;
+
+                    if (i == InternalState.targetIndex) {
+                        selectionRect.GetGameObject().SetActive(true);
                     }
-                    for (int i = 0; i < targetIcons.Count; i++) {
-
-                        Rect rect = targetIcons[i].rectTransform.rect;
-                        Vector2 size = rect.size + new Vector2(10f, 10f);
-                        Vector2 halfSize = size / 2f;
-
-                        Bindings.UI.Draw.UIAdvancedRectangle selectionRect = new(
-                            "SelectionOutline",
-                            -halfSize,
-                            halfSize,
-                            InternalState.mainColor,
-                            4f,
-                            targetIcons[i].transform,
-                            Color.clear
-                        );
-                        selectionRect.GetImageComponent().raycastTarget = false;
-
-                        if (i == InternalState.targetIndex) {
-                            selectionRect.GetGameObject().SetActive(true);
-                        }
-                        else {
-                            selectionRect.GetGameObject().SetActive(false);
-                        }
+                    else {
+                        selectionRect.GetGameObject().SetActive(false);
                     }
-                    InternalState.updateDisplay = false;
                 }
-
-                if (targets.Count > 1) {
-                    UpdateTargetTexts();
-                }
+                InternalState.updateDisplay = false;
             }
 
-        }
-
-        [HarmonyPatch(typeof(TacScreen), "Initialize")]
-        public static class OnPlatformStart {
-            static void Postfix() {
-                LogicEngine.Init();
-                DisplayEngine.Init();
+            if (targets.Count > 1) {
+                UpdateTargetTexts();
             }
         }
 
-        [HarmonyPatch(typeof(TacScreen), "Update")]
-        public static class OnPlatformUpdate {
-            static void Postfix() {
-                LogicEngine.Update();
-                DisplayEngine.Update();
-            }
+    }
+
+    [HarmonyPatch(typeof(TacScreen), "Initialize")]
+    public static class OnPlatformStart {
+        static void Postfix() {
+            LogicEngine.Init();
+            DisplayEngine.Init();
+        }
+    }
+
+    [HarmonyPatch(typeof(TacScreen), "Update")]
+    public static class OnPlatformUpdate {
+        static void Postfix() {
+            LogicEngine.Update();
+            DisplayEngine.Update();
         }
     }
 }
