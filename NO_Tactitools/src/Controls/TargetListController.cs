@@ -118,8 +118,7 @@ class TargetListControllerPlugin {
 
     private static void KeepClosestTargetsBasedOnAmmo() {
         Plugin.Log($"[TC] KeepClosestTargetsBasedOnAmmo");
-        int activeStationAmmo = Bindings.Player.Aircraft.Weapons.GetActiveStationAmmo();
-        if (activeStationAmmo == 0 || Bindings.Player.TargetList.GetTargets().Count == 0) {
+        if (Bindings.Player.TargetList.GetTargets().Count == 0) {
             return;
         }
         List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
@@ -134,6 +133,7 @@ class TargetListControllerPlugin {
                 (Vector3)(Bindings.Player.Aircraft.GetAircraft().NetworkHQ.GetKnownPosition(b)?.AsVector3()));
             return distanceA.CompareTo(distanceB);
         });
+        int activeStationAmmo = Bindings.Player.Aircraft.Weapons.GetActiveStationAmmo();
         List<Unit> closestTargets = sortedTargets.GetRange(0, Mathf.Min(activeStationAmmo, sortedTargets.Count));
         List<Unit> targetsToKeep = [.. currentTargets.Where(closestTargets.Contains)];
 
@@ -230,16 +230,18 @@ public static class TargetListControllerComponent {
 
         public static void Update() {
             int currentCount = Bindings.Player.TargetList.GetTargets().Count;
-            if (InternalState.previousTargetList.Count != currentCount) {
-                if (currentCount <= 1) {
-                    InternalState.targetIndex = 0;
-                }
-                else {
-                    if (currentCount > InternalState.previousTargetList.Count) {
-                        InternalState.targetIndex++;
+            if (InternalState.previousTargetList.Count != currentCount || InternalState.resetIndex) {
+                if (InternalState.previousTargetList.Count != currentCount) {
+                    if (currentCount <= 1) {
+                        InternalState.targetIndex = 0;
                     }
                     else {
-                        InternalState.targetIndex--;
+                        if (currentCount > InternalState.previousTargetList.Count) {
+                            InternalState.targetIndex++;
+                        }
+                        else {
+                            InternalState.targetIndex--;
+                        }
                     }
                 }
                 InternalState.targetIndex = Mathf.Clamp(InternalState.targetIndex, 0, Mathf.Max(0, currentCount - 1));
