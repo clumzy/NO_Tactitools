@@ -79,10 +79,7 @@ class TargetListControllerPlugin {
         if (currentTargets.Count > 0 && TargetListControllerComponent.InternalState.targetIndex < currentTargets.Count) {
             Unit targetToDeselect = currentTargets[TargetListControllerComponent.InternalState.targetIndex];
             TargetListControllerComponent.InternalState.targetIndex = Mathf.Clamp(TargetListControllerComponent.InternalState.targetIndex, 0, Mathf.Max(0, currentTargets.Count - 1));
-            if (currentTargets.Count == 1)
-                Bindings.Player.TargetList.DeselectAll();
-            else
-                Bindings.Player.TargetList.DeselectUnit(targetToDeselect);
+            Bindings.Player.TargetList.DeselectUnit(targetToDeselect);
             TargetListControllerComponent.InternalState.updateDisplay = true;
         }
     }
@@ -184,7 +181,7 @@ class TargetListControllerPlugin {
         }
         List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
         List<Unit> sortedTargets = [.. currentTargets];
-        sortedTargets.Sort((a, b) => {
+        sortedTargets.Sort((b, a) => { // reverse order for LIFO
 
             float distanceA = Vector3.Distance(
                 Bindings.Player.Aircraft.GetAircraft().transform.position.ToGlobalPosition().AsVector3(),
@@ -200,6 +197,7 @@ class TargetListControllerPlugin {
         TargetListControllerComponent.InternalState.resetIndex = true;
         TargetListControllerComponent.InternalState.updateDisplay = true;
         Bindings.UI.Game.DisplayToast(report, 3f);
+        Bindings.UI.Sound.PlaySound("beep_sort.mp3");
     }
 
     private static void SortTargetsByName() {
@@ -209,7 +207,7 @@ class TargetListControllerPlugin {
         }
         List<Unit> currentTargets = Bindings.Player.TargetList.GetTargets();
         List<Unit> sortedTargets = [.. currentTargets];
-        sortedTargets.Sort((a, b) => {
+        sortedTargets.Sort((b, a) => { // reverse order for LIFO
             return a.unitName.CompareTo(b.unitName);
         });
         Bindings.Player.TargetList.DeselectAll();
@@ -218,6 +216,7 @@ class TargetListControllerPlugin {
         TargetListControllerComponent.InternalState.resetIndex = true;
         TargetListControllerComponent.InternalState.updateDisplay = true;
         Bindings.UI.Game.DisplayToast(report, 3f);
+        Bindings.UI.Sound.PlaySound("beep_sort.mp3");
     }
 }
 
