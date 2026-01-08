@@ -28,7 +28,7 @@ class DeliveryCheckerPlugin {
 class DeliveryBar {
     public static Dictionary<Missile, DeliveryIndicator> deliveryIndicator = [];
 
-    public static void TriggerRemoval(Missile missile, bool success) {
+    public static void SetSuccess(Missile missile, bool success) {
         if (deliveryIndicator.ContainsKey(missile)) {
             if (success) deliveryIndicator[missile].SetSuccess();
             else deliveryIndicator[missile].SetFailure();
@@ -53,8 +53,7 @@ class DeliveryBar {
 }
 
 class DeliveryIndicator {
-    private Bindings.UI.Draw.UIRectangle frame;
-    private Bindings.UI.Draw.UIRectangle indicator;
+    private Bindings.UI.Draw.UIAdvancedRectangle indicator;
     private float displayCountdown;
     private float hitTime;
 
@@ -65,33 +64,25 @@ class DeliveryIndicator {
         for (int i = 0; i < 6; i++) {
             randomString += chars[rand.Next(chars.Length)];
         }
-        frame = new Bindings.UI.Draw.UIRectangle(
-            "DeliveryFrame" + randomString,
-            new Vector2(0f, 0f),
-            new Vector2(12f, 12f),
-            Bindings.UI.Game.GetTargetScreenTransform(),
-            Color.black);
-        indicator = new Bindings.UI.Draw.UIRectangle(
+        indicator = new Bindings.UI.Draw.UIAdvancedRectangle(
             "DeliveryIndicator" + randomString,
             new Vector2(0f, 0f),
-            new Vector2(8f, 8f),
+            new Vector2(10f, 10f),
+            Color.black,
+            2f,
             Bindings.UI.Game.GetTargetScreenTransform(),
             Color.yellow);
-        frame.SetCenter(pos);
         indicator.SetCenter(pos);
         displayCountdown = -1f;
         //ensure that both elements don't inherite their parent scaling
-        frame.GetRectObject().transform.localScale = Vector3.one;
         indicator.GetRectObject().transform.localScale = Vector3.one;
     }
 
     public void SetPosition(Vector2 pos) {
-        frame.SetCenter(pos);
         indicator.SetCenter(pos);
     }
 
     public void SetRotation(float rotation) {
-        frame.GetRectObject().transform.localRotation = Quaternion.Euler(0f, 0f, rotation);
         indicator.GetRectObject().transform.localRotation = Quaternion.Euler(0f, 0f, rotation);
     }
 
@@ -120,7 +111,6 @@ class DeliveryIndicator {
     }
 
     public void Destroy() {
-        GameObject.Destroy(frame.GetRectObject());
         GameObject.Destroy(indicator.GetRectObject());
     }
 }
@@ -128,7 +118,9 @@ class DeliveryIndicator {
 [HarmonyPatch(typeof(Missile), "StartMissile")]
 class StartMissilePatch {
     static void Postfix(Missile __instance) {
-        if (Bindings.UI.Game.GetTargetScreenTransform(true) == null) return; // in case the targeting screen doesn't exist yet
+        if (Bindings.UI.Game.GetTargetScreenTransform(true) == null) {
+            return;
+        } // in case the targeting screen doesn't exist yet}
         if (__instance.owner == SceneSingleton<CombatHUD>.i.aircraft) {
             DeliveryIndicator deliveryIndicator = new(
                 new Vector2(
@@ -148,12 +140,14 @@ class StartMissilePatch {
 [HarmonyPatch(typeof(Missile), "UserCode_RpcDetonate_897349600")]
 class DetonatePatch {
     static void Postfix(Missile __instance, bool hitArmor) {
-        if (__instance.owner == SceneSingleton<CombatHUD>.i.aircraft) {
+        if (__instance.owner == SceneSingleton<CombatHUD>.i.aircraft
+            && Bindings.Player.Aircraft.GetAircraft() != null
+            && Bindings.UI.Game.GetTargetScreenTransform(true) != null) {
             if (DeliveryBar.deliveryIndicator.ContainsKey(__instance)) {
                 DeliveryBar.deliveryIndicator[__instance].SetDisplayCountdown(2f);
                 DeliveryBar.deliveryIndicator[__instance].SetHitTime();
-                if (hitArmor) DeliveryBar.TriggerRemoval(__instance, true);
-                else DeliveryBar.TriggerRemoval(__instance, false);
+                if (hitArmor) DeliveryBar.SetSuccess(__instance, true);
+                else DeliveryBar.SetSuccess(__instance, false);
             }
         }
     }
@@ -162,6 +156,10 @@ class DetonatePatch {
 [HarmonyPatch(typeof(CombatHUD), "LateUpdate")]
 class DeliveryBarUpdatePatch {
     static void Postfix() {
+        if (Bindings.Player.Aircraft.GetAircraft() == null
+            || Bindings.UI.Game.GetTargetScreenTransform(true) == null) {
+            return;
+        } // in case the targeting screen doesn't exist yet}
         // collect keys to remove to avoid modifying the collection during enumeration
         var toRemove = new List<Missile>();
         foreach (var delivery in DeliveryBar.deliveryIndicator) {
