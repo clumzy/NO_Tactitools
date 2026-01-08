@@ -69,6 +69,12 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="assets\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <Target Name="CleanUpOutputDirectory" AfterTargets="Build">
     <ItemGroup>
       <FilesToDelete Include="$(OutputPath)*.dll" Exclude="$(OutputPath)$(AssemblyName).dll" />
