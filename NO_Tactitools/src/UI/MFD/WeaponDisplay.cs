@@ -321,11 +321,11 @@ public class WeaponDisplayComponent {
                 case "A-19 Brawler":
                     flarePos = new Vector2(0, -40);
                     jammerPos = new Vector2(0, -75);
-                    lineStart = new Vector2(-80, 0);
-                    lineEnd = new Vector2(80, 0);
-                    weaponNamePos = new Vector2(0, 50);
-                    weaponAmmoPos = new Vector2(0, 20);
-                    weaponImagePos = new Vector2(0, 80);
+                    lineStart = new Vector2(-80, -10);
+                    lineEnd = new Vector2(80, -10);
+                    weaponNamePos = new Vector2(0, 45);
+                    weaponAmmoPos = new Vector2(0, 15);
+                    weaponImagePos = new Vector2(0, 75);
                     flareFont = 30;
                     jammerFont = 30;
                     weaponNameFont = 25;
