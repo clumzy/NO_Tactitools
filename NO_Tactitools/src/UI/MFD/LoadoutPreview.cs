@@ -163,10 +163,10 @@ public class LoadoutPreviewComponent {
         public Transform containerTransform;
         public List<Bindings.UI.Draw.UILabel> stationLabels = [];
         public Bindings.UI.Draw.UIAdvancedRectangle borderRect;
-        public int maxLabelWidth;
-        public int verticalOffset = 0;
-        public int horizontalOffset = 0;
-        public int padding = 0;
+        public float maxLabelWidth;
+        public float verticalOffset = 0;
+        public float horizontalOffset = 0;
+        public float padding = 0;
         public int fontSize = 34;
         public LoadoutPreview(bool sendToHMD = false) {
             maxLabelWidth = 0;
@@ -282,7 +282,7 @@ public class LoadoutPreviewComponent {
                 stationLabel.SetFontSize(fontSize+6); // WE FORCE IT, otherwise the max size might not get taken into account
                 Vector2 textSize = stationLabel.GetTextSize();
                 if (textSize.x > maxLabelWidth) {
-                    maxLabelWidth = (int)textSize.x;
+                    maxLabelWidth = textSize.x;
                 }
                 stationLabels.Add(stationLabel);
             }
@@ -300,11 +300,11 @@ public class LoadoutPreviewComponent {
                         GameObject topRightPanel = Traverse.Create(Bindings.UI.Game.GetCombatHUDComponent()).Field<GameObject>("topRightPanel").Value;
                         GameObject powerPanel = topRightPanel.transform.Find("PowerPanel").gameObject;
                         horizontalOffset = 
-                            (int)topRightPanel.transform.localPosition.x 
-                            - (int)rectHalfWidth - border - padding;
+                            topRightPanel.transform.localPosition.x 
+                            - rectHalfWidth - border - padding;
                         verticalOffset = 
-                            (int)topRightPanel.transform.localPosition.y
-                            - (int)rectHalfHeight - border - padding
+                            topRightPanel.transform.localPosition.y
+                            - rectHalfHeight - border - padding
                             - 170;
                         if (Bindings.Player.Aircraft.Countermeasures.HasJammer() || powerPanel.activeSelf) {
                             Plugin.Log("[LP] Adjusting Loadout Preview position to avoid jammer display overlap.");
@@ -312,8 +312,8 @@ public class LoadoutPreviewComponent {
                         }
                     }
                     else {
-                        horizontalOffset = ((int)1920 / 2) - (int)rectHalfWidth - border - padding;
-                        verticalOffset = ((int)1080 / 2) - (int)rectHalfHeight - border - padding;
+                        horizontalOffset = (1920 / 2) - rectHalfWidth - border - padding;
+                        verticalOffset = (1080 / 2) - rectHalfHeight - border - padding;
                     }
                 }
             }
@@ -321,8 +321,8 @@ public class LoadoutPreviewComponent {
             UpdateLabelPositions();
             // Set background size
             borderRect.SetCorners(
-                new Vector2(-rectHalfWidth - padding + horizontalOffset, -rectHalfHeight - padding + verticalOffset),
-                new Vector2(rectHalfWidth + padding + horizontalOffset, rectHalfHeight + padding + verticalOffset)
+                a: new Vector2(-rectHalfWidth - padding + horizontalOffset, -rectHalfHeight - padding + verticalOffset),
+                b: new Vector2(rectHalfWidth + padding + horizontalOffset, rectHalfHeight + padding + verticalOffset)
             );
         }
 
@@ -331,8 +331,8 @@ public class LoadoutPreviewComponent {
                 Vector2 textSize = stationLabels[i].GetTextSize();
                 stationLabels[i].SetPosition(
                     new Vector2(
-                        -(maxLabelWidth - textSize.x) / 2f + horizontalOffset - padding/2,
-                        (stationLabels.Count - 1) * padding * 2f - i * (fontSize + 6) + verticalOffset));
+                        x: -(maxLabelWidth - textSize.x) / 2f + horizontalOffset - padding/2,
+                        y: (stationLabels.Count - 1) * padding * 2f - i * (fontSize + 6) + verticalOffset));
             }
         }
 
