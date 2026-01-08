@@ -773,33 +773,49 @@ public class Bindings {
         }
 
         public class Sound {
-
-            public static void PlaySound(string soundFileName) {
-                static IEnumerator<UnityWebRequestAsyncOperation> LoadAndPlayAudio(string path) {
-                    using UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, AudioType.MPEG);
-                    yield return www.SendWebRequest();
-
-                    if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError) {
-                        Plugin.Logger.LogError("[UIUtils] Error loading audio: " + www.error);
+            public static Dictionary<string, AudioClip> loadedClips = [];
+            public static void PlaySound(string fileName) {
+                static IEnumerator PlayAudio(string fileName) {
+                    AudioClip clip = loadedClips[fileName];
+                    if (clip == null) {
+                        Plugin.Log("[UIUtils] Loaded audio clip" + fileName + "is null.");
+                        yield break;
                     }
-                    else {
-                        AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
-                        if (clip == null) {
-                            Plugin.Logger.LogError("[UIUtils] Loaded audio clip is null.");
-                            yield break;
-                        }
-                        SoundManager.PlayInterfaceOneShot(clip);
-                    }
+                    SoundManager.PlayInterfaceOneShot(clip);
                 }
 
+                SceneSingleton<CombatHUD>.i.StartCoroutine(PlayAudio(fileName));
+            }
 
-                string soundPath = Path.Combine(Path.GetDirectoryName(typeof(Plugin).Assembly.Location), "assets", "sounds", soundFileName);
-                if (!File.Exists(soundPath)) {
-                    Plugin.Logger.LogError($"[UIUtils] Sound file not found at: {soundPath}");
+            public static void LoadAllSounds() {
+                string soundsDirectory = Path.Combine(Path.GetDirectoryName(typeof(Plugin).Assembly.Location), "assets", "sounds");
+                if (!Directory.Exists(soundsDirectory)) {
+                    Plugin.Log($"[UIUtils] Sounds directory not found at: {soundsDirectory}");
                     return;
                 }
 
-                SceneSingleton<CombatHUD>.i.StartCoroutine(LoadAndPlayAudio(soundPath));
+                foreach (string filePath in Directory.GetFiles(soundsDirectory)) {
+                    string fileName = Path.GetFileName(filePath).Split('.')[0];
+                    if (!loadedClips.ContainsKey(fileName)) {
+                        using UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + filePath, AudioType.MPEG);
+                        var operation = www.SendWebRequest();
+                        while (!operation.isDone) { } // Wait for completion
+
+                        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError) {
+                            Plugin.Log("[UIUtils] Error loading audio: " + www.error);
+                        }
+                        else {
+                            AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
+                            if (clip != null) {
+                                loadedClips[fileName] = clip;
+                                Plugin.Log("[UIUtils] Loaded audio clip: " + fileName);
+                            }
+                            else {
+                                Plugin.Log("[UIUtils] Loaded audio clip is null for file: " + fileName);
+                            }
+                        }
+                    }
+                }
             }
         }
     }

@@ -59,7 +59,7 @@ class TargetListControllerPlugin {
         if (targetCount > 1) {
             TargetListControllerComponent.InternalState.targetIndex = (TargetListControllerComponent.InternalState.targetIndex - 1 + targetCount) % targetCount;
             TargetListControllerComponent.InternalState.updateDisplay = true;
-            Bindings.UI.Sound.PlaySound("beep_scroll.mp3");
+            Bindings.UI.Sound.PlaySound("beep_scroll");
         }
     }
 
@@ -69,7 +69,7 @@ class TargetListControllerPlugin {
         if (targetCount > 1) {
             TargetListControllerComponent.InternalState.targetIndex = (TargetListControllerComponent.InternalState.targetIndex + 1) % targetCount;
             TargetListControllerComponent.InternalState.updateDisplay = true;
-            Bindings.UI.Sound.PlaySound("beep_scroll.mp3");
+            Bindings.UI.Sound.PlaySound("beep_scroll");
         }
     }
 
@@ -155,7 +155,7 @@ class TargetListControllerPlugin {
             TargetListControllerComponent.InternalState.unitRecallList = Bindings.Player.TargetList.GetTargets();
             string report = $"Saved <b>{TargetListControllerComponent.InternalState.unitRecallList.Count.ToString()}</b> targets";
             Bindings.UI.Game.DisplayToast(report, 3f);
-            Bindings.UI.Sound.PlaySound("beep_target.mp3");
+            Bindings.UI.Sound.PlaySound("beep_target");
         }
     }
 
@@ -197,7 +197,7 @@ class TargetListControllerPlugin {
         TargetListControllerComponent.InternalState.resetIndex = true;
         TargetListControllerComponent.InternalState.updateDisplay = true;
         Bindings.UI.Game.DisplayToast(report, 3f);
-        Bindings.UI.Sound.PlaySound("beep_sort.mp3");
+        Bindings.UI.Sound.PlaySound("beep_sort");
     }
 
     private static void SortTargetsByName() {
@@ -216,7 +216,7 @@ class TargetListControllerPlugin {
         TargetListControllerComponent.InternalState.resetIndex = true;
         TargetListControllerComponent.InternalState.updateDisplay = true;
         Bindings.UI.Game.DisplayToast(report, 3f);
-        Bindings.UI.Sound.PlaySound("beep_sort.mp3");
+        Bindings.UI.Sound.PlaySound("beep_sort");
     }
 }
 

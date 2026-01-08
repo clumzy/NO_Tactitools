@@ -60,7 +60,7 @@ class UnitDistanceTask {
             unitStates.TryGetValue(__instance, out string previousState);
 
             if (currentState == "transition" && previousState == "far" && UnitDistancePlugin.unitDistanceSoundEnabled) {
-                Bindings.UI.Sound.PlaySound("beep_alert.mp3");
+                Bindings.UI.Sound.PlaySound("beep_alert");
             }
 
             if (currentState == previousState && currentState != "transition") {
