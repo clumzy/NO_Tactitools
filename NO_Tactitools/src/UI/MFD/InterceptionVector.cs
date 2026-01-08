@@ -34,6 +34,8 @@ class InterceptionVectorTask {
         Intercepting
     }
     static State currentState = State.Init;
+    static GameObject containerObject;
+    static Transform containerTransform;
     static Bindings.UI.Draw.UILabel bearingLabel;
     static Bindings.UI.Draw.UILabel timerLabel;
     static Bindings.UI.Draw.UILabel indicatorTargetLabel;
@@ -51,7 +53,11 @@ class InterceptionVectorTask {
     public static Color mainColor = Color.green;
 
     static void Postfix() {
-        CheckForUIElements();
+        if (Bindings.UI.Game.GetTacScreenTransform() == null
+            || Bindings.Player.Aircraft.GetAircraft() == null
+            || Bindings.UI.Game.GetTargetScreenTransform(nullIsOkay: true) == null) {
+            return;
+        } // Do not run if Tac Screen or aircraft is null OR TARGET SCREEN is null
         switch (currentState) {
             case State.Init:
                 HandleInitState();
@@ -71,23 +77,25 @@ class InterceptionVectorTask {
         }
     }
 
-    static void CheckForUIElements() {
-        if (bearingLabel == null || timerLabel == null || indicatorTargetLabel == null || indicatorTargetLine == null)
-            // UI elements not initialized yet or destroyed
-            currentState = State.Init;
-    }
-
     static void HandleInitState() {
-        if (
-            Bindings.Player.TargetList.GetTargets().Count != 1 ||
-            Bindings.UI.Game.GetTacScreenTransform() == null ||
-            Bindings.UI.Game.GetCombatHUDTransform() == null) return; // Do not init if no target is selected
+        if (Bindings.Player.TargetList.GetTargets().Count != 1
+            || Bindings.UI.Game.GetTacScreenTransform() == null) {
+            return;
+        }// Do not init if no target is selected
         Plugin.Log("[IV] Init state");
+        if (containerObject != null) {
+            Object.Destroy(containerObject);
+        }
+        Transform parentTransform = Bindings.UI.Game.GetTargetScreenTransform();
+        containerObject = new GameObject("i_lp_LoadoutPreviewContainer");
+        containerObject.AddComponent<RectTransform>();
+        containerTransform = containerObject.transform;
+        containerTransform.SetParent(parentTransform, false);
         playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
         bearingLabel = new Bindings.UI.Draw.UILabel(
             "bearingLabel",
             new Vector2(0, -70),
-            Bindings.UI.Game.GetTargetScreenTransform(),
+            containerTransform,
             FontStyle.Normal,
             mainColor,
             20
@@ -95,7 +103,7 @@ class InterceptionVectorTask {
         timerLabel = new Bindings.UI.Draw.UILabel(
             "timerLabel",
             new Vector2(0, -100),
-            Bindings.UI.Game.GetTargetScreenTransform(),
+            containerTransform,
             FontStyle.Normal,
             mainColor,
             20
@@ -103,17 +111,18 @@ class InterceptionVectorTask {
         indicatorTargetLabel = new Bindings.UI.Draw.UILabel(
             "indicatorTargetLabel",
             new Vector2(0, 0),
-            Bindings.UI.Game.GetTargetScreenTransform(),
+            containerTransform,
             FontStyle.Normal,
             Color.magenta,
             36,
             0f
         );
+        indicatorTargetLabel.SetOpacity(1f);
         indicatorTargetLine = new Bindings.UI.Draw.UILine(
             "indicatorTargetLine",
             new Vector2(0, 0),
             new Vector2(0, 0),
-            Bindings.UI.Game.GetTargetScreenTransform(),
+            containerTransform,
             Color.magenta,
             2f
         );
