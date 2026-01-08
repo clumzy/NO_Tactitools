@@ -409,7 +409,7 @@ public class Bindings {
                     textComp.text = "";
                     textComp.horizontalOverflow = HorizontalWrapMode.Overflow;
                     textComp.verticalOverflow = VerticalWrapMode.Overflow;
-                    rectTransform.sizeDelta = new Vector2(textComp.preferredWidth, textComp.preferredHeight);
+                    rectTransform.sizeDelta = new Vector2(textComp.preferredWidth, textComp.fontSize);
                     var textTransform = gameObject.transform.Find("LabelText");
                     textComponent = textTransform.GetComponent<Text>();
                     return;
@@ -417,7 +417,7 @@ public class Bindings {
 
                 public void SetText(string text) {
                     textComponent.text = text;
-                    rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
+                    rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.fontSize);
                 }
 
                 public override void SetColor(Color color) {
