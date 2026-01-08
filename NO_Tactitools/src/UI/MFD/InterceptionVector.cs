@@ -168,7 +168,7 @@ class InterceptionVectorTask {
             Plugin.Log("[IV] Switched target, returning to Reset state");
             return;
         }
-        else if (playerFactionHQ.IsTargetBeingTracked(targetUnit)) {
+        else if (playerFactionHQ.IsTargetPositionAccurate(targetUnit, 20f)) {
             currentState = State.Intercepting;
             Plugin.Log("[IV] Target is being tracked, going to TargetTracked state");
             return;
@@ -191,7 +191,7 @@ class InterceptionVectorTask {
 
         playerPosition = SceneSingleton<CombatHUD>.i.aircraft.rb.transform.position;
         playerVelocity = SceneSingleton<CombatHUD>.i.aircraft.rb.velocity;
-        if (playerFactionHQ.IsTargetBeingTracked(targetUnit)) {
+        if (playerFactionHQ.IsTargetPositionAccurate(targetUnit, 20f)) {
             HandleTracked();
             solutionTime = FindSolutionTime(targetUnit);
             if (solutionTime > 0) {
@@ -249,7 +249,7 @@ class InterceptionVectorTask {
             // Computing solution
             float progress = (float)interceptArray.Count / interceptArraySize;
             int barLength = 12;
-            int filledCount = (int)(progress * barLength);
+            int filledCount = (int)(progress * (barLength+1));
             string bar = new string('█', filledCount).PadRight(barLength, '░');
             timerLabel.SetText(bar);
 
@@ -261,7 +261,7 @@ class InterceptionVectorTask {
                 }
                 else {
                     if (i == 0)
-                        scrambled += Random.Range(0, 4).ToString(); // first digit can't be zero
+                        scrambled += Random.Range(0, 4).ToString();
                     else
                         scrambled += Random.Range(0, 10).ToString();
                 }
