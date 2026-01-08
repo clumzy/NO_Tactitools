@@ -554,68 +554,74 @@ namespace NO_Tactitools.Core {
             //harmony.PatchAll(typeof(TestInput));
             // Patch MFD Color
             if (MFDColorEnabled.Value) {
-                Logger.LogInfo($"MFD Color is enabled, patching...");
+                Log($"MFD Color is enabled, patching...");
                 harmony.PatchAll(typeof(MFDColorPlugin));
             }
             // CONTROL PATCHES
             // Patch Target List Controller
             if (targetListControllerEnabled.Value) {
-                Logger.LogInfo($"Target Recall is enabled, patching...");
+                Log($"Target Recall is enabled, patching...");
                 harmony.PatchAll(typeof(TargetListControllerPlugin));
             }
             // Patch Countermeasure Controls
             if (countermeasureControlsEnabled.Value) {
-                Logger.LogInfo($"Countermeasure Controls is enabled, patching...");
+                Log($"Countermeasure Controls is enabled, patching...");
                 harmony.PatchAll(typeof(CountermeasureControlsPlugin));
             }
             // Patch Weapon Switcher
             if (weaponSwitcherEnabled.Value) {
-                Logger.LogInfo($"Weapon Switcher is enabled, patching...");
+                Log($"Weapon Switcher is enabled, patching...");
                 harmony.PatchAll(typeof(WeaponSwitcherPlugin));
             }
             // COCKPIT DISPLAY PATCHES
             // Patch Interception Vector
             if (interceptionVectorEnabled.Value) {
-                Logger.LogInfo($"Interception Vector is enabled, patching...");
+                Log($"Interception Vector is enabled, patching...");
                 harmony.PatchAll(typeof(InterceptionVectorPlugin));
             }
             // Patch Weapon Display
             if (weaponDisplayEnabled.Value) {
-                Logger.LogInfo($"Weapon Display is enabled, patching...");
+                Log($"Weapon Display is enabled, patching...");
                 harmony.PatchAll(typeof(WeaponDisplayPlugin));
             }
             // Patch Loadout Preview
             if (loadoutPreviewEnabled.Value) {
-                Logger.LogInfo($"Loadout Preview is enabled, patching...");
+                Log($"Loadout Preview is enabled, patching...");
                 harmony.PatchAll(typeof(LoadoutPreviewPlugin));
             }
             // Patch Delivery Checker
             if (deliveryCheckerEnabled.Value) {
-                Logger.LogInfo($"Delivery Checker is enabled, patching...");
+                Log($"Delivery Checker is enabled, patching...");
                 harmony.PatchAll(typeof(DeliveryCheckerPlugin));
             }
             // Patch Boot Screen
             if (bootScreenEnabled.Value) {
-                Logger.LogInfo($"Boot Screen is enabled, patching...");
+                Log($"Boot Screen is enabled, patching...");
                 harmony.PatchAll(typeof(BootScreenPlugin));
             }
             // HMD DISPLAY PATCHES
             // Patch Unit Distance
             if (unitDistanceEnabled.Value) {
-                Logger.LogInfo($"Unit Marker Distance Indicator is enabled, patching...");
+                Log($"Unit Marker Distance Indicator is enabled, patching...");
                 harmony.PatchAll(typeof(UnitDistancePlugin));
             }
             // Patch Artificial Horizon
             if (artificialHorizonEnabled.Value) {
-                Logger.LogInfo($"Artificial Horizon is enabled, patching...");
+                Log($"Artificial Horizon is enabled, patching...");
                 harmony.PatchAll(typeof(ArtificialHorizonPlugin));
             }
             // MAP DISPLAY PATCHES
             // Patch Unit Icon Recolor
             if (unitIconRecolorEnabled.Value) {
-                Logger.LogInfo($"Unit Icon Recolor is enabled, patching...");
+                Log($"Unit Icon Recolor is enabled, patching...");
                 harmony.PatchAll(typeof(UnitIconRecolorPlugin));
             }
+            //Finished patching
+            //Load audio assets
+            Log("Loading audio assets...");
+            Bindings.UI.Sound.LoadAllSounds();
+            // Log completion
+            Log("NO Tactitools loaded successfully !");
         }
 
         public static void Log(string message) {
