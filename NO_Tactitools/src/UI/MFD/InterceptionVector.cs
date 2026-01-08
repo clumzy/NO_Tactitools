@@ -117,7 +117,6 @@ class InterceptionVectorTask {
             36,
             0f
         );
-        indicatorTargetLabel.SetOpacity(1f);
         indicatorTargetLine = new Bindings.UI.Draw.UILine(
             "indicatorTargetLine",
             new Vector2(0, 0),
