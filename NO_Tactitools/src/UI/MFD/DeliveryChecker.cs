@@ -119,8 +119,10 @@ class DeliveryIndicator {
 class StartMissilePatch {
     static void Postfix(Missile __instance) {
         if (Bindings.UI.Game.GetTargetScreenTransform(true) == null) {
+            // no need to check for aircraft here, as missiles can't be fired without an aircraft
+            // also a missile can't NORMALLY get started without a targeting screen but we still check for it
             return;
-        } // in case the targeting screen doesn't exist yet}
+        }
         if (__instance.owner == SceneSingleton<CombatHUD>.i.aircraft) {
             DeliveryIndicator deliveryIndicator = new(
                 new Vector2(
@@ -158,8 +160,11 @@ class DeliveryBarUpdatePatch {
     static void Postfix() {
         if (Bindings.Player.Aircraft.GetAircraft() == null
             || Bindings.UI.Game.GetTargetScreenTransform(true) == null) {
+            // no aircraft or no targeting screen, skip
+            // an initialized target screen exists but is not active
+            // so remove missile will still work correctly for missiles from THIS flight
             return;
-        } // in case the targeting screen doesn't exist yet}
+        }
         // collect keys to remove to avoid modifying the collection during enumeration
         var toRemove = new List<Missile>();
         foreach (var delivery in DeliveryBar.deliveryIndicator) {
