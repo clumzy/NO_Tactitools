@@ -38,7 +38,7 @@ class InterceptionVectorTask {
     static Transform containerTransform;
     static Bindings.UI.Draw.UILabel bearingLabel;
     static Bindings.UI.Draw.UILabel timerLabel;
-    static Bindings.UI.Draw.UILabel indicatorTargetLabel;
+    static Bindings.UI.Draw.UIAdvancedRectangle indicatorTargetBox;
     static Bindings.UI.Draw.UILine indicatorTargetLine;
     static FactionHQ playerFactionHQ;
     static Unit targetUnit;
@@ -108,14 +108,14 @@ class InterceptionVectorTask {
             mainColor,
             20
         );
-        indicatorTargetLabel = new Bindings.UI.Draw.UILabel(
-            "indicatorTargetLabel",
-            new Vector2(0, 0),
-            containerTransform,
-            FontStyle.Normal,
+        indicatorTargetBox = new Bindings.UI.Draw.UIAdvancedRectangle(
+            "indicatorTargetBox",
+            new Vector2(-8, -8),
+            new Vector2(8, 8),
             Color.magenta,
-            36,
-            0f
+            2f,
+            containerTransform,
+            Color.clear
         );
         indicatorTargetLine = new Bindings.UI.Draw.UILine(
             "indicatorTargetLine",
@@ -134,7 +134,7 @@ class InterceptionVectorTask {
     static void HandleResetState() {
         bearingLabel.SetText("");
         timerLabel.SetText("");
-        indicatorTargetLabel.SetText("");
+        indicatorTargetBox.GetGameObject().SetActive(false);
         indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(0, 0));
         targetUnit = null;
         solutionTime = 0f;
@@ -243,26 +243,55 @@ class InterceptionVectorTask {
             0
         );
         bool currentInterceptScreenVisible = interceptScreen.z > 0;
-        if (currentInterceptScreenVisible && interceptArray.Count == interceptArraySize) {
-            bearingLabel.SetText($"({interceptBearing.ToString()}°)");
+        string bearingStr = interceptBearing.ToString("D3");
+
+        if (interceptArray.Count < interceptArraySize) {
+            // Computing solution
+            float progress = (float)interceptArray.Count / interceptArraySize;
+            int barLength = 12;
+            int filledCount = (int)(progress * barLength);
+            string bar = new string('█', filledCount).PadRight(barLength, '░');
+            timerLabel.SetText(bar);
+
+            string scrambled = "";
+            int digitsToReveal = (int)(progress *3); // Reveal digits progressively
+            for (int i = 0; i < 3; i++) {
+                if (i < digitsToReveal) {
+                    scrambled += bearingStr[i];
+                }
+                else {
+                    if (i == 0)
+                        scrambled += Random.Range(0, 4).ToString(); // first digit can't be zero
+                    else
+                        scrambled += Random.Range(0, 10).ToString();
+                }
+            }
+            bearingLabel.SetText($"▸ {scrambled}° ◂");
+
+            indicatorTargetBox.GetGameObject().SetActive(false);
+            indicatorTargetLine.SetThickness(0f);
+        }
+        else if (currentInterceptScreenVisible) {
+            // Solution ready and target on screen
+            bearingLabel.SetText($"▸ {bearingStr}° ◂");
             timerLabel.SetText($"ETA : {interceptionTimeInSeconds.ToString()}s");
+
             if (targetUnit is not Building) { // only display the vector if the target is a unit
-                indicatorTargetLabel.SetText("+");
-                indicatorTargetLabel.SetPosition(new Vector2(interceptTarget.x, interceptTarget.y));
+                indicatorTargetBox.GetGameObject().SetActive(true);
+                indicatorTargetBox.SetCenter(new Vector2(interceptTarget.x, interceptTarget.y));
                 indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(interceptTarget.x, interceptTarget.y));
                 indicatorTargetLine.ResetThickness();
             }
             else {
-                indicatorTargetLabel.SetText("");
+                indicatorTargetBox.GetGameObject().SetActive(false);
                 indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(0, 0));
             }
         }
         else {
-            if (interceptArray.Count == interceptArraySize) indicatorTargetLabel.SetText("↶");
-            else {
-                indicatorTargetLabel.SetText("" + new string('.', (int)(interceptArray.Count / 45)));
-            }
-            indicatorTargetLabel.SetPosition(new Vector2(0, -40));
+            // Solution ready but target off screen
+            bearingLabel.SetText("");
+            timerLabel.SetText(" ↶ ");
+            indicatorTargetBox.GetGameObject().SetActive(false);
             indicatorTargetLine.SetThickness(0f);
         }
 
@@ -271,7 +300,7 @@ class InterceptionVectorTask {
     static void HandleTargetUnreachable() {
         bearingLabel.SetText("");
         timerLabel.SetText("");
-        indicatorTargetLabel.SetText("");
+        indicatorTargetBox.GetGameObject().SetActive(false);
         indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(0, 0));
     }
 
@@ -279,7 +308,7 @@ class InterceptionVectorTask {
         bearingLabel.SetText("");
         timerLabel.SetText("");
         interceptArray.Clear();
-        indicatorTargetLabel.SetText("");
+        indicatorTargetBox.GetGameObject().SetActive(false);
         indicatorTargetLine.SetCoordinates(new Vector2(0, 0), new Vector2(0, 0));
     }
 
