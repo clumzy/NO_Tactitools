@@ -639,7 +639,7 @@ public class Bindings {
             }
 
             public static Material GetDefaultTextMaterial() {
-                Text weaponText = Bindings.UI.Game.GetFlightHUDTransform().GetComponentInChildren<Text>();
+                Text weaponText = Bindings.UI.Game.GetCombatHUDTransform().GetComponentInChildren<Text>();
                 return weaponText.material;
             }
         }
