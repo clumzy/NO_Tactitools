@@ -145,8 +145,8 @@ class InterceptionVectorTask {
     }
 
     static void HandleIdleState() {
-        if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count == 1) {
-            targetUnit = ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0];
+        if (((List<Unit>)Bindings.Player.TargetList.GetTargets()).Count == 1) {
+            targetUnit = ((List<Unit>)Bindings.Player.TargetList.GetTargets())[0];
             if (playerFactionHQ.IsTargetPositionAccurate(targetUnit, 20f)) {
                 currentState = State.Intercepting;
                 Plugin.Log("[IV] Target is being tracked");
@@ -162,8 +162,8 @@ class InterceptionVectorTask {
     }
 
     static void HandleTargetInitiallyUntracked() {
-        if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count != 1
-            || ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0] != targetUnit) {
+        if (((List<Unit>)Bindings.Player.TargetList.GetTargets()).Count != 1
+            || ((List<Unit>)Bindings.Player.TargetList.GetTargets())[0] != targetUnit) {
             currentState = State.Reset;
             Plugin.Log("[IV] Switched target, returning to Reset state");
             return;
@@ -176,8 +176,8 @@ class InterceptionVectorTask {
     }
 
     static void HandleInterception() {
-        if (((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()).Count != 1
-            || ((List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue())[0] != targetUnit ||
+        if (((List<Unit>)Bindings.Player.TargetList.GetTargets()).Count != 1
+            || ((List<Unit>)Bindings.Player.TargetList.GetTargets())[0] != targetUnit ||
             Bindings.Player.Aircraft.GetAircraft() == null) {
             currentState = State.Reset;
             Plugin.Log("[IV] Returning to Reset state");
