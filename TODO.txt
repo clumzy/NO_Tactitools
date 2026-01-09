@@ -48,6 +48,10 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> Improved null checks in interception vector & delivery checker to prevent exceptions from happening when the aircraft exists but the target screen doesn't
 -> Improved audio asset loading
 -> cool new animations for the interception vector
+-> small adjustments to Brawler weapon display
+--NIGHTLY STUFF--
+-> Implemented full caching for ALL reflections throughout the code, good performance increases, no Exceptions and bugs FOR now
+-> Fixed advanced rectangles and their implementations, much better pixel scaling now
 
 TODO :
 -> F/ add functionalty to see if a targeted unit is being targeted by a friendly missile
