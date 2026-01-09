@@ -25,6 +25,7 @@ class UnitDistancePlugin {
         unitDistanceThreshold = Plugin.unitDistanceThreshold.Value * 1000; // Convert threshold from kilometers to Unity units (1 unit = 1 meter)
         unitDistanceSoundEnabled = Plugin.unitDistanceSoundEnabled.Value;
         UnitDistanceTask.unitStates.Clear();
+        UnitDistanceTask._transformCache.Clear();
     }
 }
 
@@ -32,11 +33,16 @@ class UnitDistancePlugin {
 class UnitDistanceTask {
 
     public static readonly Dictionary<HUDUnitMarker, string> unitStates = [];
-    private static readonly TraverseCache<HUDUnitMarker, Transform> _transformCache = new("_transform");
+    public static readonly Dictionary<HUDUnitMarker, Transform> _transformCache = [];
 
     static void Postfix(HUDUnitMarker __instance) {
         if (__instance.unit is not Aircraft || __instance.unit.NetworkHQ == SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ) return; // Only apply to enemy aircraft units
-        Transform markerTransform = _transformCache.GetValue(__instance);
+        
+        // Cache the transform per marker instance
+        if (!_transformCache.TryGetValue(__instance, out Transform markerTransform)) {
+            TraverseCache<HUDUnitMarker, Transform> transformCache = new("_transform");
+            _transformCache[__instance] = transformCache.GetValue(__instance);
+        }
         if (SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ.IsTargetPositionAccurate(__instance.unit, 20f)) {
             int distanceToPlayer = Mathf.RoundToInt(Vector3.Distance(__instance.unit.rb.transform.position, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.position));
             int threshold = UnitDistancePlugin.unitDistanceThreshold;
