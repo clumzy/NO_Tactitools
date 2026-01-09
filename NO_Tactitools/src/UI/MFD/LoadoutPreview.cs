@@ -302,7 +302,7 @@ public class LoadoutPreviewComponent {
                         GameObject powerPanel = topRightPanel.transform.Find("PowerPanel").gameObject;
                         horizontalOffset = 
                             topRightPanel.transform.localPosition.x 
-                            - rectHalfWidth - border - padding;
+                            - rectHalfWidth - border * 2 - padding;
                         verticalOffset = 
                             topRightPanel.transform.localPosition.y
                             - rectHalfHeight - border - padding
