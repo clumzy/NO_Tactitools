@@ -110,8 +110,8 @@ class InterceptionVectorTask {
         );
         indicatorTargetBox = new Bindings.UI.Draw.UIAdvancedRectangle(
             "indicatorTargetBox",
-            new Vector2(-8, -8),
-            new Vector2(8, 8),
+            new Vector2(-6, -6),
+            new Vector2(6, 6),
             Color.magenta,
             2f,
             containerTransform,

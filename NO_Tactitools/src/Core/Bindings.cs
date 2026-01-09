@@ -629,22 +629,22 @@ public class Bindings {
                     Vector2 halfSize = size / 2f;
                     float t = borderThickness;
 
-                    // Inward borders
-                    // Top Border: Full width, thickness t, at top edge
-                    Vector2 topLeft_Top = new(-halfSize.x, halfSize.y);
-                    Vector2 bottomRight_Top = new(halfSize.x, halfSize.y - t);
+                    // Outward borders
+                    // Top Border: Full width (including corners), thickness t, extending outward at top edge
+                    Vector2 topLeft_Top = new(-halfSize.x - t, halfSize.y + t);
+                    Vector2 bottomRight_Top = new(halfSize.x + t, halfSize.y);
 
-                    // Bottom Border: Full width, thickness t, at bottom edge
-                    Vector2 topLeft_Bottom = new(-halfSize.x, -halfSize.y + t);
-                    Vector2 bottomRight_Bottom = new(halfSize.x, -halfSize.y);
+                    // Bottom Border: Full width (including corners), thickness t, extending outward at bottom edge
+                    Vector2 topLeft_Bottom = new(-halfSize.x - t, -halfSize.y);
+                    Vector2 bottomRight_Bottom = new(halfSize.x + t, -halfSize.y - t);
 
-                    // Left Border: Height - 2t, thickness t, at left edge (between top and bottom borders)
-                    Vector2 topLeft_Left = new(-halfSize.x, halfSize.y - t);
-                    Vector2 bottomRight_Left = new(-halfSize.x + t, -halfSize.y + t);
+                    // Left Border: Full height (between top and bottom borders), thickness t, extending outward at left edge
+                    Vector2 topLeft_Left = new(-halfSize.x - t, halfSize.y);
+                    Vector2 bottomRight_Left = new(-halfSize.x, -halfSize.y);
 
-                    // Right Border: Height - 2t, thickness t, at right edge (between top and bottom borders)
-                    Vector2 topLeft_Right = new(halfSize.x - t, halfSize.y - t);
-                    Vector2 bottomRight_Right = new(halfSize.x, -halfSize.y + t);
+                    // Right Border: Full height (between top and bottom borders), thickness t, extending outward at right edge
+                    Vector2 topLeft_Right = new(halfSize.x, halfSize.y);
+                    Vector2 bottomRight_Right = new(halfSize.x + t, -halfSize.y);
 
                     topBorder.SetCorners(topLeft_Top, bottomRight_Top);
                     bottomBorder.SetCorners(topLeft_Bottom, bottomRight_Bottom);

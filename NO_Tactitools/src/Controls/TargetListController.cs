@@ -365,7 +365,7 @@ public static class TargetListControllerComponent {
                 for (int i = 0; i < targetIcons.Count; i++) {
 
                     Rect rect = targetIcons[i].rectTransform.rect;
-                    Vector2 size = rect.size + new Vector2(10f, 10f);
+                    Vector2 size = rect.size + new Vector2(4f, 4f);
                     Vector2 halfSize = size / 2f;
 
                     Bindings.UI.Draw.UIAdvancedRectangle selectionRect = new(

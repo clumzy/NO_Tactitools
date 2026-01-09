@@ -67,9 +67,9 @@ class DeliveryIndicator {
         indicator = new Bindings.UI.Draw.UIAdvancedRectangle(
             "DeliveryIndicator" + randomString,
             new Vector2(0f, 0f),
-            new Vector2(10f, 10f),
+            new Vector2(8f, 8f),
             Color.black,
-            2f,
+            3f,
             Bindings.UI.Game.GetTargetScreenTransform(),
             Color.yellow);
         indicator.SetCenter(pos);
