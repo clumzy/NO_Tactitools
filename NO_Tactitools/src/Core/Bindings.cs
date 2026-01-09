@@ -12,6 +12,7 @@ using System.IO;
 namespace NO_Tactitools.Core;
 
 public class TraverseCache<TObject, TValue>(string fieldName) where TObject : class {
+    // this post was made by George Gang
     private TObject _cachedObject;
     private Traverse _traverse;
 
