@@ -82,10 +82,22 @@ public class Bindings {
                 }
             }
             public class Countermeasures {
+                private static readonly TraverseCache<object, IList> _irStationCountermeasuresCache = new("countermeasures");
                 private static readonly TraverseCache<CountermeasureManager, IList> _countermeasureStationsCache = new("countermeasureStations");
-                private static readonly TraverseCache<object, int> _stationAmmoCache = new("ammo");
-                private static readonly TraverseCache<object, IList> _stationCountermeasuresCache = new("countermeasures");
+                private static readonly TraverseCache<object, int> _irStationAmmoCache = new("ammo");
+                private static readonly TraverseCache<object, IList> _jammerStationCountermeasuresCache = new("countermeasures");
                 private static readonly TraverseCache<RadarJammer, PowerSupply> _powerSupplyCache = new("powerSupply");
+
+                private static IList GetStationsList() {
+                    try {
+                        CountermeasureManager currentManager = SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager;
+                        return _countermeasureStationsCache.GetValue(currentManager);
+                    }
+                    catch (NullReferenceException) {
+                        Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetStationsList] NullReferenceException: countermeasureManager or CombatHUD/aircraft was null; returning null.");
+                        return null;
+                    }
+                }
 
                 public static int GetCurrentIndex() {
                     try {
@@ -96,10 +108,9 @@ public class Bindings {
 
                 public static int GetIRFlareAmmo() {
                     try {
-                        CountermeasureManager currentManager = SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager;
-                        IList stationsList = _countermeasureStationsCache.GetValue(currentManager);
+                        IList stationsList = GetStationsList();
                         object IRStation = stationsList[HasECMPod() ? 1 : 0];
-                        int count = _stationAmmoCache.GetValue(IRStation);
+                        int count = _irStationAmmoCache.GetValue(IRStation);
                         return count;
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetIRAmmo] NullReferenceException: countermeasure manager or IR station unavailable; returning 0 IR flares."); return 0; }
@@ -107,10 +118,9 @@ public class Bindings {
 
                 public static int GetIRFlareMaxAmmo() {
                     try {
-                        CountermeasureManager currentManager = SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager;
-                        IList stationsList = _countermeasureStationsCache.GetValue(currentManager);
+                        IList stationsList = GetStationsList();
                         object IRStation = stationsList[HasECMPod() ? 1 : 0];
-                        IList countermeasuresList = _stationCountermeasuresCache.GetValue(IRStation);
+                        IList countermeasuresList = _irStationCountermeasuresCache.GetValue(IRStation);
                         FlareEjector ejectorStation = (FlareEjector)countermeasuresList[0];
                         int maxCount = ejectorStation.GetMaxAmmo();
                         return maxCount;
@@ -120,10 +130,9 @@ public class Bindings {
 
                 public static int GetJammerAmmo() {
                     try {
-                        CountermeasureManager currentManager = SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager;
-                        IList stationsList = _countermeasureStationsCache.GetValue(currentManager);
+                        IList stationsList = GetStationsList();
                         object JammerStation = stationsList[HasECMPod() ? 0 : 1];
-                        IList countermeasuresList = _stationCountermeasuresCache.GetValue(JammerStation);
+                        IList countermeasuresList = _jammerStationCountermeasuresCache.GetValue(JammerStation);
                         RadarJammer jammerStation = (RadarJammer)countermeasuresList[0];
                         PowerSupply supply = _powerSupplyCache.GetValue(jammerStation);
                         int charge = (int)(supply.GetCharge() * 100f);
@@ -134,8 +143,7 @@ public class Bindings {
 
                 public static bool HasIRFlare() {
                     try {
-                        CountermeasureManager currentManager = SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager;
-                        IList stationsList = _countermeasureStationsCache.GetValue(currentManager);
+                        IList stationsList = GetStationsList();
                         return stationsList.Count > 0;
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasIRFlare] NullReferenceException: countermeasure manager or stations list unavailable; assuming no IR flares (false)."); return false; }
@@ -143,12 +151,11 @@ public class Bindings {
 
                 public static bool HasECMPod() {
                     try {
-                        CountermeasureManager currentManager = SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager;
-                        IList stationsList = _countermeasureStationsCache.GetValue(currentManager);
+                        IList stationsList = GetStationsList();
 
                         if (stationsList != null && stationsList.Count > 0) {
                             object firstStation = stationsList[0];
-                            IList countermeasuresList = _stationCountermeasuresCache.GetValue(firstStation);
+                            IList countermeasuresList = _jammerStationCountermeasuresCache.GetValue(firstStation);
 
                             if (countermeasuresList != null && countermeasuresList.Count > 0) {
                                 return countermeasuresList[0] is RadarJammer;
@@ -161,8 +168,7 @@ public class Bindings {
 
                 public static bool HasJammer() {
                     try {
-                        CountermeasureManager currentManager = SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager;
-                        IList stationsList = _countermeasureStationsCache.GetValue(currentManager);
+                        IList stationsList = GetStationsList();
                         return stationsList.Count > 1;
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasJammer] NullReferenceException: countermeasure manager or stations list unavailable; assuming no jammer (false)."); return false; }
