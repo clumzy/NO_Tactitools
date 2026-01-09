@@ -1,7 +1,6 @@
 using System;
 using HarmonyLib;
 using System.Collections;
-using System.Reflection;
 using UnityEngine.Networking;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,6 +10,24 @@ using System.IO;
 
 
 namespace NO_Tactitools.Core;
+
+public class TraverseCache<TObject, TValue>(string fieldName) where TObject : class {
+    private TObject _cachedObject;
+    private Traverse _traverse;
+
+    public TValue GetValue(TObject currentObject) {
+        if (_traverse == null || _cachedObject != currentObject) {
+            _cachedObject = currentObject;
+            _traverse = Traverse.Create(currentObject).Field(fieldName);
+        }
+        return _traverse.GetValue<TValue>();
+    }
+
+    public void Reset() {
+        _cachedObject = null;
+        _traverse = null;
+    }
+}
 
 public class Bindings {
     public class GameState {
@@ -24,6 +41,8 @@ public class Bindings {
 
     public class Player {
         public class Aircraft {
+            private static readonly TraverseCache<global::Aircraft, Radar> _radarCache = new("radar");
+            
             public static global::Aircraft GetAircraft(bool silent = false) {
                 try {
                     return SceneSingleton<CombatHUD>.i.aircraft;
@@ -53,7 +72,7 @@ public class Bindings {
                 try {
                     global::Aircraft aircraft = GetAircraft();
                     if (aircraft == null) return false;
-                    Radar radar = Traverse.Create(aircraft).Field("radar").GetValue<Radar>();
+                    Radar radar = _radarCache.GetValue(aircraft);
                     return radar != null && radar.IsJammed();
                 }
                 catch (Exception e) {
@@ -62,6 +81,10 @@ public class Bindings {
                 }
             }
             public class Countermeasures {
+                private static readonly TraverseCache<CountermeasureManager, IList> _countermeasureStationsCache = new("countermeasureStations");
+                private static readonly TraverseCache<object, int> _stationAmmoCache = new("ammo");
+                private static readonly TraverseCache<object, IList> _stationCountermeasuresCache = new("countermeasures");
+                private static readonly TraverseCache<RadarJammer, PowerSupply> _powerSupplyCache = new("powerSupply");
 
                 public static int GetCurrentIndex() {
                     try {
@@ -72,9 +95,10 @@ public class Bindings {
 
                 public static int GetIRFlareAmmo() {
                     try {
-                        var stationsList = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).Field("countermeasureStations").GetValue<IList>();
-                        var IRStation = stationsList[HasECMPod() ? 1 : 0];
-                        int count = Traverse.Create(IRStation).Field("ammo").GetValue<int>();
+                        CountermeasureManager currentManager = SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager;
+                        IList stationsList = _countermeasureStationsCache.GetValue(currentManager);
+                        object IRStation = stationsList[HasECMPod() ? 1 : 0];
+                        int count = _stationAmmoCache.GetValue(IRStation);
                         return count;
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.GetIRAmmo] NullReferenceException: countermeasure manager or IR station unavailable; returning 0 IR flares."); return 0; }
@@ -82,9 +106,11 @@ public class Bindings {
 
                 public static int GetIRFlareMaxAmmo() {
                     try {
-                        var stationsList = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).Field("countermeasureStations").GetValue<IList>();
-                        var IRStation = stationsList[HasECMPod() ? 1 : 0];
-                        var ejectorStation = (FlareEjector)((IList)Traverse.Create(IRStation).Field("countermeasures").GetValue())[0];
+                        CountermeasureManager currentManager = SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager;
+                        IList stationsList = _countermeasureStationsCache.GetValue(currentManager);
+                        object IRStation = stationsList[HasECMPod() ? 1 : 0];
+                        IList countermeasuresList = _stationCountermeasuresCache.GetValue(IRStation);
+                        FlareEjector ejectorStation = (FlareEjector)countermeasuresList[0];
                         int maxCount = ejectorStation.GetMaxAmmo();
                         return maxCount;
                     }
@@ -93,10 +119,12 @@ public class Bindings {
 
                 public static int GetJammerAmmo() {
                     try {
-                        var stationsList = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).Field("countermeasureStations").GetValue<IList>();
-                        var JammerStation = stationsList[HasECMPod() ? 0 : 1];
-                        var jammerStation = (RadarJammer)((IList)Traverse.Create(JammerStation).Field("countermeasures").GetValue())[0];
-                        PowerSupply supply = Traverse.Create(jammerStation).Field("powerSupply").GetValue<PowerSupply>();
+                        CountermeasureManager currentManager = SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager;
+                        IList stationsList = _countermeasureStationsCache.GetValue(currentManager);
+                        object JammerStation = stationsList[HasECMPod() ? 0 : 1];
+                        IList countermeasuresList = _stationCountermeasuresCache.GetValue(JammerStation);
+                        RadarJammer jammerStation = (RadarJammer)countermeasuresList[0];
+                        PowerSupply supply = _powerSupplyCache.GetValue(jammerStation);
                         int charge = (int)(supply.GetCharge() * 100f);
                         return charge;
                     }
@@ -105,7 +133,8 @@ public class Bindings {
 
                 public static bool HasIRFlare() {
                     try {
-                        var stationsList = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).Field("countermeasureStations").GetValue<IList>();
+                        CountermeasureManager currentManager = SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager;
+                        IList stationsList = _countermeasureStationsCache.GetValue(currentManager);
                         return stationsList.Count > 0;
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasIRFlare] NullReferenceException: countermeasure manager or stations list unavailable; assuming no IR flares (false)."); return false; }
@@ -113,11 +142,12 @@ public class Bindings {
 
                 public static bool HasECMPod() {
                     try {
-                        var stationsList = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).Field("countermeasureStations").GetValue<IList>();
+                        CountermeasureManager currentManager = SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager;
+                        IList stationsList = _countermeasureStationsCache.GetValue(currentManager);
 
                         if (stationsList != null && stationsList.Count > 0) {
-                            var firstStation = stationsList[0];
-                            var countermeasuresList = Traverse.Create(firstStation).Field("countermeasures").GetValue<IList>();
+                            object firstStation = stationsList[0];
+                            IList countermeasuresList = _stationCountermeasuresCache.GetValue(firstStation);
 
                             if (countermeasuresList != null && countermeasuresList.Count > 0) {
                                 return countermeasuresList[0] is RadarJammer;
@@ -130,7 +160,8 @@ public class Bindings {
 
                 public static bool HasJammer() {
                     try {
-                        var stationsList = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager).Field("countermeasureStations").GetValue<IList>();
+                        CountermeasureManager currentManager = SceneSingleton<CombatHUD>.i.aircraft.countermeasureManager;
+                        IList stationsList = _countermeasureStationsCache.GetValue(currentManager);
                         return stationsList.Count > 1;
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Aircraft.Countermeasures.HasJammer] NullReferenceException: countermeasure manager or stations list unavailable; assuming no jammer (false)."); return false; }
@@ -168,6 +199,7 @@ public class Bindings {
             }
 
             public class Weapons {
+                private static readonly TraverseCache<WeaponStatus, Image> _weaponImageCache = new("weaponImage");
 
                 public static string GetActiveStationName() {
                     try {
@@ -211,7 +243,8 @@ public class Bindings {
 
                 public static Image GetActiveStationImage() {
                     try {
-                        Image weaponImage = Traverse.Create(Bindings.UI.Game.GetWeaponStatus()).Field("weaponImage").GetValue<Image>();
+                        WeaponStatus currentWeaponStatus = Bindings.UI.Game.GetWeaponStatus();
+                        Image weaponImage = _weaponImageCache.GetValue(currentWeaponStatus);
                         return weaponImage;
                     }
                     catch (NullReferenceException) { Plugin.Log("[Bindings.Player.Weapons.GetActiveStationImage] NullReferenceException: CombatHUD or weapon image unavailable; returning null."); return null; }
@@ -281,13 +314,15 @@ public class Bindings {
         }
 
         public class TargetList {
-            private static Traverse _targetListTraverse;
-            private static CombatHUD _cachedCombatHUD;
+            private static readonly TraverseCache<CombatHUD, List<Unit>> _targetListCache = new("targetList");
+            private static readonly TraverseCache<CombatHUD, Dictionary<Unit, HUDUnitMarker>> _markerLookupCache = new("markerLookup");
+            private static readonly TraverseCache<CombatHUD, AudioClip> _selectSoundCache = new("selectSound");
             
             public static void AddTargets(List<Unit> units, bool muteSound = false) {
                 try {
-                    var markerLookup = Traverse.Create(Bindings.UI.Game.GetCombatHUDComponent()).Field("markerLookup").GetValue<Dictionary<Unit, HUDUnitMarker>>();
-                    AudioClip selectSound = Traverse.Create(Bindings.UI.Game.GetCombatHUDComponent()).Field("selectSound").GetValue<AudioClip>();
+                    CombatHUD currentCombatHUD = Bindings.UI.Game.GetCombatHUDComponent();
+                    Dictionary<Unit, HUDUnitMarker> markerLookup = _markerLookupCache.GetValue(currentCombatHUD);
+                    AudioClip selectSound = _selectSoundCache.GetValue(currentCombatHUD);
                     List<Unit> currentTargets = [.. units];
                     currentTargets.Reverse();
                     foreach (Unit t_unit in currentTargets) {
@@ -318,12 +353,9 @@ public class Bindings {
 
             public static List<Unit> GetTargets() {
                 try {
-                    var currentCombatHUD = SceneSingleton<CombatHUD>.i;
-                    if (_targetListTraverse == null || _cachedCombatHUD != currentCombatHUD) {
-                        _cachedCombatHUD = currentCombatHUD;
-                        _targetListTraverse = Traverse.Create(currentCombatHUD).Field("targetList");
-                    }
-                    return [.. (List<Unit>)_targetListTraverse.GetValue()];
+                    CombatHUD currentCombatHUD = SceneSingleton<CombatHUD>.i;
+                    List<Unit> targetList = _targetListCache.GetValue(currentCombatHUD);
+                    return [.. targetList];
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.TargetList.GetTargets] NullReferenceException: CombatHUD or targetList unavailable; returning empty list."); return []; }
             }
@@ -400,12 +432,12 @@ public class Bindings {
                     imageComponent.color = new Color(0, 0, 0, this.backgroundOpacity);
                     GameObject textObj = new("LabelText");
                     textObj.transform.SetParent(gameObject.transform, false);
-                    var textRect = textObj.AddComponent<RectTransform>();
+                    RectTransform textRect = textObj.AddComponent<RectTransform>();
                     textRect.anchorMin = Vector2.zero;
                     textRect.anchorMax = Vector2.one;
                     textRect.offsetMin = Vector2.zero;
                     textRect.offsetMax = Vector2.zero;
-                    var textComp = textObj.AddComponent<Text>();
+                    Text textComp = textObj.AddComponent<Text>();
                     textComp.font = Bindings.UI.Draw.GetDefaultFont();
                     textComp.material = Bindings.UI.Draw.GetDefaultTextMaterial();
                     textComp.fontSize = fontSize;
@@ -417,7 +449,7 @@ public class Bindings {
                     textComp.horizontalOverflow = HorizontalWrapMode.Overflow;
                     textComp.verticalOverflow = VerticalWrapMode.Overflow;
                     rectTransform.sizeDelta = new Vector2(textComp.preferredWidth, textComp.fontSize);
-                    var textTransform = gameObject.transform.Find("LabelText");
+                    Transform textTransform = gameObject.transform.Find("LabelText");
                     textComponent = textTransform.GetComponent<Text>();
                     return;
                 }
@@ -652,6 +684,12 @@ public class Bindings {
         }
 
         public class Game {
+            private static readonly TraverseCache<CombatHUD, GameObject> _topRightPanelCache = new("topRightPanel");
+            private static readonly TraverseCache<TargetCam, TargetScreenUI> _targetScreenUICache = new("targetScreenUI");
+            private static readonly TraverseCache<Cockpit, TacScreen> _tacScreenCache = new("tacScreen");
+            private static TacScreen _cachedTacScreen;
+            private static Transform _cachedTacScreenCanvasTransform;
+            
             public static void DisplayToast(string message, float duration = 2f) {
                 SceneSingleton<AircraftActionsReport>.i?.ReportText(message, duration);
             }
@@ -679,7 +717,8 @@ public class Bindings {
 
             public static Transform GetTargetScreenTransform(bool silent = false) {
                 try {
-                    TargetScreenUI targetScreenUIObject = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.targetCam).Field("targetScreenUI").GetValue<TargetScreenUI>();
+                    TargetCam currentTargetCam = SceneSingleton<CombatHUD>.i.aircraft.targetCam;
+                    TargetScreenUI targetScreenUIObject = _targetScreenUICache.GetValue(currentTargetCam);
                     return targetScreenUIObject.transform;
                 }
                 catch (NullReferenceException) {
@@ -689,25 +728,40 @@ public class Bindings {
                 }
             }
 
-            public static Transform GetTacScreenTransform() {
+            public static Transform GetTacScreenTransform(bool silent = false) {
                 try {
+                    if (_cachedTacScreenCanvasTransform != null) {
+                        return _cachedTacScreenCanvasTransform;
+                    }
+                    
                     foreach (Cockpit child in UnityEngine.Object.FindObjectsOfType<Cockpit>()) {
-                        TacScreen tacScreenObject = Traverse.Create(child).Field("tacScreen").GetValue<TacScreen>();
+                        TacScreen tacScreenObject = _tacScreenCache.GetValue(child);
                         if (tacScreenObject != null) {
-                            return tacScreenObject.transform.Find("Canvas").transform;
+                            _cachedTacScreen = tacScreenObject;
+                            _cachedTacScreenCanvasTransform = tacScreenObject.transform.Find("Canvas").transform;
+                            return _cachedTacScreenCanvasTransform;
                         }
                     }
-                    Plugin.Log("[BD] No Cockpit with TacScreen found !");
+                    if (!silent)
+                        Plugin.Log("[BD] No Cockpit with TacScreen found !");
                     return null;
                 }
-                catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetTacScreen] NullReferenceException: TacScreen or cockpit reference was null; returning null."); return null; }
+                catch (NullReferenceException) { 
+                    if (!silent)
+                        Plugin.Log("[Bindings.UI.Game.GetTacScreen] NullReferenceException: TacScreen or cockpit reference was null; returning null."); 
+                    return null; }
             }
 
             public static TacScreen GetTacScreenComponent() {
                 try {
+                    if (_cachedTacScreen != null) {
+                        return _cachedTacScreen;
+                    }
+                    
                     foreach (Cockpit child in UnityEngine.Object.FindObjectsOfType<Cockpit>()) {
-                        TacScreen tacScreenObject = Traverse.Create(child).Field("tacScreen").GetValue<TacScreen>();
+                        TacScreen tacScreenObject = _tacScreenCache.GetValue(child);
                         if (tacScreenObject != null) {
+                            _cachedTacScreen = tacScreenObject;
                             return tacScreenObject;
                         }
                     }
@@ -726,8 +780,8 @@ public class Bindings {
 
             public static TargetScreenUI GetTargetScreenUIComponent(bool silent = false) {
                 try {
-                    TargetCam targetCam = SceneSingleton<CombatHUD>.i.aircraft.targetCam;
-                    TargetScreenUI targetScreenUI = Traverse.Create(targetCam).Field("targetScreenUI").GetValue<TargetScreenUI>();
+                    TargetCam currentTargetCam = SceneSingleton<CombatHUD>.i.aircraft.targetCam;
+                    TargetScreenUI targetScreenUI = _targetScreenUICache.GetValue(currentTargetCam);
                     return targetScreenUI;
                 }
                 catch (NullReferenceException) {
@@ -738,7 +792,8 @@ public class Bindings {
             }
             public static WeaponStatus GetWeaponStatus() {
                 try {
-                    GameObject topRightPanel = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("topRightPanel").GetValue();
+                    CombatHUD currentCombatHUD = SceneSingleton<CombatHUD>.i;
+                    GameObject topRightPanel = _topRightPanelCache.GetValue(currentCombatHUD);
                     WeaponStatus weaponStatus = topRightPanel.GetComponentInChildren<WeaponStatus>();
                     return weaponStatus;
                 }
@@ -754,21 +809,23 @@ public class Bindings {
             }
 
             public static void HideWeaponPanel() {
-                GameObject topRightPanel = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("topRightPanel").GetValue();
+                CombatHUD currentCombatHUD = SceneSingleton<CombatHUD>.i;
+                GameObject topRightPanel = _topRightPanelCache.GetValue(currentCombatHUD);
                 topRightPanel.SetActive(false);
             }
 
             public static void ShowWeaponPanel() {
-                GameObject topRightPanel = (GameObject)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("topRightPanel").GetValue();
+                CombatHUD currentCombatHUD = SceneSingleton<CombatHUD>.i;
+                GameObject topRightPanel = _topRightPanelCache.GetValue(currentCombatHUD);
                 topRightPanel.SetActive(true);
             }
         }
 
         public class Generic {
             public static void KillLayout(Transform target) {
-                var layoutGroup = target.GetComponent<UnityEngine.UI.LayoutGroup>();
+                UnityEngine.UI.LayoutGroup layoutGroup = target.GetComponent<UnityEngine.UI.LayoutGroup>();
                 if (layoutGroup != null) layoutGroup.enabled = false;
-                var contentFitter = target.GetComponent<UnityEngine.UI.ContentSizeFitter>();
+                UnityEngine.UI.ContentSizeFitter contentFitter = target.GetComponent<UnityEngine.UI.ContentSizeFitter>();
                 if (contentFitter != null) contentFitter.enabled = false;
             }
 
@@ -805,7 +862,7 @@ public class Bindings {
                     string fileName = Path.GetFileName(filePath).Split('.')[0];
                     if (!loadedClips.ContainsKey(fileName)) {
                         using UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + filePath, AudioType.MPEG);
-                        var operation = www.SendWebRequest();
+                        UnityEngine.Networking.UnityWebRequestAsyncOperation operation = www.SendWebRequest();
                         while (!operation.isDone) { } // Wait for completion
 
                         if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError) {
