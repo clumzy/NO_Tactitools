@@ -265,30 +265,40 @@ public static class TargetListControllerComponent {
         public static int targetIndex = 0;
     }
     static class DisplayEngine {
+        private static readonly TraverseCache<TargetScreenUI, FactionHQ> _hqCache = new("hq");
+        private static readonly TraverseCache<TargetScreenUI, Text> _typeTextCache = new("typeText");
+        private static readonly TraverseCache<TargetScreenUI, Text> _headingCache = new("heading");
+        private static readonly TraverseCache<TargetScreenUI, Text> _altitudeCache = new("altitude");
+        private static readonly TraverseCache<TargetScreenUI, Text> _relAltitudeCache = new("rel_altitude");
+        private static readonly TraverseCache<TargetScreenUI, Text> _speedCache = new("speed");
+        private static readonly TraverseCache<TargetScreenUI, Text> _relSpeedCache = new("rel_speed");
+        private static readonly TraverseCache<TargetScreenUI, Text> _pilotTextCache = new("pilotText");
+        private static readonly TraverseCache<TargetScreenUI, Text> _distanceCache = new("distance");
+        private static readonly TraverseCache<TargetScreenUI, List<Image>> _targetBoxesCache = new("targetBoxes");
+        
         public static void Init() {
         }
         public static void Update() {
             static void UpdateTargetTexts() {
                 TargetScreenUI targetScreen = Bindings.UI.Game.GetTargetScreenUIComponent();
                 if (targetScreen == null) return;
-                Traverse traverse = Traverse.Create(targetScreen);
 
                 List<Unit> targets = Bindings.Player.TargetList.GetTargets();
                 int index = InternalState.targetIndex;
                 if (index >= targets.Count) return;
 
                 Unit unit = targets[index];
-                FactionHQ hq = traverse.Field("hq").GetValue<FactionHQ>();
+                FactionHQ hq = _hqCache.GetValue(targetScreen);
 
-                Text typeText = traverse.Field("typeText").GetValue<Text>();
-                Text heading = traverse.Field("heading").GetValue<Text>();
-                Text altitude = traverse.Field("altitude").GetValue<Text>();
-                Text rel_altitude = traverse.Field("rel_altitude").GetValue<Text>();
-                Text speed = traverse.Field("speed").GetValue<Text>();
-                Text rel_speed = traverse.Field("rel_speed").GetValue<Text>();
-                Text pilotText = traverse.Field("pilotText").GetValue<Text>();
+                Text typeText = _typeTextCache.GetValue(targetScreen);
+                Text heading = _headingCache.GetValue(targetScreen);
+                Text altitude = _altitudeCache.GetValue(targetScreen);
+                Text rel_altitude = _relAltitudeCache.GetValue(targetScreen);
+                Text speed = _speedCache.GetValue(targetScreen);
+                Text rel_speed = _relSpeedCache.GetValue(targetScreen);
+                Text pilotText = _pilotTextCache.GetValue(targetScreen);
 
-                Text distance = traverse.Field("distance").GetValue<Text>();
+                Text distance = _distanceCache.GetValue(targetScreen);
                 /* Text bearingText = traverse.Field("bearingText").GetValue<Text>();
                 Image bearingImg = traverse.Field("bearingImg").GetValue<Image>(); */
 
@@ -347,7 +357,7 @@ public static class TargetListControllerComponent {
 
             if (InternalState.updateDisplay) {
                 TargetScreenUI targetScreen = Bindings.UI.Game.GetTargetScreenUIComponent();
-                List<Image> targetIcons = Traverse.Create(targetScreen).Field("targetBoxes").GetValue<List<Image>>();
+                List<Image> targetIcons = _targetBoxesCache.GetValue(targetScreen);
                 // Wait until the UI has instantiated the boxes for the new targets
                 if (targetIcons.Count < targets.Count) {
                     return;

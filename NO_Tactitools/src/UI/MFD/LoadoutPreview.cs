@@ -297,7 +297,9 @@ public class LoadoutPreviewComponent {
                 }
                 else {
                     if (InternalState.vanillaUIEnabled) {
-                        GameObject topRightPanel = Traverse.Create(Bindings.UI.Game.GetCombatHUDComponent()).Field<GameObject>("topRightPanel").Value;
+                        CombatHUD combatHUD = Bindings.UI.Game.GetCombatHUDComponent();
+                        TraverseCache<CombatHUD, GameObject> topRightPanelCache = new("topRightPanel");
+                        GameObject topRightPanel = topRightPanelCache.GetValue(combatHUD);
                         GameObject powerPanel = topRightPanel.transform.Find("PowerPanel").gameObject;
                         horizontalOffset = 
                             topRightPanel.transform.localPosition.x 
