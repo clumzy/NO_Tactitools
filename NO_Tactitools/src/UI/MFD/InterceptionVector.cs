@@ -55,7 +55,7 @@ class InterceptionVectorTask {
     static void Postfix() {
         if (Bindings.UI.Game.GetTacScreenTransform() == null
             || Bindings.Player.Aircraft.GetAircraft() == null
-            || Bindings.UI.Game.GetTargetScreenTransform(nullIsOkay: true) == null) {
+            || Bindings.UI.Game.GetTargetScreenTransform(silent: true) == null) {
             return;
         } // Do not run if Tac Screen or aircraft is null OR TARGET SCREEN is null
         switch (currentState) {

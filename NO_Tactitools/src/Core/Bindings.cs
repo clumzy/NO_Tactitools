@@ -677,13 +677,13 @@ public class Bindings {
                 catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetFlightHUD] NullReferenceException: FlightHud singleton not available; returning null."); return null; }
             }
 
-            public static Transform GetTargetScreenTransform(bool nullIsOkay = false) {
+            public static Transform GetTargetScreenTransform(bool silent = false) {
                 try {
                     TargetScreenUI targetScreenUIObject = Traverse.Create(SceneSingleton<CombatHUD>.i.aircraft.targetCam).Field("targetScreenUI").GetValue<TargetScreenUI>();
                     return targetScreenUIObject.transform;
                 }
                 catch (NullReferenceException) {
-                    if (!nullIsOkay)
+                    if (!silent)
                         Plugin.Log("[Bindings.UI.Game.GetTargetScreen] NullReferenceException: targetCam or TargetScreenUI not available; returning null.");
                     return null;
                 }
@@ -724,14 +724,14 @@ public class Bindings {
                 catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetTargetCamComponent] NullReferenceException: TargetCam or CombatHUD/aircraft was null; returning null."); return null; }
             }
 
-            public static TargetScreenUI GetTargetScreenUIComponent(bool nullIsOkay = false) {
+            public static TargetScreenUI GetTargetScreenUIComponent(bool silent = false) {
                 try {
                     TargetCam targetCam = SceneSingleton<CombatHUD>.i.aircraft.targetCam;
                     TargetScreenUI targetScreenUI = Traverse.Create(targetCam).Field("targetScreenUI").GetValue<TargetScreenUI>();
                     return targetScreenUI;
                 }
                 catch (NullReferenceException) {
-                    if (!nullIsOkay)
+                    if (!silent)
                         Plugin.Log("[Bindings.UI.Game.GetTargetScreenUIComponent] NullReferenceException: TargetScreenUI not available; returning null.");
                     return null;
                 }

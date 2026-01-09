@@ -338,7 +338,7 @@ public static class TargetListControllerComponent {
             }
             // PROPER UPDATE START
             if (Bindings.UI.Game.GetCombatHUDTransform() == null ||
-                Bindings.UI.Game.GetTargetScreenTransform(nullIsOkay: true) == null) {
+                Bindings.UI.Game.GetTargetScreenTransform(silent: true) == null) {
                 return;
             }
 
