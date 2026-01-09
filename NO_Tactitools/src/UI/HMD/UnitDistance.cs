@@ -41,7 +41,8 @@ class UnitDistanceTask {
         // Cache the transform per marker instance
         if (!_transformCache.TryGetValue(__instance, out Transform markerTransform)) {
             TraverseCache<HUDUnitMarker, Transform> transformCache = new("_transform");
-            _transformCache[__instance] = transformCache.GetValue(__instance);
+            markerTransform = transformCache.GetValue(__instance);
+            _transformCache[__instance] = markerTransform;
         }
         if (SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ.IsTargetPositionAccurate(__instance.unit, 20f)) {
             int distanceToPlayer = Mathf.RoundToInt(Vector3.Distance(__instance.unit.rb.transform.position, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.position));

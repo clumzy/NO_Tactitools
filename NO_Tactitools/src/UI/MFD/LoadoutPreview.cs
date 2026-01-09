@@ -297,9 +297,8 @@ public class LoadoutPreviewComponent {
                 }
                 else {
                     if (InternalState.vanillaUIEnabled) {
-                        CombatHUD combatHUD = Bindings.UI.Game.GetCombatHUDComponent();
-                        TraverseCache<CombatHUD, GameObject> topRightPanelCache = new("topRightPanel");
-                        GameObject topRightPanel = topRightPanelCache.GetValue(combatHUD);
+                        // The new way to punctually directly reflect elements
+                        GameObject topRightPanel = new TraverseCache<CombatHUD, GameObject>("topRightPanel").GetValue(Bindings.UI.Game.GetCombatHUDComponent());
                         GameObject powerPanel = topRightPanel.transform.Find("PowerPanel").gameObject;
                         horizontalOffset = 
                             topRightPanel.transform.localPosition.x 
