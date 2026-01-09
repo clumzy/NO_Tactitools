@@ -53,7 +53,7 @@ class InterceptionVectorTask {
     public static Color mainColor = Color.green;
 
     static void Postfix() {
-        if (Bindings.UI.Game.GetTacScreenTransform() == null
+        if (Bindings.UI.Game.GetTacScreenTransform(silent:true) == null
             || Bindings.Player.Aircraft.GetAircraft() == null
             || Bindings.UI.Game.GetTargetScreenTransform(silent: true) == null) {
             return;
@@ -78,8 +78,7 @@ class InterceptionVectorTask {
     }
 
     static void HandleInitState() {
-        if (Bindings.Player.TargetList.GetTargets().Count != 1
-            || Bindings.UI.Game.GetTacScreenTransform() == null) {
+        if (Bindings.Player.TargetList.GetTargets().Count != 1) {
             return;
         }// Do not init if no target is selected
         Plugin.Log("[IV] Init state");

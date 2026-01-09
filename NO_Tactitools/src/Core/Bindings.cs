@@ -689,7 +689,6 @@ public class Bindings {
             private static readonly TraverseCache<TargetCam, TargetScreenUI> _targetScreenUICache = new("targetScreenUI");
             private static readonly TraverseCache<Cockpit, TacScreen> _tacScreenCache = new("tacScreen");
             private static TacScreen _cachedTacScreen;
-            private static Transform _cachedTacScreenCanvasTransform;
             
             public static void DisplayToast(string message, float duration = 2f) {
                 SceneSingleton<AircraftActionsReport>.i?.ReportText(message, duration);
@@ -731,21 +730,15 @@ public class Bindings {
 
             public static Transform GetTacScreenTransform(bool silent = false) {
                 try {
-                    if (_cachedTacScreenCanvasTransform != null) {
-                        return _cachedTacScreenCanvasTransform;
+                    TacScreen tacScreenObject = GetTacScreenComponent();
+                    if (tacScreenObject != null) {
+                        return tacScreenObject.transform.Find("Canvas").transform;
                     }
-                    
-                    foreach (Cockpit child in UnityEngine.Object.FindObjectsOfType<Cockpit>()) {
-                        TacScreen tacScreenObject = _tacScreenCache.GetValue(child);
-                        if (tacScreenObject != null) {
-                            _cachedTacScreen = tacScreenObject;
-                            _cachedTacScreenCanvasTransform = tacScreenObject.transform.Find("Canvas").transform;
-                            return _cachedTacScreenCanvasTransform;
-                        }
+                    else {
+                        if (!silent)
+                            Plugin.Log("[Bindings.UI.Game.GetTacScreen] TacScreen component not found; returning null.");
+                        return null;
                     }
-                    if (!silent)
-                        Plugin.Log("[BD] No Cockpit with TacScreen found !");
-                    return null;
                 }
                 catch (NullReferenceException) { 
                     if (!silent)
