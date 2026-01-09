@@ -263,19 +263,19 @@ public static class TargetListControllerComponent {
         public static bool updateDisplay = false;
         public static bool resetIndex = false;
         public static int targetIndex = 0;
+        public static readonly TraverseCache<TargetScreenUI, FactionHQ> _hqCache = new("hq");
+        public static readonly TraverseCache<TargetScreenUI, Text> _typeTextCache = new("typeText");
+        public static readonly TraverseCache<TargetScreenUI, Text> _headingCache = new("heading");
+        public static readonly TraverseCache<TargetScreenUI, Text> _altitudeCache = new("altitude");
+        public static readonly TraverseCache<TargetScreenUI, Text> _relAltitudeCache = new("rel_altitude");
+        public static readonly TraverseCache<TargetScreenUI, Text> _speedCache = new("speed");
+        public static readonly TraverseCache<TargetScreenUI, Text> _relSpeedCache = new("rel_speed");
+        public static readonly TraverseCache<TargetScreenUI, Text> _pilotTextCache = new("pilotText");
+        public static readonly TraverseCache<TargetScreenUI, Text> _distanceCache = new("distance");
+        public static readonly TraverseCache<TargetScreenUI, List<Image>> _targetBoxesCache = new("targetBoxes");
     }
     static class DisplayEngine {
-        private static readonly TraverseCache<TargetScreenUI, FactionHQ> _hqCache = new("hq");
-        private static readonly TraverseCache<TargetScreenUI, Text> _typeTextCache = new("typeText");
-        private static readonly TraverseCache<TargetScreenUI, Text> _headingCache = new("heading");
-        private static readonly TraverseCache<TargetScreenUI, Text> _altitudeCache = new("altitude");
-        private static readonly TraverseCache<TargetScreenUI, Text> _relAltitudeCache = new("rel_altitude");
-        private static readonly TraverseCache<TargetScreenUI, Text> _speedCache = new("speed");
-        private static readonly TraverseCache<TargetScreenUI, Text> _relSpeedCache = new("rel_speed");
-        private static readonly TraverseCache<TargetScreenUI, Text> _pilotTextCache = new("pilotText");
-        private static readonly TraverseCache<TargetScreenUI, Text> _distanceCache = new("distance");
-        private static readonly TraverseCache<TargetScreenUI, List<Image>> _targetBoxesCache = new("targetBoxes");
-        
+
         public static void Init() {
         }
         public static void Update() {
@@ -288,17 +288,17 @@ public static class TargetListControllerComponent {
                 if (index >= targets.Count) return;
 
                 Unit unit = targets[index];
-                FactionHQ hq = _hqCache.GetValue(targetScreen);
+                FactionHQ hq = InternalState._hqCache.GetValue(targetScreen);
 
-                Text typeText = _typeTextCache.GetValue(targetScreen);
-                Text heading = _headingCache.GetValue(targetScreen);
-                Text altitude = _altitudeCache.GetValue(targetScreen);
-                Text rel_altitude = _relAltitudeCache.GetValue(targetScreen);
-                Text speed = _speedCache.GetValue(targetScreen);
-                Text rel_speed = _relSpeedCache.GetValue(targetScreen);
-                Text pilotText = _pilotTextCache.GetValue(targetScreen);
+                Text typeText = InternalState._typeTextCache.GetValue(targetScreen);
+                Text heading = InternalState._headingCache.GetValue(targetScreen);
+                Text altitude = InternalState._altitudeCache.GetValue(targetScreen);
+                Text rel_altitude = InternalState._relAltitudeCache.GetValue(targetScreen);
+                Text speed = InternalState._speedCache.GetValue(targetScreen);
+                Text rel_speed = InternalState._relSpeedCache.GetValue(targetScreen);
+                Text pilotText = InternalState._pilotTextCache.GetValue(targetScreen);
 
-                Text distance = _distanceCache.GetValue(targetScreen);
+                Text distance = InternalState._distanceCache.GetValue(targetScreen);
                 /* Text bearingText = traverse.Field("bearingText").GetValue<Text>();
                 Image bearingImg = traverse.Field("bearingImg").GetValue<Image>(); */
 
@@ -357,7 +357,7 @@ public static class TargetListControllerComponent {
 
             if (InternalState.updateDisplay) {
                 TargetScreenUI targetScreen = Bindings.UI.Game.GetTargetScreenUIComponent();
-                List<Image> targetIcons = _targetBoxesCache.GetValue(targetScreen);
+                List<Image> targetIcons = InternalState._targetBoxesCache.GetValue(targetScreen);
                 // Wait until the UI has instantiated the boxes for the new targets
                 if (targetIcons.Count < targets.Count) {
                     return;
