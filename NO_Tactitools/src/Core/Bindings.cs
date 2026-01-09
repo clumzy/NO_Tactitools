@@ -24,14 +24,13 @@ public class Bindings {
 
     public class Player {
         public class Aircraft {
-            public static global::Aircraft GetAircraft(bool nullIsOkay = false) {
+            public static global::Aircraft GetAircraft(bool silent = false) {
                 try {
                     return SceneSingleton<CombatHUD>.i.aircraft;
                 }
                 catch (NullReferenceException) {
-                    if (!nullIsOkay) {
+                    if (!silent)
                         Plugin.Log("[Bindings.Player.Aircraft.GetAircraft] NullReferenceException: CombatHUD or aircraft was null; returning null.");
-                    }
                     return null;
                 }
             }
@@ -282,6 +281,9 @@ public class Bindings {
         }
 
         public class TargetList {
+            private static Traverse _targetListTraverse;
+            private static CombatHUD _cachedCombatHUD;
+            
             public static void AddTargets(List<Unit> units, bool muteSound = false) {
                 try {
                     var markerLookup = Traverse.Create(Bindings.UI.Game.GetCombatHUDComponent()).Field("markerLookup").GetValue<Dictionary<Unit, HUDUnitMarker>>();
@@ -316,7 +318,12 @@ public class Bindings {
 
             public static List<Unit> GetTargets() {
                 try {
-                    return [.. (List<Unit>)Traverse.Create(SceneSingleton<CombatHUD>.i).Field("targetList").GetValue()];
+                    var currentCombatHUD = SceneSingleton<CombatHUD>.i;
+                    if (_targetListTraverse == null || _cachedCombatHUD != currentCombatHUD) {
+                        _cachedCombatHUD = currentCombatHUD;
+                        _targetListTraverse = Traverse.Create(currentCombatHUD).Field("targetList");
+                    }
+                    return [.. (List<Unit>)_targetListTraverse.GetValue()];
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.Player.TargetList.GetTargets] NullReferenceException: CombatHUD or targetList unavailable; returning empty list."); return []; }
             }
