@@ -126,13 +126,18 @@ public static class BootScreenComponent {
         public static int verticalOffset = 0;
         public static List<GameObject> previouslyActiveObjects = [];
         public static Transform tacScreenTransform;
+        public static Transform containerTransform;
     }
     static class DisplayEngine {
         public static void Init() {
+            GameObject containerObject = new("i_lp_LoadoutPreviewContainer");
+            containerObject.AddComponent<RectTransform>();
+            InternalState.containerTransform = containerObject.transform;
+            InternalState.containerTransform.SetParent(InternalState.tacScreenTransform, false);
             InternalState.bootLabel = new Bindings.UI.Draw.UILabel(
                 "Boot Label",
                 new Vector2(InternalState.horizontalOffset, InternalState.verticalOffset),
-                InternalState.tacScreenTransform
+                InternalState.containerTransform
             );
             InternalState.bootLabel.SetText("Booting " + Bindings.Player.Aircraft.GetPlatformName() + "...");
         }
