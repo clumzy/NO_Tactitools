@@ -54,6 +54,7 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> Fixed advanced rectangles and their implementations, much better pixel scaling now
 
 TODO :
+-> Implement container for Weapon Display
 -> F/ add functionalty to see if a targeted unit is being targeted by a friendly missile
 -> F/ same with sling, adapt it for the wpon screen
 

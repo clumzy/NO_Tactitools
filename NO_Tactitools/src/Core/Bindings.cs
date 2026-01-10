@@ -20,8 +20,9 @@ public class TraverseCache<TObject, TValue>(string fieldName) where TObject : cl
         if (_traverse == null || _cachedObject != currentObject) {
             _cachedObject = currentObject;
             _traverse = Traverse.Create(currentObject).Field(fieldName);
-            Plugin.Log("[TraverseCache<" + typeof(TObject).Name.ToString() + ", " + typeof(TValue).Name.ToString() 
-            + ">] Cached field '" + fieldName.ToString() + "' for object of type '" + typeof(TObject).Name.ToString() + "'.");
+            Plugin.Log("[TraverseCache<" + typeof(TObject).Name.ToString() + ", " + typeof(TValue).Name.ToString() + ">] "
+            +"Cached field '" + fieldName.ToString() 
+            + "' for object of type '" + typeof(TObject).Name.ToString() + "'.");
         }
         return _traverse.GetValue<TValue>();
     }
@@ -85,9 +86,9 @@ public class Bindings {
             }
             public class Countermeasures {
                 private static readonly TraverseCache<CountermeasureManager, IList> _countermeasureStationsCache = new("countermeasureStations");
-                private static readonly TraverseCache<object, IList> _irStationCountermeasuresCache = new("countermeasures"); // DIFFERENT STATIONS FOR DIFFERENT TYPES, same name however
-                private static readonly TraverseCache<object, IList> _jammerStationCountermeasuresCache = new("countermeasures"); // DIFFERENT STATIONS FOR DIFFERENT TYPES, same name however
-                private static readonly TraverseCache<object, IList> _ecmCheckCountermeasuresCache = new("countermeasures"); // DIFFERENT STATIONS FOR DIFFERENT TYPES, same name however
+                private static readonly TraverseCache<object, IList> _irStationListCache = new("countermeasures"); // DIFFERENT STATIONS FOR DIFFERENT TYPES, same name however
+                private static readonly TraverseCache<object, IList> _jammerStationListCache = new("countermeasures"); // DIFFERENT STATIONS FOR DIFFERENT TYPES, same name however
+                private static readonly TraverseCache<object, IList> _ecmCheckListCache = new("countermeasures"); // DIFFERENT STATIONS FOR DIFFERENT TYPES, same name however
                 private static readonly TraverseCache<RadarJammer, PowerSupply> _powerSupplyCache = new("powerSupply");
                 private static readonly TraverseCache<object, int> _irStationAmmoCache = new("ammo");
 
@@ -123,7 +124,7 @@ public class Bindings {
                     try {
                         IList stationsList = GetStationsList();
                         object IRStation = stationsList[HasECMPod() ? 1 : 0];
-                        IList countermeasuresList = _irStationCountermeasuresCache.GetValue(IRStation);
+                        IList countermeasuresList = _irStationListCache.GetValue(IRStation);
                         FlareEjector ejectorStation = (FlareEjector)countermeasuresList[0];
                         int maxCount = ejectorStation.GetMaxAmmo();
                         return maxCount;
@@ -135,7 +136,7 @@ public class Bindings {
                     try {
                         IList stationsList = GetStationsList();
                         object JammerStation = stationsList[HasECMPod() ? 0 : 1];
-                        IList countermeasuresList = _jammerStationCountermeasuresCache.GetValue(JammerStation);
+                        IList countermeasuresList = _jammerStationListCache.GetValue(JammerStation);
                         RadarJammer jammerStation = (RadarJammer)countermeasuresList[0];
                         PowerSupply supply = _powerSupplyCache.GetValue(jammerStation);
                         int charge = (int)(supply.GetCharge() * 100f);
@@ -158,7 +159,7 @@ public class Bindings {
 
                         if (stationsList != null && stationsList.Count > 0) {
                             object firstStation = stationsList[0];
-                            IList countermeasuresList = _ecmCheckCountermeasuresCache.GetValue(firstStation);
+                            IList countermeasuresList = _ecmCheckListCache.GetValue(firstStation);
 
                             if (countermeasuresList != null && countermeasuresList.Count > 0) {
                                 return countermeasuresList[0] is RadarJammer;
