@@ -92,13 +92,13 @@ namespace NO_Tactitools.Core {
                 "Target List Controller - Target Recall - Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for Target Recall (short press to recall, long press to save)",
+                    "Input you want to assign to Target Recall (short press to recall, long press to save)",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));
             targetNextControllerName = Config.Bind("Target List Controller",
-                "Target List Controller - Next Target - Controller Name",
+                "Target List Controller - Next Target / Sort Target List by distance - Controller Name",
                 "",
                 new ConfigDescription(
                     "Name of the peripheral",
@@ -107,16 +107,16 @@ namespace NO_Tactitools.Core {
                         Order = -1
                     }));
             targetNextInput = Config.Bind("Target List Controller",
-                "Target List Controller - Next Target - Input",
+                "Target List Controller - Next Target / Sort Target List by distance - Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for Next Target",
+                    "Input you want to assign to Next Target / Sort Target List by distance (short press for next target, long press to sort)",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = -2
                     }));
             targetPreviousControllerName = Config.Bind("Target List Controller",
-                "Target List Controller - Previous Target - Controller Name",
+                "Target List Controller - Previous Target / Sort Target List by name - Controller Name",
                 "",
                 new ConfigDescription(
                     "Name of the peripheral",
@@ -125,10 +125,10 @@ namespace NO_Tactitools.Core {
                         Order = -3
                     }));
             targetPreviousInput = Config.Bind("Target List Controller",
-                "Target List Controller - Previous Target - Input",
+                "Target List Controller - Previous Target / Sort target list by name - Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for Previous Target",
+                    "Input you want to assign to Previous Target / Sort Target List by name (short press for previous target, long press to sort)",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = -4
@@ -146,7 +146,7 @@ namespace NO_Tactitools.Core {
                 "Target List Controller - Remove or Keep Target - Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for Remove or Keep Target (short press to remove, long press to keep)",
+                    "Input you want to assign to Remove or Keep Target (short press to remove, long press to keep)",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = -6
@@ -164,7 +164,7 @@ namespace NO_Tactitools.Core {
                 "Target List Controller - Smart Control - Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for Smart Control (short press to keep only datalinked targets, long press to keep closest targets based on remaining ammo)",
+                    "Input you want to assign to Smart Control (short press to keep only datalinked targets, long press to keep closest targets based on remaining ammo)",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = -10
