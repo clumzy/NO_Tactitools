@@ -161,7 +161,7 @@ public class WeaponDisplayComponent {
                 "T/A-30 Compass" or "FS-12 Revoker" or 
                 "FS-20 Vortex" or "KR-67 Ifrit" or 
                 "UH-80 Ibis" or "A-19 Brawler"
-                or "FQ-106 Kestrel" => Get("SystemStatus"),
+                or "FQ-106 Kestrel" or "FS-3 Ternion" => Get("SystemStatus"),
                 "EW-1 Medusa" => Get("engPanel1"),
                 "CI-22 Cricket" => Get("EngPanel"),
                 "SAH-46 Chicane" => Get("BasicFlightInstrument"),
@@ -219,6 +219,7 @@ public class WeaponDisplayComponent {
                     weaponNameFont = 18;
                     weaponAmmoFont = 40;
                     break;
+                case "FS-3 Ternion":
                 case "FS-12 Revoker":
                     flarePos = new Vector2(0, -40);
                     jammerPos = new Vector2(0, -80);

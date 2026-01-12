@@ -7,6 +7,7 @@ UH-80 Ibis
 // CI-22 Cricket
 // T/A-30 Compass
 // FS-12 Revoker
+// FS-3 Ternion
 // FS-20 Vortex
 // KR-67 Ifrit
 // EW-1 Medusa
