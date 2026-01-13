@@ -155,7 +155,7 @@ class TargetListControllerPlugin {
             TargetListControllerComponent.InternalState.unitRecallList = Bindings.Player.TargetList.GetTargets();
             string report = $"Saved <b>{TargetListControllerComponent.InternalState.unitRecallList.Count.ToString()}</b> targets";
             Bindings.UI.Game.DisplayToast(report, 3f);
-            Bindings.UI.Sound.PlaySound("beep_target");
+            Bindings.UI.Sound.PlaySound("beep_remember");
         }
     }
 
