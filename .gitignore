@@ -6,4 +6,5 @@
 *.pdb
 obj/
 bin/
+.idea/
 *.zip
