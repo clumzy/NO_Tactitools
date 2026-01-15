@@ -7,4 +7,6 @@
 obj/
 bin/
 .idea/
+.vscode/
+.github/
 *.zip
