@@ -53,14 +53,18 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> Implemented full caching for ALL reflections throughout the code, good performance increases, no Exceptions and bugs FOR now
 -> Fixed advanced rectangles and their implementations, much better pixel scaling now
 
+0.5.2 :
+
+
 TODO :
+-> Investigate the POV up format encountered by some users
+-> More generally, find a new way to work with "non-standard" buttons
+-> Add functionalty to see if a targeted unit is being targeted by a friendly missile
+-> Add main menu patch reset, no need to restart the game
+-> Control the AP from the MFD
 -> Implement container for Weapon Display
--> F/ add functionalty to see if a targeted unit is being targeted by a friendly missile
--> F/ same with sling, adapt it for the wpon screen
+-> Adapt sling for the wpon screen
 
 TO TEST :
 
 NICE TO HAVE :
--> investigate the POV up format encountered by some users
--> more generally, find a new way to work with "non-standard" buttons
--> add main menu patch reset, no need to restart the game

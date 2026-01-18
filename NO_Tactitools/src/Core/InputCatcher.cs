@@ -18,7 +18,7 @@ public class InputCatcher {
 
     public static void RegisterNewInput(
         string controllerName,
-        string inputCodeString,
+        string inputString,
         float longPressThreshold = 0.2f,
         System.Action onRelease = null,
         System.Action onHold = null,
@@ -28,7 +28,7 @@ public class InputCatcher {
             Plugin.Log("[IC] No controller name provided for button registration. Skipping.");
             return;
         }
-        else if (inputCodeString == "") {
+        else if (inputString == "") {
             Plugin.Log("[IC] No input code string provided for button registration. Skipping.");
             return;
         }
@@ -36,7 +36,7 @@ public class InputCatcher {
         bool found = false;
         foreach (Controller controller in controllerInputs.Keys) {
             if (controller.name.Trim() == controllerName) {
-                RegisterInputNow(controller, inputCodeString, longPressThreshold, onRelease, onHold, onLongPress);
+                RegisterInputNow(controller, inputString, longPressThreshold, onRelease, onHold, onLongPress);
                 found = true;
                 break;
             }
@@ -45,112 +45,56 @@ public class InputCatcher {
         if (!found) {
             if (!pendingControllerInputs.ContainsKey(controllerName))
                 pendingControllerInputs[controllerName] = [];
-            pendingControllerInputs[controllerName].Add(new PendingInput(inputCodeString, longPressThreshold, onRelease, onHold, onLongPress));
-            Plugin.Log("[IC] Controller not connected, input " + inputCodeString + " added to pending list for " + controllerName);
+            pendingControllerInputs[controllerName].Add(new PendingInput(inputString, longPressThreshold, onRelease, onHold, onLongPress));
+            Plugin.Log("[IC] Controller not connected, input " + inputString + " added to pending list for " + controllerName);
         }
     }
 
     public static IEnumerator RegisterPendingInputsRoutine(Controller controller, List<PendingInput> pendingInputs) {
         yield return null;
         foreach (PendingInput pending in pendingInputs) {
-            RegisterInputNow(controller, pending.inputCodeString, pending.longPressThreshold, pending.onShortPress, pending.onHold, pending.onLongPress);
+            RegisterInputNow(controller, pending.inputString, pending.longPressThreshold, pending.onShortPress, pending.onHold, pending.onLongPress);
         }
     }
 
     public static void RegisterInputNow(
         Controller controller,
-        string inputCodeString,
+        string inputString,
         float longPressThreshold,
         System.Action onRelease,
         System.Action onHold,
-        System.Action onLongPress
-    ) {
+        System.Action onLongPress) 
+        {
         string controllerName = controller.name.Trim();
-        Plugin.Log("[IC] Registering button " + inputCodeString + " on controller " + controllerName);
-        ControllerInput newInput;
-        string inputType = ParseInputType(inputCodeString, controllerName);
+        Plugin.Log("[IC] Registering button " + inputString + " on controller " + controllerName);
+        int buttonIndex = InputStringToButtonNumber(controller, inputString);
 
-        switch (inputType) {
-            case "KeyCode":
-                newInput = new ControllerInput(
-                    keyboardController.GetButtonIndexByKeyCode((KeyCode)Enum.Parse(typeof(KeyCode), inputCodeString)),
+        ControllerInput newInput = new(
+                    buttonIndex,
                     longPressThreshold,
                     onRelease,
                     onHold,
                     onLongPress
                     );
-                break;
-            case "ButtonNumber":
-                newInput = new ControllerInput(
-                    int.Parse(inputCodeString),
-                    longPressThreshold,
-                    onRelease,
-                    onHold,
-                    onLongPress
-                    );
-                break;
-            case "Hat":
-                newInput = new ControllerInput(
-                    ParseHatInput(inputCodeString),
-                    longPressThreshold,
-                    onRelease,
-                    onHold,
-                    onLongPress
-                    );
-                break;
-            default:
-                Plugin.Log("[IC] Unknown input type for input code: " + inputCodeString + " on controller: " + controllerName);
-                return;
-        }
-        
+
         controllerInputs[controller].Add(newInput);
-        Plugin.Log("[IC] Registered input " + inputCodeString + " on controller " + controllerName);
+        Plugin.Log("[IC] Registered input " + inputString + " on controller " + controllerName + " at index " + buttonIndex.ToString());
     }
 
-    public static string ParseInputType(string inputCodeString, string controllerName) {
-        if (controllerName == "Keyboard" && Enum.TryParse<KeyCode>(inputCodeString, out _)) {
-            return "KeyCode";
-        }
-        else if (int.TryParse(inputCodeString, out _)) {
-            return "ButtonNumber";
-        }
-        else if (inputCodeString.StartsWith("h_")) {
-            string[] parts = inputCodeString.Split('_');
-            if (parts.Length == 3 && parts[0] == "h" && int.TryParse(parts[1], out _)) {
-                string direction = parts[2].ToLower();
-                if (direction == "left" || direction == "right" || direction == "up" || direction == "down") {
-                    return "Hat";
-                }
+    public static int InputStringToButtonNumber(
+        Controller controller,
+        string inputString) {
+        IList elements = Traverse.Create(controller).Field("KHksquAJKcDEUkNfJQjMANjDEBFB").GetValue<IList>();
+        for (int i = 0; i < elements.Count; i++) {
+            var element = elements[i];
+            ControllerElementIdentifier elementIdentifier = Traverse.Create(element).Property("elementIdentifier").GetValue<ControllerElementIdentifier>();
+            if (elementIdentifier.name == inputString) {
+                return i;
             }
         }
-        Plugin.Log("[IC] Unable to parse input code: " + inputCodeString);
-        return "Unknown";
+        return -1;
     }
-    // MES TROUVAILLES ICI
-    // LES HAT DEMARRENT A L'INDEX 128.
-    // L'ALGO C'EST INDEX = 128 * HAT NUMBER + DIRECTION (0-7)
-    public static int ParseHatInput(string inputCodeString) {
-        string[] parts = inputCodeString.Split('_');
-        int.TryParse(parts[1], out int hatNumber);
-        string directionStr = parts[2].ToLower();
-        int direction = 0;
-        switch (directionStr) {
-            case "up":
-                direction = 0;
-                break;
-            case "right":
-                direction = 2;
-                break;
-            case "down":
-                direction = 4;
-                break;
-            case "left":
-                direction = 6;
-                break;
-        }
-        int index = 128 + 8 * hatNumber + direction;
-        return index;
-    }
+
 }
 
 public class ControllerInput {
@@ -185,29 +129,22 @@ public class ControllerInput {
     }
 }
 
-public class PendingInput {
-    public string inputCodeString;
-    public float longPressThreshold;
-    public System.Action onShortPress;
-    public System.Action onHold;
-    public System.Action onLongPress;
-
-    public PendingInput(string inputCodeString, float longPressThreshold, System.Action onShortPress, System.Action onHold, System.Action onLongPress) {
-        this.inputCodeString = inputCodeString;
-        this.longPressThreshold = longPressThreshold;
-        this.onShortPress = onShortPress;
-        this.onHold = onHold;
-        this.onLongPress = onLongPress;
-    }
+public class PendingInput(string inputCodeString, float longPressThreshold, System.Action onShortPress, System.Action onHold, System.Action onLongPress) {
+    // Different because we don't have button number yet
+    public string inputString = inputCodeString;
+    public float longPressThreshold = longPressThreshold;
+    public System.Action onShortPress = onShortPress;
+    public System.Action onHold = onHold;
+    public System.Action onLongPress = onLongPress;
 }
 
 
 [HarmonyPatch(typeof(Rewired.Controller), "pBrAJYWOGkILyqjLrMpmCdajATI")]
 class ControllerInputInterceptionPatch {
     static bool Prefix(Controller __instance) {
-        if(Bindings.Player.Aircraft.GetAircraft(silent: true) == null) {
+        if (Bindings.Player.Aircraft.GetAircraft(silent: true) == null) {
             return true; // Skip the original method
-        }   
+        }
         foreach (Controller controller in InputCatcher.controllerInputs.Keys) {
             if (__instance == controller) {
                 foreach (ControllerInput button in InputCatcher.controllerInputs[controller]) {
@@ -256,11 +193,12 @@ class RegisterControllerPatch {
     static void Postfix(Controller __instance) {
         string cleanedName = __instance.name.Trim();
         Plugin.Log("[IC] Controller connected: " + cleanedName);
-
-        // Special case for keyboard
-        if (cleanedName == "Keyboard") {
-            InputCatcher.keyboardController = (Rewired.Keyboard)__instance;
-            Plugin.Log("[IC] Keyboard controller pointer set.");
+        IList elements = Traverse.Create(__instance).Field("KHksquAJKcDEUkNfJQjMANjDEBFB").GetValue<IList>();
+        Plugin.Log("[IC] Controller has " + elements.Count.ToString() + " elements.");
+        for (int i = 0; i < elements.Count; i++) {
+            var element = elements[i];
+            ControllerElementIdentifier elementIdentifier = Traverse.Create(element).Property("elementIdentifier").GetValue<ControllerElementIdentifier>();
+            Plugin.Log("[IC] Element " + i.ToString() + ": " + elementIdentifier.name + " with id " + elementIdentifier.id.ToString());
         }
         if (!InputCatcher.controllerInputs.ContainsKey(__instance)) {
             InputCatcher.controllerInputs[__instance] = [];
