@@ -16,7 +16,7 @@ public class TraverseCache<TObject, TValue>(string fieldName) where TObject : cl
     private TObject _cachedObject;
     private Traverse _traverse;
 
-    public TValue GetValue(TObject currentObject, bool silent = true) {
+    public TValue GetValue(TObject currentObject, bool silent = false) {
         if (_traverse == null || _cachedObject != currentObject) {
             _cachedObject = currentObject;
             _traverse = Traverse.Create(currentObject).Field(fieldName);
@@ -762,6 +762,7 @@ public class Bindings {
                     if (_cachedTacScreen != null) {
                         return _cachedTacScreen;
                     }
+                    Plugin.Log("[BD] Searching for Cockpit with TacScreen...");
                     
                     foreach (Cockpit child in UnityEngine.Object.FindObjectsOfType<Cockpit>()) {
                         TacScreen tacScreenObject = _tacScreenCache.GetValue(child);
