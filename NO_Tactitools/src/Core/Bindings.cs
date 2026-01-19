@@ -16,13 +16,14 @@ public class TraverseCache<TObject, TValue>(string fieldName) where TObject : cl
     private TObject _cachedObject;
     private Traverse _traverse;
 
-    public TValue GetValue(TObject currentObject) {
+    public TValue GetValue(TObject currentObject, bool silent = true) {
         if (_traverse == null || _cachedObject != currentObject) {
             _cachedObject = currentObject;
             _traverse = Traverse.Create(currentObject).Field(fieldName);
-            Plugin.Log("[TraverseCache<" + typeof(TObject).Name.ToString() + ", " + typeof(TValue).Name.ToString() + ">] "
-            +"Cached field '" + fieldName.ToString() 
-            + "' for object of type '" + typeof(TObject).Name.ToString() + "'.");
+            if (!silent)
+                Plugin.Log("[TraverseCache<" + typeof(TObject).Name.ToString() + ", " + typeof(TValue).Name.ToString() + ">] "
+                +"Cached field '" + fieldName.ToString() 
+                + "' for object of type '" + typeof(TObject).Name.ToString() + "'.");
         }
         return _traverse.GetValue<TValue>();
     }
@@ -740,7 +741,7 @@ public class Bindings {
 
             public static Transform GetTacScreenTransform(bool silent = false) {
                 try {
-                    TacScreen tacScreenObject = GetTacScreenComponent();
+                    TacScreen tacScreenObject = GetTacScreenComponent(silent:true);
                     if (tacScreenObject != null) {
                         return tacScreenObject.transform.Find("Canvas").transform;
                     }
@@ -756,7 +757,7 @@ public class Bindings {
                     return null; }
             }
 
-            public static TacScreen GetTacScreenComponent() {
+            public static TacScreen GetTacScreenComponent(bool silent = false) {
                 try {
                     if (_cachedTacScreen != null) {
                         return _cachedTacScreen;
@@ -769,7 +770,8 @@ public class Bindings {
                             return tacScreenObject;
                         }
                     }
-                    Plugin.Log("[BD] No Cockpit with TacScreen found !");
+                    if (!silent)
+                        Plugin.Log("[BD] No Cockpit with TacScreen found !");
                     return null;
                 }
                 catch (NullReferenceException) { Plugin.Log("[Bindings.UI.Game.GetTacScreenComponent] NullReferenceException: TacScreen or cockpit reference was null; returning null."); return null; }

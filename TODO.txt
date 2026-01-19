@@ -54,11 +54,15 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> Fixed advanced rectangles and their implementations, much better pixel scaling now
 
 0.5.2 :
-
-
-TODO :
 -> Investigate the POV up format encountered by some users
 -> More generally, find a new way to work with "non-standard" buttons
+
+IN PROGRESS :
+-> FIX THE TACSCREEN CONSTANT RESET WHEN DESTROYED IN FLIGHT
+--> For now I've muted the constant debug logs of the constant tac screen constantly caching itself.
+--> the issue is easy to see : since the traverse is always null (since the cached object doesn't exist) it will overwriting itself in GetValue
+
+TODO :
 -> Add functionalty to see if a targeted unit is being targeted by a friendly missile
 -> Add main menu patch reset, no need to restart the game
 -> Control the AP from the MFD
