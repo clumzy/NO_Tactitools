@@ -684,6 +684,38 @@ public class Bindings {
                 }
             }
 
+            public class UIAdvancedRectangleLabeled : UIAdvancedRectangle {
+                private UILabel label;
+
+                public UIAdvancedRectangleLabeled(
+                    string name,
+                    Vector2 cornerA,
+                    Vector2 cornerB,
+                    Color borderColor,
+                    float borderThickness,
+                    Transform UIParent = null,
+                    Color? fillColor = null,
+                    FontStyle fontStyle = FontStyle.Normal,
+                    Color? textColor = null,
+                    int fontSize = 24,
+                    float labelBackgroundOpacity = 0.0f)
+                    : base(name, cornerA, cornerB, borderColor, borderThickness, UIParent, fillColor) {
+
+                    label = new UILabel(name + "_Label", Vector2.zero, gameObject.transform, fontStyle, textColor, fontSize, labelBackgroundOpacity);
+                    label.SetPosition(Vector2.zero);
+                }
+
+                public void SetText(string text) {
+                    label.SetText(text);
+                }
+
+                public void SetTextColor(Color color) {
+                    label.SetColor(color);
+                }
+
+                public UILabel GetLabel() => label;
+            }
+
             public static Font GetDefaultFont() {
                 Text weaponText = Bindings.UI.Game.GetFlightHUDTransform().GetComponentInChildren<Text>();
                 return weaponText.font;

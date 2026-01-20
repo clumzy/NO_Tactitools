@@ -697,6 +697,11 @@ namespace NO_Tactitools.Core {
                 Log($"Unit Icon Recolor is enabled, patching...");
                 harmony.PatchAll(typeof(UnitIconRecolorPlugin));
             }
+            // MOD COMPAT PATCHES
+            if (autopilotMenuEnabled.Value){
+                Log($"Autopilot Menu is enabled, patching...");
+                harmony.PatchAll(typeof(NOAutopilotControlPlugin));
+            }
             //Finished patching
             //Load audio assets
             Log("Loading audio assets...");
