@@ -79,6 +79,8 @@ public class NOAutopilotComponent {
         }
 
         static public void Update() {
+            // Update logic if needed
+            InternalState.autopilotMenu.altitudeBox.SetText(Bridge.GetTargetAlt().ToString("F0") + " m");
         }
     }
 
@@ -124,7 +126,7 @@ public class NOAutopilotComponent {
                 default:
                     break;
             }
-
+            
         }
 
     }
