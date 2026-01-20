@@ -699,7 +699,7 @@ public class Bindings {
             private static readonly TraverseCache<CombatHUD, GameObject> _topRightPanelCache = new("topRightPanel");
             private static readonly TraverseCache<TargetCam, TargetScreenUI> _targetScreenUICache = new("targetScreenUI");
             private static readonly TraverseCache<Cockpit, TacScreen> _tacScreenCache = new("tacScreen");
-            private static TacScreen _cachedTacScreen;
+            private static Cockpit _cachedCockpit = null; // For caching the cockpit instance since finding it is expensive
             
             public static void DisplayToast(string message, float duration = 2f) {
                 SceneSingleton<AircraftActionsReport>.i?.ReportText(message, duration);
@@ -760,14 +760,14 @@ public class Bindings {
             public static TacScreen GetTacScreenComponent(bool silent = false) {
                 try {
                     // We cache the TacScreen once found to avoid repeated searches
-                    if (_cachedTacScreen != null) {
-                        return _cachedTacScreen;
+                    if (_cachedCockpit != null) {
+                        return _tacScreenCache.GetValue(_cachedCockpit);
                     }
                     
-                    foreach (Cockpit child in UnityEngine.Object.FindObjectsOfType<Cockpit>()) {
-                        TacScreen tacScreenObject = _tacScreenCache.GetValue(child);
+                    foreach (Cockpit cockpit in UnityEngine.Object.FindObjectsOfType<Cockpit>()) {
+                        TacScreen tacScreenObject = _tacScreenCache.GetValue(cockpit);
                         if (tacScreenObject != null) {
-                            _cachedTacScreen = tacScreenObject;
+                            _cachedCockpit = cockpit;
                             return tacScreenObject;
                         }
                     }
