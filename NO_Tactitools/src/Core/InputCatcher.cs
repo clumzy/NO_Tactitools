@@ -193,13 +193,6 @@ class RegisterControllerPatch {
     static void Postfix(Controller __instance) {
         string cleanedName = __instance.name.Trim();
         Plugin.Log("[IC] Controller connected: " + cleanedName);
-        IList elements = Traverse.Create(__instance).Field("KHksquAJKcDEUkNfJQjMANjDEBFB").GetValue<IList>();
-        Plugin.Log("[IC] Controller has " + elements.Count.ToString() + " elements.");
-        for (int i = 0; i < elements.Count; i++) {
-            var element = elements[i];
-            ControllerElementIdentifier elementIdentifier = Traverse.Create(element).Property("elementIdentifier").GetValue<ControllerElementIdentifier>();
-            Plugin.Log("[IC] Element " + i.ToString() + ": " + elementIdentifier.name + " with id " + elementIdentifier.id.ToString());
-        }
         if (!InputCatcher.controllerInputs.ContainsKey(__instance)) {
             InputCatcher.controllerInputs[__instance] = [];
             Plugin.Log("[IC] Controller structure initialized for: " + cleanedName);
