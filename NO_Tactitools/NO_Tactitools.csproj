@@ -97,6 +97,6 @@
   </Target>
 
   <Target Name="RunGameAfterBuild" AfterTargets="Build" DependsOnTargets="CreateReleaseZip">
-    <Exec Command="&quot;$(GameDirectory)\NuclearOption.exe&quot;" />
+    <Exec Command="&quot;$(GameDirectory)\NuclearOption.exe&quot; -force-d3d12" />
   </Target>
 </Project>
