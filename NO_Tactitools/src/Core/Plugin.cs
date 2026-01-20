@@ -55,6 +55,14 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> bootScreenEnabled;
         public static ConfigEntry<bool> artificialHorizonEnabled;
         public static ConfigEntry<float> artificialHorizonTransparency;
+        public static ConfigEntry<bool> autopilotMenuEnabled;
+        public static ConfigEntry<string> autopilotControllerName;
+        public static ConfigEntry<string> autopilotOpenMenuInput;
+        public static ConfigEntry<string> autopilotUpInput;
+        public static ConfigEntry<string> autopilotDownInput;
+        public static ConfigEntry<string> autopilotLeftInput;
+        public static ConfigEntry<string> autopilotRightInput;
+        public static ConfigEntry<string> autopilotEnterInput;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
         public static ConfigEntry<bool> loadoutPreviewOnlyShowOnBoot;
         public static ConfigEntry<float> loadoutPreviewDuration;
@@ -455,6 +463,79 @@ namespace NO_Tactitools.Core {
                 new ConfigDescription(
                     "Transparency level for the Artificial Horizon display (0.2 = almost transparent, 1 = fully opaque).",
                     new AcceptableValueRange<float>(0.2f, 1f),
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
+            // Autopilot settings
+            autopilotMenuEnabled = Config.Bind("Autopilot",
+                "Autopilot - Enabled",
+                true,
+                new ConfigDescription(
+                    "Enable or disable the Autopilot Menu feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 7
+                    }));
+            autopilotControllerName = Config.Bind("Autopilot",
+                "Autopilot - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 6
+                    }));
+            autopilotOpenMenuInput = Config.Bind("Autopilot",
+                "Autopilot - Open Menu - Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign to Open Menu",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 5
+                    }));
+            autopilotUpInput = Config.Bind("Autopilot",
+                "Autopilot - Up - Input",
+                "",
+                new ConfigDescription(
+                    "Input for Up navigation",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 4
+                    }));
+            autopilotDownInput = Config.Bind("Autopilot",
+                "Autopilot - Down - Input",
+                "",
+                new ConfigDescription(
+                    "Input for Down navigation",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 3
+                    }));
+            autopilotLeftInput = Config.Bind("Autopilot",
+                "Autopilot - Left - Input",
+                "",
+                new ConfigDescription(
+                    "Input for Left navigation",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2
+                    }));
+            autopilotRightInput = Config.Bind("Autopilot",
+                "Autopilot - Right - Input",
+                "",
+                new ConfigDescription(
+                    "Input for Right navigation",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1
+                    }));
+            autopilotEnterInput = Config.Bind("Autopilot",
+                "Autopilot - Enter - Input",
+                "",
+                new ConfigDescription(
+                    "Input for Enter / Action",
+                    null,
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));
