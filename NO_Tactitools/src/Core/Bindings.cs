@@ -741,7 +741,7 @@ public class Bindings {
 
             public static Transform GetTacScreenTransform(bool silent = false) {
                 try {
-                    TacScreen tacScreenObject = GetTacScreenComponent(silent:true);
+                    TacScreen tacScreenObject = GetTacScreenComponent(silent:silent);
                     if (tacScreenObject != null) {
                         return tacScreenObject.transform.Find("Canvas").transform;
                     }
