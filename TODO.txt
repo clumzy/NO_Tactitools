@@ -59,7 +59,7 @@ CHECKLIST WHEN ADDING A FEATURE :
 
 IN PROGRESS :
 --> the issue is easy to see : since the traverse is always null (since the cached object doesn't exist) it will keep overwriting itself in GetValue
--> FIX THE TACSCREEN CONSTANT RESET WHEN DESTROYED IN FLIGHT, sometimes happens ?
+-> FIX THE TACSCREEN CONSTANT RESET WHEN DESTROYED IN FLIGHT, sometimes happens ? Maybe when intercepting
 
 TODO :
 -> Add functionalty to see if a targeted unit is being targeted by a friendly missile

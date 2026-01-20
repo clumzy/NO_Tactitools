@@ -53,7 +53,7 @@ class InterceptionVectorTask {
     public static Color mainColor = Color.green;
 
     static void Postfix() {
-        if (Bindings.UI.Game.GetTacScreenTransform(silent:true) == null
+        if (Bindings.UI.Game.GetTacScreenTransform(silent:false) == null
             || Bindings.Player.Aircraft.GetAircraft() == null
             || Bindings.UI.Game.GetTargetScreenTransform(silent: true) == null) {
             return;

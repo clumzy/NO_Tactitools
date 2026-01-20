@@ -759,6 +759,7 @@ public class Bindings {
 
             public static TacScreen GetTacScreenComponent(bool silent = false) {
                 try {
+                    // We cache the TacScreen once found to avoid repeated searches
                     if (_cachedTacScreen != null) {
                         return _cachedTacScreen;
                     }
