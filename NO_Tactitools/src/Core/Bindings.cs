@@ -763,7 +763,6 @@ public class Bindings {
                     if (_cachedTacScreen != null) {
                         return _cachedTacScreen;
                     }
-                    Plugin.Log("[BD] Searching for Cockpit with TacScreen...");
                     
                     foreach (Cockpit child in UnityEngine.Object.FindObjectsOfType<Cockpit>()) {
                         TacScreen tacScreenObject = _tacScreenCache.GetValue(child);
