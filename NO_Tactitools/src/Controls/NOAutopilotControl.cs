@@ -579,7 +579,7 @@ namespace NO_Tactitools.Controls {
                 engagedBar.GetLabel().SetFontSize(fontSize - 4); // Adjustment for fitting
                 engagedBar.GetRectTransform().localRotation = Quaternion.Euler(0, 0, 90f);
 
-                string[] defaultValues = ["- m", "- m/s", "-° bank", "- km/h", "-° head"];
+                string[] defaultValues = ["- m", "- m/s", "-° bnk", "- km/h", "-° hdg"];
 
                 // Grid Top Left Reference
                 float gridLeftX = contentTopLeft.x + engagedBarWidth + gap;
@@ -717,13 +717,13 @@ namespace NO_Tactitools.Controls {
                 valueRects[1].SetText(InternalState.stagedMaxClimbRate.ToString("0") + " m/s");
 
                 // Row 3: Roll
-                valueRects[2].SetText((InternalState.stagedRoll <= -900f ? "OFF" : InternalState.stagedRoll.ToString("0")) + "° bank");
+                valueRects[2].SetText((InternalState.stagedRoll <= -900f ? "OFF" : InternalState.stagedRoll.ToString("0")) + "° bnk");
 
                 // Row 4: Speed
                 valueRects[3].SetText((InternalState.stagedSpeed < 0 ? "OFF" : InternalState.stagedSpeed.ToString("0")) + " km/h");
 
                 // Row 5: Course
-                valueRects[4].SetText((InternalState.stagedCourse < 0 ? "OFF" : InternalState.stagedCourse.ToString("0")) + "° head");
+                valueRects[4].SetText((InternalState.stagedCourse < 0 ? "OFF" : InternalState.stagedCourse.ToString("0")) + "° hdg");
 
                 // Status Text
                 engagedBar.SetText(InternalState.apEnabled ? "ENGAGED" : "DISENGAGED");
@@ -736,6 +736,8 @@ namespace NO_Tactitools.Controls {
                     if (selectedCol == 0) {
                         APData.Enabled = !APData.Enabled;
                         NOAutopilot.Plugin.SyncMenuValues();
+                        if (APData.Enabled)
+                            Bindings.UI.Sound.PlaySound("beep_autopilot");
                         return;
                     }
 
@@ -767,6 +769,8 @@ namespace NO_Tactitools.Controls {
                     // Bottom Buttons
                     if (selectedCol == 0) { 
                         APData.Enabled = !APData.Enabled;
+                        if (APData.Enabled)
+                            Bindings.UI.Sound.PlaySound("beep_autopilot");
                         NOAutopilot.Plugin.SyncMenuValues();
                     }
                     else if (selectedCol == 1) { // AJ
@@ -854,8 +858,11 @@ namespace NO_Tactitools.Controls {
 
                 APData.TargetCourse = InternalState.stagedCourse;
 
+                if (!APData.Enabled)
+                    Bindings.UI.Sound.PlaySound("beep_autopilot");
                 APData.Enabled = true; // Auto-engage on set
                 APData.UseSetValues = true;
+                
                 NOAutopilot.Plugin.SyncMenuValues();
                 Plugin.Log("[AP] Values Applied.");
             }
