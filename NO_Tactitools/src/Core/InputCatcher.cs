@@ -107,6 +107,7 @@ public class ControllerInput {
     public float buttonPressTime;
     public float longPressThreshold;
     public bool longPressHandled;
+    public bool holdLogHandled;
 
     public ControllerInput( // CONSTRUCTOR FOR BUTTONS AND HATS
         int buttonNumber,
@@ -154,6 +155,7 @@ class ControllerInputInterceptionPatch {
                             // Button just pressed
                             button.buttonPressTime = Time.time;
                             button.longPressHandled = false;
+                            button.holdLogHandled = false;
                         }
                         else if (button.previousButtonState && button.currentButtonState) {
                             // Button is being held down
@@ -164,7 +166,10 @@ class ControllerInputInterceptionPatch {
                                 button.longPressHandled = true;
                             }
                             else if (holdDuration < button.longPressThreshold && button.OnHold != null) {
-                                Plugin.Log($"[IC] Hold detected on button {button.buttonNumber.ToString()}");
+                                if (!button.holdLogHandled) {
+                                    Plugin.Log($"[IC] Hold detected on button {button.buttonNumber.ToString()}");
+                                    button.holdLogHandled = true;
+                                }
                                 button.OnHold?.Invoke();
                             }
                         }
