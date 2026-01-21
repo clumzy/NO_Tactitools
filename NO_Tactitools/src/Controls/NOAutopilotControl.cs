@@ -138,7 +138,11 @@ namespace NO_Tactitools.Controls {
             if (NOAutopilotComponent.InternalState.lastRepeatTime == 0) {
                 NOAutopilotComponent.InternalState.lastRepeatTime = time;
                 NOAutopilotComponent.InternalState.selectToggleHandled = false;
-                if (isRepeatable) menu.OnSelect();
+                NOAutopilotComponent.InternalState.selectActionHandled = false;
+                if (isRepeatable) {
+                    menu.OnSelect();
+                    NOAutopilotComponent.InternalState.selectActionHandled = true;
+                }
                 return;
             }
 
@@ -178,6 +182,11 @@ namespace NO_Tactitools.Controls {
 
             if (NOAutopilotComponent.InternalState.selectToggleHandled) {
                 NOAutopilotComponent.InternalState.selectToggleHandled = false;
+                return;
+            }
+
+            if (NOAutopilotComponent.InternalState.selectActionHandled) {
+                NOAutopilotComponent.InternalState.selectActionHandled = false;
                 return;
             }
 
@@ -391,6 +400,7 @@ namespace NO_Tactitools.Controls {
             public static float lastRepeatTime;
             public static float selectRepeatTime;
             public static bool selectToggleHandled;
+            public static bool selectActionHandled;
             public static float lastUpRepeatTime;
             public static float upHoldStartTime;
             public static float lastDownRepeatTime;
