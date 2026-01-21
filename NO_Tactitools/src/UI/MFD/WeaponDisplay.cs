@@ -29,6 +29,8 @@ class WeaponDisplayPlugin {
         if (WeaponDisplayComponent.InternalState.weaponDisplay != null) {
             if (WeaponDisplayComponent.InternalState.weaponDisplay.removeOriginalMFDContent) {
                 WeaponDisplayComponent.InternalState.weaponDisplay.ToggleChildrenActiveState();
+
+                Bindings.UI.Sound.PlaySound("beep_scroll");
                 Plugin.Log("[WD] Weapon Display toggled.");
             }
         }
@@ -63,7 +65,7 @@ public class WeaponDisplayComponent {
             if (InternalState.hasStations) { // WRITE WEAPON STATE ONLY IF THE PLAYER HAS WEAPON STATIONS
                 InternalState.isOutOfAmmo = Bindings.Player.Aircraft.Weapons.GetActiveStationAmmo() == 0;
                 InternalState.reduceWeaponFontSize = Bindings.Player.Aircraft.Weapons.GetActiveStationAmmoString().Contains("/");
-                if (Bindings.Player.Aircraft.Weapons.GetActiveStationReloadProgress()> 0f)
+                if (Bindings.Player.Aircraft.Weapons.GetActiveStationReloadProgress() > 0f)
                     InternalState.isReloading = true;
                 else
                     InternalState.isReloading = false;
@@ -108,7 +110,7 @@ public class WeaponDisplayComponent {
             if (InternalState.hasStations) { // do not refresh weapon info if the player has no weapon stations
                 InternalState.weaponDisplay.weaponNameLabel.SetText(Bindings.Player.Aircraft.Weapons.GetActiveStationName());
                 if (InternalState.isReloading)
-                    InternalState.weaponDisplay.weaponAmmoLabel.SetText(((int)(Bindings.Player.Aircraft.Weapons.GetActiveStationReloadProgress()*100f)).ToString() + "%");
+                    InternalState.weaponDisplay.weaponAmmoLabel.SetText(((int)(Bindings.Player.Aircraft.Weapons.GetActiveStationReloadProgress() * 100f)).ToString() + "%");
                 else
                     InternalState.weaponDisplay.weaponAmmoLabel.SetText(Bindings.Player.Aircraft.Weapons.GetActiveStationAmmoString().Replace(" ", ""));
                 InternalState.weaponDisplay.weaponAmmoLabel.SetFontSize(
@@ -158,8 +160,8 @@ public class WeaponDisplayComponent {
             }
             string platformName = Bindings.Player.Aircraft.GetPlatformName();
             Transform destination = platformName switch {
-                "T/A-30 Compass" or "FS-12 Revoker" or 
-                "FS-20 Vortex" or "KR-67 Ifrit" or 
+                "T/A-30 Compass" or "FS-12 Revoker" or
+                "FS-20 Vortex" or "KR-67 Ifrit" or
                 "UH-80 Ibis" or "A-19 Brawler"
                 or "FQ-106 Kestrel" or "FS-3 Ternion" => Get("SystemStatus"),
                 "EW-1 Medusa" => Get("engPanel1"),
