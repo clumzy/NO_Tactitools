@@ -124,6 +124,9 @@ public static class MFDColorComponent {
             // Apply the main color to loadout preview
             LoadoutPreviewComponent.InternalState.mainColor = InternalState.otherComponentMainColor;
             LoadoutPreviewComponent.InternalState.textColor = InternalState.otherComponentTextColor;
+            // apply the color to autopilot
+            NOAutopilotComponent.InternalState.mainColor = InternalState.otherComponentMainColor;
+            NOAutopilotComponent.InternalState.textColor = InternalState.otherComponentTextColor;
             // apply the color to target list and interception vector task
             TargetListControllerComponent.InternalState.mainColor = InternalState.otherComponentMainColor;
             InterceptionVectorTask.mainColor = InternalState.otherComponentMainColor;

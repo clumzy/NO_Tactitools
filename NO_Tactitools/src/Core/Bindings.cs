@@ -451,7 +451,6 @@ public class Bindings {
                     textRect.offsetMax = Vector2.zero;
                     Text textComp = textObj.AddComponent<Text>();
                     textComp.font = Bindings.UI.Draw.GetDefaultFont();
-                    textComp.material = Bindings.UI.Draw.GetDefaultTextMaterial();
                     textComp.fontSize = fontSize;
                     textComp.fontStyle = fontStyle;
                     textComp.color = color ?? Color.white;
@@ -697,11 +696,10 @@ public class Bindings {
                     Color? fillColor = null,
                     FontStyle fontStyle = FontStyle.Normal,
                     Color? textColor = null,
-                    int fontSize = 24,
-                    float labelBackgroundOpacity = 0.0f)
+                    int fontSize = 24)
                     : base(name, cornerA, cornerB, borderColor, borderThickness, UIParent, fillColor) {
 
-                    label = new UILabel(name + "_Label", Vector2.zero, gameObject.transform, fontStyle, textColor, fontSize, labelBackgroundOpacity);
+                    label = new UILabel(name + "_Label", Vector2.zero, gameObject.transform, fontStyle, textColor, fontSize, 0);
                     label.SetPosition(Vector2.zero);
                 }
 
@@ -719,11 +717,6 @@ public class Bindings {
             public static Font GetDefaultFont() {
                 Text weaponText = Bindings.UI.Game.GetFlightHUDTransform().GetComponentInChildren<Text>();
                 return weaponText.font;
-            }
-
-            public static Material GetDefaultTextMaterial() {
-                Text weaponText = Bindings.UI.Game.GetCombatHUDTransform().GetComponentInChildren<Text>();
-                return weaponText.material;
             }
         }
 
