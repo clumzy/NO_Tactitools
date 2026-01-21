@@ -63,7 +63,9 @@ IN PROGRESS :
 -> FIX THE TACSCREEN CONSTANT RESET WHEN DESTROYED IN FLIGHT, sometimes happens ? Maybe when intercepting
 
 TODO :
-- Add their own controller to every button
+-> AP : Long press on bearing value toggles waypoint mode. Bearing button is green in waypoint mode.
+-> AP : Long press on down / up goes fast, like left right
+-> Add their own controller to every button
 -> Add functionalty to see if a targeted unit is being targeted by a friendly missile
 -> Add main menu patch reset, no need to restart the game
 -> Implement container for Weapon Display

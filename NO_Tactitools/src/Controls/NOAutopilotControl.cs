@@ -31,33 +31,37 @@ namespace NO_Tactitools.Controls {
                     InputCatcher.RegisterNewInput(
                         Plugin.autopilotControllerName.Value,
                         Plugin.autopilotEnterInput.Value,
-                        10f, // Use a long threshold so onHold keeps running
-                        SelectActionRelease,
+                        999f, // High threshold so OnHold keeps running indefinitely
+                        SelectActionShort,
                         SelectActionHold
                     );
                     InputCatcher.RegisterNewInput(
                         Plugin.autopilotControllerName.Value,
                         Plugin.autopilotUpInput.Value,
-                        0.2f,
-                        NavigateUp
+                        999f, // High threshold so OnHold keeps running
+                        NavigateUpShort,
+                        NavigateUpHold
                     );
                     InputCatcher.RegisterNewInput(
                         Plugin.autopilotControllerName.Value,
                         Plugin.autopilotDownInput.Value,
-                        0.2f,
-                        NavigateDown
+                        999f, // High threshold so OnHold keeps running
+                        NavigateDownShort,
+                        NavigateDownHold
                     );
                     InputCatcher.RegisterNewInput(
                         Plugin.autopilotControllerName.Value,
                         Plugin.autopilotLeftInput.Value,
-                        0.2f,
-                        NavigateLeft
+                        999f,
+                        NavigateLeftShort,
+                        NavigateLeftHold
                     );
                     InputCatcher.RegisterNewInput(
                         Plugin.autopilotControllerName.Value,
                         Plugin.autopilotRightInput.Value,
-                        0.2f,
-                        NavigateRight
+                        999f,
+                        NavigateRightShort,
+                        NavigateRightHold
                     );
                 }
                 else {
@@ -79,154 +83,212 @@ namespace NO_Tactitools.Controls {
                     NOAutopilotComponent.InternalState.autopilotMenu.selectedRow = 0;
                     NOAutopilotComponent.InternalState.autopilotMenu.selectedCol = 0;
                 }
-                Bindings.UI.Sound.PlaySound("beep_scroll");
             }
 
+            Bindings.UI.Sound.PlaySound("beep_scroll");
             Plugin.Log($"[AP] Toggle Menu: {NOAutopilotComponent.InternalState.showMenu.ToString()}");
         }
 
-        public static void SelectActionHold() {
-            if (!NOAutopilotComponent.InternalState.showMenu || NOAutopilotComponent.InternalState.autopilotMenu == null) {
-                return;
-            }
-
-            NOAutopilotComponent.NOAutoPilotMenu menu = NOAutopilotComponent.InternalState.autopilotMenu;
-
-            bool isRepeatable = menu.selectedCol is 3 or 4;
-            float time = Time.time;
-
-            if (NOAutopilotComponent.InternalState.lastRepeatTime == 0) {
-                // First time hold (Frame 2)
-                menu.OnSelect();
-                NOAutopilotComponent.InternalState.lastRepeatTime = time + 0.4f; // Initial delay
-            }
-            else if (isRepeatable && time >= NOAutopilotComponent.InternalState.lastRepeatTime) {
-                menu.OnSelect();
-                NOAutopilotComponent.InternalState.lastRepeatTime = time + 0.04f; // Fast repeat
-            }
+        // Helper to check if menu is active and get menu reference
+        private static NOAutopilotComponent.NOAutoPilotMenu GetActiveMenu() {
+            if (!NOAutopilotComponent.InternalState.showMenu || NOAutopilotComponent.InternalState.autopilotMenu == null)
+                return null;
+            return NOAutopilotComponent.InternalState.autopilotMenu;
         }
 
-        public static void SelectActionRelease() {
-            NOAutopilotComponent.InternalState.lastRepeatTime = 0f;
-        }
-
-        public static void NavigateUp() {
-            if (!NOAutopilotComponent.InternalState.showMenu || NOAutopilotComponent.InternalState.autopilotMenu == null) {
-                return;
-            }
-
-            NOAutopilotComponent.NOAutoPilotMenu menu = NOAutopilotComponent.InternalState.autopilotMenu;
-
-            // Prevent row change on side buttons
-            if (menu.selectedCol is 0 or 5) {
-                return;
-            }
-
-            int oldRow = menu.selectedRow;
-            menu.selectedRow = Mathf.Max(0, menu.selectedRow - 1);
-
-            // Snapping logic when leaving Row 5
-            if (oldRow == 5 && menu.selectedRow != 5) {
-                menu.selectedCol = NOAutopilotComponent.InternalState.lastGridCol;
-            }
-            Bindings.UI.Sound.PlaySound("beep_scroll");
-        }
-
-        public static void NavigateDown() {
-            if (!NOAutopilotComponent.InternalState.showMenu || NOAutopilotComponent.InternalState.autopilotMenu == null) {
-                return;
-            }
-
-            NOAutopilotComponent.NOAutoPilotMenu menu = NOAutopilotComponent.InternalState.autopilotMenu;
-
-            // Prevent row change on side buttons
-            if (menu.selectedCol is 0 or 5) {
-                return;
-            }
+        // Helper for row navigation with snapping logic
+        private static void NavigateRow(int direction) {
+            var menu = GetActiveMenu();
+            if (menu == null || menu.selectedCol is 0 or 5) return;
 
             int oldRow = menu.selectedRow;
 
             // Save column before going to row 5
-            if (oldRow != 5) {
+            if (direction > 0 && oldRow != 5) {
                 NOAutopilotComponent.InternalState.lastGridCol = menu.selectedCol;
             }
 
-            menu.selectedRow = Mathf.Min(5, menu.selectedRow + 1); Bindings.UI.Sound.PlaySound("beep_scroll");
-            // Snapping logic for Row 5
+            menu.selectedRow = Mathf.Clamp(menu.selectedRow + direction, 0, 5);
+
+            // Restore column when leaving row 5
+            if (direction < 0 && oldRow == 5 && menu.selectedRow != 5) {
+                menu.selectedCol = NOAutopilotComponent.InternalState.lastGridCol;
+            }
+
+            // Snap to valid columns when entering row 5
             if (menu.selectedRow == 5 && oldRow != 5) {
-                if (menu.selectedCol == 1) {
-                    menu.selectedCol = 1; // Value -> AJ
-                }
-                else if (menu.selectedCol is >= 2 and <= 4) {
-                    menu.selectedCol = 2; // Grid buttons -> GCAS
-                }
-            }
-        }
-
-        public static void NavigateLeft() {
-            if (!NOAutopilotComponent.InternalState.showMenu || NOAutopilotComponent.InternalState.autopilotMenu == null) {
-                return;
+                menu.selectedCol = menu.selectedCol == 1 ? 1 : 2;
             }
 
-            NOAutopilotComponent.NOAutoPilotMenu menu = NOAutopilotComponent.InternalState.autopilotMenu;
-            if (menu.selectedRow == 5) {
-                if (menu.selectedCol == 5) {
-                    menu.selectedCol = 2; // Set -> GCAS
-                }
-                else if (menu.selectedCol == 2) {
-                    menu.selectedCol = 1; // GCAS -> AJ
-                }
-                else if (menu.selectedCol == 1) {
-                    menu.selectedCol = 0; // AJ -> Engage
-                }
-                else {
-                    menu.selectedCol = 0;
-                }
-
-                // Sync grid return column
-                if (menu.selectedCol == 1) {
-                    NOAutopilotComponent.InternalState.lastGridCol = 1;
-                }
-                else if (menu.selectedCol == 2) {
-                    NOAutopilotComponent.InternalState.lastGridCol = 2;
-                }
-            }
-            else {
-                menu.selectedCol = Mathf.Max(0, menu.selectedCol - 1);
-            }
             Bindings.UI.Sound.PlaySound("beep_scroll");
         }
 
-        public static void NavigateRight() {
-            if (!NOAutopilotComponent.InternalState.showMenu || NOAutopilotComponent.InternalState.autopilotMenu == null) {
+        public static void SelectActionHold() {
+            var menu = GetActiveMenu();
+            if (menu == null) return;
+
+            bool isRepeatable = menu.selectedCol is 3 or 4;
+            bool isBearingValue = menu.selectedRow == 4 && menu.selectedCol == 1;
+            bool isSpeedValue = menu.selectedRow == 3 && menu.selectedCol == 1;
+            bool isToggleable = isBearingValue || isSpeedValue;
+
+            float time = Time.time;
+
+            // First frame of hold - initialize timer
+            if (NOAutopilotComponent.InternalState.lastRepeatTime == 0) {
+                NOAutopilotComponent.InternalState.lastRepeatTime = time;
+                NOAutopilotComponent.InternalState.selectToggleHandled = false;
+                if (isRepeatable) menu.OnSelect();
                 return;
             }
 
-            NOAutopilotComponent.NOAutoPilotMenu menu = NOAutopilotComponent.InternalState.autopilotMenu;
-            if (menu.selectedRow == 5) {
-                if (menu.selectedCol == 0) {
-                    menu.selectedCol = 1; // Engage -> AJ
-                }
-                else if (menu.selectedCol == 1) {
-                    menu.selectedCol = 2; // AJ -> GCAS
-                }
-                else if (menu.selectedCol == 2) {
-                    menu.selectedCol = 5; // GCAS -> Set
+            float holdDuration = time - NOAutopilotComponent.InternalState.lastRepeatTime;
+
+            // Handle toggleable values (bearing/speed) - trigger once after 0.4s
+            if (isToggleable && holdDuration >= 0.4f && !NOAutopilotComponent.InternalState.selectToggleHandled) {
+                NOAutopilotComponent.InternalState.selectToggleHandled = true;
+                if (isBearingValue) {
+                    APData.NavEnabled = !APData.NavEnabled;
+                    Bindings.UI.Game.DisplayToast(APData.NavEnabled ? "Autopilot : Nav mode <b>ON</b>" : "Autopilot : Nav mode <b>OFF</b>");
                 }
                 else {
-                    menu.selectedCol = 5;
+                    APData.AllowExtremeThrottle = !APData.AllowExtremeThrottle;
+                    Bindings.UI.Game.DisplayToast(APData.AllowExtremeThrottle ? "Autopilot : Extreme throttle <b>ON</b>" : "Autopilot : Extreme throttle <b>OFF</b>");
                 }
+                NOAutopilot.Plugin.SyncMenuValues();
+                Bindings.UI.Sound.PlaySound("beep_scroll");
+                return;
+            }
 
-                // Sync grid return column
-                if (menu.selectedCol == 1) {
-                    NOAutopilotComponent.InternalState.lastGridCol = 1;
+            // Handle repeatable buttons (+/-) - fast repeat after initial delay
+            if (isRepeatable && holdDuration >= 0.15f) {
+                if (NOAutopilotComponent.InternalState.selectRepeatTime == 0) {
+                    NOAutopilotComponent.InternalState.selectRepeatTime = time;
                 }
-                else if (menu.selectedCol == 2) {
-                    NOAutopilotComponent.InternalState.lastGridCol = 2;
+                else if (time >= NOAutopilotComponent.InternalState.selectRepeatTime) {
+                    menu.OnSelect();
+                    NOAutopilotComponent.InternalState.selectRepeatTime = time + 0.08f;
                 }
             }
+        }
+
+        public static void SelectActionShort() {
+            NOAutopilotComponent.InternalState.lastRepeatTime = 0f;
+            NOAutopilotComponent.InternalState.selectRepeatTime = 0f;
+
+            if (NOAutopilotComponent.InternalState.selectToggleHandled) {
+                NOAutopilotComponent.InternalState.selectToggleHandled = false;
+                return;
+            }
+
+            GetActiveMenu()?.OnSelect();
+        }
+
+        public static void NavigateUpShort() {
+            NOAutopilotComponent.InternalState.lastUpRepeatTime = 0f;
+            NOAutopilotComponent.InternalState.upHoldStartTime = 0f;
+            NavigateRow(-1);
+        }
+
+        public static void NavigateUpHold() {
+            var menu = GetActiveMenu();
+            if (menu == null || menu.selectedCol is 0 or 5) return;
+
+            float time = Time.time;
+            ref float startTime = ref NOAutopilotComponent.InternalState.upHoldStartTime;
+            ref float repeatTime = ref NOAutopilotComponent.InternalState.lastUpRepeatTime;
+
+            if (startTime == 0) { startTime = time; return; }
+            if (time - startTime < 0.3f) return;
+
+            if (repeatTime == 0 || time >= repeatTime) {
+                NavigateRow(-1);
+                repeatTime = time + 0.15f;
+            }
+        }
+
+        public static void NavigateDownShort() {
+            NOAutopilotComponent.InternalState.lastDownRepeatTime = 0f;
+            NOAutopilotComponent.InternalState.downHoldStartTime = 0f;
+            NavigateRow(1);
+        }
+
+        public static void NavigateDownHold() {
+            var menu = GetActiveMenu();
+            if (menu == null || menu.selectedCol is 0 or 5) return;
+
+            float time = Time.time;
+            ref float startTime = ref NOAutopilotComponent.InternalState.downHoldStartTime;
+            ref float repeatTime = ref NOAutopilotComponent.InternalState.lastDownRepeatTime;
+
+            if (startTime == 0) { startTime = time; return; }
+            if (time - startTime < 0.3f) return;
+
+            if (repeatTime == 0 || time >= repeatTime) {
+                NavigateRow(1);
+                repeatTime = time + 0.15f;
+            }
+        }
+
+        public static void NavigateLeftShort() {
+            NOAutopilotComponent.InternalState.lastLeftRepeatTime = 0f;
+            NOAutopilotComponent.InternalState.leftHoldStartTime = 0f;
+            NavigateCol(-1);
+        }
+
+        public static void NavigateLeftHold() {
+            var menu = GetActiveMenu();
+            if (menu == null) return;
+
+            float time = Time.time;
+            ref float startTime = ref NOAutopilotComponent.InternalState.leftHoldStartTime;
+            ref float repeatTime = ref NOAutopilotComponent.InternalState.lastLeftRepeatTime;
+
+            if (startTime == 0) { startTime = time; return; }
+            if (time - startTime < 0.3f) return;
+
+            if (repeatTime == 0 || time >= repeatTime) {
+                NavigateCol(-1);
+                repeatTime = time + 0.15f;
+            }
+        }
+
+        public static void NavigateRightShort() {
+            NOAutopilotComponent.InternalState.lastRightRepeatTime = 0f;
+            NOAutopilotComponent.InternalState.rightHoldStartTime = 0f;
+            NavigateCol(1);
+        }
+
+        public static void NavigateRightHold() {
+            var menu = GetActiveMenu();
+            if (menu == null) return;
+
+            float time = Time.time;
+            ref float startTime = ref NOAutopilotComponent.InternalState.rightHoldStartTime;
+            ref float repeatTime = ref NOAutopilotComponent.InternalState.lastRightRepeatTime;
+
+            if (startTime == 0) { startTime = time; return; }
+            if (time - startTime < 0.3f) return;
+
+            if (repeatTime == 0 || time >= repeatTime) {
+                NavigateCol(1);
+                repeatTime = time + 0.15f;
+            }
+        }
+
+        private static void NavigateCol(int direction) {
+            var menu = GetActiveMenu();
+            if (menu == null) return;
+
+            if (menu.selectedRow == 5) {
+                int[] row5Cols = [0, 1, 2, 5];
+                int idx = System.Array.IndexOf(row5Cols, menu.selectedCol);
+                int newIdx = Mathf.Clamp(idx + direction, 0, row5Cols.Length - 1);
+                menu.selectedCol = row5Cols[newIdx];
+                if (menu.selectedCol is 1 or 2) NOAutopilotComponent.InternalState.lastGridCol = menu.selectedCol;
+            }
             else {
-                menu.selectedCol = Mathf.Min(5, menu.selectedCol + 1);
+                menu.selectedCol = Mathf.Clamp(menu.selectedCol + direction, 0, 5);
             }
             Bindings.UI.Sound.PlaySound("beep_scroll");
         }
@@ -278,6 +340,8 @@ namespace NO_Tactitools.Controls {
                     InternalState.gcasEnabled = APData.GCASEnabled;
                     InternalState.gcasActive = APData.GCASActive;
                     InternalState.gcasWarning = APData.GCASWarning;
+                    InternalState.navEnabled = APData.NavEnabled;
+                    InternalState.extremeThrottleEnabled = APData.AllowExtremeThrottle;
                 }
                 catch (Exception) {
                     // Silent for now
@@ -325,6 +389,20 @@ namespace NO_Tactitools.Controls {
 
             // Repeat Logic
             public static float lastRepeatTime;
+            public static float selectRepeatTime;
+            public static bool selectToggleHandled;
+            public static float lastUpRepeatTime;
+            public static float upHoldStartTime;
+            public static float lastDownRepeatTime;
+            public static float downHoldStartTime;
+            public static float lastLeftRepeatTime;
+            public static float leftHoldStartTime;
+            public static float lastRightRepeatTime;
+            public static float rightHoldStartTime;
+
+            // Nav Mode
+            public static bool navEnabled;
+            public static bool extremeThrottleEnabled;
         }
 
         private static class DisplayEngine {
@@ -687,7 +765,7 @@ namespace NO_Tactitools.Controls {
                 }
                 else if (selectedRow == 5) {
                     // Bottom Buttons
-                    if (selectedCol == 0) { // Engage (redundant but possible)
+                    if (selectedCol == 0) { 
                         APData.Enabled = !APData.Enabled;
                         NOAutopilot.Plugin.SyncMenuValues();
                     }
@@ -699,7 +777,7 @@ namespace NO_Tactitools.Controls {
                         APData.GCASEnabled = !APData.GCASEnabled;
                         NOAutopilot.Plugin.SyncMenuValues();
                     }
-                    else if (selectedCol == 5) { // Set (redundant but possible)
+                    else if (selectedCol == 5) {
                         ApplyStagedValues();
                     }
                 }
@@ -772,15 +850,11 @@ namespace NO_Tactitools.Controls {
                 APData.TargetAlt = InternalState.stagedAlt;
                 APData.CurrentMaxClimbRate = InternalState.stagedMaxClimbRate;
                 APData.TargetRoll = InternalState.stagedRoll;
-                // Guide says if SpeedHoldIsMach is false, value is in m/s. 
-                // Our UI shows km/h for consistency with other game displays usually, or TAS m/s.
-                // Let's assume m/s for APData.TargetSpeed if stagedSpeed is what we use.
-                // Converting km/h back to m/s:
                 APData.TargetSpeed = InternalState.stagedSpeed < 0 ? -1f : InternalState.stagedSpeed / 3.6f;
 
                 APData.TargetCourse = InternalState.stagedCourse;
 
-                APData.Enabled = true; // Auto-enable on SET? User said "apply all typed values and enable autopilot" in the guide.
+                APData.Enabled = true; // Auto-engage on set
                 APData.UseSetValues = true;
                 NOAutopilot.Plugin.SyncMenuValues();
                 Plugin.Log("[AP] Values Applied.");
@@ -799,7 +873,12 @@ namespace NO_Tactitools.Controls {
                 for (int i = 0; i < 5; i++) {
                     // Value (Col 1)
                     isSelected = selectedRow == i && selectedCol == 1;
-                    ApplyStyle(valueRects[i], isSelected ? textColor : Color.clear, textColor, isSelected ? Color.black : textColor);
+                    // Bearing value (row 4) is green in nav/waypoint mode
+                    // Speed value (row 3) is green when extreme throttle is enabled
+                    Color valueColor = textColor;
+                    if (i == 4 && InternalState.navEnabled) valueColor = Color.green;
+                    if (i == 3 && InternalState.extremeThrottleEnabled) valueColor = Color.green;
+                    ApplyStyle(valueRects[i], isSelected ? valueColor : Color.clear, valueColor, isSelected ? Color.black : valueColor);
 
                     // C (Col 2)
                     isSelected = selectedRow == i && selectedCol == 2;
@@ -853,17 +932,6 @@ namespace NO_Tactitools.Controls {
             public void SetVisible() {
                 if (containerObject.activeSelf != InternalState.showMenu) {
                     containerObject.SetActive(InternalState.showMenu);
-                }
-            }
-        }
-
-        private static class Bridge {
-            public static float GetTargetAlt() {
-                try {
-                    return APData.TargetAlt;
-                }
-                catch (NullReferenceException) {
-                    return 0f;
                 }
             }
         }
