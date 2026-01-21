@@ -724,7 +724,7 @@ public class Bindings {
             private static readonly TraverseCache<CombatHUD, GameObject> _topRightPanelCache = new("topRightPanel");
             private static readonly TraverseCache<TargetCam, TargetScreenUI> _targetScreenUICache = new("targetScreenUI");
             private static readonly TraverseCache<Cockpit, TacScreen> _tacScreenCache = new("tacScreen");
-            private static Cockpit _cachedCockpit = null; // For caching the cockpit instance since finding it is expensive
+            private static TacScreen _cachedTacScreen = null; // For caching the tacscreen instance since finding it is expensive
             
             public static void DisplayToast(string message, float duration = 2f) {
                 SceneSingleton<AircraftActionsReport>.i?.ReportText(message, duration);
@@ -784,18 +784,20 @@ public class Bindings {
 
             public static TacScreen GetTacScreenComponent(bool silent = false) {
                 try {
-                    // We cache the TacScreen once found to avoid repeated searches
-                    if (_cachedCockpit != null) {
-                        return _tacScreenCache.GetValue(_cachedCockpit);
+                    if (_cachedTacScreen != null) {
+                        return _cachedTacScreen;
                     }
-                    
-                    foreach (Cockpit cockpit in UnityEngine.Object.FindObjectsOfType<Cockpit>()) {
-                        TacScreen tacScreenObject = _tacScreenCache.GetValue(cockpit);
+
+                    else{
+                        TacScreen tacScreenObject = null;
+                        tacScreenObject = UnityEngine.Object.FindObjectOfType<TacScreen>();
                         if (tacScreenObject != null) {
-                            _cachedCockpit = cockpit;
+                            _cachedTacScreen = tacScreenObject;
+                            Plugin.Log("[BD] Found TacScreen via Object.FindObjectOfType.");
                             return tacScreenObject;
                         }
                     }
+
                     if (!silent)
                         Plugin.Log("[BD] No Cockpit with TacScreen found !");
                     return null;
