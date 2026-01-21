@@ -155,6 +155,7 @@ public class LoadoutPreviewComponent {
                     (Bindings.Player.Aircraft.Weapons.GetActiveStationName() == ws.stationName) ? FontStyle.Bold : FontStyle.Normal);
             }
             InternalState.loadoutPreview.UpdateLabelPositions();
+            InternalState.loadoutPreview.containerTransform.SetAsLastSibling();
         }
     }
 
