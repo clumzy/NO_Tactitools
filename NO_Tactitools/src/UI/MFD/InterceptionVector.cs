@@ -36,10 +36,10 @@ class InterceptionVectorTask {
     static State currentState = State.Init;
     static GameObject containerObject;
     static Transform containerTransform;
-    static Bindings.UI.Draw.UILabel bearingLabel;
-    static Bindings.UI.Draw.UILabel timerLabel;
-    static Bindings.UI.Draw.UIAdvancedRectangle indicatorTargetBox;
-    static Bindings.UI.Draw.UILine indicatorTargetLine;
+    static UIBindings.Draw.UILabel bearingLabel;
+    static UIBindings.Draw.UILabel timerLabel;
+    static UIBindings.Draw.UIAdvancedRectangle indicatorTargetBox;
+    static UIBindings.Draw.UILine indicatorTargetLine;
     static FactionHQ playerFactionHQ;
     static Unit targetUnit;
     static float solutionTime;
@@ -53,9 +53,9 @@ class InterceptionVectorTask {
     public static Color mainColor = Color.green;
 
     static void Postfix() {
-        if (Bindings.UI.Game.GetTacScreenTransform(silent:false) == null
-            || Bindings.Player.Aircraft.GetAircraft() == null
-            || Bindings.UI.Game.GetTargetScreenTransform(silent: true) == null) {
+        if (UIBindings.Game.GetTacScreenTransform(silent:false) == null
+            || GameBindings.Player.Aircraft.GetAircraft() == null
+            || UIBindings.Game.GetTargetScreenTransform(silent: true) == null) {
             return;
         } // Do not run if Tac Screen or aircraft is null OR TARGET SCREEN is null
         switch (currentState) {
@@ -78,20 +78,20 @@ class InterceptionVectorTask {
     }
 
     static void HandleInitState() {
-        if (Bindings.Player.TargetList.GetTargets().Count != 1) {
+        if (GameBindings.Player.TargetList.GetTargets().Count != 1) {
             return;
         }// Do not init if no target is selected
         Plugin.Log("[IV] Init state");
         if (containerObject != null) {
             Object.Destroy(containerObject);
         }
-        Transform parentTransform = Bindings.UI.Game.GetTargetScreenTransform();
+        Transform parentTransform = UIBindings.Game.GetTargetScreenTransform();
         containerObject = new GameObject("i_lp_LoadoutPreviewContainer");
         containerObject.AddComponent<RectTransform>();
         containerTransform = containerObject.transform;
         containerTransform.SetParent(parentTransform, false);
         playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
-        bearingLabel = new Bindings.UI.Draw.UILabel(
+        bearingLabel = new UIBindings.Draw.UILabel(
             "bearingLabel",
             new Vector2(0, -70),
             containerTransform,
@@ -99,7 +99,7 @@ class InterceptionVectorTask {
             mainColor,
             20
         );
-        timerLabel = new Bindings.UI.Draw.UILabel(
+        timerLabel = new UIBindings.Draw.UILabel(
             "timerLabel",
             new Vector2(0, -100),
             containerTransform,
@@ -107,7 +107,7 @@ class InterceptionVectorTask {
             mainColor,
             20
         );
-        indicatorTargetBox = new Bindings.UI.Draw.UIAdvancedRectangle(
+        indicatorTargetBox = new UIBindings.Draw.UIAdvancedRectangle(
             "indicatorTargetBox",
             new Vector2(-6, -6),
             new Vector2(6, 6),
@@ -116,7 +116,7 @@ class InterceptionVectorTask {
             containerTransform,
             Color.clear
         );
-        indicatorTargetLine = new Bindings.UI.Draw.UILine(
+        indicatorTargetLine = new UIBindings.Draw.UILine(
             "indicatorTargetLine",
             new Vector2(0, 0),
             new Vector2(0, 0),
@@ -144,8 +144,8 @@ class InterceptionVectorTask {
     }
 
     static void HandleIdleState() {
-        if (((List<Unit>)Bindings.Player.TargetList.GetTargets()).Count == 1) {
-            targetUnit = ((List<Unit>)Bindings.Player.TargetList.GetTargets())[0];
+        if (((List<Unit>)GameBindings.Player.TargetList.GetTargets()).Count == 1) {
+            targetUnit = ((List<Unit>)GameBindings.Player.TargetList.GetTargets())[0];
             if (playerFactionHQ.IsTargetPositionAccurate(targetUnit, 20f)) {
                 currentState = State.Intercepting;
                 Plugin.Log("[IV] Target is being tracked");
@@ -161,8 +161,8 @@ class InterceptionVectorTask {
     }
 
     static void HandleTargetInitiallyUntracked() {
-        if (((List<Unit>)Bindings.Player.TargetList.GetTargets()).Count != 1
-            || ((List<Unit>)Bindings.Player.TargetList.GetTargets())[0] != targetUnit) {
+        if (((List<Unit>)GameBindings.Player.TargetList.GetTargets()).Count != 1
+            || ((List<Unit>)GameBindings.Player.TargetList.GetTargets())[0] != targetUnit) {
             currentState = State.Reset;
             Plugin.Log("[IV] Switched target, returning to Reset state");
             return;
@@ -175,15 +175,15 @@ class InterceptionVectorTask {
     }
 
     static void HandleInterception() {
-        if (((List<Unit>)Bindings.Player.TargetList.GetTargets()).Count != 1
-            || ((List<Unit>)Bindings.Player.TargetList.GetTargets())[0] != targetUnit ||
-            Bindings.Player.Aircraft.GetAircraft() == null) {
+        if (((List<Unit>)GameBindings.Player.TargetList.GetTargets()).Count != 1
+            || ((List<Unit>)GameBindings.Player.TargetList.GetTargets())[0] != targetUnit ||
+            GameBindings.Player.Aircraft.GetAircraft() == null) {
             currentState = State.Reset;
             Plugin.Log("[IV] Returning to Reset state");
             return;
         }
 
-        if (Bindings.Player.Aircraft.IsRadarJammed()) {
+        if (GameBindings.Player.Aircraft.IsRadarJammed()) {
             HandleJammed();
             return;
         }
@@ -223,7 +223,7 @@ class InterceptionVectorTask {
         Vector3 interceptVectorXZ = Vector3.Scale(interceptVector, new Vector3(1f, 0f, 1f)).normalized;
         int interceptBearing = (int)(Vector3.SignedAngle(Vector3.forward, interceptVectorXZ, Vector3.up) + 360) % 360;
         int interceptionTimeInSeconds = (int)Mathf.Clamp(interceptVector.magnitude / playerVelocity.magnitude - interceptArraySize / 60, 0, 999);
-        Vector3 interceptScreen = Bindings.UI.Game.GetCameraStateManager().mainCamera.WorldToScreenPoint(interceptPosition);
+        Vector3 interceptScreen = UIBindings.Game.GetCameraStateManager().mainCamera.WorldToScreenPoint(interceptPosition);
         Vector3 velocityUpNormal = Vector3.Cross(SceneSingleton<CombatHUD>.i.aircraft.rb.velocity, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.right).normalized;
         Vector3 velocityRightNormal = Vector3.Cross(SceneSingleton<CombatHUD>.i.aircraft.rb.velocity, velocityUpNormal).normalized;
         int relativeHeight = (int)(
@@ -398,3 +398,4 @@ class ResetInterceptionVectorOnRespawnPatch {
         InterceptionVectorPlugin.Reset();
     }
 }
+

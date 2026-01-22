@@ -6,7 +6,6 @@ using Plugin = NO_Tactitools.Core.Plugin;
 using NO_Tactitools.Core;
 using System;
 using System.Collections.Generic;
-using static NO_Tactitools.Core.Bindings.UI.Draw; // Explicit alias to resolve ambiguity
 
 namespace NO_Tactitools.Controls;
 [HarmonyPatch(typeof(MainMenu), "Start")]
@@ -85,7 +84,7 @@ public static class NOAutopilotControlPlugin {
             }
         }
 
-        Bindings.UI.Sound.PlaySound("beep_scroll");
+        UIBindings.Sound.PlaySound("beep_scroll");
         Plugin.Log($"[AP] Toggle Menu: {NOAutopilotComponent.InternalState.showMenu.ToString()}");
     }
 
@@ -120,7 +119,7 @@ public static class NOAutopilotControlPlugin {
             menu.selectedCol = menu.selectedCol == 1 ? 1 : 2;
         }
 
-        Bindings.UI.Sound.PlaySound("beep_scroll");
+        UIBindings.Sound.PlaySound("beep_scroll");
     }
 
     public static void SelectActionHold() {
@@ -153,14 +152,14 @@ public static class NOAutopilotControlPlugin {
             NOAutopilotComponent.InternalState.selectToggleHandled = true;
             if (isBearingValue) {
                 APData.NavEnabled = !APData.NavEnabled;
-                Bindings.UI.Game.DisplayToast(APData.NavEnabled ? "Autopilot : Nav mode <b>ON</b>" : "Autopilot : Nav mode <b>OFF</b>");
+                UIBindings.Game.DisplayToast(APData.NavEnabled ? "Autopilot : Nav mode <b>ON</b>" : "Autopilot : Nav mode <b>OFF</b>");
             }
             else {
                 APData.AllowExtremeThrottle = !APData.AllowExtremeThrottle;
-                Bindings.UI.Game.DisplayToast(APData.AllowExtremeThrottle ? "Autopilot : Extreme throttle <b>ON</b>" : "Autopilot : Extreme throttle <b>OFF</b>");
+                UIBindings.Game.DisplayToast(APData.AllowExtremeThrottle ? "Autopilot : Extreme throttle <b>ON</b>" : "Autopilot : Extreme throttle <b>OFF</b>");
             }
             NOAutopilot.Plugin.SyncMenuValues();
-            Bindings.UI.Sound.PlaySound("beep_scroll");
+            UIBindings.Sound.PlaySound("beep_scroll");
             return;
         }
 
@@ -299,7 +298,7 @@ public static class NOAutopilotControlPlugin {
         else {
             menu.selectedCol = Mathf.Clamp(menu.selectedCol + direction, 0, 5);
         }
-        Bindings.UI.Sound.PlaySound("beep_scroll");
+        UIBindings.Sound.PlaySound("beep_scroll");
     }
 }
 
@@ -447,15 +446,15 @@ public class NOAutopilotComponent {
         public GameObject containerObject;
         public Transform containerTransform;
 
-        public UIAdvancedRectangleLabeled engagedBar;
-        public UIAdvancedRectangleLabeled setBar;
-        public UIAdvancedRectangleLabeled ajButton;
-        public UIAdvancedRectangleLabeled gcasButton;
+        public UIBindings.Draw.UIAdvancedRectangleLabeled engagedBar;
+        public UIBindings.Draw.UIAdvancedRectangleLabeled setBar;
+        public UIBindings.Draw.UIAdvancedRectangleLabeled ajButton;
+        public UIBindings.Draw.UIAdvancedRectangleLabeled gcasButton;
 
-        public List<UIAdvancedRectangleLabeled> valueRects = [];
-        public List<UIAdvancedRectangleLabeled> cRects = [];
-        public List<UIAdvancedRectangleLabeled> minusRects = [];
-        public List<UIAdvancedRectangleLabeled> plusRects = [];
+        public List<UIBindings.Draw.UIAdvancedRectangleLabeled> valueRects = [];
+        public List<UIBindings.Draw.UIAdvancedRectangleLabeled> cRects = [];
+        public List<UIBindings.Draw.UIAdvancedRectangleLabeled> minusRects = [];
+        public List<UIBindings.Draw.UIAdvancedRectangleLabeled> plusRects = [];
 
         public int selectedRow = 0;
         public int selectedCol = 0;
@@ -463,8 +462,8 @@ public class NOAutopilotComponent {
         public float padding = 0;
 
         public NOAutoPilotMenu() {
-            Transform parentTransform = Bindings.UI.Game.GetTacScreenTransform();
-            string platformName = Bindings.Player.Aircraft.GetPlatformName();
+            Transform parentTransform = UIBindings.Game.GetTacScreenTransform();
+            string platformName = GameBindings.Player.Aircraft.GetPlatformName();
 
             containerObject = new GameObject("i_ap_NOAutopilotMenu");
             _ = containerObject.AddComponent<RectTransform>();
@@ -566,7 +565,7 @@ public class NOAutopilotComponent {
             // Dimensions and Layout
             Vector2 bgSize = new(totalContentWidth + (2 * padding), totalContentHeight + (2 * padding));
             Vector2 bgCenter = Vector2.zero;
-            _ = new UIAdvancedRectangle(
+            _ = new UIBindings.Draw.UIAdvancedRectangle(
                 "i_ap_Background",
                 bgCenter - (bgSize / 2f),
                 bgCenter + (bgSize / 2f),
@@ -575,7 +574,7 @@ public class NOAutopilotComponent {
             Vector2 engagedSize = new(totalContentHeight, engagedBarWidth);
             Vector2 engagedCenter = new(contentTopLeft.x + (engagedBarWidth / 2f), 0);
 
-            engagedBar = new UIAdvancedRectangleLabeled(
+            engagedBar = new UIBindings.Draw.UIAdvancedRectangleLabeled(
                 "i_ap_EngagedBar",
                 engagedCenter - (engagedSize / 2f),
                 engagedCenter + (engagedSize / 2f),
@@ -600,7 +599,7 @@ public class NOAutopilotComponent {
 
                 // Value Box
                 Vector2 valCenter = new(gridLeftX + (valueBoxSize.x / 2f), y);
-                UIAdvancedRectangleLabeled vRect = new(
+                UIBindings.Draw.UIAdvancedRectangleLabeled vRect = new(
                     $"i_ap_ValRect_{i.ToString()}",
                     valCenter - (valueBoxSize / 2f), valCenter + (valueBoxSize / 2f),
                     InternalState.mainColor, 2, containerTransform,
@@ -616,7 +615,7 @@ public class NOAutopilotComponent {
 
                 // C Button
                 Vector2 cCenter = new(currentX + (buttonSize.x / 2f), y);
-                UIAdvancedRectangleLabeled cRect = new(
+                UIBindings.Draw.UIAdvancedRectangleLabeled cRect = new(
                     $"i_ap_CRect_{i.ToString()}",
                     cCenter - (buttonSize / 2f), cCenter + (buttonSize / 2f),
                     InternalState.mainColor, 2, containerTransform,
@@ -631,7 +630,7 @@ public class NOAutopilotComponent {
 
                 // Minus Button
                 Vector2 mCenter = new(currentX + (buttonSize.x / 2f), y);
-                UIAdvancedRectangleLabeled mRect = new(
+                UIBindings.Draw.UIAdvancedRectangleLabeled mRect = new(
                     $"i_ap_MinusRect_{i.ToString()}",
                     mCenter - (buttonSize / 2f), mCenter + (buttonSize / 2f),
                     InternalState.mainColor, 2, containerTransform,
@@ -646,7 +645,7 @@ public class NOAutopilotComponent {
 
                 // Plus Button
                 Vector2 pCenter = new(currentX + (buttonSize.x / 2f), y);
-                UIAdvancedRectangleLabeled pRect = new(
+                UIBindings.Draw.UIAdvancedRectangleLabeled pRect = new(
                     $"i_ap_PlusRect_{i.ToString()}",
                     pCenter - (buttonSize / 2f), pCenter + (buttonSize / 2f),
                     InternalState.mainColor, 2, containerTransform,
@@ -664,7 +663,7 @@ public class NOAutopilotComponent {
             float setCenterX = gridLeftX + gridRowWidth + gap + (setBarWidth / 2f);
             Vector2 setCenter = new(setCenterX, 0);
 
-            setBar = new UIAdvancedRectangleLabeled(
+            setBar = new UIBindings.Draw.UIAdvancedRectangleLabeled(
                 "i_ap_SetBar",
                 setCenter - (setSizeVisual / 2f),
                 setCenter + (setSizeVisual / 2f),
@@ -681,7 +680,7 @@ public class NOAutopilotComponent {
 
             Vector2 ajCenter = new(gridLeftX + (ajSize.x / 2f), bottomY);
 
-            ajButton = new UIAdvancedRectangleLabeled(
+            ajButton = new UIBindings.Draw.UIAdvancedRectangleLabeled(
                 "i_ap_AJButton",
                 ajCenter - (ajSize / 2f), ajCenter + (ajSize / 2f),
                 Color.red, 2, containerTransform,
@@ -695,7 +694,7 @@ public class NOAutopilotComponent {
             float gcasStartX = gridLeftX + ajSize.x + gap;
             Vector2 gcasCenter = new(gcasStartX + (gcasSize.x / 2f), bottomY);
 
-            gcasButton = new UIAdvancedRectangleLabeled(
+            gcasButton = new UIBindings.Draw.UIAdvancedRectangleLabeled(
                 "i_ap_GCASButton",
                 gcasCenter - (gcasSize / 2f), gcasCenter + (gcasSize / 2f),
                 Color.green, 2, containerTransform,
@@ -740,14 +739,14 @@ public class NOAutopilotComponent {
         }
 
         public void OnSelect() {
-            Bindings.UI.Sound.PlaySound("beep_scroll");
+            UIBindings.Sound.PlaySound("beep_scroll");
             if (selectedRow < 5) {
                 // Engage Bar
                 if (selectedCol == 0) {
                     APData.Enabled = !APData.Enabled;
                     NOAutopilot.Plugin.SyncMenuValues();
                     if (APData.Enabled)
-                        Bindings.UI.Sound.PlaySound("beep_autopilot");
+                        UIBindings.Sound.PlaySound("beep_autopilot");
                     return;
                 }
 
@@ -780,7 +779,7 @@ public class NOAutopilotComponent {
                 if (selectedCol == 0) {
                     APData.Enabled = !APData.Enabled;
                     if (APData.Enabled)
-                        Bindings.UI.Sound.PlaySound("beep_autopilot");
+                        UIBindings.Sound.PlaySound("beep_autopilot");
                     NOAutopilot.Plugin.SyncMenuValues();
                 }
                 else if (selectedCol == 1) { // AJ
@@ -869,7 +868,7 @@ public class NOAutopilotComponent {
             APData.TargetCourse = InternalState.stagedCourse;
 
             if (!APData.Enabled)
-                Bindings.UI.Sound.PlaySound("beep_autopilot");
+                UIBindings.Sound.PlaySound("beep_autopilot");
             APData.Enabled = true; // Auto-engage on set
             APData.UseSetValues = true;
 
@@ -936,7 +935,7 @@ public class NOAutopilotComponent {
             ApplyStyle(gcasButton, isSelected ? gcasColor : Color.clear, gcasColor, isSelected ? Color.black : gcasColor);
         }
 
-        private void ApplyStyle(UIAdvancedRectangleLabeled rect, Color bgColor, Color borderColor, Color textColor) {
+        private void ApplyStyle(UIBindings.Draw.UIAdvancedRectangleLabeled rect, Color bgColor, Color borderColor, Color textColor) {
             if (rect == null) {
                 return;
             }
@@ -969,3 +968,5 @@ public class NOAutopilotComponent {
         }
     }
 }
+
+

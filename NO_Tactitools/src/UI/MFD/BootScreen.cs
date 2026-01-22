@@ -27,14 +27,14 @@ public static class BootScreenComponent {
     // Mirrors WeaponDisplay structure: LogicEngine, InternalState, DisplayEngine
     static class LogicEngine {
         public static void Init() {
-            InternalState.tacScreenTransform = Bindings.UI.Game.GetTacScreenTransform();
+            InternalState.tacScreenTransform = UIBindings.Game.GetTacScreenTransform();
             InternalState.previouslyActiveObjects.Clear();
             foreach (Transform child in InternalState.tacScreenTransform) {
                 if (child == null || child.gameObject == null || child.name.StartsWith("i_")) continue;
                 if (child.gameObject.activeSelf) InternalState.previouslyActiveObjects.Add(child.gameObject);
                 child.gameObject.SetActive(false);
             }
-            string platformName = Bindings.Player.Aircraft.GetPlatformName();
+            string platformName = GameBindings.Player.Aircraft.GetPlatformName();
             switch (platformName) {
                 case "CI-22 Cricket":
                     InternalState.horizontalOffset = -105;
@@ -87,13 +87,13 @@ public static class BootScreenComponent {
             if (InternalState.hasBooted) return;
             if ((DateTime.Now - InternalState.startTime).TotalSeconds <= 2) {
                 // PAS FAN DE CETTE SOLUTION
-                if (Bindings.Player.TargetList.GetTargets().Count > 0) {
-                    Bindings.UI.Game.GetTargetCamComponent()?.CancelTarget();
+                if (GameBindings.Player.TargetList.GetTargets().Count > 0) {
+                    UIBindings.Game.GetTargetCamComponent()?.CancelTarget();
                     foreach (GameObject child in InternalState.previouslyActiveObjects) {
                         if (child.gameObject.activeSelf)
                             child.gameObject.SetActive(false);
                     }
-                    Bindings.Player.TargetList.DeselectAll();
+                    GameBindings.Player.TargetList.DeselectAll();
                 }
                 // SHOWING THE BOOTING LABEL
                 InternalState.updateBootingLabel = true;
@@ -105,7 +105,7 @@ public static class BootScreenComponent {
             foreach (GameObject child in InternalState.previouslyActiveObjects) {
                 if (child == null) continue;
                 float delay = UnityEngine.Random.Range(minJitter, maxJitter);
-                Bindings.UI.Game.GetTacScreenComponent()?.StartCoroutine(DisplayEngine.ActivateWithDelay(child, delay));
+                UIBindings.Game.GetTacScreenComponent()?.StartCoroutine(DisplayEngine.ActivateWithDelay(child, delay));
             }
 
             if (InternalState.bootLabel != null) {
@@ -121,7 +121,7 @@ public static class BootScreenComponent {
         public static DateTime startTime;
         public static bool hasBooted = true; // so that other plugins can check if boot is done, and initialized to true to avoid null refs
         public static bool updateBootingLabel = false;
-        public static Bindings.UI.Draw.UILabel bootLabel;
+        public static UIBindings.Draw.UILabel bootLabel;
         public static int horizontalOffset = 0;
         public static int verticalOffset = 0;
         public static List<GameObject> previouslyActiveObjects = [];
@@ -134,20 +134,20 @@ public static class BootScreenComponent {
             containerObject.AddComponent<RectTransform>();
             InternalState.containerTransform = containerObject.transform;
             InternalState.containerTransform.SetParent(InternalState.tacScreenTransform, false);
-            InternalState.bootLabel = new Bindings.UI.Draw.UILabel(
+            InternalState.bootLabel = new UIBindings.Draw.UILabel(
                 "Boot Label",
                 new Vector2(InternalState.horizontalOffset, InternalState.verticalOffset),
                 InternalState.containerTransform
             );
-            InternalState.bootLabel.SetText("Booting " + Bindings.Player.Aircraft.GetPlatformName() + "...");
+            InternalState.bootLabel.SetText("Booting " + GameBindings.Player.Aircraft.GetPlatformName() + "...");
         }
         public static void Update() {
-            if (Bindings.GameState.IsGamePaused() ||
-                Bindings.Player.Aircraft.GetAircraft() == null)
+            if (GameBindings.GameState.IsGamePaused() ||
+                GameBindings.Player.Aircraft.GetAircraft() == null)
                 return;
             if (InternalState.updateBootingLabel &&
                 InternalState.hasBooted == false) {
-                InternalState.bootLabel.SetText("Booting " + Bindings.Player.Aircraft.GetPlatformName() + new string('.', (int)((DateTime.Now - InternalState.startTime).TotalSeconds * 4f / 2f)));
+                InternalState.bootLabel.SetText("Booting " + GameBindings.Player.Aircraft.GetPlatformName() + new string('.', (int)((DateTime.Now - InternalState.startTime).TotalSeconds * 4f / 2f)));
             }
         }
         public static IEnumerator ActivateWithDelay(GameObject go, float delay) {

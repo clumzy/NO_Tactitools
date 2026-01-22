@@ -53,7 +53,7 @@ class DeliveryBar {
 }
 
 class DeliveryIndicator {
-    private Bindings.UI.Draw.UIAdvancedRectangle indicator;
+    private UIBindings.Draw.UIAdvancedRectangle indicator;
     private float displayCountdown;
     private float hitTime;
 
@@ -64,13 +64,13 @@ class DeliveryIndicator {
         for (int i = 0; i < 6; i++) {
             randomString += chars[rand.Next(chars.Length)];
         }
-        indicator = new Bindings.UI.Draw.UIAdvancedRectangle(
+        indicator = new UIBindings.Draw.UIAdvancedRectangle(
             "DeliveryIndicator" + randomString,
             new Vector2(0f, 0f),
             new Vector2(8f, 8f),
             Color.black,
             3f,
-            Bindings.UI.Game.GetTargetScreenTransform(),
+            UIBindings.Game.GetTargetScreenTransform(),
             Color.yellow);
         indicator.SetCenter(pos);
         displayCountdown = -1f;
@@ -118,7 +118,7 @@ class DeliveryIndicator {
 [HarmonyPatch(typeof(Missile), "StartMissile")]
 class StartMissilePatch {
     static void Postfix(Missile __instance) {
-        if (Bindings.UI.Game.GetTargetScreenTransform(true) == null) {
+        if (UIBindings.Game.GetTargetScreenTransform(true) == null) {
             // no need to check for aircraft here, as missiles can't be fired without an aircraft
             // also a missile can't NORMALLY get started without a targeting screen but we still check for it
             return;
@@ -143,8 +143,8 @@ class StartMissilePatch {
 class DetonatePatch {
     static void Postfix(Missile __instance, bool hitArmor) {
         if (__instance.owner == SceneSingleton<CombatHUD>.i.aircraft
-            && Bindings.Player.Aircraft.GetAircraft() != null
-            && Bindings.UI.Game.GetTargetScreenTransform(true) != null) {
+            && GameBindings.Player.Aircraft.GetAircraft() != null
+            && UIBindings.Game.GetTargetScreenTransform(true) != null) {
             if (DeliveryBar.deliveryIndicator.ContainsKey(__instance)) {
                 DeliveryBar.deliveryIndicator[__instance].SetDisplayCountdown(2f);
                 DeliveryBar.deliveryIndicator[__instance].SetHitTime();
@@ -158,8 +158,8 @@ class DetonatePatch {
 [HarmonyPatch(typeof(CombatHUD), "LateUpdate")]
 class DeliveryBarUpdatePatch {
     static void Postfix() {
-        if (Bindings.Player.Aircraft.GetAircraft() == null
-            || Bindings.UI.Game.GetTargetScreenTransform(true) == null) {
+        if (GameBindings.Player.Aircraft.GetAircraft() == null
+            || UIBindings.Game.GetTargetScreenTransform(true) == null) {
             // no aircraft or no targeting screen, skip
             // an initialized target screen exists but is not active
             // so remove missile will still work correctly for missiles from THIS flight

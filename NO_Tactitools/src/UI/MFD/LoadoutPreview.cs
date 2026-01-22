@@ -42,14 +42,14 @@ public class LoadoutPreviewComponent {
             InternalState.verticalOffset = Plugin.loadoutPreviewPositionY.Value;
             InternalState.backgroundTransparency = Plugin.loadoutPreviewBackgroundTransparency.Value;
             InternalState.textAndBorderTransparency = Plugin.loadoutPreviewTextAndBorderTransparency.Value;
-            InternalState.hasStations = Bindings.Player.Aircraft.Weapons.GetStationCount() > 1;
+            InternalState.hasStations = GameBindings.Player.Aircraft.Weapons.GetStationCount() > 1;
             if (InternalState.hasStations) {
-                InternalState.currentWeaponStation = Bindings.Player.Aircraft.Weapons.GetActiveStationName();
-                for (int i = 0; i < Bindings.Player.Aircraft.Weapons.GetStationCount(); i++) {
+                InternalState.currentWeaponStation = GameBindings.Player.Aircraft.Weapons.GetActiveStationName();
+                for (int i = 0; i < GameBindings.Player.Aircraft.Weapons.GetStationCount(); i++) {
                 InternalState.WeaponStationInfo stationInfo = new() {
-                    stationName = Bindings.Player.Aircraft.Weapons.GetStationNameByIndex(i),
-                    ammo = Bindings.Player.Aircraft.Weapons.GetStationAmmoByIndex(i),
-                    maxAmmo = Bindings.Player.Aircraft.Weapons.GetStationMaxAmmoByIndex(i)
+                    stationName = GameBindings.Player.Aircraft.Weapons.GetStationNameByIndex(i),
+                    ammo = GameBindings.Player.Aircraft.Weapons.GetStationAmmoByIndex(i),
+                    maxAmmo = GameBindings.Player.Aircraft.Weapons.GetStationMaxAmmoByIndex(i)
                 };
                 InternalState.weaponStations.Add(stationInfo);
             }
@@ -57,28 +57,28 @@ public class LoadoutPreviewComponent {
         }
 
         static public void Update() {
-            if (Bindings.GameState.IsGamePaused() || Bindings.Player.Aircraft.GetAircraft() == null || !InternalState.hasStations)
+            if (GameBindings.GameState.IsGamePaused() || GameBindings.Player.Aircraft.GetAircraft() == null || !InternalState.hasStations)
                 return;
             if (InternalState.onlyShowOnBoot 
                 && InternalState.neverShown 
                 && BootScreenComponent.InternalState.hasBooted) {
                 InternalState.lastUpdateTime = Time.time;
-                InternalState.currentWeaponStation = Bindings.Player.Aircraft.Weapons.GetActiveStationName();
+                InternalState.currentWeaponStation = GameBindings.Player.Aircraft.Weapons.GetActiveStationName();
                 InternalState.neverShown = false;
             }
             else if (
-                InternalState.currentWeaponStation != Bindings.Player.Aircraft.Weapons.GetActiveStationName() 
+                InternalState.currentWeaponStation != GameBindings.Player.Aircraft.Weapons.GetActiveStationName() 
                 && BootScreenComponent.InternalState.hasBooted 
                 && !InternalState.onlyShowOnBoot) {
                 InternalState.lastUpdateTime = Time.time;
-                InternalState.currentWeaponStation = Bindings.Player.Aircraft.Weapons.GetActiveStationName();
+                InternalState.currentWeaponStation = GameBindings.Player.Aircraft.Weapons.GetActiveStationName();
             }
             InternalState.needsUpdate = ((Time.time - InternalState.lastUpdateTime) < InternalState.displayDuration);
             if (InternalState.needsUpdate) {
-                for (int i = 0; i < Bindings.Player.Aircraft.Weapons.GetStationCount(); i++) {
-                    InternalState.weaponStations[i].stationName = Bindings.Player.Aircraft.Weapons.GetStationNameByIndex(i);
-                    InternalState.weaponStations[i].ammo = Bindings.Player.Aircraft.Weapons.GetStationAmmoByIndex(i);
-                    InternalState.weaponStations[i].maxAmmo = Bindings.Player.Aircraft.Weapons.GetStationMaxAmmoByIndex(i);
+                for (int i = 0; i < GameBindings.Player.Aircraft.Weapons.GetStationCount(); i++) {
+                    InternalState.weaponStations[i].stationName = GameBindings.Player.Aircraft.Weapons.GetStationNameByIndex(i);
+                    InternalState.weaponStations[i].ammo = GameBindings.Player.Aircraft.Weapons.GetStationAmmoByIndex(i);
+                    InternalState.weaponStations[i].maxAmmo = GameBindings.Player.Aircraft.Weapons.GetStationMaxAmmoByIndex(i);
                 }
             }
         }
@@ -127,8 +127,8 @@ public class LoadoutPreviewComponent {
         }
 
         static public void Update() {
-            if (Bindings.GameState.IsGamePaused() ||
-                Bindings.Player.Aircraft.GetAircraft() == null ||
+            if (GameBindings.GameState.IsGamePaused() ||
+                GameBindings.Player.Aircraft.GetAircraft() == null ||
                 !InternalState.hasStations)
                 return;
             if (!InternalState.needsUpdate) {
@@ -150,9 +150,9 @@ public class LoadoutPreviewComponent {
                     ws.maxAmmo);
                 // keep color/size adjustments minimal here; DisplayEngine handles color each frame
                 InternalState.loadoutPreview.stationLabels[i].SetFontSize(
-                    (Bindings.Player.Aircraft.Weapons.GetActiveStationName() == ws.stationName) ? (InternalState.loadoutPreview.fontSize + 6) : InternalState.loadoutPreview.fontSize);
+                    (GameBindings.Player.Aircraft.Weapons.GetActiveStationName() == ws.stationName) ? (InternalState.loadoutPreview.fontSize + 6) : InternalState.loadoutPreview.fontSize);
                 InternalState.loadoutPreview.stationLabels[i].SetFontStyle(
-                    (Bindings.Player.Aircraft.Weapons.GetActiveStationName() == ws.stationName) ? FontStyle.Bold : FontStyle.Normal);
+                    (GameBindings.Player.Aircraft.Weapons.GetActiveStationName() == ws.stationName) ? FontStyle.Bold : FontStyle.Normal);
             }
             InternalState.loadoutPreview.UpdateLabelPositions();
             InternalState.loadoutPreview.containerTransform.SetAsLastSibling();
@@ -162,8 +162,8 @@ public class LoadoutPreviewComponent {
     public class LoadoutPreview {
         public GameObject containerObject;
         public Transform containerTransform;
-        public List<Bindings.UI.Draw.UILabel> stationLabels = [];
-        public Bindings.UI.Draw.UIAdvancedRectangle borderRect;
+        public List<UIBindings.Draw.UILabel> stationLabels = [];
+        public UIBindings.Draw.UIAdvancedRectangle borderRect;
         public float maxLabelWidth;
         public float verticalOffset = 0;
         public float horizontalOffset = 0;
@@ -175,11 +175,11 @@ public class LoadoutPreviewComponent {
             string platformName;
             Transform parentTransform;
             if (!sendToHMD) {
-                parentTransform = Bindings.UI.Game.GetTacScreenTransform();
-                platformName = Bindings.Player.Aircraft.GetPlatformName();
+                parentTransform = UIBindings.Game.GetTacScreenTransform();
+                platformName = GameBindings.Player.Aircraft.GetPlatformName();
             }
             else {
-                parentTransform = Bindings.UI.Game.GetCombatHUDTransform();
+                parentTransform = UIBindings.Game.GetCombatHUDTransform();
                 platformName = "HMD";
             }
             
@@ -267,7 +267,7 @@ public class LoadoutPreviewComponent {
             );
             // Create labels
             for (int i = 0; i < weaponStations.Count; i++) {
-                Bindings.UI.Draw.UILabel stationLabel = new(
+                UIBindings.Draw.UILabel stationLabel = new(
                     "i_lp_Slot " + i,
                     new Vector2(0, 0),
                     containerTransform,
@@ -300,7 +300,7 @@ public class LoadoutPreviewComponent {
                 else {
                     if (InternalState.vanillaUIEnabled) {
                         // The new way to punctually directly reflect elements
-                        GameObject topRightPanel = new TraverseCache<CombatHUD, GameObject>("topRightPanel").GetValue(Bindings.UI.Game.GetCombatHUDComponent());
+                        GameObject topRightPanel = new TraverseCache<CombatHUD, GameObject>("topRightPanel").GetValue(UIBindings.Game.GetCombatHUDComponent());
                         GameObject powerPanel = topRightPanel.transform.Find("PowerPanel").gameObject;
                         horizontalOffset = 
                             topRightPanel.transform.localPosition.x 
@@ -309,7 +309,7 @@ public class LoadoutPreviewComponent {
                             topRightPanel.transform.localPosition.y
                             - rectHalfHeight - border - padding
                             - 170;
-                        if (Bindings.Player.Aircraft.Countermeasures.HasJammer() || powerPanel.activeSelf) {
+                        if (GameBindings.Player.Aircraft.Countermeasures.HasJammer() || powerPanel.activeSelf) {
                             Plugin.Log("[LP] Adjusting Loadout Preview position to avoid jammer display overlap.");
                             verticalOffset -= 40;
                         }
@@ -370,3 +370,4 @@ public class LoadoutPreviewComponent {
         }
     }
 }
+

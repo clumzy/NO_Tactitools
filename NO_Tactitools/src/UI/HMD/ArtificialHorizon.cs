@@ -28,7 +28,7 @@ public class ArtificialHorizonComponent {
     static class LogicEngine {
         static public void Init() {
             Plugin.Log("[AH] Initializing Artificial Horizon");
-            InternalState.isAuthorized = InternalState.authorizedPlatforms.Contains(Bindings.Player.Aircraft.GetPlatformName());
+            InternalState.isAuthorized = InternalState.authorizedPlatforms.Contains(GameBindings.Player.Aircraft.GetPlatformName());
             if (!InternalState.isAuthorized) {
                 Plugin.Log("[AH] Platform not authorized for Artificial Horizon");
                 if (InternalState.artificialHorizon != null) {
@@ -37,14 +37,14 @@ public class ArtificialHorizonComponent {
                 }
                 return;
             }
-            InternalState.destination = Bindings.UI.Game.GetFlightHUDTransform();
+            InternalState.destination = UIBindings.Game.GetFlightHUDTransform();
             InternalState.canvasRectTransform = InternalState.destination?.GetComponent<RectTransform>();
-            InternalState.mainCamera = Bindings.UI.Game.GetCameraStateManager()?.mainCamera;
+            InternalState.mainCamera = UIBindings.Game.GetCameraStateManager()?.mainCamera;
             Plugin.Log("[AH] Logic Engine initialized");
         }
 
         static public void Update() {
-            if (Bindings.Player.Aircraft.GetAircraft() == null ||
+            if (GameBindings.Player.Aircraft.GetAircraft() == null ||
                 InternalState.canvasRectTransform == null ||
                 !InternalState.isAuthorized)
                 return; // do not refresh anything if the player aircraft is not available
@@ -150,10 +150,10 @@ public class ArtificialHorizonComponent {
             // set label opacity based on angle to center
             const float lowerAngleThreshold = 25f;
             const float upperAngleThreshold = 30f;
-            InternalState.northLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(northCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
-            InternalState.southLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(southCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
-            InternalState.eastLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(eastCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
-            InternalState.westLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(westCenterOfLine, Bindings.Player.Aircraft.GetAircraft().transform.forward));
+            InternalState.northLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(northCenterOfLine, GameBindings.Player.Aircraft.GetAircraft().transform.forward));
+            InternalState.southLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(southCenterOfLine, GameBindings.Player.Aircraft.GetAircraft().transform.forward));
+            InternalState.eastLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(eastCenterOfLine, GameBindings.Player.Aircraft.GetAircraft().transform.forward));
+            InternalState.westLabelOpacity = Mathf.InverseLerp(lowerAngleThreshold, upperAngleThreshold, Vector3.Angle(westCenterOfLine, GameBindings.Player.Aircraft.GetAircraft().transform.forward));
             // add em to the line offsets
             Vector2 lineOffset = new(0, 5);
             Vector2 labelOffset = new(0, 15);
@@ -245,17 +245,17 @@ public class ArtificialHorizonComponent {
     }
 
     public class ArtificialHorizon {
-        public Bindings.UI.Draw.UILine horizonLine;
+        public UIBindings.Draw.UILine horizonLine;
         const float horizonLineThickness = 1.5f;
         readonly Color mainColor = new(0.2f, 1f, 0.2f, 0.6f); // Green with transparency
-        public Bindings.UI.Draw.UILine northLine;
-        public Bindings.UI.Draw.UILabel northLabel;
-        public Bindings.UI.Draw.UILine southLine;
-        public Bindings.UI.Draw.UILabel southLabel;
-        public Bindings.UI.Draw.UILine eastLine;
-        public Bindings.UI.Draw.UILabel eastLabel;
-        public Bindings.UI.Draw.UILine westLine;
-        public Bindings.UI.Draw.UILabel westLabel;
+        public UIBindings.Draw.UILine northLine;
+        public UIBindings.Draw.UILabel northLabel;
+        public UIBindings.Draw.UILine southLine;
+        public UIBindings.Draw.UILabel southLabel;
+        public UIBindings.Draw.UILine eastLine;
+        public UIBindings.Draw.UILabel eastLabel;
+        public UIBindings.Draw.UILine westLine;
+        public UIBindings.Draw.UILabel westLabel;
         const float cardinalLineThickness = 1f;
         public Color cardinalLineColor = new(0.2f, 1f, 0.2f, 0.8f); // Green with less transparency
         public Color cardinalLabelColor = new(0.2f, 1f, 0.2f, 1f); // Green with even less transparency
@@ -267,7 +267,7 @@ public class ArtificialHorizonComponent {
             cardinalLineColor.a = Mathf.Clamp(Plugin.artificialHorizonTransparency.Value + 0.2f, 0f, 1f);
             cardinalLabelColor.a = Mathf.Clamp(Plugin.artificialHorizonTransparency.Value + 0.4f, 0f, 1f);
             // Create the horizon line
-            horizonLine = new Bindings.UI.Draw.UILine(
+            horizonLine = new UIBindings.Draw.UILine(
                 "horizonLine",
                 new Vector2(0, 0),
                 new Vector2(0, 0),
@@ -275,7 +275,7 @@ public class ArtificialHorizonComponent {
                 mainColor,
                 horizonLineThickness
             );
-            northLine = new Bindings.UI.Draw.UILine(
+            northLine = new UIBindings.Draw.UILine(
                 "northLine",
                 new Vector2(0, 0),
                 new Vector2(0, 0),
@@ -283,7 +283,7 @@ public class ArtificialHorizonComponent {
                 cardinalLineColor,
                 cardinalLineThickness
             );
-            northLabel = new Bindings.UI.Draw.UILabel(
+            northLabel = new UIBindings.Draw.UILabel(
                 "northLabel",
                 new Vector2(0, 0),
                 destination,
@@ -292,7 +292,7 @@ public class ArtificialHorizonComponent {
                 cardinalLabelFontSize,
                 cardinalLabelBgOpacity
             );
-            southLine = new Bindings.UI.Draw.UILine(
+            southLine = new UIBindings.Draw.UILine(
                 "southLine",
                 new Vector2(0, 0),
                 new Vector2(0, 0),
@@ -300,7 +300,7 @@ public class ArtificialHorizonComponent {
                 cardinalLineColor,
                 cardinalLineThickness
             );
-            southLabel = new Bindings.UI.Draw.UILabel(
+            southLabel = new UIBindings.Draw.UILabel(
                 "southLabel",
                 new Vector2(0, 0),
                 destination,
@@ -309,7 +309,7 @@ public class ArtificialHorizonComponent {
                 cardinalLabelFontSize,
                 cardinalLabelBgOpacity
             );
-            eastLine = new Bindings.UI.Draw.UILine(
+            eastLine = new UIBindings.Draw.UILine(
                 "eastLine",
                 new Vector2(0, 0),
                 new Vector2(0, 0),
@@ -317,7 +317,7 @@ public class ArtificialHorizonComponent {
                 cardinalLineColor,
                 cardinalLineThickness
             );
-            eastLabel = new Bindings.UI.Draw.UILabel(
+            eastLabel = new UIBindings.Draw.UILabel(
                 "eastLabel",
                 new Vector2(0, 0),
                 destination,
@@ -326,7 +326,7 @@ public class ArtificialHorizonComponent {
                 cardinalLabelFontSize,
                 cardinalLabelBgOpacity
             );
-            westLine = new Bindings.UI.Draw.UILine(
+            westLine = new UIBindings.Draw.UILine(
                 "westLine",
                 new Vector2(0, 0),
                 new Vector2(0, 0),
@@ -334,7 +334,7 @@ public class ArtificialHorizonComponent {
                 cardinalLineColor,
                 cardinalLineThickness
             );
-            westLabel = new Bindings.UI.Draw.UILabel(
+            westLabel = new UIBindings.Draw.UILabel(
                 "westLabel",
                 new Vector2(0, 0),
                 destination,
@@ -370,8 +370,8 @@ public class ArtificialHorizonComponent {
         }
 
         static public void Update() {
-            if (Bindings.GameState.IsGamePaused() ||
-                Bindings.Player.Aircraft.GetAircraft() == null ||
+            if (GameBindings.GameState.IsGamePaused() ||
+                GameBindings.Player.Aircraft.GetAircraft() == null ||
                 !InternalState.isAuthorized)
                 return; // do not refresh anything if the game is paused or the player aircraft is not available
             InternalState.artificialHorizon.horizonLine.SetCoordinates(
@@ -430,3 +430,4 @@ public class ArtificialHorizonComponent {
         }
     }
 }
+

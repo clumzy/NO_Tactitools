@@ -54,30 +54,30 @@ class WeaponSwitcherPlugin {
     }
 
     private static void HandleClick0() {
-        Bindings.Player.Aircraft.Weapons.SetActiveStation(0);
+        GameBindings.Player.Aircraft.Weapons.SetActiveStation(0);
     }
 
     private static void HandleToggleAutoControl() {
-        Bindings.Player.Aircraft.ToggleAutoControl();
+        GameBindings.Player.Aircraft.ToggleAutoControl();
     }
 
     private static void HandleClick1() {
-        Bindings.Player.Aircraft.Weapons.SetActiveStation(1);
+        GameBindings.Player.Aircraft.Weapons.SetActiveStation(1);
     }
 
     private static void HandleClick2() {
-        Bindings.Player.Aircraft.Weapons.SetActiveStation(2);
+        GameBindings.Player.Aircraft.Weapons.SetActiveStation(2);
     }
 
     private static void HandleClick3() {
-        Bindings.Player.Aircraft.Weapons.SetActiveStation(3);
+        GameBindings.Player.Aircraft.Weapons.SetActiveStation(3);
     }
 
     private static void HandleClick4() {
-        Bindings.Player.Aircraft.Weapons.SetActiveStation(4);
+        GameBindings.Player.Aircraft.Weapons.SetActiveStation(4);
     }
 
     private static void HandleClick5() {
-        Bindings.Player.Aircraft.Weapons.SetActiveStation(5);
+        GameBindings.Player.Aircraft.Weapons.SetActiveStation(5);
     }
 }

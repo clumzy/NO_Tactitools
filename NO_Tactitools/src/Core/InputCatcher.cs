@@ -143,7 +143,7 @@ public class PendingInput(string inputCodeString, float longPressThreshold, Syst
 [HarmonyPatch(typeof(Rewired.Controller), "pBrAJYWOGkILyqjLrMpmCdajATI")]
 class ControllerInputInterceptionPatch {
     static bool Prefix(Controller __instance) {
-        if (Bindings.Player.Aircraft.GetAircraft(silent: true) == null) {
+        if (GameBindings.Player.Aircraft.GetAircraft(silent: true) == null) {
             return true; // Skip the original method
         }
         foreach (Controller controller in InputCatcher.controllerInputs.Keys) {
@@ -250,3 +250,4 @@ class TestInput {
         }
     }
 } */
+

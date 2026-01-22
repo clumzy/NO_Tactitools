@@ -705,7 +705,7 @@ namespace NO_Tactitools.Core {
             //Finished patching
             //Load audio assets
             Log("Loading audio assets...");
-            Bindings.UI.Sound.LoadAllSounds();
+            UIBindings.Sound.LoadAllSounds();
             // Log completion
             Log("NO Tactitools loaded successfully !");
         }

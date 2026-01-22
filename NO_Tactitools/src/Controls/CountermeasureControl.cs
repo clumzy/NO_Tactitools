@@ -29,11 +29,12 @@ class CountermeasureControlsPlugin {
     }
 
     private static void HandleOnHoldFlare() {
-        Bindings.Player.Aircraft.Countermeasures.SetIRFlare();
+        GameBindings.Player.Aircraft.Countermeasures.SetIRFlare();
     }
 
     private static void HandleOnHoldJammer() {
-        if (Bindings.Player.Aircraft.Countermeasures.HasJammer())
-            Bindings.Player.Aircraft.Countermeasures.SetJammer();
+        if (GameBindings.Player.Aircraft.Countermeasures.HasJammer())
+            GameBindings.Player.Aircraft.Countermeasures.SetJammer();
     }
 }
+
