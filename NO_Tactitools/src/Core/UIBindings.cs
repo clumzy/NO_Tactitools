@@ -349,6 +349,27 @@ public class UIBindings {
                 public UILabel GetLabel() => label;
             }
 
+            public class UIGridLayout : UIElement {
+                private UIElement[,] cells;
+
+                public UIGridLayout(
+                    string name,
+                    Vector2 position,
+                    int rows,
+                    int columns,
+                    float cellWidth,
+                    float cellHeight,
+                    float spacingX,
+                    float spacingY,
+                    float side_padding,
+                    Transform UIParent) : base(name, UIParent) {
+                    cells = new UIElement[rows, columns];
+                    rectTransform.anchoredPosition = position;
+                    rectTransform.sizeDelta = new Vector2(
+                        columns * cellWidth + (columns - 1) * spacingX + 2 * side_padding,
+                        rows * cellHeight + (rows - 1) * spacingY + 2 * side_padding);
+                }
+            }
             public static Font GetDefaultFont() {
                 Text weaponText = UIBindings.Game.GetFlightHUDTransform().GetComponentInChildren<Text>();
                 return weaponText.font;
@@ -551,4 +572,4 @@ public class UIBindings {
                 }
             }
         }
-    }
+}
