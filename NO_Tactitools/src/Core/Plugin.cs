@@ -1,9 +1,11 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine;
+using Rewired;
 using NO_Tactitools.Controls;
 using NO_Tactitools.UI.HMD;
 using NO_Tactitools.UI.MFD;
@@ -57,7 +59,9 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<float> artificialHorizonTransparency;
         public static ConfigEntry<bool> autopilotMenuEnabled;
         public static ConfigEntry<string> autopilotControllerName;
-        public static ConfigEntry<string> autopilotOpenMenuInput;
+        public static ConfigEntry<string> autopilotOpenMenu;
+        public static ConfigEntry<string> autopilotOpenMenuControllerName;
+        public static ConfigEntry<int> autopilotOpenMenuButtonIndex;
         public static ConfigEntry<string> autopilotUpInput;
         public static ConfigEntry<string> autopilotDownInput;
         public static ConfigEntry<string> autopilotLeftInput;
@@ -73,8 +77,15 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<float> loadoutPreviewBackgroundTransparency;
         public static ConfigEntry<float> loadoutPreviewTextAndBorderTransparency;
         public static ConfigEntry<bool> debugModeEnabled;
+        public static ConfigEntry<string> customInputExample;
+        public static ConfigEntry<string> customInputExampleControllerName;
+        public static ConfigEntry<int> customInputExampleButtonIndex;
         internal static new ManualLogSource Logger;
         public static Plugin Instance;
+
+        private void Update() {
+            RewiredConfigManager.Update();
+        }
 
         private void Awake() {
             Instance = this;
@@ -485,14 +496,16 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 6
                     }));
-            autopilotOpenMenuInput = Config.Bind("Autopilot",
+            autopilotOpenMenu = Config.Bind("Autopilot",
                 "Autopilot - Open Menu - Input",
                 "",
                 new ConfigDescription(
                     "Input you want to assign to Open Menu",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 5
+                        Order = 5,
+                        ControllerName = autopilotOpenMenuControllerName,
+                        ButtonIndex = autopilotOpenMenuButtonIndex
                     }));
             autopilotUpInput = Config.Bind("Autopilot",
                 "Autopilot - Up - Input",
@@ -626,6 +639,19 @@ namespace NO_Tactitools.Core {
                 "Debug Mode - Enabled",
                 true,
                 "Enable or disable the debug mode for logging");
+
+            customInputExample = Config.Bind("Input Capture Example",
+                "Example Input",
+                "",
+                new ConfigDescription(
+                    "Click to capture a Rewired button input.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = customInputExampleControllerName,
+                        ButtonIndex = customInputExampleButtonIndex
+                    }));
+
             // Plugin startup logic
             harmony = new Harmony("george.no_tactitools");
             Logger = base.Logger;
@@ -716,10 +742,6 @@ namespace NO_Tactitools.Core {
                 string formattedTime = string.Format("{0:D2}:{1:D2}:{2:D2}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
                 Logger.LogInfo("[" + formattedTime + "] " + message);
             }
-        }
-
-        internal sealed class ConfigurationManagerAttributes {
-            public int? Order;
         }
     }
 }

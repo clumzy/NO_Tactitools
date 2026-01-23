@@ -22,8 +22,8 @@ public static class NOAutopilotControlPlugin {
                 Plugin.harmony.PatchAll(typeof(NOAutopilotComponent.OnPlatformStart));
                 Plugin.harmony.PatchAll(typeof(NOAutopilotComponent.OnPlatformUpdate));
                 InputCatcher.RegisterNewInput(
-                    Plugin.autopilotControllerName.Value,
-                    Plugin.autopilotOpenMenuInput.Value,
+                    Plugin.autopilotOpenMenuControllerName.Value,
+                    Plugin.autopilotOpenMenuButtonIndex.Value,
                     0.2f,
                     ToggleMenu
                 );
