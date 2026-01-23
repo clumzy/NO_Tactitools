@@ -20,31 +20,31 @@ class TargetListControllerPlugin {
             Plugin.harmony.PatchAll(typeof(TargetListControllerComponent.OnPlatformUpdate));
             InputCatcher.RegisterNewInput(
                 Plugin.targetRecallControllerName.Value,
-                Plugin.targetRecallInput.Value,
+                Plugin.targetRecallButtonIndex.Value,
                 0.2f,
                 onRelease: RecallTargets,
                 onLongPress: RememberTargets);
             InputCatcher.RegisterNewInput(
                 Plugin.targetNextControllerName.Value,
-                Plugin.targetNextInput.Value,
+                Plugin.targetNextButtonIndex.Value,
                 0.5f,
                 onRelease: NextTarget,
                 onLongPress: SortTargetsByDistance);
             InputCatcher.RegisterNewInput(
                 Plugin.targetPreviousControllerName.Value,
-                Plugin.targetPreviousInput.Value,
+                Plugin.targetPreviousButtonIndex.Value,
                 0.5f,
                 onRelease: PreviousTarget,
                 onLongPress: SortTargetsByName);
             InputCatcher.RegisterNewInput(
                 Plugin.targetPopOrKeepControllerName.Value,
-                Plugin.targetPopOrKeepInput.Value,
+                Plugin.targetPopOrKeepButtonIndex.Value,
                 0.2f,
                 onRelease: PopCurrentTarget,
                 onLongPress: KeepOnlyCurrentTarget);
             InputCatcher.RegisterNewInput(
                 Plugin.targetSmartControlControllerName.Value,
-                Plugin.targetSmartControlInput.Value,
+                Plugin.targetSmartControlButtonIndex.Value,
                 0.2f,
                 onRelease: KeepOnlyDataLinkedTargets,
                 onLongPress: KeepClosestTargetsBasedOnAmmo);

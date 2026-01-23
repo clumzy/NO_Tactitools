@@ -2,7 +2,6 @@ using System;
 using BepInEx.Configuration;
 using UnityEngine;
 using Rewired;
-using System.Collections.Generic;
 using HarmonyLib;
 using System.Collections;
 using System.Linq;
@@ -45,7 +44,7 @@ internal sealed class RewiredConfigManager {
                             string buttonName = Traverse.Create(elements[i]).Property("elementIdentifier").GetValue<ControllerElementIdentifier>().name;
                             
                             // 1. Maintain the full composite string as it was
-                            _targetEntry.BoxedValue = controllerName + "|" + buttonName + "|" + i.ToString();
+                            _targetEntry.BoxedValue = controllerName + " | " + buttonName + " | " + i.ToString();
 
                             // 2. Simple assignment to facultative linked configs
                             if (_targetControllerEntry != null) _targetControllerEntry.BoxedValue = controllerName;

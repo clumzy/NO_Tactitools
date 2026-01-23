@@ -16,7 +16,7 @@ class WeaponDisplayPlugin {
             // Register the new button for toggling the weapon display
             InputCatcher.RegisterNewInput(
                 Plugin.weaponDisplayControllerName.Value,
-                    Plugin.weaponDisplayButtonNumber.Value,
+                    Plugin.weaponDisplayButtonIndex.Value,
                     0.2f,
                     onRelease: HandleDisplayToggle
             );

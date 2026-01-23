@@ -12,39 +12,39 @@ class WeaponSwitcherPlugin {
         if (!initialized) {
             Plugin.Log($"[WS] Weapon Switcher plugin starting !");
             InputCatcher.RegisterNewInput(
-                Plugin.weaponSwitcherControllerName.Value,
-                Plugin.weaponSwitcherButton0.Value,
+                Plugin.weaponSwitcherControllerName0.Value,
+                Plugin.weaponSwitcherButtonIndex0.Value,
                 0.5f,
                 onRelease: HandleClick0,
                 onLongPress: HandleToggleAutoControl // Long press to switch to the first weapon station
                 );
             InputCatcher.RegisterNewInput(
-                Plugin.weaponSwitcherControllerName.Value,
-                Plugin.weaponSwitcherButton1.Value,
+                Plugin.weaponSwitcherControllerName1.Value,
+                Plugin.weaponSwitcherButtonIndex1.Value,
                 0.2f,
                 onRelease: HandleClick1
                 );
             InputCatcher.RegisterNewInput(
-                Plugin.weaponSwitcherControllerName.Value,
-                Plugin.weaponSwitcherButton2.Value,
+                Plugin.weaponSwitcherControllerName2.Value,
+                Plugin.weaponSwitcherButtonIndex2.Value,
                 0.2f,
                 onRelease: HandleClick2
                 );
             InputCatcher.RegisterNewInput(
-                Plugin.weaponSwitcherControllerName.Value,
-                Plugin.weaponSwitcherButton3.Value,
+                Plugin.weaponSwitcherControllerName3.Value,
+                Plugin.weaponSwitcherButtonIndex3.Value,
                 0.2f,
                 onRelease: HandleClick3
                 );
             InputCatcher.RegisterNewInput(
-                Plugin.weaponSwitcherControllerName.Value,
-                Plugin.weaponSwitcherButton4.Value,
+                Plugin.weaponSwitcherControllerName4.Value,
+                Plugin.weaponSwitcherButtonIndex4.Value,
                 0.2f,
                 onRelease: HandleClick4
                 );
             InputCatcher.RegisterNewInput(
-                Plugin.weaponSwitcherControllerName.Value,
-                Plugin.weaponSwitcherButton5.Value,
+                Plugin.weaponSwitcherControllerName5.Value,
+                Plugin.weaponSwitcherButtonIndex5.Value,
                 0.2f,
                 onRelease: HandleClick5
                 );

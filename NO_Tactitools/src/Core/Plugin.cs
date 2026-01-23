@@ -15,35 +15,54 @@ namespace NO_Tactitools.Core {
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;
         public static ConfigEntry<bool> targetListControllerEnabled;
-        public static ConfigEntry<string> targetRecallControllerName;
         public static ConfigEntry<string> targetRecallInput;
-        public static ConfigEntry<string> targetNextControllerName;
+        public static ConfigEntry<string> targetRecallControllerName;
+        public static ConfigEntry<int> targetRecallButtonIndex;
         public static ConfigEntry<string> targetNextInput;
-        public static ConfigEntry<string> targetPreviousControllerName;
+        public static ConfigEntry<string> targetNextControllerName;
+        public static ConfigEntry<int> targetNextButtonIndex;
         public static ConfigEntry<string> targetPreviousInput;
-        public static ConfigEntry<string> targetPopOrKeepControllerName;
+        public static ConfigEntry<string> targetPreviousControllerName;
+        public static ConfigEntry<int> targetPreviousButtonIndex;
         public static ConfigEntry<string> targetPopOrKeepInput;
-        public static ConfigEntry<string> targetSmartControlControllerName;
+        public static ConfigEntry<string> targetPopOrKeepControllerName;
+        public static ConfigEntry<int> targetPopOrKeepButtonIndex;
         public static ConfigEntry<string> targetSmartControlInput;
+        public static ConfigEntry<string> targetSmartControlControllerName;
+        public static ConfigEntry<int> targetSmartControlButtonIndex;
         public static ConfigEntry<bool> interceptionVectorEnabled;
         public static ConfigEntry<bool> onScreenVectorEnabled;
         public static ConfigEntry<bool> countermeasureControlsEnabled;
+        public static ConfigEntry<string> countermeasureControlsFlareInput;
         public static ConfigEntry<string> countermeasureControlsFlareControllerName;
-        public static ConfigEntry<string> countermeasureControlsFlareButtonNumber;
+        public static ConfigEntry<int> countermeasureControlsFlareButtonIndex;
+        public static ConfigEntry<string> countermeasureControlsJammerInput;
         public static ConfigEntry<string> countermeasureControlsJammerControllerName;
-        public static ConfigEntry<string> countermeasureControlsJammerButtonNumber;
+        public static ConfigEntry<int> countermeasureControlsJammerButtonIndex;
         public static ConfigEntry<bool> weaponSwitcherEnabled;
-        public static ConfigEntry<string> weaponSwitcherControllerName;
-        public static ConfigEntry<string> weaponSwitcherButton0;
-        public static ConfigEntry<string> weaponSwitcherButton1;
-        public static ConfigEntry<string> weaponSwitcherButton2;
-        public static ConfigEntry<string> weaponSwitcherButton3;
-        public static ConfigEntry<string> weaponSwitcherButton4;
-        public static ConfigEntry<string> weaponSwitcherButton5;
+        public static ConfigEntry<string> weaponSwitcherInput0;
+        public static ConfigEntry<string> weaponSwitcherControllerName0;
+        public static ConfigEntry<int> weaponSwitcherButtonIndex0;
+        public static ConfigEntry<string> weaponSwitcherInput1;
+        public static ConfigEntry<string> weaponSwitcherControllerName1;
+        public static ConfigEntry<int> weaponSwitcherButtonIndex1;
+        public static ConfigEntry<string> weaponSwitcherInput2;
+        public static ConfigEntry<string> weaponSwitcherControllerName2;
+        public static ConfigEntry<int> weaponSwitcherButtonIndex2;
+        public static ConfigEntry<string> weaponSwitcherInput3;
+        public static ConfigEntry<string> weaponSwitcherControllerName3;
+        public static ConfigEntry<int> weaponSwitcherButtonIndex3;
+        public static ConfigEntry<string> weaponSwitcherInput4;
+        public static ConfigEntry<string> weaponSwitcherControllerName4;
+        public static ConfigEntry<int> weaponSwitcherButtonIndex4;
+        public static ConfigEntry<string> weaponSwitcherInput5;
+        public static ConfigEntry<string> weaponSwitcherControllerName5;
+        public static ConfigEntry<int> weaponSwitcherButtonIndex5;
         public static ConfigEntry<bool> weaponDisplayEnabled;
         public static ConfigEntry<bool> weaponDisplayVanillaUIEnabled;
+        public static ConfigEntry<string> weaponDisplayInput;
         public static ConfigEntry<string> weaponDisplayControllerName;
-        public static ConfigEntry<string> weaponDisplayButtonNumber;
+        public static ConfigEntry<int> weaponDisplayButtonIndex;
         public static ConfigEntry<bool> unitDistanceEnabled;
         public static ConfigEntry<int> unitDistanceThreshold;
         public static ConfigEntry<bool> unitDistanceSoundEnabled;
@@ -58,15 +77,24 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> artificialHorizonEnabled;
         public static ConfigEntry<float> artificialHorizonTransparency;
         public static ConfigEntry<bool> autopilotMenuEnabled;
-        public static ConfigEntry<string> autopilotControllerName;
         public static ConfigEntry<string> autopilotOpenMenu;
         public static ConfigEntry<string> autopilotOpenMenuControllerName;
         public static ConfigEntry<int> autopilotOpenMenuButtonIndex;
         public static ConfigEntry<string> autopilotUpInput;
+        public static ConfigEntry<string> autopilotUpControllerName;
+        public static ConfigEntry<int> autopilotUpButtonIndex;
         public static ConfigEntry<string> autopilotDownInput;
+        public static ConfigEntry<string> autopilotDownControllerName;
+        public static ConfigEntry<int> autopilotDownButtonIndex;
         public static ConfigEntry<string> autopilotLeftInput;
+        public static ConfigEntry<string> autopilotLeftControllerName;
+        public static ConfigEntry<int> autopilotLeftButtonIndex;
         public static ConfigEntry<string> autopilotRightInput;
+        public static ConfigEntry<string> autopilotRightControllerName;
+        public static ConfigEntry<int> autopilotRightButtonIndex;
         public static ConfigEntry<string> autopilotEnterInput;
+        public static ConfigEntry<string> autopilotEnterControllerName;
+        public static ConfigEntry<int> autopilotEnterButtonIndex;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
         public static ConfigEntry<bool> loadoutPreviewOnlyShowOnBoot;
         public static ConfigEntry<float> loadoutPreviewDuration;
@@ -105,7 +133,18 @@ namespace NO_Tactitools.Core {
                     "Name of the peripheral",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 1
+                        Order = 1,
+                        Browsable = false
+                    }));
+            targetRecallButtonIndex = Config.Bind("Target List Controller",
+                "Target List Controller - Target Recall - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1,
+                        Browsable = false
                     }));
             targetRecallInput = Config.Bind("Target List Controller",
                 "Target List Controller - Target Recall - Input",
@@ -114,7 +153,10 @@ namespace NO_Tactitools.Core {
                     "Input you want to assign to Target Recall (short press to recall, long press to save)",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 0
+                        Order = 0,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = targetRecallControllerName,
+                        ButtonIndex = targetRecallButtonIndex
                     }));
             targetNextControllerName = Config.Bind("Target List Controller",
                 "Target List Controller - Next Target / Sort Target List by distance - Controller Name",
@@ -123,7 +165,18 @@ namespace NO_Tactitools.Core {
                     "Name of the peripheral",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = -1
+                        Order = -1,
+                        Browsable = false
+                    }));
+            targetNextButtonIndex = Config.Bind("Target List Controller",
+                "Target List Controller - Next Target / Sort Target List by distance - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -1,
+                        Browsable = false
                     }));
             targetNextInput = Config.Bind("Target List Controller",
                 "Target List Controller - Next Target / Sort Target List by distance - Input",
@@ -132,7 +185,10 @@ namespace NO_Tactitools.Core {
                     "Input you want to assign to Next Target / Sort Target List by distance (short press for next target, long press to sort)",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = -2
+                        Order = -2,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = targetNextControllerName,
+                        ButtonIndex = targetNextButtonIndex
                     }));
             targetPreviousControllerName = Config.Bind("Target List Controller",
                 "Target List Controller - Previous Target / Sort Target List by name - Controller Name",
@@ -141,7 +197,18 @@ namespace NO_Tactitools.Core {
                     "Name of the peripheral",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = -3
+                        Order = -3,
+                        Browsable = false
+                    }));
+            targetPreviousButtonIndex = Config.Bind("Target List Controller",
+                "Target List Controller - Previous Target / Sort Target List by name - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -3,
+                        Browsable = false
                     }));
             targetPreviousInput = Config.Bind("Target List Controller",
                 "Target List Controller - Previous Target / Sort target list by name - Input",
@@ -150,7 +217,10 @@ namespace NO_Tactitools.Core {
                     "Input you want to assign to Previous Target / Sort Target List by name (short press for previous target, long press to sort)",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = -4
+                        Order = -4,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = targetPreviousControllerName,
+                        ButtonIndex = targetPreviousButtonIndex
                     }));
             targetPopOrKeepControllerName = Config.Bind("Target List Controller",
                 "Target List Controller - Remove or Keep Target - Controller Name",
@@ -159,7 +229,18 @@ namespace NO_Tactitools.Core {
                     "Name of the peripheral",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = -5
+                        Order = -5,
+                        Browsable = false
+                    }));
+            targetPopOrKeepButtonIndex = Config.Bind("Target List Controller",
+                "Target List Controller - Remove or Keep Target - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -5,
+                        Browsable = false
                     }));
             targetPopOrKeepInput = Config.Bind("Target List Controller",
                 "Target List Controller - Remove or Keep Target - Input",
@@ -168,7 +249,10 @@ namespace NO_Tactitools.Core {
                     "Input you want to assign to Remove or Keep Target (short press to remove, long press to keep)",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = -6
+                        Order = -6,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = targetPopOrKeepControllerName,
+                        ButtonIndex = targetPopOrKeepButtonIndex
                     }));
             targetSmartControlControllerName = Config.Bind("Target List Controller",
                 "Target List Controller - Smart Control - Controller Name",
@@ -177,7 +261,18 @@ namespace NO_Tactitools.Core {
                     "Name of the peripheral",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = -9
+                        Order = -9,
+                        Browsable = false
+                    }));
+            targetSmartControlButtonIndex = Config.Bind("Target List Controller",
+                "Target List Controller - Smart Control - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -9,
+                        Browsable = false
                     }));
             targetSmartControlInput = Config.Bind("Target List Controller",
                 "Target List Controller - Smart Control - Input",
@@ -186,7 +281,10 @@ namespace NO_Tactitools.Core {
                     "Input you want to assign to Smart Control (short press to keep only datalinked targets, long press to keep closest targets based on remaining ammo)",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = -10
+                        Order = -10,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = targetSmartControlControllerName,
+                        ButtonIndex = targetSmartControlButtonIndex
                     }));
             // Interception Vector settings
             interceptionVectorEnabled = Config.Bind("Interception Vector",
@@ -215,16 +313,30 @@ namespace NO_Tactitools.Core {
                     "Name of the peripheral",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 3
+                        Order = 3,
+                        Browsable = false
                     }));
-            countermeasureControlsFlareButtonNumber = Config.Bind("Countermeasures",
+            countermeasureControlsFlareButtonIndex = Config.Bind("Countermeasures",
+                "Countermeasure Controls - Flares - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 3,
+                        Browsable = false
+                    }));
+            countermeasureControlsFlareInput = Config.Bind("Countermeasures",
                 "Countermeasure Controls - Flares - Input",
                 "",
                 new ConfigDescription(
                     "Input you want to assign for selecting Flares",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 2
+                        Order = 2,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = countermeasureControlsFlareControllerName,
+                        ButtonIndex = countermeasureControlsFlareButtonIndex
                     }));
             countermeasureControlsJammerControllerName = Config.Bind("Countermeasures",
                 "Countermeasure Controls - Jammer - Controller Name",
@@ -233,16 +345,30 @@ namespace NO_Tactitools.Core {
                     "Name of the peripheral",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 1
+                        Order = 1,
+                        Browsable = false
                     }));
-            countermeasureControlsJammerButtonNumber = Config.Bind("Countermeasures",
+            countermeasureControlsJammerButtonIndex = Config.Bind("Countermeasures",
+                "Countermeasure Controls - Jammer - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1,
+                        Browsable = false
+                    }));
+            countermeasureControlsJammerInput = Config.Bind("Countermeasures",
                 "Countermeasure Controls - Jammer - Input",
                 "",
                 new ConfigDescription(
                     "Input you want to assign for selecting Jammer",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 0
+                        Order = 0,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = countermeasureControlsJammerControllerName,
+                        ButtonIndex = countermeasureControlsJammerButtonIndex
                     }));
             // Weapon Switcher settings
             weaponSwitcherEnabled = Config.Bind("Advanced Slot Selection",
@@ -254,68 +380,197 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 7
                     }));
-            weaponSwitcherControllerName = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Controller Name",
+            weaponSwitcherControllerName0 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 0 - Controller Name",
                 "",
                 new ConfigDescription(
                     "Name of the peripheral",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 6
+                        Order = 6,
+                        Browsable = false
                     }));
-            weaponSwitcherButton0 = Config.Bind("Advanced Slot Selection",
+            weaponSwitcherButtonIndex0 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 0 - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 6,
+                        Browsable = false
+                    }));
+            weaponSwitcherInput0 = Config.Bind("Advanced Slot Selection",
                 "Advanced Slot Selection - Slot 0 - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 0 (Long press to toggle Turret Auto Control)",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 5
+                        Order = 5,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = weaponSwitcherControllerName0,
+                        ButtonIndex = weaponSwitcherButtonIndex0
                     }));
-            weaponSwitcherButton1 = Config.Bind("Advanced Slot Selection",
+            weaponSwitcherControllerName1 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 1 - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 4,
+                        Browsable = false
+                    }));
+            weaponSwitcherButtonIndex1 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 1 - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 4,
+                        Browsable = false
+                    }));
+            weaponSwitcherInput1 = Config.Bind("Advanced Slot Selection",
                 "Advanced Slot Selection - Slot 1 - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 1",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 4
+                        Order = 4,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = weaponSwitcherControllerName1,
+                        ButtonIndex = weaponSwitcherButtonIndex1
                     }));
-            weaponSwitcherButton2 = Config.Bind("Advanced Slot Selection",
+            weaponSwitcherControllerName2 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 2 - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 3,
+                        Browsable = false
+                    }));
+            weaponSwitcherButtonIndex2 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 2 - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 3,
+                        Browsable = false
+                    }));
+            weaponSwitcherInput2 = Config.Bind("Advanced Slot Selection",
                 "Advanced Slot Selection - Slot 2 - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 2",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 3
+                        Order = 3,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = weaponSwitcherControllerName2,
+                        ButtonIndex = weaponSwitcherButtonIndex2
                     }));
-            weaponSwitcherButton3 = Config.Bind("Advanced Slot Selection",
+            weaponSwitcherControllerName3 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 3 - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2,
+                        Browsable = false
+                    }));
+            weaponSwitcherButtonIndex3 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 3 - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2,
+                        Browsable = false
+                    }));
+            weaponSwitcherInput3 = Config.Bind("Advanced Slot Selection",
                 "Advanced Slot Selection - Slot 3 - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 3",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 2
+                        Order = 2,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = weaponSwitcherControllerName3,
+                        ButtonIndex = weaponSwitcherButtonIndex3
                     }));
-            weaponSwitcherButton4 = Config.Bind("Advanced Slot Selection",
+            weaponSwitcherControllerName4 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 4 - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1,
+                        Browsable = false
+                    }));
+            weaponSwitcherButtonIndex4 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 4 - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1,
+                        Browsable = false
+                    }));
+            weaponSwitcherInput4 = Config.Bind("Advanced Slot Selection",
                 "Advanced Slot Selection - Slot 4 - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 4",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 1
+                        Order = 1,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = weaponSwitcherControllerName4,
+                        ButtonIndex = weaponSwitcherButtonIndex4
                     }));
-            weaponSwitcherButton5 = Config.Bind("Advanced Slot Selection",
+            weaponSwitcherControllerName5 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 5 - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0,
+                        Browsable = false
+                    }));
+            weaponSwitcherButtonIndex5 = Config.Bind("Advanced Slot Selection",
+                "Advanced Slot Selection - Slot 5 - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0,
+                        Browsable = false
+                    }));
+            weaponSwitcherInput5 = Config.Bind("Advanced Slot Selection",
                 "Advanced Slot Selection - Slot 5 - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 5",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 0
+                        Order = 0,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = weaponSwitcherControllerName5,
+                        ButtonIndex = weaponSwitcherButtonIndex5
                     }));
             // Weapon Display settings
             weaponDisplayEnabled = Config.Bind("CM & Weapon Display",
@@ -343,16 +598,30 @@ namespace NO_Tactitools.Core {
                     "Name of the peripheral",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 1
+                        Order = 1,
+                        Browsable = false
                     }));
-            weaponDisplayButtonNumber = Config.Bind("CM & Weapon Display",
+            weaponDisplayButtonIndex = Config.Bind("CM & Weapon Display",
+                "CM & Weapon Display - Content Toggling - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1,
+                        Browsable = false
+                    }));
+            weaponDisplayInput = Config.Bind("CM & Weapon Display",
                 "CM & Weapon Display - Content Toggling - Input",
                 "",
                 new ConfigDescription(
                     "Input you want to assign for toggling the weapon display back to its original content",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 0
+                        Order = 0,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = weaponDisplayControllerName,
+                        ButtonIndex = weaponDisplayButtonIndex
                     }));
             // Unit Distance settings
             unitDistanceEnabled = Config.Bind("HMD Tweaks",
@@ -487,14 +756,25 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 7
                     }));
-            autopilotControllerName = Config.Bind("Autopilot",
-                "Autopilot - Controller Name",
+            autopilotOpenMenuControllerName = Config.Bind("Autopilot",
+                "Autopilot - Open Menu - Controller Name",
                 "",
                 new ConfigDescription(
                     "Name of the peripheral",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 6
+                        Order = 5,
+                        Browsable = false
+                    }));
+            autopilotOpenMenuButtonIndex = Config.Bind("Autopilot",
+                "Autopilot - Open Menu - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 5,
+                        Browsable = false
                     }));
             autopilotOpenMenu = Config.Bind("Autopilot",
                 "Autopilot - Open Menu - Input",
@@ -504,8 +784,29 @@ namespace NO_Tactitools.Core {
                     null,
                     new ConfigurationManagerAttributes {
                         Order = 5,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
                         ControllerName = autopilotOpenMenuControllerName,
                         ButtonIndex = autopilotOpenMenuButtonIndex
+                    }));
+            autopilotUpControllerName = Config.Bind("Autopilot",
+                "Autopilot - Up - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 4,
+                        Browsable = false
+                    }));
+            autopilotUpButtonIndex = Config.Bind("Autopilot",
+                "Autopilot - Up - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 4,
+                        Browsable = false
                     }));
             autopilotUpInput = Config.Bind("Autopilot",
                 "Autopilot - Up - Input",
@@ -514,7 +815,30 @@ namespace NO_Tactitools.Core {
                     "Input for Up navigation",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 4
+                        Order = 4,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = autopilotUpControllerName,
+                        ButtonIndex = autopilotUpButtonIndex
+                    }));
+            autopilotDownControllerName = Config.Bind("Autopilot",
+                "Autopilot - Down - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 3,
+                        Browsable = false
+                    }));
+            autopilotDownButtonIndex = Config.Bind("Autopilot",
+                "Autopilot - Down - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 3,
+                        Browsable = false
                     }));
             autopilotDownInput = Config.Bind("Autopilot",
                 "Autopilot - Down - Input",
@@ -523,7 +847,30 @@ namespace NO_Tactitools.Core {
                     "Input for Down navigation",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 3
+                        Order = 3,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = autopilotDownControllerName,
+                        ButtonIndex = autopilotDownButtonIndex
+                    }));
+            autopilotLeftControllerName = Config.Bind("Autopilot",
+                "Autopilot - Left - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2,
+                        Browsable = false
+                    }));
+            autopilotLeftButtonIndex = Config.Bind("Autopilot",
+                "Autopilot - Left - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2,
+                        Browsable = false
                     }));
             autopilotLeftInput = Config.Bind("Autopilot",
                 "Autopilot - Left - Input",
@@ -532,7 +879,30 @@ namespace NO_Tactitools.Core {
                     "Input for Left navigation",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 2
+                        Order = 2,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = autopilotLeftControllerName,
+                        ButtonIndex = autopilotLeftButtonIndex
+                    }));
+            autopilotRightControllerName = Config.Bind("Autopilot",
+                "Autopilot - Right - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1,
+                        Browsable = false
+                    }));
+            autopilotRightButtonIndex = Config.Bind("Autopilot",
+                "Autopilot - Right - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1,
+                        Browsable = false
                     }));
             autopilotRightInput = Config.Bind("Autopilot",
                 "Autopilot - Right - Input",
@@ -541,7 +911,30 @@ namespace NO_Tactitools.Core {
                     "Input for Right navigation",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 1
+                        Order = 1,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = autopilotRightControllerName,
+                        ButtonIndex = autopilotRightButtonIndex
+                    }));
+            autopilotEnterControllerName = Config.Bind("Autopilot",
+                "Autopilot - Enter - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0,
+                        Browsable = false
+                    }));
+            autopilotEnterButtonIndex = Config.Bind("Autopilot",
+                "Autopilot - Enter - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0,
+                        Browsable = false
                     }));
             autopilotEnterInput = Config.Bind("Autopilot",
                 "Autopilot - Enter - Input",
@@ -550,7 +943,10 @@ namespace NO_Tactitools.Core {
                     "Input for Enter / Action",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 0
+                        Order = 0,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = autopilotEnterControllerName,
+                        ButtonIndex = autopilotEnterButtonIndex
                     }));
             // Loadout Preview settings
             loadoutPreviewEnabled = Config.Bind("Loadout Preview",

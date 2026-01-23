@@ -28,36 +28,36 @@ public static class NOAutopilotControlPlugin {
                     ToggleMenu
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.autopilotControllerName.Value,
-                    Plugin.autopilotEnterInput.Value,
+                    Plugin.autopilotEnterControllerName.Value,
+                    Plugin.autopilotEnterButtonIndex.Value,
                     999f, // High threshold so OnHold keeps running indefinitely
                     SelectActionShort,
                     SelectActionHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.autopilotControllerName.Value,
-                    Plugin.autopilotUpInput.Value,
+                    Plugin.autopilotUpControllerName.Value,
+                    Plugin.autopilotUpButtonIndex.Value,
                     999f, // High threshold so OnHold keeps running
                     NavigateUpShort,
                     NavigateUpHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.autopilotControllerName.Value,
-                    Plugin.autopilotDownInput.Value,
+                    Plugin.autopilotDownControllerName.Value,
+                    Plugin.autopilotDownButtonIndex.Value,
                     999f, // High threshold so OnHold keeps running
                     NavigateDownShort,
                     NavigateDownHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.autopilotControllerName.Value,
-                    Plugin.autopilotLeftInput.Value,
+                    Plugin.autopilotLeftControllerName.Value,
+                    Plugin.autopilotLeftButtonIndex.Value,
                     999f,
                     NavigateLeftShort,
                     NavigateLeftHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.autopilotControllerName.Value,
-                    Plugin.autopilotRightInput.Value,
+                    Plugin.autopilotRightControllerName.Value,
+                    Plugin.autopilotRightButtonIndex.Value,
                     999f,
                     NavigateRightShort,
                     NavigateRightHold
