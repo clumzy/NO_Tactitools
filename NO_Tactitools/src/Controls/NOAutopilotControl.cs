@@ -139,9 +139,11 @@ public static class NOAutopilotControlPlugin {
             NOAutopilotComponent.InternalState.lastRepeatTime = time;
             NOAutopilotComponent.InternalState.selectToggleHandled = false;
             NOAutopilotComponent.InternalState.selectActionHandled = false;
+            NOAutopilotComponent.InternalState.selectNumberRepeatCount = 0;
             if (isRepeatable) {
                 menu.OnSelect();
                 NOAutopilotComponent.InternalState.selectActionHandled = true;
+                NOAutopilotComponent.InternalState.selectNumberRepeatCount = 1;
             }
             return;
         }
@@ -179,6 +181,7 @@ public static class NOAutopilotControlPlugin {
             }
             else if (time >= NOAutopilotComponent.InternalState.selectRepeatTime) {
                 menu.OnSelect();
+                NOAutopilotComponent.InternalState.selectNumberRepeatCount++;
                 NOAutopilotComponent.InternalState.selectRepeatTime = time + 0.08f;
             }
         }
@@ -187,6 +190,7 @@ public static class NOAutopilotControlPlugin {
     public static void SelectActionShort() {
         NOAutopilotComponent.InternalState.lastRepeatTime = 0f;
         NOAutopilotComponent.InternalState.selectRepeatTime = 0f;
+        NOAutopilotComponent.InternalState.selectNumberRepeatCount = 0;
 
         if (NOAutopilotComponent.InternalState.selectToggleHandled) {
             NOAutopilotComponent.InternalState.selectToggleHandled = false;
@@ -300,12 +304,12 @@ public static class NOAutopilotControlPlugin {
         if (menu.selectedRow == 5) {
             int[] row5Cols = [0, 1, 2, 5];
             int idx = System.Array.IndexOf(row5Cols, menu.selectedCol);
-            int newIdx = Mathf.Clamp(idx + direction, 0, row5Cols.Length - 1);
+            int newIdx = (idx + direction + row5Cols.Length) % row5Cols.Length;
             menu.selectedCol = row5Cols[newIdx];
             if (menu.selectedCol is 1 or 2) NOAutopilotComponent.InternalState.lastGridCol = menu.selectedCol;
         }
         else {
-            menu.selectedCol = Mathf.Clamp(menu.selectedCol + direction, 0, 5);
+            menu.selectedCol = (menu.selectedCol + direction + 6) % 6;
         }
         UIBindings.Sound.PlaySound("beep_scroll");
     }
@@ -329,14 +333,6 @@ public class NOAutopilotComponent {
             if (GameBindings.Player.Aircraft.GetAircraft() == null) {
                 return;
             }
-            // /!\   SPECIFIC AUTO THROTTLE BEHAVIOUR PATCH START /!\
-            if (InternalState.lastApState && !APData.Enabled) {
-                APData.TargetSpeed = -1f;
-                ResetStagedValues();
-                NOAutopilot.Plugin.SyncMenuValues();
-            }
-            InternalState.lastApState = APData.Enabled;
-            // /!\   SPECIFIC AUTO THROTTLE BEHAVIOUR PATCH END   /!\
 
             // Row 1: Altitude
             InternalState.currentAlt = APData.CurrentAlt;
@@ -376,7 +372,6 @@ public class NOAutopilotComponent {
     public static class InternalState {
         public static NOAutoPilotMenu autopilotMenu;
         public static bool showMenu = false;
-        public static bool lastApState = false;
         public static Color mainColor = Color.green;
         public static Color textColor = Color.green;
         public static int lastGridCol = 1;
@@ -425,6 +420,7 @@ public class NOAutopilotComponent {
         public static float leftHoldStartTime;
         public static float lastRightRepeatTime;
         public static float rightHoldStartTime;
+        public static int selectNumberRepeatCount;
 
         // Nav Mode
         public static bool navEnabled;
@@ -762,7 +758,7 @@ public class NOAutopilotComponent {
                 if (selectedCol == 0) {
                     APData.Enabled = !APData.Enabled;
                     NOAutopilot.Plugin.SyncMenuValues();
-                    if (APData.Enabled)
+                    if (!APData.Enabled)
                         UIBindings.Sound.PlaySound("beep_autopilot");
                     return;
                 }
@@ -795,7 +791,7 @@ public class NOAutopilotComponent {
                 // Bottom Buttons
                 if (selectedCol == 0) {
                     APData.Enabled = !APData.Enabled;
-                    if (APData.Enabled)
+                    if (!APData.Enabled)
                         UIBindings.Sound.PlaySound("beep_autopilot");
                     NOAutopilot.Plugin.SyncMenuValues();
                 }
@@ -849,37 +845,45 @@ public class NOAutopilotComponent {
         }
 
         private void AdjustStagedValue(int row, int direction) {
+            // Calculate multiplier: 10x after 10 repeats
+            float multiplier = InternalState.selectNumberRepeatCount >= 10 ? 10f : 1f;
+
             switch (row) {
                 case 0: // Alt
                     if (InternalState.stagedAlt < 0) {
                         InternalState.stagedAlt = InternalState.currentAlt;
                     }
 
-                    InternalState.stagedAlt = Mathf.Max(0, Mathf.Round((InternalState.stagedAlt + (direction * InternalState.altIncrement)) / InternalState.altIncrement) * InternalState.altIncrement);
+                    float altAdjustment = direction * InternalState.altIncrement * multiplier;
+                    InternalState.stagedAlt = Mathf.Max(0, Mathf.Round((InternalState.stagedAlt + altAdjustment) / InternalState.altIncrement) * InternalState.altIncrement);
                     break;
                 case 1: // Climb
-                    InternalState.stagedMaxClimbRate = Mathf.Max(1, Mathf.Round((InternalState.stagedMaxClimbRate + (direction * InternalState.climbIncrement)) / InternalState.climbIncrement) * InternalState.climbIncrement);
+                    float climbAdjustment = direction * InternalState.climbIncrement * multiplier;
+                    InternalState.stagedMaxClimbRate = Mathf.Max(1, Mathf.Round((InternalState.stagedMaxClimbRate + climbAdjustment) / InternalState.climbIncrement) * InternalState.climbIncrement);
                     break;
                 case 2: // Roll
                     if (InternalState.stagedRoll <= -900f) {
                         InternalState.stagedRoll = 0f;
                     }
 
-                    InternalState.stagedRoll = Mathf.Clamp(Mathf.Round((InternalState.stagedRoll + (direction * InternalState.rollIncrement)) / InternalState.rollIncrement) * InternalState.rollIncrement, -60f, 60f);
+                    float rollAdjustment = direction * InternalState.rollIncrement * multiplier;
+                    InternalState.stagedRoll = Mathf.Clamp(Mathf.Round((InternalState.stagedRoll + rollAdjustment) / InternalState.rollIncrement) * InternalState.rollIncrement, -60f, 60f);
                     break;
                 case 3: // Speed
                     if (InternalState.stagedSpeed < 0) {
                         InternalState.stagedSpeed = InternalState.currentTAS * 3.6f;
                     }
 
-                    InternalState.stagedSpeed = Mathf.Max(0, Mathf.Round((InternalState.stagedSpeed + (direction * InternalState.speedIncrement)) / InternalState.speedIncrement) * InternalState.speedIncrement);
+                    float speedAdjustment = direction * InternalState.speedIncrement * multiplier;
+                    InternalState.stagedSpeed = Mathf.Max(0, Mathf.Round((InternalState.stagedSpeed + speedAdjustment) / InternalState.speedIncrement) * InternalState.speedIncrement);
                     break;
                 case 4: // Course
                     if (InternalState.stagedCourse < 0) {
                         InternalState.stagedCourse = InternalState.currentCourse;
                     }
 
-                    float targetCourse = Mathf.Round((InternalState.stagedCourse + (direction * InternalState.courseIncrement)) / InternalState.courseIncrement) * InternalState.courseIncrement;
+                    float courseAdjustment = direction * InternalState.courseIncrement * multiplier;
+                    float targetCourse = Mathf.Round((InternalState.stagedCourse + courseAdjustment) / InternalState.courseIncrement) * InternalState.courseIncrement;
                     InternalState.stagedCourse = (targetCourse + 360f) % 360f;
                     break;
                 default:
@@ -896,7 +900,6 @@ public class NOAutopilotComponent {
             APData.TargetCourse = InternalState.stagedCourse;
             if (autoEngage && !APData.Enabled) {
                 APData.Enabled = true;
-                UIBindings.Sound.PlaySound("beep_autopilot");
             }
             NOAutopilot.Plugin.SyncMenuValues();
             Plugin.Log("[AP] Values Applied.");
@@ -905,6 +908,10 @@ public class NOAutopilotComponent {
         public void UpdateColors(Color textColor) {
             bool isSelected;
             bool row5 = selectedRow == 5;
+
+            // Detect if text color is green or green-adjacent
+            bool isGreenTheme = IsGreenColor(textColor);
+            Color toggleIndicatorColor = isGreenTheme ? Color.yellow : Color.green;
 
             // Engaged Bars (Col 0)
             isSelected = selectedCol == 0;
@@ -915,12 +922,25 @@ public class NOAutopilotComponent {
             for (int i = 0; i < 5; i++) {
                 // Value (Col 1)
                 isSelected = selectedRow == i && selectedCol == 1;
-                // Bearing value (row 4) is green in nav/waypoint mode
-                // Speed value (row 3) is green when extreme throttle is enabled
                 Color valueColor = textColor;
-                if (i == 4 && InternalState.navEnabled) valueColor = Color.green;
-                if (i == 3 && InternalState.extremeThrottleEnabled) valueColor = Color.green;
-                ApplyStyle(valueRects[i], isSelected ? valueColor : Color.clear, valueColor, isSelected ? Color.black : valueColor);
+                Color valueBgColor = Color.clear;
+                
+                // Bearing value (row 4) and speed value (row 3) show toggle state with appropriate color
+                if (i == 4 && InternalState.navEnabled) {
+                    valueBgColor = toggleIndicatorColor;
+                    valueColor = Color.black;
+                }
+                else if (i == 3 && InternalState.extremeThrottleEnabled) {
+                    valueBgColor = toggleIndicatorColor;
+                    valueColor = Color.black;
+                }
+                
+                if (isSelected) {
+                    valueBgColor = toggleIndicatorColor;
+                    valueColor = Color.black;
+                }
+                
+                ApplyStyle(valueRects[i], valueBgColor, valueColor, valueColor);
 
                 // C (Col 2)
                 isSelected = selectedRow == i && selectedCol == 2;
@@ -959,6 +979,10 @@ public class NOAutopilotComponent {
             }
 
             ApplyStyle(gcasButton, isSelected ? gcasColor : Color.clear, gcasColor, isSelected ? Color.black : gcasColor);
+        }
+
+        private bool IsGreenColor(Color color) {
+            return color.g > 0.75f && color.g > color.r && color.g > color.b;
         }
 
         private void ApplyStyle(UIBindings.Draw.UIAdvancedRectangleLabeled rect, Color bgColor, Color borderColor, Color textColor) {
