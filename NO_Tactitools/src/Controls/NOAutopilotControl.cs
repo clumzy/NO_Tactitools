@@ -130,6 +130,7 @@ public static class NOAutopilotControlPlugin {
         bool isBearingValue = menu.selectedRow == 4 && menu.selectedCol == 1;
         bool isSpeedValue = menu.selectedRow == 3 && menu.selectedCol == 1;
         bool isToggleable = isBearingValue || isSpeedValue;
+        bool isCButton = menu.selectedCol == 2 && menu.selectedRow < 5;
 
         float time = Time.time;
 
@@ -146,6 +147,14 @@ public static class NOAutopilotControlPlugin {
         }
 
         float holdDuration = time - NOAutopilotComponent.InternalState.lastRepeatTime;
+
+        // Handle C button long press - clear all and stop
+        if (isCButton && holdDuration >= 0.8f && !NOAutopilotComponent.InternalState.selectActionHandled) {
+            NOAutopilotComponent.InternalState.selectActionHandled = true;
+            menu.ResetAllAndStop();
+            UIBindings.Sound.PlaySound("beep_scroll");
+            return;
+        }
 
         // Handle toggleable values (bearing/speed) - trigger once after 0.4s
         if (isToggleable && holdDuration >= 0.4f && !NOAutopilotComponent.InternalState.selectToggleHandled) {
@@ -317,49 +326,52 @@ public class NOAutopilotComponent {
         }
 
         public static void Update() {
-            try {
-                // Row 1: Altitude
-                InternalState.currentAlt = APData.CurrentAlt;
-                InternalState.targetAlt = APData.TargetAlt;
-
-                // Row 2: Vertical Speed
-                InternalState.currentVS = APData.PlayerRB?.velocity.y ?? 0f;
-                InternalState.maxClimbRate = APData.CurrentMaxClimbRate;
-
-                // Row 3: Roll
-                InternalState.currentRoll = APData.CurrentRoll;
-                InternalState.targetRoll = APData.TargetRoll;
-
-                // Row 4: Speed
-                InternalState.currentTAS = APData.LocalAircraft?.speed ?? 0f;
-                InternalState.targetSpeed = APData.TargetSpeed;
-
-                // Row 5: Course
-                InternalState.currentCourse = 0f;
-                if (APData.PlayerRB != null && APData.PlayerRB.velocity.sqrMagnitude > 1f) {
-                    Vector3 flatVel = Vector3.ProjectOnPlane(APData.PlayerRB.velocity, Vector3.up);
-                    InternalState.currentCourse = Quaternion.LookRotation(flatVel).eulerAngles.y;
-                }
-                InternalState.targetCourse = APData.TargetCourse;
-
-                // System States
-                InternalState.apEnabled = APData.Enabled;
-                InternalState.ajActive = APData.AutoJammerActive;
-                InternalState.gcasEnabled = APData.GCASEnabled;
-                InternalState.gcasActive = APData.GCASActive;
-                InternalState.gcasWarning = APData.GCASWarning;
-                InternalState.navEnabled = APData.NavEnabled;
-                InternalState.extremeThrottleEnabled = APData.AllowExtremeThrottle;
+            if (InternalState.lastApState && !APData.Enabled) {
+                APData.TargetSpeed = -1f;
+                ResetStagedValues();
+                NOAutopilot.Plugin.SyncMenuValues();
             }
-            catch (Exception) {
-                // Silent for now
+            InternalState.lastApState = APData.Enabled;
+
+            // Row 1: Altitude
+            InternalState.currentAlt = APData.CurrentAlt;
+            InternalState.targetAlt = APData.TargetAlt;
+
+            // Row 2: Vertical Speed
+            InternalState.currentVS = APData.PlayerRB?.velocity.y ?? 0f;
+            InternalState.maxClimbRate = APData.CurrentMaxClimbRate;
+
+            // Row 3: Roll
+            InternalState.currentRoll = APData.CurrentRoll;
+            InternalState.targetRoll = APData.TargetRoll;
+
+            // Row 4: Speed
+            InternalState.currentTAS = APData.LocalAircraft?.speed ?? 0f;
+            InternalState.targetSpeed = APData.TargetSpeed;
+
+            // Row 5: Course
+            InternalState.currentCourse = 0f;
+            if (APData.PlayerRB != null && APData.PlayerRB.velocity.sqrMagnitude > 1f) {
+                Vector3 flatVel = Vector3.ProjectOnPlane(APData.PlayerRB.velocity, Vector3.up);
+                InternalState.currentCourse = Quaternion.LookRotation(flatVel).eulerAngles.y;
             }
+            InternalState.targetCourse = APData.TargetCourse;
+
+            // System States
+            InternalState.apEnabled = APData.Enabled;
+            InternalState.ajActive = APData.AutoJammerActive;
+            InternalState.gcasEnabled = APData.GCASEnabled;
+            InternalState.gcasActive = APData.GCASActive;
+            InternalState.gcasWarning = APData.GCASWarning;
+            InternalState.navEnabled = APData.NavEnabled;
+            InternalState.extremeThrottleEnabled = APData.AllowExtremeThrottle;
         }
     }
 
     public static class InternalState {
         public static NOAutoPilotMenu autopilotMenu;
         public static bool showMenu = false;
+        public static bool lastApState = false;
         public static Color mainColor = Color.green;
         public static Color textColor = Color.green;
         public static int lastGridCol = 1;
@@ -820,6 +832,17 @@ public class NOAutopilotComponent {
             }
         }
 
+        public void ResetAllAndStop() {
+            for (int i = 0; i < 5; i++) {
+                ClearStagedValue(i);
+            }
+
+            ApplyStagedValues(autoEngage: false);
+            APData.Enabled = false;
+            NOAutopilot.Plugin.SyncMenuValues();
+            UIBindings.Game.DisplayToast("Autopilot: <b>RESET & STOPPED</b>");
+        }
+
         private void AdjustStagedValue(int row, int direction) {
             switch (row) {
                 case 0: // Alt
@@ -859,19 +882,17 @@ public class NOAutopilotComponent {
             }
         }
 
-        private void ApplyStagedValues() {
+        private void ApplyStagedValues(bool autoEngage = true) {
             APData.TargetAlt = InternalState.stagedAlt;
             APData.CurrentMaxClimbRate = InternalState.stagedMaxClimbRate;
             APData.TargetRoll = InternalState.stagedRoll;
             APData.TargetSpeed = InternalState.stagedSpeed < 0 ? -1f : InternalState.stagedSpeed / 3.6f;
 
             APData.TargetCourse = InternalState.stagedCourse;
-
-            if (!APData.Enabled)
+            if (autoEngage && !APData.Enabled) {
+                APData.Enabled = true;
                 UIBindings.Sound.PlaySound("beep_autopilot");
-            APData.Enabled = true; // Auto-engage on set
-            APData.UseSetValues = true;
-
+            }
             NOAutopilot.Plugin.SyncMenuValues();
             Plugin.Log("[AP] Values Applied.");
         }
