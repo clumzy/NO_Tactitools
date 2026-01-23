@@ -18,7 +18,7 @@ public class InputCatcher {
 
     public static void RegisterNewInput(
         string controllerName,
-        string inputString,
+        int buttonIndex,
         float longPressThreshold = 0.2f,
         System.Action onRelease = null,
         System.Action onHold = null,
@@ -28,7 +28,7 @@ public class InputCatcher {
             Plugin.Log("[IC] No controller name provided for button registration. Skipping.");
             return;
         }
-        else if (inputString == "") {
+        else if (buttonIndex < 0) {
             Plugin.Log("[IC] No input code string provided for button registration. Skipping.");
             return;
         }
@@ -36,7 +36,7 @@ public class InputCatcher {
         bool found = false;
         foreach (Controller controller in controllerInputs.Keys) {
             if (controller.name.Trim() == controllerName) {
-                RegisterInputNow(controller, inputString, longPressThreshold, onRelease, onHold, onLongPress);
+                RegisterInputNow(controller, buttonIndex, longPressThreshold, onRelease, onHold, onLongPress);
                 found = true;
                 break;
             }
@@ -45,32 +45,31 @@ public class InputCatcher {
         if (!found) {
             if (!pendingControllerInputs.ContainsKey(controllerName))
                 pendingControllerInputs[controllerName] = [];
-            pendingControllerInputs[controllerName].Add(new PendingInput(inputString, longPressThreshold, onRelease, onHold, onLongPress));
-            Plugin.Log("[IC] Controller not connected, input " + inputString + " added to pending list for " + controllerName);
+            pendingControllerInputs[controllerName].Add(new PendingInput(buttonIndex, longPressThreshold, onRelease, onHold, onLongPress));
+            Plugin.Log("[IC] Controller not connected, input " + buttonIndex + " added to pending list for " + controllerName);
         }
     }
 
     public static IEnumerator RegisterPendingInputsRoutine(Controller controller, List<PendingInput> pendingInputs) {
         yield return null;
         foreach (PendingInput pending in pendingInputs) {
-            RegisterInputNow(controller, pending.inputString, pending.longPressThreshold, pending.onShortPress, pending.onHold, pending.onLongPress);
+            RegisterInputNow(controller, pending.inputIndex, pending.longPressThreshold, pending.onShortPress, pending.onHold, pending.onLongPress);
         }
     }
 
     public static void RegisterInputNow(
         Controller controller,
-        string inputString,
+        int inputIndex,
         float longPressThreshold,
         System.Action onRelease,
         System.Action onHold,
         System.Action onLongPress) 
         {
         string controllerName = controller.name.Trim();
-        Plugin.Log("[IC] Registering button " + inputString + " on controller " + controllerName);
-        int buttonIndex = InputStringToButtonNumber(controller, inputString);
+        Plugin.Log("[IC] Registering button " + inputIndex + " on controller " + controllerName);
 
         ControllerInput newInput = new(
-                    buttonIndex,
+                    inputIndex,
                     longPressThreshold,
                     onRelease,
                     onHold,
@@ -78,21 +77,7 @@ public class InputCatcher {
                     );
 
         controllerInputs[controller].Add(newInput);
-        Plugin.Log("[IC] Registered input " + inputString + " on controller " + controllerName + " at index " + buttonIndex.ToString());
-    }
-
-    public static int InputStringToButtonNumber(
-        Controller controller,
-        string inputString) {
-        IList elements = Traverse.Create(controller).Field("KHksquAJKcDEUkNfJQjMANjDEBFB").GetValue<IList>();
-        for (int i = 0; i < elements.Count; i++) {
-            var element = elements[i];
-            ControllerElementIdentifier elementIdentifier = Traverse.Create(element).Property("elementIdentifier").GetValue<ControllerElementIdentifier>();
-            if (elementIdentifier.name == inputString) {
-                return i;
-            }
-        }
-        return -1;
+        Plugin.Log("[IC] Registered input " + inputIndex + " on controller " + controllerName + ".");
     }
 
 }
@@ -130,9 +115,9 @@ public class ControllerInput {
     }
 }
 
-public class PendingInput(string inputCodeString, float longPressThreshold, System.Action onShortPress, System.Action onHold, System.Action onLongPress) {
+public class PendingInput(int inputIndex, float longPressThreshold, System.Action onShortPress, System.Action onHold, System.Action onLongPress) {
     // Different because we don't have button number yet
-    public string inputString = inputCodeString;
+    public int inputIndex = inputIndex;
     public float longPressThreshold = longPressThreshold;
     public System.Action onShortPress = onShortPress;
     public System.Action onHold = onHold;
