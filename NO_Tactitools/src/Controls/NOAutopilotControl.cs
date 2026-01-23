@@ -326,12 +326,14 @@ public class NOAutopilotComponent {
         }
 
         public static void Update() {
+            // /!\   SPECIFIC AUTO THROTTLE BEHAVIOUR PATCH START /!\
             if (InternalState.lastApState && !APData.Enabled) {
                 APData.TargetSpeed = -1f;
                 ResetStagedValues();
                 NOAutopilot.Plugin.SyncMenuValues();
             }
             InternalState.lastApState = APData.Enabled;
+            // /!\   SPECIFIC AUTO THROTTLE BEHAVIOUR PATCH END   /!\
 
             // Row 1: Altitude
             InternalState.currentAlt = APData.CurrentAlt;
