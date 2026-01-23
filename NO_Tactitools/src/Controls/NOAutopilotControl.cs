@@ -326,6 +326,9 @@ public class NOAutopilotComponent {
         }
 
         public static void Update() {
+            if (GameBindings.Player.Aircraft.GetAircraft() == null) {
+                return;
+            }
             // /!\   SPECIFIC AUTO THROTTLE BEHAVIOUR PATCH START /!\
             if (InternalState.lastApState && !APData.Enabled) {
                 APData.TargetSpeed = -1f;
