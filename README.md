@@ -32,7 +32,7 @@ George
 <IMG src="readme_content/intercept.png"  alt="1.png"/>
 </details>
 
-### 💾 Target list handling (Uses [new bindings](###How-to-setup-the-mod-to-use-your-peripherals))
+### 💾 Target list handling (Uses [new bindings](#how-to-setup-the-mod-to-use-your-peripherals))
 
 - Control and navigate through your target list
 - Currently focused target is displayed on the targeting screen, as well as its information
@@ -65,20 +65,20 @@ George
 <IMG src="readme_content/indicator2.png"  alt="2.png"/>
 </details>
 
-### 🔘 Separate, dedicated buttons for slot selection (Uses [new bindings](###How-to-setup-the-mod-to-use-your-peripherals))
+### 🔘 Separate, dedicated buttons for slot selection (Uses [new bindings](#how-to-setup-the-mod-to-use-your-peripherals))
 
 - Can be assigned to any peripheral button
 - Direct-select weapon slots via dedicated buttons (0–5)
 - Slot order is based on the order weapons are first shown on the loadout screen
 - Long-press on slot 0 toggles Turret Auto Control
 
-### 💥 Separate, dedicated buttons for Flares and Jammer selection (Uses [new bindings](###How-to-setup-the-mod-to-use-your-peripherals))
+### 💥 Separate, dedicated buttons for Flares and Jammer selection (Uses [new bindings](#how-to-setup-the-mod-to-use-your-peripherals))
 
 - Can be assigned to any peripheral button
 
 ### **Quality-of-Life Features**
 
-### 📊 Weapon & Countermeasure Display MFD (Uses [new bindings](###How-to-setup-the-mod-to-use-your-peripherals))
+### 📊 Weapon & Countermeasure Display MFD (Uses [new bindings](#how-to-setup-the-mod-to-use-your-peripherals))
 
 - Shows flares/jammer status, current weapon name, and ammo in the cockpit
 - Per-airframe layouts
@@ -149,7 +149,7 @@ George
 
 ### **Mod Compatibility Features**
 
-### 🛩️ NOAutopilot Control Menu (Uses [new bindings](###How-to-setup-the-mod-to-use-your-peripherals))
+### 🛩️ NOAutopilot Control Menu (Uses [new bindings](#how-to-setup-the-mod-to-use-your-peripherals))
 
 - Full HOTAS-friendly menu navigation for the [NOAutopilot mod](https://github.com/qwerty1423/no-autopilot-mod) with intuitive short/long press inputs
 - Toggleables are visually indicated on the new MFD menu
