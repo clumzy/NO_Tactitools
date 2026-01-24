@@ -161,7 +161,7 @@ George
 - **Staged Value Adjustment** (Uses **MFD Nav Enter** on +/- buttons):
   - **Short press** -> Increment/decrement by 1 step
   - **Long press** -> Rapid adjustment
-- **Set Staged Value to Current** (Uses **MFD Nav Enter** on target value fields):
+- **Set Staged Value to Current** (Uses **MFD Nav Enter** on staged value fields):
   - Loads current flight values into editable fields, rounded to appropriate increments
 - **Clear Staged Value** (Uses **MFD Nav Enter** on C buttons):
   - **Short press** -> Resets individual parameters to OFF state
