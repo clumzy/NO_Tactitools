@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using BepInEx;
 using BepInEx.Logging;
@@ -268,7 +268,7 @@ namespace NO_Tactitools.Core {
                 "MFD Nav - Toggle Screens - Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for toggling screens (HMD / MFD)",
+                    "Input you want to assign for toggling MFD screens",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = 1,
@@ -326,7 +326,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             countermeasureControlsFlareInput = Config.Bind("Countermeasures",
-                "Countermeasure Controls - Flares - - Input",
+                "Countermeasure Controls - Flares - Input",
                 "",
                 new ConfigDescription(
                     "Input you want to assign for selecting Flares",
@@ -358,7 +358,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             countermeasureControlsJammerInput = Config.Bind("Countermeasures",
-                "Countermeasure Controls - Jammer - - Input",
+                "Countermeasure Controls - Jammer - Input",
                 "",
                 new ConfigDescription(
                     "Input you want to assign for selecting Jammer",
@@ -400,7 +400,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             weaponSwitcherInput0 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 0 - - Input",
+                "Advanced Slot Selection - Slot 0 - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 0 (Long press to toggle Turret Auto Control)",
@@ -432,7 +432,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             weaponSwitcherInput1 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 1 - - Input",
+                "Advanced Slot Selection - Slot 1 - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 1",
@@ -464,7 +464,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             weaponSwitcherInput2 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 2 - - Input",
+                "Advanced Slot Selection - Slot 2 - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 2",
@@ -496,7 +496,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             weaponSwitcherInput3 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 3 - - Input",
+                "Advanced Slot Selection - Slot 3 - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 3",
@@ -528,7 +528,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             weaponSwitcherInput4 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 4 - - Input",
+                "Advanced Slot Selection - Slot 4 - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 4",
@@ -560,7 +560,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             weaponSwitcherInput5 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 5 - - Input",
+                "Advanced Slot Selection - Slot 5 - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 5",

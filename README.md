@@ -158,15 +158,15 @@ George
 - **Menu Navigation** (Uses **MFD Nav Up/Down/Left/Right**):
   - **Short press** -> Single-step navigation
   - **Long press** -> Continuous navigation
-- **Value Adjustment** (Uses **MFD Nav Enter** on +/- buttons):
+- **Staged Value Adjustment** (Uses **MFD Nav Enter** on +/- buttons):
   - **Short press** -> Increment/decrement by 1 step
   - **Long press** -> Rapid adjustment
-- **Set to Current** (Uses **MFD Nav Enter** on target value fields):
+- **Set Staged Value to Current** (Uses **MFD Nav Enter** on target value fields):
   - Loads current flight values into editable fields, rounded to appropriate increments
-- **Clear Value** (Uses **MFD Nav Enter** on C buttons):
+- **Clear Staged Value** (Uses **MFD Nav Enter** on C buttons):
   - **Short press** -> Resets individual parameters to OFF state
   - **Long press** -> Resets all parameters to OFF state and disengages entire autopilot
-- **Apply Values** (Uses **MFD Nav Enter** on SET button):
+- **Apply Staged Values** (Uses **MFD Nav Enter** on SET button):
   - Commits all staged values to the autopilot system
 - **Speed Mode Toggle** (Uses **MFD Nav Enter** on Target Speed value field):
   - **Long press** -> Switches between **Mach** and **True Air Speed (TAS)** modes
