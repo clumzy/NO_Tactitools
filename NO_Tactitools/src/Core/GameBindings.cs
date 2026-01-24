@@ -7,6 +7,46 @@ using System.Collections.Generic;
 namespace NO_Tactitools.Core;
 
 public class GameBindings {
+    public class Units {
+        public static bool IsImperial() {
+            try {
+                return PlayerSettings.unitSystem == PlayerSettings.UnitSystem.Imperial;
+            }
+            catch (Exception e) {
+                Plugin.Log($"[GameBindings.Units.IsImperial] Exception: {e.Message}; assuming metric.");
+                return false;
+            }
+        }
+
+        public static float ConvertAltitude_ToDisplay(float meters) {
+            return IsImperial() ? meters * 3.28084f : meters;
+        }
+
+        public static float ConvertVerticalSpeed_ToDisplay(float metersPerSecond) {
+            return IsImperial() ? metersPerSecond * 196.850394f : metersPerSecond;
+        }
+
+        public static float ConvertSpeed_ToDisplay(float metersPerSecond) {
+            return IsImperial() ? metersPerSecond * 1.94384f : metersPerSecond * 3.6f;
+        }
+
+        public static float ConvertSpeed_FromDisplay(float displayValue) {
+            return IsImperial() ? displayValue / 1.94384f : displayValue / 3.6f;
+        }
+
+        public static string GetAltitudeUnit() {
+            return IsImperial() ? "ft" : "m";
+        }
+
+        public static string GetVerticalSpeedUnit() {
+            return IsImperial() ? "fpm" : "m/s";
+        }
+
+        public static string GetSpeedUnit() {
+            return IsImperial() ? "kts" : "km/h";
+        }
+    }
+
     public class GameState {
         public static bool IsGamePaused() {
             try {

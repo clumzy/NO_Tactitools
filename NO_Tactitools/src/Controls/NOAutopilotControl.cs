@@ -77,6 +77,7 @@ public static class NOAutopilotControlPlugin {
 
         if (!wasMenuOpen && NOAutopilotComponent.InternalState.showMenu) {
             // Populate staged values and reset position when menu opens
+            NOAutopilotComponent.LogicEngine.UpdateIncrements();
             NOAutopilotComponent.LogicEngine.ResetStagedValues();
             if (NOAutopilotComponent.InternalState.autopilotMenu != null) {
                 NOAutopilotComponent.InternalState.autopilotMenu.selectedRow = 0;
@@ -129,7 +130,8 @@ public static class NOAutopilotControlPlugin {
         bool isRepeatable = menu.selectedCol is 3 or 4;
         bool isBearingValue = menu.selectedRow == 4 && menu.selectedCol == 1;
         bool isSpeedValue = menu.selectedRow == 3 && menu.selectedCol == 1;
-        bool isToggleable = isBearingValue || isSpeedValue;
+        bool isVerticalSpeedValue = menu.selectedRow == 1 && menu.selectedCol == 1; // Vertical Speed (Elevation Speed)
+        bool isToggleable = isBearingValue || isSpeedValue || isVerticalSpeedValue;
         bool isCButton = menu.selectedCol == 2 && menu.selectedRow < 5;
 
         float time = Time.time;
@@ -158,14 +160,52 @@ public static class NOAutopilotControlPlugin {
             return;
         }
 
-        // Handle toggleable values (bearing/speed) - trigger once after 0.4s
+        // Handle toggleable values (bearing/speed/vertical speed) - trigger once after 0.4s
         if (isToggleable && holdDuration >= 0.4f && !NOAutopilotComponent.InternalState.selectToggleHandled) {
             NOAutopilotComponent.InternalState.selectToggleHandled = true;
             if (isBearingValue) {
                 APData.NavEnabled = !APData.NavEnabled;
                 UIBindings.Game.DisplayToast(APData.NavEnabled ? "Autopilot : Nav mode <b>ON</b>" : "Autopilot : Nav mode <b>OFF</b>");
             }
-            else {
+            else if (isSpeedValue) {
+                // Switch Speed Mode (Mach / TAS)
+                float currentAlt = (APData.LocalAircraft != null) ? APData.LocalAircraft.GlobalPosition().y : 0f;
+                // Try to get Speed of Sound, fallback to 340 if LevelInfo not available (though it should be)
+                float sos = 340f; 
+                try { sos = LevelInfo.GetSpeedofSound(currentAlt); } catch { } 
+
+                if (APData.TargetSpeed >= 0)
+                {
+                    if (APData.SpeedHoldIsMach)
+                    {
+                        // Mach -> TAS
+                         APData.TargetSpeed = Mathf.Max(0, APData.TargetSpeed * sos);
+                    }
+                    else
+                    {
+                        // TAS -> Mach
+                        APData.TargetSpeed = Mathf.Max(0, APData.TargetSpeed / sos);
+                    }
+                }
+                
+                APData.SpeedHoldIsMach = !APData.SpeedHoldIsMach;
+                NOAutopilotComponent.LogicEngine.UpdateIncrements();
+
+                // Reset staged speed to match current target (or OFF) in new units
+                if (APData.TargetSpeed < 0) {
+                    NOAutopilotComponent.InternalState.stagedSpeed = -1f;
+                } else {
+                    if (APData.SpeedHoldIsMach) {
+                        NOAutopilotComponent.InternalState.stagedSpeed = APData.TargetSpeed;
+                    } else {
+                        NOAutopilotComponent.InternalState.stagedSpeed = GameBindings.Units.ConvertSpeed_ToDisplay(APData.TargetSpeed);
+                    }
+                }
+
+                UIBindings.Game.DisplayToast(APData.SpeedHoldIsMach ? "Autopilot : Speed mode <b>MACH</b>" : "Autopilot : Speed mode <b>TAS</b>");
+            }
+            else if (isVerticalSpeedValue) {
+                // Elevation Speed now handles Extreme Throttle toggle
                 APData.AllowExtremeThrottle = !APData.AllowExtremeThrottle;
                 UIBindings.Game.DisplayToast(APData.AllowExtremeThrottle ? "Autopilot : Extreme throttle <b>ON</b>" : "Autopilot : Extreme throttle <b>OFF</b>");
             }
@@ -319,14 +359,45 @@ public class NOAutopilotComponent {
     public static class LogicEngine {
         public static void Init() {
             InternalState.showMenu = false;
+            UpdateIncrements();
         }
 
         public static void ResetStagedValues() {
-            InternalState.stagedAlt = APData.TargetAlt;
-            InternalState.stagedMaxClimbRate = APData.CurrentMaxClimbRate;
+            // Store values in Display Units (Feet/Meters, FPM/mps) to ensure clean increments
+            InternalState.stagedAlt = GameBindings.Units.ConvertAltitude_ToDisplay(APData.TargetAlt);
+            InternalState.stagedMaxClimbRate = GameBindings.Units.ConvertVerticalSpeed_ToDisplay(APData.CurrentMaxClimbRate);
+            
             InternalState.stagedRoll = APData.TargetRoll;
-            InternalState.stagedSpeed = APData.TargetSpeed * 3.6f; // APData is m/s, staged is km/h
+            // APData is in m/s; convert to display units (km/h or knots)
+            if (APData.SpeedHoldIsMach) {
+                InternalState.stagedSpeed = APData.TargetSpeed;
+            } else {
+                InternalState.stagedSpeed = GameBindings.Units.ConvertSpeed_ToDisplay(APData.TargetSpeed);
+            }
             InternalState.stagedCourse = APData.TargetCourse;
+        }
+
+        public static void UpdateIncrements() {
+            if (GameBindings.Units.IsImperial()) {
+                // Imperial units: feet, feet per minute, knots
+                // Clean display increments
+                InternalState.altIncrement = 500f;      // feet
+                InternalState.climbIncrement = 1000f;   // feet per minute
+                InternalState.speedIncrement = 25f;     // knots
+            } else {
+                // Metric units: meters, m/s, km/h
+                InternalState.altIncrement = 100f;      // meters
+                InternalState.climbIncrement = 5f;      // m/s
+                InternalState.speedIncrement = 50f;     // km/h
+            }
+            
+            if (APData.SpeedHoldIsMach) {
+                InternalState.speedIncrement = 0.05f; // Mach increment
+            }
+
+            // Roll and course increments are independent of unit system
+            InternalState.rollIncrement = 5f;
+            InternalState.courseIncrement = 1f;
         }
 
         public static void Update() {
@@ -601,7 +672,10 @@ public class NOAutopilotComponent {
             engagedBar.GetLabel().SetFontSize(fontSize - 4); // Adjustment for fitting
             engagedBar.GetRectTransform().localRotation = Quaternion.Euler(0, 0, 90f);
 
-            string[] defaultValues = ["- m", "- m/s", "-° bnk", "- km/h", "-° hdg"];
+            string altUnit = GameBindings.Units.GetAltitudeUnit();
+            string vsUnit = GameBindings.Units.GetVerticalSpeedUnit();
+            string spdUnit = GameBindings.Units.GetSpeedUnit();
+            string[] defaultValues = [$"- {altUnit}", $"- {vsUnit}", "-° bnk", $"- {spdUnit}", "-° hdg"];
 
             // Grid Top Left Reference
             float gridLeftX = contentTopLeft.x + engagedBarWidth + gap;
@@ -732,17 +806,31 @@ public class NOAutopilotComponent {
                 return;
             }
 
+            string altUnit = GameBindings.Units.GetAltitudeUnit();
+            string vsUnit = GameBindings.Units.GetVerticalSpeedUnit();
+            string spdUnit = GameBindings.Units.GetSpeedUnit();
+
             // Row 1: Altitude
-            valueRects[0].SetText((InternalState.stagedAlt < 0 ? "OFF" : InternalState.stagedAlt.ToString("0")) + " m");
+            if (InternalState.stagedAlt < 0) {
+                valueRects[0].SetText("OFF " + altUnit);
+            } else {
+                // stagedAlt is already in display units
+                valueRects[0].SetText(InternalState.stagedAlt.ToString("0") + " " + altUnit);
+            }
 
             // Row 2: Vertical Speed
-            valueRects[1].SetText(InternalState.stagedMaxClimbRate.ToString("0") + " m/s");
+            // stagedMaxClimbRate is already in display units
+            valueRects[1].SetText(InternalState.stagedMaxClimbRate.ToString("0") + " " + vsUnit);
 
             // Row 3: Roll
             valueRects[2].SetText((InternalState.stagedRoll <= -900f ? "OFF" : InternalState.stagedRoll.ToString("0")) + "° bnk");
 
-            // Row 4: Speed
-            valueRects[3].SetText((InternalState.stagedSpeed < 0 ? "OFF" : InternalState.stagedSpeed.ToString("0")) + " km/h");
+            // Row 4: Speed (InternalState.stagedSpeed is already in display units from ResetStagedValues)
+            if (APData.SpeedHoldIsMach) {
+                valueRects[3].SetText((InternalState.stagedSpeed < 0 ? "OFF M" : "M " + InternalState.stagedSpeed.ToString("F2")));
+            } else {
+                valueRects[3].SetText((InternalState.stagedSpeed < 0 ? "OFF" : InternalState.stagedSpeed.ToString("0")) + " " + spdUnit);
+            }
 
             // Row 5: Course
             valueRects[4].SetText((InternalState.stagedCourse < 0 ? "OFF" : InternalState.stagedCourse.ToString("0")) + "° hdg");
@@ -811,10 +899,27 @@ public class NOAutopilotComponent {
 
         private void SetStagedToCurrent(int row) {
             switch (row) {
-                case 0: InternalState.stagedAlt = Mathf.Round(InternalState.currentAlt / InternalState.altIncrement) * InternalState.altIncrement; break;
-                case 1: InternalState.stagedMaxClimbRate = Mathf.Max(InternalState.climbIncrement, Mathf.Round(InternalState.currentVS / InternalState.climbIncrement) * InternalState.climbIncrement); break;
+                case 0: 
+                    float displayAlt = GameBindings.Units.ConvertAltitude_ToDisplay(InternalState.currentAlt);
+                    InternalState.stagedAlt = Mathf.Round(displayAlt / InternalState.altIncrement) * InternalState.altIncrement; 
+                    break;
+                case 1: 
+                    float displayVS = GameBindings.Units.ConvertVerticalSpeed_ToDisplay(InternalState.currentVS);
+                    InternalState.stagedMaxClimbRate = Mathf.Max(InternalState.climbIncrement, Mathf.Round(displayVS / InternalState.climbIncrement) * InternalState.climbIncrement); 
+                    break;
                 case 2: InternalState.stagedRoll = Mathf.Round(InternalState.currentRoll / InternalState.rollIncrement) * InternalState.rollIncrement; break;
-                case 3: InternalState.stagedSpeed = Mathf.Round(InternalState.currentTAS * 3.6f / InternalState.speedIncrement) * InternalState.speedIncrement; break;
+                case 3: 
+                    // Convert current TAS to display units, then round
+                    if (APData.SpeedHoldIsMach) {
+                       float sos = 340f; 
+                       try { float currentAlt = (APData.LocalAircraft != null) ? APData.LocalAircraft.GlobalPosition().y : 0f; sos = LevelInfo.GetSpeedofSound(currentAlt); } catch { }
+                       float currentMach = InternalState.currentTAS / sos;
+                       InternalState.stagedSpeed = Mathf.Round(currentMach / InternalState.speedIncrement) * InternalState.speedIncrement;
+                    } else {
+                       float displaySpeed = GameBindings.Units.ConvertSpeed_ToDisplay(InternalState.currentTAS);
+                       InternalState.stagedSpeed = Mathf.Round(displaySpeed / InternalState.speedIncrement) * InternalState.speedIncrement;
+                    }
+                    break;
                 case 4: InternalState.stagedCourse = Mathf.Round(InternalState.currentCourse / InternalState.courseIncrement) * InternalState.courseIncrement; break;
                 default:
                     break;
@@ -846,12 +951,12 @@ public class NOAutopilotComponent {
 
         private void AdjustStagedValue(int row, int direction) {
             // Calculate multiplier: 10x after 10 repeats
-            float multiplier = InternalState.selectNumberRepeatCount >= 10 ? 10f : 1f;
+            float multiplier = InternalState.selectNumberRepeatCount >= 10 ? (InternalState.selectNumberRepeatCount >= 20 ? 10f : 5f ) : 1f;
 
             switch (row) {
                 case 0: // Alt
                     if (InternalState.stagedAlt < 0) {
-                        InternalState.stagedAlt = InternalState.currentAlt;
+                        InternalState.stagedAlt = GameBindings.Units.ConvertAltitude_ToDisplay(InternalState.currentAlt);
                     }
 
                     float altAdjustment = direction * InternalState.altIncrement * multiplier;
@@ -871,7 +976,15 @@ public class NOAutopilotComponent {
                     break;
                 case 3: // Speed
                     if (InternalState.stagedSpeed < 0) {
-                        InternalState.stagedSpeed = InternalState.currentTAS * 3.6f;
+                        if (APData.SpeedHoldIsMach) {
+                            float sos = 340f; 
+                            try { float currentAlt = (APData.LocalAircraft != null) ? APData.LocalAircraft.GlobalPosition().y : 0f; sos = LevelInfo.GetSpeedofSound(currentAlt); } catch { }
+                            InternalState.stagedSpeed = InternalState.currentTAS / sos;
+                        } else {
+                            // Assumed metric initialization or safe fallback if imperial conversion needed happens elsewhere?
+                            // Using standard safe fallback
+                            InternalState.stagedSpeed = GameBindings.Units.ConvertSpeed_ToDisplay(InternalState.currentTAS);
+                        }
                     }
 
                     float speedAdjustment = direction * InternalState.speedIncrement * multiplier;
@@ -892,10 +1005,24 @@ public class NOAutopilotComponent {
         }
 
         private void ApplyStagedValues(bool autoEngage = true) {
-            APData.TargetAlt = InternalState.stagedAlt;
-            APData.CurrentMaxClimbRate = InternalState.stagedMaxClimbRate;
+            bool imperial = GameBindings.Units.IsImperial();
+            
+            if (InternalState.stagedAlt < 0) {
+                APData.TargetAlt = -1f;
+            } else {
+                APData.TargetAlt = imperial ? InternalState.stagedAlt / 3.28084f : InternalState.stagedAlt;
+            }
+
+            // MaxClimbRate is always positive
+            APData.CurrentMaxClimbRate = imperial ? InternalState.stagedMaxClimbRate / 196.850394f : InternalState.stagedMaxClimbRate;
+
             APData.TargetRoll = InternalState.stagedRoll;
-            APData.TargetSpeed = InternalState.stagedSpeed < 0 ? -1f : InternalState.stagedSpeed / 3.6f;
+            // Convert from display units to m/s
+            if (APData.SpeedHoldIsMach) {
+                APData.TargetSpeed = InternalState.stagedSpeed;
+            } else {
+                APData.TargetSpeed = InternalState.stagedSpeed < 0 ? -1f : GameBindings.Units.ConvertSpeed_FromDisplay(InternalState.stagedSpeed);
+            }
 
             APData.TargetCourse = InternalState.stagedCourse;
             if (autoEngage && !APData.Enabled) {
@@ -926,18 +1053,26 @@ public class NOAutopilotComponent {
                 Color valueBgColor = Color.clear;
                 
                 // Bearing value (row 4) and speed value (row 3) show toggle state with appropriate color
-                if (i == 4 && InternalState.navEnabled) {
-                    valueBgColor = toggleIndicatorColor;
-                    valueColor = Color.black;
-                }
-                else if (i == 3 && InternalState.extremeThrottleEnabled) {
-                    valueBgColor = toggleIndicatorColor;
-                    valueColor = Color.black;
+                if (
+                    i == 4 && InternalState.navEnabled
+                    || i == 1 && InternalState.extremeThrottleEnabled
+                    ) {
+                    valueBgColor = Color.black;
+                    valueColor = toggleIndicatorColor;
                 }
                 
                 if (isSelected) {
-                    valueBgColor = toggleIndicatorColor;
-                    valueColor = Color.black;
+                    if (
+                        i == 4 && InternalState.navEnabled
+                        || i == 1 && InternalState.extremeThrottleEnabled
+                        ) {
+                        valueBgColor = toggleIndicatorColor;
+                        valueColor = Color.black;
+                    }
+                    else {
+                        valueBgColor = textColor;
+                        valueColor = Color.black;
+                    }
                 }
                 
                 ApplyStyle(valueRects[i], valueBgColor, valueColor, valueColor);
