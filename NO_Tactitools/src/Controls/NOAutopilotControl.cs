@@ -22,10 +22,11 @@ public static class NOAutopilotControlPlugin {
                 Plugin.harmony.PatchAll(typeof(NOAutopilotComponent.OnPlatformStart));
                 Plugin.harmony.PatchAll(typeof(NOAutopilotComponent.OnPlatformUpdate));
                 InputCatcher.RegisterNewInput(
-                    Plugin.autopilotToggleMenuControllerName.Value,
-                    Plugin.autopilotToggleMenuButtonIndex.Value,
+                    Plugin.toggleScreensController.Value,
+                    Plugin.toggleScreensButtonIndex.Value,
                     0.2f,
-                    ToggleMenu
+                    ToggleMenu,
+                    onLongPress: () => { }
                 );
                 InputCatcher.RegisterNewInput(
                     Plugin.menuNavigationEnterControllerName.Value,

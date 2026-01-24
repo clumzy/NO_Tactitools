@@ -29,6 +29,9 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<string> menuNavigationRightInput;
         public static ConfigEntry<string> menuNavigationRightControllerName;
         public static ConfigEntry<int> menuNavigationRightButtonIndex;
+        public static ConfigEntry<string> toggleScreensInput;
+        public static ConfigEntry<string> toggleScreensController;
+        public static ConfigEntry<int> toggleScreensButtonIndex;
         public static ConfigEntry<bool> targetListControllerEnabled;
         public static ConfigEntry<bool> interceptionVectorEnabled;
         public static ConfigEntry<bool> countermeasureControlsEnabled;
@@ -73,9 +76,6 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> artificialHorizonEnabled;
         public static ConfigEntry<float> artificialHorizonTransparency;
         public static ConfigEntry<bool> autopilotMenuEnabled;
-        public static ConfigEntry<string> autopilotToggleMenuInput;
-        public static ConfigEntry<string> autopilotToggleMenuControllerName;
-        public static ConfigEntry<int> autopilotToggleMenuButtonIndex;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
         public static ConfigEntry<bool> loadoutPreviewOnlyShowOnBoot;
         public static ConfigEntry<float> loadoutPreviewDuration;
@@ -86,9 +86,6 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<float> loadoutPreviewBackgroundTransparency;
         public static ConfigEntry<float> loadoutPreviewTextAndBorderTransparency;
         public static ConfigEntry<bool> debugModeEnabled;
-        public static ConfigEntry<string> customInputExample;
-        public static ConfigEntry<string> customInputExampleControllerName;
-        public static ConfigEntry<int> customInputExampleButtonIndex;
         internal static new ManualLogSource Logger;
         public static Plugin Instance;
 
@@ -99,18 +96,6 @@ namespace NO_Tactitools.Core {
         private void Awake() {
             Instance = this;
             // Menu navigation
-            menuNavigationEnterInput = Config.Bind("Menu Navigation",
-                "Menu Navigation - Enter Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign for menu navigation - Enter",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 0,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = menuNavigationEnterControllerName,
-                        ButtonIndex = menuNavigationEnterButtonIndex
-                    }));
             menuNavigationEnterControllerName = Config.Bind("Menu Navigation",
                 "Menu Navigation - Enter - Controller Name",
                 "",
@@ -129,17 +114,17 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            menuNavigationUpInput = Config.Bind("Menu Navigation",
-                "Menu Navigation - Up Input",
+            menuNavigationEnterInput = Config.Bind("Menu Navigation",
+                "Menu Navigation - Enter Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for menu navigation - Up",
+                    "Input you want to assign for menu navigation - Enter",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = -1,
+                        Order = 0,
                         CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = menuNavigationUpControllerName,
-                        ButtonIndex = menuNavigationUpButtonIndex
+                        ControllerName = menuNavigationEnterControllerName,
+                        ButtonIndex = menuNavigationEnterButtonIndex
                     }));
             menuNavigationUpControllerName = Config.Bind("Menu Navigation",
                 "Menu Navigation - Up - Controller Name",
@@ -159,17 +144,17 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            menuNavigationDownInput = Config.Bind("Menu Navigation",
-                "Menu Navigation - Down Input",
+            menuNavigationUpInput = Config.Bind("Menu Navigation",
+                "Menu Navigation - Up Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for menu navigation - Down",
+                    "Input you want to assign for menu navigation - Up",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = -2,
+                        Order = -1,
                         CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = menuNavigationDownControllerName,
-                        ButtonIndex = menuNavigationDownButtonIndex
+                        ControllerName = menuNavigationUpControllerName,
+                        ButtonIndex = menuNavigationUpButtonIndex
                     }));
             menuNavigationDownControllerName = Config.Bind("Menu Navigation",
                 "Menu Navigation - Down - Controller Name",
@@ -189,17 +174,17 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            menuNavigationLeftInput = Config.Bind("Menu Navigation",
-                "Menu Navigation - Left Input",
+            menuNavigationDownInput = Config.Bind("Menu Navigation",
+                "Menu Navigation - Down Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for menu navigation - Left",
+                    "Input you want to assign for menu navigation - Down",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = -3,
+                        Order = -2,
                         CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = menuNavigationLeftControllerName,
-                        ButtonIndex = menuNavigationLeftButtonIndex
+                        ControllerName = menuNavigationDownControllerName,
+                        ButtonIndex = menuNavigationDownButtonIndex
                     }));
             menuNavigationLeftControllerName = Config.Bind("Menu Navigation",
                 "Menu Navigation - Left - Controller Name",
@@ -219,17 +204,17 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            menuNavigationRightInput = Config.Bind("Menu Navigation",
-                "Menu Navigation - Right Input",
+            menuNavigationLeftInput = Config.Bind("Menu Navigation",
+                "Menu Navigation - Left Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for menu navigation - Right",
+                    "Input you want to assign for menu navigation - Left",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = -4,
+                        Order = -3,
                         CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = menuNavigationRightControllerName,
-                        ButtonIndex = menuNavigationRightButtonIndex
+                        ControllerName = menuNavigationLeftControllerName,
+                        ButtonIndex = menuNavigationLeftButtonIndex
                     }));
             menuNavigationRightControllerName = Config.Bind("Menu Navigation",
                 "Menu Navigation - Right - Controller Name",
@@ -248,6 +233,48 @@ namespace NO_Tactitools.Core {
                     null,
                     new ConfigurationManagerAttributes {
                         Browsable = false
+                    }));
+            menuNavigationRightInput = Config.Bind("Menu Navigation",
+                "Menu Navigation - Right Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign for menu navigation - Right",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -4,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = menuNavigationRightControllerName,
+                        ButtonIndex = menuNavigationRightButtonIndex
+                    }));
+            toggleScreensController = Config.Bind("Menu Navigation",
+                "Toggle Screens - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Browsable = false
+                    }));
+            toggleScreensButtonIndex = Config.Bind("Menu Navigation",
+                "Toggle Screens - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Browsable = false
+                    }));
+            toggleScreensInput = Config.Bind("Menu Navigation",
+                "Menu Navigation - Toggle Screens Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign for toggling screens (HMD / MFD)",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = toggleScreensController,
+                        ButtonIndex = toggleScreensButtonIndex
                     }));
             // Target Recall settings
             targetListControllerEnabled = Config.Bind("Target List Controller", //Category
@@ -696,38 +723,6 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 7
                     }));
-            autopilotToggleMenuControllerName = Config.Bind("Autopilot",
-                "Autopilot - Open Menu - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 5,
-                        Browsable = false
-                    }));
-            autopilotToggleMenuButtonIndex = Config.Bind("Autopilot",
-                "Autopilot - Open Menu - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 5,
-                        Browsable = false
-                    }));
-            autopilotToggleMenuInput = Config.Bind("Autopilot",
-                "Autopilot - Open Menu - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign to Open Menu",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 5,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = autopilotToggleMenuControllerName,
-                        ButtonIndex = autopilotToggleMenuButtonIndex
-                    }));
             // Loadout Preview settings
             loadoutPreviewEnabled = Config.Bind("Loadout Preview",
                 "Loadout Preview - Enabled",
@@ -815,19 +810,6 @@ namespace NO_Tactitools.Core {
                 "Debug Mode - Enabled",
                 true,
                 "Enable or disable the debug mode for logging");
-
-            customInputExample = Config.Bind("Input Capture Example",
-                "Example Input",
-                "",
-                new ConfigDescription(
-                    "Click to capture a Rewired button input.",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = customInputExampleControllerName,
-                        ButtonIndex = customInputExampleButtonIndex
-                    }));
-
             // Plugin startup logic
             harmony = new Harmony("george.no_tactitools");
             Logger = base.Logger;
@@ -911,6 +893,7 @@ namespace NO_Tactitools.Core {
             // Log completion
             Log("NO Tactitools loaded successfully !");
         }
+
 
         public static void Log(string message) {
             if (debugModeEnabled.Value) {
