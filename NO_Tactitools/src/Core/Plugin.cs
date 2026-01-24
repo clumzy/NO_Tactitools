@@ -14,24 +14,24 @@ namespace NO_Tactitools.Core {
     [BepInPlugin("NO_Tactitools", "NOTT", "0.6.0")]
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;
-        public static ConfigEntry<string> menuNavigationEnterInput;
-        public static ConfigEntry<string> menuNavigationEnterControllerName;
-        public static ConfigEntry<int> menuNavigationEnterButtonIndex;
-        public static ConfigEntry<string> menuNavigationUpInput;
-        public static ConfigEntry<string> menuNavigationUpControllerName;
-        public static ConfigEntry<int> menuNavigationUpButtonIndex;
-        public static ConfigEntry<string> menuNavigationDownInput;
-        public static ConfigEntry<string> menuNavigationDownControllerName;
-        public static ConfigEntry<int> menuNavigationDownButtonIndex;
-        public static ConfigEntry<string> menuNavigationLeftInput;
-        public static ConfigEntry<string> menuNavigationLeftControllerName;
-        public static ConfigEntry<int> menuNavigationLeftButtonIndex;
-        public static ConfigEntry<string> menuNavigationRightInput;
-        public static ConfigEntry<string> menuNavigationRightControllerName;
-        public static ConfigEntry<int> menuNavigationRightButtonIndex;
-        public static ConfigEntry<string> toggleScreensInput;
-        public static ConfigEntry<string> toggleScreensController;
-        public static ConfigEntry<int> toggleScreensButtonIndex;
+        public static ConfigEntry<string> MFDNavEnterInput;
+        public static ConfigEntry<string> MFDNavEnterControllerName;
+        public static ConfigEntry<int> MFDNavEnterButtonIndex;
+        public static ConfigEntry<string> MFDNavUpInput;
+        public static ConfigEntry<string> MFDNavUpControllerName;
+        public static ConfigEntry<int> MFDNavUpButtonIndex;
+        public static ConfigEntry<string> MFDNavDownInput;
+        public static ConfigEntry<string> MFDNavDownControllerName;
+        public static ConfigEntry<int> MFDNavDownButtonIndex;
+        public static ConfigEntry<string> MFDNavLeftInput;
+        public static ConfigEntry<string> MFDNavLeftControllerName;
+        public static ConfigEntry<int> MFDNavLeftButtonIndex;
+        public static ConfigEntry<string> MFDNavRightInput;
+        public static ConfigEntry<string> MFDNavRightControllerName;
+        public static ConfigEntry<int> MFDNavRightButtonIndex;
+        public static ConfigEntry<string> MFDNavToggleInput;
+        public static ConfigEntry<string> MFDNavToggleController;
+        public static ConfigEntry<int> MFDNavToggleButtonIndex;
         public static ConfigEntry<bool> targetListControllerEnabled;
         public static ConfigEntry<bool> interceptionVectorEnabled;
         public static ConfigEntry<bool> countermeasureControlsEnabled;
@@ -95,9 +95,9 @@ namespace NO_Tactitools.Core {
 
         private void Awake() {
             Instance = this;
-            // Menu navigation
-            menuNavigationEnterControllerName = Config.Bind("Menu Navigation",
-                "Menu Navigation - Enter - Controller Name",
+            // MFD Nav
+            MFDNavEnterControllerName = Config.Bind("MFD Nav",
+                "MFD Nav - Enter - Controller Name",
                 "",
                 new ConfigDescription(
                     "Name of the peripheral",
@@ -105,8 +105,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            menuNavigationEnterButtonIndex = Config.Bind("Menu Navigation",
-                "Menu Navigation - Enter - Button Index",
+            MFDNavEnterButtonIndex = Config.Bind("MFD Nav",
+                "MFD Nav - Enter - Button Index",
                 -1,
                 new ConfigDescription(
                     "Index of the button",
@@ -114,20 +114,20 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            menuNavigationEnterInput = Config.Bind("Menu Navigation",
-                "Menu Navigation - Enter Input",
+            MFDNavEnterInput = Config.Bind("MFD Nav",
+                "MFD Nav - Enter - Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for menu navigation - Enter",
+                    "Input you want to assign for MFD Nav - Enter",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = 0,
                         CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = menuNavigationEnterControllerName,
-                        ButtonIndex = menuNavigationEnterButtonIndex
+                        ControllerName = MFDNavEnterControllerName,
+                        ButtonIndex = MFDNavEnterButtonIndex
                     }));
-            menuNavigationUpControllerName = Config.Bind("Menu Navigation",
-                "Menu Navigation - Up - Controller Name",
+            MFDNavUpControllerName = Config.Bind("MFD Nav",
+                "MFD Nav - Up - Controller Name",
                 "",
                 new ConfigDescription(
                     "Name of the peripheral",
@@ -135,8 +135,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            menuNavigationUpButtonIndex = Config.Bind("Menu Navigation",
-                "Menu Navigation - Up - Button Index",
+            MFDNavUpButtonIndex = Config.Bind("MFD Nav",
+                "MFD Nav - Up - Button Index",
                 -1,
                 new ConfigDescription(
                     "Index of the button",
@@ -144,20 +144,20 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            menuNavigationUpInput = Config.Bind("Menu Navigation",
-                "Menu Navigation - Up Input",
+            MFDNavUpInput = Config.Bind("MFD Nav",
+                "MFD Nav - Up - Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for menu navigation - Up",
+                    "Input you want to assign for MFD Nav - Up",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = -1,
                         CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = menuNavigationUpControllerName,
-                        ButtonIndex = menuNavigationUpButtonIndex
+                        ControllerName = MFDNavUpControllerName,
+                        ButtonIndex = MFDNavUpButtonIndex
                     }));
-            menuNavigationDownControllerName = Config.Bind("Menu Navigation",
-                "Menu Navigation - Down - Controller Name",
+            MFDNavDownControllerName = Config.Bind("MFD Nav",
+                "MFD Nav - Down - Controller Name",
                 "",
                 new ConfigDescription(
                     "Name of the peripheral",
@@ -165,8 +165,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            menuNavigationDownButtonIndex = Config.Bind("Menu Navigation",
-                "Menu Navigation - Down - Button Index",
+            MFDNavDownButtonIndex = Config.Bind("MFD Nav",
+                "MFD Nav - Down - Button Index",
                 -1,
                 new ConfigDescription(
                     "Index of the button",
@@ -174,20 +174,20 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            menuNavigationDownInput = Config.Bind("Menu Navigation",
-                "Menu Navigation - Down Input",
+            MFDNavDownInput = Config.Bind("MFD Nav",
+                "MFD Nav - Down - Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for menu navigation - Down",
+                    "Input you want to assign for MFD Nav - Down",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = -2,
                         CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = menuNavigationDownControllerName,
-                        ButtonIndex = menuNavigationDownButtonIndex
+                        ControllerName = MFDNavDownControllerName,
+                        ButtonIndex = MFDNavDownButtonIndex
                     }));
-            menuNavigationLeftControllerName = Config.Bind("Menu Navigation",
-                "Menu Navigation - Left - Controller Name",
+            MFDNavLeftControllerName = Config.Bind("MFD Nav",
+                "MFD Nav - Left - Controller Name",
                 "",
                 new ConfigDescription(
                     "Name of the peripheral",
@@ -195,8 +195,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            menuNavigationLeftButtonIndex = Config.Bind("Menu Navigation",
-                "Menu Navigation - Left - Button Index",
+            MFDNavLeftButtonIndex = Config.Bind("MFD Nav",
+                "MFD Nav - Left - Button Index",
                 -1,
                 new ConfigDescription(
                     "Index of the button",
@@ -204,20 +204,20 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            menuNavigationLeftInput = Config.Bind("Menu Navigation",
-                "Menu Navigation - Left Input",
+            MFDNavLeftInput = Config.Bind("MFD Nav",
+                "MFD Nav - Left - Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for menu navigation - Left",
+                    "Input you want to assign for MFD Nav - Left",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = -3,
                         CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = menuNavigationLeftControllerName,
-                        ButtonIndex = menuNavigationLeftButtonIndex
+                        ControllerName = MFDNavLeftControllerName,
+                        ButtonIndex = MFDNavLeftButtonIndex
                     }));
-            menuNavigationRightControllerName = Config.Bind("Menu Navigation",
-                "Menu Navigation - Right - Controller Name",
+            MFDNavRightControllerName = Config.Bind("MFD Nav",
+                "MFD Nav - Right - Controller Name",
                 "",
                 new ConfigDescription(
                     "Name of the peripheral",
@@ -225,8 +225,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            menuNavigationRightButtonIndex = Config.Bind("Menu Navigation",
-                "Menu Navigation - Right - Button Index",
+            MFDNavRightButtonIndex = Config.Bind("MFD Nav",
+                "MFD Nav - Right - Button Index",
                 -1,
                 new ConfigDescription(
                     "Index of the button",
@@ -234,19 +234,19 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            menuNavigationRightInput = Config.Bind("Menu Navigation",
-                "Menu Navigation - Right Input",
+            MFDNavRightInput = Config.Bind("MFD Nav",
+                "MFD Nav - Right - Input",
                 "",
                 new ConfigDescription(
-                    "Input you want to assign for menu navigation - Right",
+                    "Input you want to assign for MFD Nav - Right",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = -4,
                         CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = menuNavigationRightControllerName,
-                        ButtonIndex = menuNavigationRightButtonIndex
+                        ControllerName = MFDNavRightControllerName,
+                        ButtonIndex = MFDNavRightButtonIndex
                     }));
-            toggleScreensController = Config.Bind("Menu Navigation",
+            MFDNavToggleController = Config.Bind("MFD Nav",
                 "Toggle Screens - Controller Name",
                 "",
                 new ConfigDescription(
@@ -255,7 +255,7 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            toggleScreensButtonIndex = Config.Bind("Menu Navigation",
+            MFDNavToggleButtonIndex = Config.Bind("MFD Nav",
                 "Toggle Screens - Button Index",
                 -1,
                 new ConfigDescription(
@@ -264,8 +264,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Browsable = false
                     }));
-            toggleScreensInput = Config.Bind("Menu Navigation",
-                "Menu Navigation - Toggle Screens Input",
+            MFDNavToggleInput = Config.Bind("MFD Nav",
+                "MFD Nav - Toggle Screens - Input",
                 "",
                 new ConfigDescription(
                     "Input you want to assign for toggling screens (HMD / MFD)",
@@ -273,8 +273,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 1,
                         CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = toggleScreensController,
-                        ButtonIndex = toggleScreensButtonIndex
+                        ControllerName = MFDNavToggleController,
+                        ButtonIndex = MFDNavToggleButtonIndex
                     }));
             // Target Recall settings
             targetListControllerEnabled = Config.Bind("Target List Controller", //Category
@@ -326,7 +326,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             countermeasureControlsFlareInput = Config.Bind("Countermeasures",
-                "Countermeasure Controls - Flares - Input",
+                "Countermeasure Controls - Flares - - Input",
                 "",
                 new ConfigDescription(
                     "Input you want to assign for selecting Flares",
@@ -358,7 +358,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             countermeasureControlsJammerInput = Config.Bind("Countermeasures",
-                "Countermeasure Controls - Jammer - Input",
+                "Countermeasure Controls - Jammer - - Input",
                 "",
                 new ConfigDescription(
                     "Input you want to assign for selecting Jammer",
@@ -400,7 +400,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             weaponSwitcherInput0 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 0 - Input",
+                "Advanced Slot Selection - Slot 0 - - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 0 (Long press to toggle Turret Auto Control)",
@@ -432,7 +432,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             weaponSwitcherInput1 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 1 - Input",
+                "Advanced Slot Selection - Slot 1 - - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 1",
@@ -464,7 +464,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             weaponSwitcherInput2 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 2 - Input",
+                "Advanced Slot Selection - Slot 2 - - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 2",
@@ -496,7 +496,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             weaponSwitcherInput3 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 3 - Input",
+                "Advanced Slot Selection - Slot 3 - - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 3",
@@ -528,7 +528,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             weaponSwitcherInput4 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 4 - Input",
+                "Advanced Slot Selection - Slot 4 - - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 4",
@@ -560,7 +560,7 @@ namespace NO_Tactitools.Core {
                         Browsable = false
                     }));
             weaponSwitcherInput5 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 5 - Input",
+                "Advanced Slot Selection - Slot 5 - - Input",
                 "",
                 new ConfigDescription(
                     "Input for slot 5",

@@ -19,32 +19,32 @@ class TargetListControllerPlugin {
             Plugin.harmony.PatchAll(typeof(TargetListControllerComponent.OnPlatformStart));
             Plugin.harmony.PatchAll(typeof(TargetListControllerComponent.OnPlatformUpdate));
             InputCatcher.RegisterNewInput(
-                Plugin.menuNavigationUpControllerName.Value,
-                Plugin.menuNavigationUpButtonIndex.Value,
+                Plugin.MFDNavUpControllerName.Value,
+                Plugin.MFDNavUpButtonIndex.Value,
                 0.2f,
                 onRelease: RecallTargets,
                 onLongPress: RememberTargets);
             InputCatcher.RegisterNewInput(
-                Plugin.menuNavigationRightControllerName.Value,
-                Plugin.menuNavigationRightButtonIndex.Value,
+                Plugin.MFDNavRightControllerName.Value,
+                Plugin.MFDNavRightButtonIndex.Value,
                 0.5f,
                 onRelease: NextTarget,
                 onLongPress: SortTargetsByDistance);
             InputCatcher.RegisterNewInput(
-                Plugin.menuNavigationLeftControllerName.Value,
-                Plugin.menuNavigationLeftButtonIndex.Value,
+                Plugin.MFDNavLeftControllerName.Value,
+                Plugin.MFDNavLeftButtonIndex.Value,
                 0.5f,
                 onRelease: PreviousTarget,
                 onLongPress: SortTargetsByName);
             InputCatcher.RegisterNewInput(
-                Plugin.menuNavigationEnterControllerName.Value,
-                Plugin.menuNavigationEnterButtonIndex.Value,
+                Plugin.MFDNavEnterControllerName.Value,
+                Plugin.MFDNavEnterButtonIndex.Value,
                 0.2f,
                 onRelease: PopCurrentTarget,
                 onLongPress: KeepOnlyCurrentTarget);
             InputCatcher.RegisterNewInput(
-                Plugin.menuNavigationDownControllerName.Value,
-                Plugin.menuNavigationDownButtonIndex.Value,
+                Plugin.MFDNavDownControllerName.Value,
+                Plugin.MFDNavDownButtonIndex.Value,
                 0.2f,
                 onRelease: KeepOnlyDataLinkedTargets,
                 onLongPress: KeepClosestTargetsBasedOnAmmo);

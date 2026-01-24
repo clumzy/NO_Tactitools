@@ -22,43 +22,43 @@ public static class NOAutopilotControlPlugin {
                 Plugin.harmony.PatchAll(typeof(NOAutopilotComponent.OnPlatformStart));
                 Plugin.harmony.PatchAll(typeof(NOAutopilotComponent.OnPlatformUpdate));
                 InputCatcher.RegisterNewInput(
-                    Plugin.toggleScreensController.Value,
-                    Plugin.toggleScreensButtonIndex.Value,
+                    Plugin.MFDNavToggleController.Value,
+                    Plugin.MFDNavToggleButtonIndex.Value,
                     0.2f,
                     ToggleMenu,
                     onLongPress: () => { }
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.menuNavigationEnterControllerName.Value,
-                    Plugin.menuNavigationEnterButtonIndex.Value,
+                    Plugin.MFDNavEnterControllerName.Value,
+                    Plugin.MFDNavEnterButtonIndex.Value,
                     999f, // High threshold so OnHold keeps running indefinitely
                     SelectActionShort,
                     SelectActionHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.menuNavigationUpControllerName.Value,
-                    Plugin.menuNavigationUpButtonIndex.Value,
+                    Plugin.MFDNavUpControllerName.Value,
+                    Plugin.MFDNavUpButtonIndex.Value,
                     999f, // High threshold so OnHold keeps running
                     NavigateUpShort,
                     NavigateUpHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.menuNavigationDownControllerName.Value,
-                    Plugin.menuNavigationDownButtonIndex.Value,
+                    Plugin.MFDNavDownControllerName.Value,
+                    Plugin.MFDNavDownButtonIndex.Value,
                     999f, // High threshold so OnHold keeps running
                     NavigateDownShort,
                     NavigateDownHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.menuNavigationLeftControllerName.Value,
-                    Plugin.menuNavigationLeftButtonIndex.Value,
+                    Plugin.MFDNavLeftControllerName.Value,
+                    Plugin.MFDNavLeftButtonIndex.Value,
                     999f,
                     NavigateLeftShort,
                     NavigateLeftHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.menuNavigationRightControllerName.Value,
-                    Plugin.menuNavigationRightButtonIndex.Value,
+                    Plugin.MFDNavRightControllerName.Value,
+                    Plugin.MFDNavRightButtonIndex.Value,
                     999f,
                     NavigateRightShort,
                     NavigateRightHold
