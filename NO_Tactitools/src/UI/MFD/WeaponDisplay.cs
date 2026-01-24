@@ -15,10 +15,10 @@ class WeaponDisplayPlugin {
             Plugin.harmony.PatchAll(typeof(WeaponDisplayComponent.OnPlatformUpdate));
             // Register the new button for toggling the weapon display
             InputCatcher.RegisterNewInput(
-                Plugin.weaponDisplayControllerName.Value,
-                    Plugin.weaponDisplayButtonIndex.Value,
-                    0.2f,
-                    onRelease: HandleDisplayToggle
+                Plugin.autopilotToggleMenuControllerName.Value,
+                Plugin.autopilotToggleMenuButtonIndex.Value,
+                0.2f,
+                onLongPress: HandleDisplayToggle
             );
             initialized = true;
             Plugin.Log("[WD] Weapon Display plugin succesfully started !");

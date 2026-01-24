@@ -19,32 +19,32 @@ class TargetListControllerPlugin {
             Plugin.harmony.PatchAll(typeof(TargetListControllerComponent.OnPlatformStart));
             Plugin.harmony.PatchAll(typeof(TargetListControllerComponent.OnPlatformUpdate));
             InputCatcher.RegisterNewInput(
-                Plugin.targetRecallControllerName.Value,
-                Plugin.targetRecallButtonIndex.Value,
+                Plugin.menuNavigationUpControllerName.Value,
+                Plugin.menuNavigationUpButtonIndex.Value,
                 0.2f,
                 onRelease: RecallTargets,
                 onLongPress: RememberTargets);
             InputCatcher.RegisterNewInput(
-                Plugin.targetNextControllerName.Value,
-                Plugin.targetNextButtonIndex.Value,
+                Plugin.menuNavigationRightControllerName.Value,
+                Plugin.menuNavigationRightButtonIndex.Value,
                 0.5f,
                 onRelease: NextTarget,
                 onLongPress: SortTargetsByDistance);
             InputCatcher.RegisterNewInput(
-                Plugin.targetPreviousControllerName.Value,
-                Plugin.targetPreviousButtonIndex.Value,
+                Plugin.menuNavigationLeftControllerName.Value,
+                Plugin.menuNavigationLeftButtonIndex.Value,
                 0.5f,
                 onRelease: PreviousTarget,
                 onLongPress: SortTargetsByName);
             InputCatcher.RegisterNewInput(
-                Plugin.targetPopOrKeepControllerName.Value,
-                Plugin.targetPopOrKeepButtonIndex.Value,
+                Plugin.menuNavigationEnterControllerName.Value,
+                Plugin.menuNavigationEnterButtonIndex.Value,
                 0.2f,
                 onRelease: PopCurrentTarget,
                 onLongPress: KeepOnlyCurrentTarget);
             InputCatcher.RegisterNewInput(
-                Plugin.targetSmartControlControllerName.Value,
-                Plugin.targetSmartControlButtonIndex.Value,
+                Plugin.menuNavigationDownControllerName.Value,
+                Plugin.menuNavigationDownButtonIndex.Value,
                 0.2f,
                 onRelease: KeepOnlyDataLinkedTargets,
                 onLongPress: KeepClosestTargetsBasedOnAmmo);
@@ -54,6 +54,7 @@ class TargetListControllerPlugin {
     }
 
     private static void NextTarget() {
+        if (NOAutopilotComponent.InternalState.showMenu) return;
         Plugin.Log($"[TC] NextTarget");
         int targetCount = GameBindings.Player.TargetList.GetTargets().Count;
         if (targetCount > 1) {
@@ -64,6 +65,7 @@ class TargetListControllerPlugin {
     }
 
     private static void PreviousTarget() {
+        if (NOAutopilotComponent.InternalState.showMenu) return;
         Plugin.Log($"[TC] PreviousTarget");
         int targetCount = GameBindings.Player.TargetList.GetTargets().Count;
         if (targetCount > 1) {
@@ -74,6 +76,7 @@ class TargetListControllerPlugin {
     }
 
     private static void PopCurrentTarget() {
+        if (NOAutopilotComponent.InternalState.showMenu) return;
         Plugin.Log($"[TC] DeselectCurrentTarget");
         List<Unit> currentTargets = GameBindings.Player.TargetList.GetTargets();
         if (currentTargets.Count > 0 && TargetListControllerComponent.InternalState.targetIndex < currentTargets.Count) {
@@ -85,6 +88,7 @@ class TargetListControllerPlugin {
     }
 
     private static void KeepOnlyCurrentTarget() {
+        if (NOAutopilotComponent.InternalState.showMenu) return;
         Plugin.Log($"[TC] KeepOnlyCurrentTarget");
         List<Unit> currentTargets = GameBindings.Player.TargetList.GetTargets();
         if (currentTargets.Count > 0 && TargetListControllerComponent.InternalState.targetIndex < currentTargets.Count) {
@@ -96,6 +100,7 @@ class TargetListControllerPlugin {
     }
 
     private static void KeepOnlyDataLinkedTargets() {
+        if (NOAutopilotComponent.InternalState.showMenu) return;
         Plugin.Log($"[TC] KeepOnlyDataLinkedTargets");
         if (GameBindings.Player.TargetList.GetTargets().Count == 0) {
             return;
@@ -117,6 +122,7 @@ class TargetListControllerPlugin {
     }
 
     private static void KeepClosestTargetsBasedOnAmmo() {
+        if (NOAutopilotComponent.InternalState.showMenu) return;
         Plugin.Log($"[TC] KeepClosestTargetsBasedOnAmmo");
         if (GameBindings.Player.TargetList.GetTargets().Count == 0) {
             return;
@@ -147,6 +153,7 @@ class TargetListControllerPlugin {
     }
 
     private static void RememberTargets() {
+        if (NOAutopilotComponent.InternalState.showMenu) return;
         Plugin.Log($"[TC] HandleLongPress");
         if (UIBindings.Game.GetCombatHUDTransform() != null) {
             if (GameBindings.Player.TargetList.GetTargets().Count == 0) {
@@ -160,6 +167,7 @@ class TargetListControllerPlugin {
     }
 
     private static void RecallTargets() {
+        if (NOAutopilotComponent.InternalState.showMenu) return;
         Plugin.Log($"[TC] HandleClick");
         if (TargetListControllerComponent.InternalState.unitRecallList != null) {
             if (TargetListControllerComponent.InternalState.unitRecallList.Count > 0) {
@@ -175,6 +183,7 @@ class TargetListControllerPlugin {
     }
 
     private static void SortTargetsByDistance() {
+        if (NOAutopilotComponent.InternalState.showMenu) return;
         Plugin.Log($"[TC] SortTargetsByDistance");
         if (GameBindings.Player.TargetList.GetTargets().Count < 2) {
             return;
@@ -201,6 +210,7 @@ class TargetListControllerPlugin {
     }
 
     private static void SortTargetsByName() {
+        if (NOAutopilotComponent.InternalState.showMenu) return;
         Plugin.Log($"[TC] SortTargetsByName");
         if (GameBindings.Player.TargetList.GetTargets().Count < 2) {
             return;

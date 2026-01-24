@@ -14,24 +14,23 @@ namespace NO_Tactitools.Core {
     [BepInPlugin("NO_Tactitools", "NOTT", "0.5.2")]
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;
+        public static ConfigEntry<string> menuNavigationEnterInput;
+        public static ConfigEntry<string> menuNavigationEnterControllerName;
+        public static ConfigEntry<int> menuNavigationEnterButtonIndex;
+        public static ConfigEntry<string> menuNavigationUpInput;
+        public static ConfigEntry<string> menuNavigationUpControllerName;
+        public static ConfigEntry<int> menuNavigationUpButtonIndex;
+        public static ConfigEntry<string> menuNavigationDownInput;
+        public static ConfigEntry<string> menuNavigationDownControllerName;
+        public static ConfigEntry<int> menuNavigationDownButtonIndex;
+        public static ConfigEntry<string> menuNavigationLeftInput;
+        public static ConfigEntry<string> menuNavigationLeftControllerName;
+        public static ConfigEntry<int> menuNavigationLeftButtonIndex;
+        public static ConfigEntry<string> menuNavigationRightInput;
+        public static ConfigEntry<string> menuNavigationRightControllerName;
+        public static ConfigEntry<int> menuNavigationRightButtonIndex;
         public static ConfigEntry<bool> targetListControllerEnabled;
-        public static ConfigEntry<string> targetRecallInput;
-        public static ConfigEntry<string> targetRecallControllerName;
-        public static ConfigEntry<int> targetRecallButtonIndex;
-        public static ConfigEntry<string> targetNextInput;
-        public static ConfigEntry<string> targetNextControllerName;
-        public static ConfigEntry<int> targetNextButtonIndex;
-        public static ConfigEntry<string> targetPreviousInput;
-        public static ConfigEntry<string> targetPreviousControllerName;
-        public static ConfigEntry<int> targetPreviousButtonIndex;
-        public static ConfigEntry<string> targetPopOrKeepInput;
-        public static ConfigEntry<string> targetPopOrKeepControllerName;
-        public static ConfigEntry<int> targetPopOrKeepButtonIndex;
-        public static ConfigEntry<string> targetSmartControlInput;
-        public static ConfigEntry<string> targetSmartControlControllerName;
-        public static ConfigEntry<int> targetSmartControlButtonIndex;
         public static ConfigEntry<bool> interceptionVectorEnabled;
-        public static ConfigEntry<bool> onScreenVectorEnabled;
         public static ConfigEntry<bool> countermeasureControlsEnabled;
         public static ConfigEntry<string> countermeasureControlsFlareInput;
         public static ConfigEntry<string> countermeasureControlsFlareControllerName;
@@ -60,9 +59,6 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<int> weaponSwitcherButtonIndex5;
         public static ConfigEntry<bool> weaponDisplayEnabled;
         public static ConfigEntry<bool> weaponDisplayVanillaUIEnabled;
-        public static ConfigEntry<string> weaponDisplayInput;
-        public static ConfigEntry<string> weaponDisplayControllerName;
-        public static ConfigEntry<int> weaponDisplayButtonIndex;
         public static ConfigEntry<bool> unitDistanceEnabled;
         public static ConfigEntry<int> unitDistanceThreshold;
         public static ConfigEntry<bool> unitDistanceSoundEnabled;
@@ -77,24 +73,9 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> artificialHorizonEnabled;
         public static ConfigEntry<float> artificialHorizonTransparency;
         public static ConfigEntry<bool> autopilotMenuEnabled;
-        public static ConfigEntry<string> autopilotOpenMenu;
-        public static ConfigEntry<string> autopilotOpenMenuControllerName;
-        public static ConfigEntry<int> autopilotOpenMenuButtonIndex;
-        public static ConfigEntry<string> autopilotUpInput;
-        public static ConfigEntry<string> autopilotUpControllerName;
-        public static ConfigEntry<int> autopilotUpButtonIndex;
-        public static ConfigEntry<string> autopilotDownInput;
-        public static ConfigEntry<string> autopilotDownControllerName;
-        public static ConfigEntry<int> autopilotDownButtonIndex;
-        public static ConfigEntry<string> autopilotLeftInput;
-        public static ConfigEntry<string> autopilotLeftControllerName;
-        public static ConfigEntry<int> autopilotLeftButtonIndex;
-        public static ConfigEntry<string> autopilotRightInput;
-        public static ConfigEntry<string> autopilotRightControllerName;
-        public static ConfigEntry<int> autopilotRightButtonIndex;
-        public static ConfigEntry<string> autopilotEnterInput;
-        public static ConfigEntry<string> autopilotEnterControllerName;
-        public static ConfigEntry<int> autopilotEnterButtonIndex;
+        public static ConfigEntry<string> autopilotToggleMenuInput;
+        public static ConfigEntry<string> autopilotToggleMenuControllerName;
+        public static ConfigEntry<int> autopilotToggleMenuButtonIndex;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
         public static ConfigEntry<bool> loadoutPreviewOnlyShowOnBoot;
         public static ConfigEntry<float> loadoutPreviewDuration;
@@ -117,6 +98,157 @@ namespace NO_Tactitools.Core {
 
         private void Awake() {
             Instance = this;
+            // Menu navigation
+            menuNavigationEnterInput = Config.Bind("Menu Navigation",
+                "Menu Navigation - Enter Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign for menu navigation - Enter",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = menuNavigationEnterControllerName,
+                        ButtonIndex = menuNavigationEnterButtonIndex
+                    }));
+            menuNavigationEnterControllerName = Config.Bind("Menu Navigation",
+                "Menu Navigation - Enter - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Browsable = false
+                    }));
+            menuNavigationEnterButtonIndex = Config.Bind("Menu Navigation",
+                "Menu Navigation - Enter - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Browsable = false
+                    }));
+            menuNavigationUpInput = Config.Bind("Menu Navigation",
+                "Menu Navigation - Up Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign for menu navigation - Up",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -1,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = menuNavigationUpControllerName,
+                        ButtonIndex = menuNavigationUpButtonIndex
+                    }));
+            menuNavigationUpControllerName = Config.Bind("Menu Navigation",
+                "Menu Navigation - Up - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Browsable = false
+                    }));
+            menuNavigationUpButtonIndex = Config.Bind("Menu Navigation",
+                "Menu Navigation - Up - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Browsable = false
+                    }));
+            menuNavigationDownInput = Config.Bind("Menu Navigation",
+                "Menu Navigation - Down Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign for menu navigation - Down",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -2,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = menuNavigationDownControllerName,
+                        ButtonIndex = menuNavigationDownButtonIndex
+                    }));
+            menuNavigationDownControllerName = Config.Bind("Menu Navigation",
+                "Menu Navigation - Down - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Browsable = false
+                    }));
+            menuNavigationDownButtonIndex = Config.Bind("Menu Navigation",
+                "Menu Navigation - Down - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Browsable = false
+                    }));
+            menuNavigationLeftInput = Config.Bind("Menu Navigation",
+                "Menu Navigation - Left Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign for menu navigation - Left",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -3,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = menuNavigationLeftControllerName,
+                        ButtonIndex = menuNavigationLeftButtonIndex
+                    }));
+            menuNavigationLeftControllerName = Config.Bind("Menu Navigation",
+                "Menu Navigation - Left - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Browsable = false
+                    }));
+            menuNavigationLeftButtonIndex = Config.Bind("Menu Navigation",
+                "Menu Navigation - Left - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Browsable = false
+                    }));
+            menuNavigationRightInput = Config.Bind("Menu Navigation",
+                "Menu Navigation - Right Input",
+                "",
+                new ConfigDescription(
+                    "Input you want to assign for menu navigation - Right",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -4,
+                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+                        ControllerName = menuNavigationRightControllerName,
+                        ButtonIndex = menuNavigationRightButtonIndex
+                    }));
+            menuNavigationRightControllerName = Config.Bind("Menu Navigation",
+                "Menu Navigation - Right - Controller Name",
+                "",
+                new ConfigDescription(
+                    "Name of the peripheral",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Browsable = false
+                    }));
+            menuNavigationRightButtonIndex = Config.Bind("Menu Navigation",
+                "Menu Navigation - Right - Button Index",
+                -1,
+                new ConfigDescription(
+                    "Index of the button",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Browsable = false
+                    }));
             // Target Recall settings
             targetListControllerEnabled = Config.Bind("Target List Controller", //Category
                 "Target List Controller - Enabled", // Setting name
@@ -126,166 +258,6 @@ namespace NO_Tactitools.Core {
                     null,
                     new ConfigurationManagerAttributes {
                         Order = 2})); // Description of the setting
-            targetRecallControllerName = Config.Bind("Target List Controller",
-                "Target List Controller - Target Recall - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 1,
-                        Browsable = false
-                    }));
-            targetRecallButtonIndex = Config.Bind("Target List Controller",
-                "Target List Controller - Target Recall - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 1,
-                        Browsable = false
-                    }));
-            targetRecallInput = Config.Bind("Target List Controller",
-                "Target List Controller - Target Recall - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign to Target Recall (short press to recall, long press to save)",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 0,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = targetRecallControllerName,
-                        ButtonIndex = targetRecallButtonIndex
-                    }));
-            targetNextControllerName = Config.Bind("Target List Controller",
-                "Target List Controller - Next Target / Sort Target List by distance - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -1,
-                        Browsable = false
-                    }));
-            targetNextButtonIndex = Config.Bind("Target List Controller",
-                "Target List Controller - Next Target / Sort Target List by distance - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -1,
-                        Browsable = false
-                    }));
-            targetNextInput = Config.Bind("Target List Controller",
-                "Target List Controller - Next Target / Sort Target List by distance - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign to Next Target / Sort Target List by distance (short press for next target, long press to sort)",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -2,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = targetNextControllerName,
-                        ButtonIndex = targetNextButtonIndex
-                    }));
-            targetPreviousControllerName = Config.Bind("Target List Controller",
-                "Target List Controller - Previous Target / Sort Target List by name - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -3,
-                        Browsable = false
-                    }));
-            targetPreviousButtonIndex = Config.Bind("Target List Controller",
-                "Target List Controller - Previous Target / Sort Target List by name - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -3,
-                        Browsable = false
-                    }));
-            targetPreviousInput = Config.Bind("Target List Controller",
-                "Target List Controller - Previous Target / Sort target list by name - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign to Previous Target / Sort Target List by name (short press for previous target, long press to sort)",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -4,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = targetPreviousControllerName,
-                        ButtonIndex = targetPreviousButtonIndex
-                    }));
-            targetPopOrKeepControllerName = Config.Bind("Target List Controller",
-                "Target List Controller - Remove or Keep Target - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -5,
-                        Browsable = false
-                    }));
-            targetPopOrKeepButtonIndex = Config.Bind("Target List Controller",
-                "Target List Controller - Remove or Keep Target - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -5,
-                        Browsable = false
-                    }));
-            targetPopOrKeepInput = Config.Bind("Target List Controller",
-                "Target List Controller - Remove or Keep Target - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign to Remove or Keep Target (short press to remove, long press to keep)",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -6,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = targetPopOrKeepControllerName,
-                        ButtonIndex = targetPopOrKeepButtonIndex
-                    }));
-            targetSmartControlControllerName = Config.Bind("Target List Controller",
-                "Target List Controller - Smart Control - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -9,
-                        Browsable = false
-                    }));
-            targetSmartControlButtonIndex = Config.Bind("Target List Controller",
-                "Target List Controller - Smart Control - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -9,
-                        Browsable = false
-                    }));
-            targetSmartControlInput = Config.Bind("Target List Controller",
-                "Target List Controller - Smart Control - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign to Smart Control (short press to keep only datalinked targets, long press to keep closest targets based on remaining ammo)",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -10,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = targetSmartControlControllerName,
-                        ButtonIndex = targetSmartControlButtonIndex
-                    }));
             // Interception Vector settings
             interceptionVectorEnabled = Config.Bind("Interception Vector",
                 "Interception Vector - Enabled",
@@ -591,38 +563,6 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 2
                     }));
-            weaponDisplayControllerName = Config.Bind("CM & Weapon Display",
-                "CM & Weapon Display - Content Toggling - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 1,
-                        Browsable = false
-                    }));
-            weaponDisplayButtonIndex = Config.Bind("CM & Weapon Display",
-                "CM & Weapon Display - Content Toggling - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 1,
-                        Browsable = false
-                    }));
-            weaponDisplayInput = Config.Bind("CM & Weapon Display",
-                "CM & Weapon Display - Content Toggling - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign for toggling the weapon display back to its original content",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 0,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = weaponDisplayControllerName,
-                        ButtonIndex = weaponDisplayButtonIndex
-                    }));
             // Unit Distance settings
             unitDistanceEnabled = Config.Bind("HMD Tweaks",
                 "Unit Marker Distance Indicator - Enabled",
@@ -756,7 +696,7 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 7
                     }));
-            autopilotOpenMenuControllerName = Config.Bind("Autopilot",
+            autopilotToggleMenuControllerName = Config.Bind("Autopilot",
                 "Autopilot - Open Menu - Controller Name",
                 "",
                 new ConfigDescription(
@@ -766,7 +706,7 @@ namespace NO_Tactitools.Core {
                         Order = 5,
                         Browsable = false
                     }));
-            autopilotOpenMenuButtonIndex = Config.Bind("Autopilot",
+            autopilotToggleMenuButtonIndex = Config.Bind("Autopilot",
                 "Autopilot - Open Menu - Button Index",
                 -1,
                 new ConfigDescription(
@@ -776,7 +716,7 @@ namespace NO_Tactitools.Core {
                         Order = 5,
                         Browsable = false
                     }));
-            autopilotOpenMenu = Config.Bind("Autopilot",
+            autopilotToggleMenuInput = Config.Bind("Autopilot",
                 "Autopilot - Open Menu - Input",
                 "",
                 new ConfigDescription(
@@ -785,168 +725,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 5,
                         CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = autopilotOpenMenuControllerName,
-                        ButtonIndex = autopilotOpenMenuButtonIndex
-                    }));
-            autopilotUpControllerName = Config.Bind("Autopilot",
-                "Autopilot - Up - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 4,
-                        Browsable = false
-                    }));
-            autopilotUpButtonIndex = Config.Bind("Autopilot",
-                "Autopilot - Up - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 4,
-                        Browsable = false
-                    }));
-            autopilotUpInput = Config.Bind("Autopilot",
-                "Autopilot - Up - Input",
-                "",
-                new ConfigDescription(
-                    "Input for Up navigation",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 4,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = autopilotUpControllerName,
-                        ButtonIndex = autopilotUpButtonIndex
-                    }));
-            autopilotDownControllerName = Config.Bind("Autopilot",
-                "Autopilot - Down - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 3,
-                        Browsable = false
-                    }));
-            autopilotDownButtonIndex = Config.Bind("Autopilot",
-                "Autopilot - Down - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 3,
-                        Browsable = false
-                    }));
-            autopilotDownInput = Config.Bind("Autopilot",
-                "Autopilot - Down - Input",
-                "",
-                new ConfigDescription(
-                    "Input for Down navigation",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 3,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = autopilotDownControllerName,
-                        ButtonIndex = autopilotDownButtonIndex
-                    }));
-            autopilotLeftControllerName = Config.Bind("Autopilot",
-                "Autopilot - Left - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 2,
-                        Browsable = false
-                    }));
-            autopilotLeftButtonIndex = Config.Bind("Autopilot",
-                "Autopilot - Left - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 2,
-                        Browsable = false
-                    }));
-            autopilotLeftInput = Config.Bind("Autopilot",
-                "Autopilot - Left - Input",
-                "",
-                new ConfigDescription(
-                    "Input for Left navigation",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 2,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = autopilotLeftControllerName,
-                        ButtonIndex = autopilotLeftButtonIndex
-                    }));
-            autopilotRightControllerName = Config.Bind("Autopilot",
-                "Autopilot - Right - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 1,
-                        Browsable = false
-                    }));
-            autopilotRightButtonIndex = Config.Bind("Autopilot",
-                "Autopilot - Right - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 1,
-                        Browsable = false
-                    }));
-            autopilotRightInput = Config.Bind("Autopilot",
-                "Autopilot - Right - Input",
-                "",
-                new ConfigDescription(
-                    "Input for Right navigation",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 1,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = autopilotRightControllerName,
-                        ButtonIndex = autopilotRightButtonIndex
-                    }));
-            autopilotEnterControllerName = Config.Bind("Autopilot",
-                "Autopilot - Enter - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 0,
-                        Browsable = false
-                    }));
-            autopilotEnterButtonIndex = Config.Bind("Autopilot",
-                "Autopilot - Enter - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 0,
-                        Browsable = false
-                    }));
-            autopilotEnterInput = Config.Bind("Autopilot",
-                "Autopilot - Enter - Input",
-                "",
-                new ConfigDescription(
-                    "Input for Enter / Action",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 0,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = autopilotEnterControllerName,
-                        ButtonIndex = autopilotEnterButtonIndex
+                        ControllerName = autopilotToggleMenuControllerName,
+                        ButtonIndex = autopilotToggleMenuButtonIndex
                     }));
             // Loadout Preview settings
             loadoutPreviewEnabled = Config.Bind("Loadout Preview",

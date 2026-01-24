@@ -22,42 +22,42 @@ public static class NOAutopilotControlPlugin {
                 Plugin.harmony.PatchAll(typeof(NOAutopilotComponent.OnPlatformStart));
                 Plugin.harmony.PatchAll(typeof(NOAutopilotComponent.OnPlatformUpdate));
                 InputCatcher.RegisterNewInput(
-                    Plugin.autopilotOpenMenuControllerName.Value,
-                    Plugin.autopilotOpenMenuButtonIndex.Value,
+                    Plugin.autopilotToggleMenuControllerName.Value,
+                    Plugin.autopilotToggleMenuButtonIndex.Value,
                     0.2f,
                     ToggleMenu
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.autopilotEnterControllerName.Value,
-                    Plugin.autopilotEnterButtonIndex.Value,
+                    Plugin.menuNavigationEnterControllerName.Value,
+                    Plugin.menuNavigationEnterButtonIndex.Value,
                     999f, // High threshold so OnHold keeps running indefinitely
                     SelectActionShort,
                     SelectActionHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.autopilotUpControllerName.Value,
-                    Plugin.autopilotUpButtonIndex.Value,
+                    Plugin.menuNavigationUpControllerName.Value,
+                    Plugin.menuNavigationUpButtonIndex.Value,
                     999f, // High threshold so OnHold keeps running
                     NavigateUpShort,
                     NavigateUpHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.autopilotDownControllerName.Value,
-                    Plugin.autopilotDownButtonIndex.Value,
+                    Plugin.menuNavigationDownControllerName.Value,
+                    Plugin.menuNavigationDownButtonIndex.Value,
                     999f, // High threshold so OnHold keeps running
                     NavigateDownShort,
                     NavigateDownHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.autopilotLeftControllerName.Value,
-                    Plugin.autopilotLeftButtonIndex.Value,
+                    Plugin.menuNavigationLeftControllerName.Value,
+                    Plugin.menuNavigationLeftButtonIndex.Value,
                     999f,
                     NavigateLeftShort,
                     NavigateLeftHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.autopilotRightControllerName.Value,
-                    Plugin.autopilotRightButtonIndex.Value,
+                    Plugin.menuNavigationRightControllerName.Value,
+                    Plugin.menuNavigationRightButtonIndex.Value,
                     999f,
                     NavigateRightShort,
                     NavigateRightHold
