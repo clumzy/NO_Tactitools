@@ -22,8 +22,8 @@ internal sealed class ConfigurationManagerAttributes
     public bool? ReadOnly;
     public bool? HideDefaultButton;
     public bool? HideSettingName;
-    public object? ControllerName;
-    public object? ButtonIndex;
+    public object ControllerName;
+    public object ButtonIndex;
 }
 
 internal sealed class RewiredConfigManager {
