@@ -27,14 +27,6 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
-  <!-- Copy PDB files to output directory -->
-  <Target Name="CopyDebugSymbols" AfterTargets="Build" Condition=" '$(Configuration)' == 'Debug' ">
-    <ItemGroup>
-      <PdbFiles Include="$(MSBuildProjectDirectory)\bin\Debug\netstandard2.1\*.pdb" />
-    </ItemGroup>
-    <Copy SourceFiles="@(PdbFiles)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
-  </Target>
-
   <!-- Release configuration - strip debug info and source paths -->
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugType>none</DebugType>
