@@ -6,6 +6,7 @@ using Plugin = NO_Tactitools.Core.Plugin;
 using NO_Tactitools.Core;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace NO_Tactitools.Controls;
 [HarmonyPatch(typeof(MainMenu), "Start")]
@@ -411,7 +412,7 @@ public class NOAutopilotComponent {
             InternalState.targetAlt = APData.TargetAlt;
 
             // Row 2: Vertical Speed
-            InternalState.currentVS = APData.PlayerRB?.velocity.y ?? 0f;
+            InternalState.currentVS = GameBindings.Player.Aircraft.GetAircraft()?.rb.velocity.y ?? 0f;
             InternalState.maxClimbRate = APData.CurrentMaxClimbRate;
 
             // Row 3: Roll
@@ -424,8 +425,8 @@ public class NOAutopilotComponent {
 
             // Row 5: Course
             InternalState.currentCourse = 0f;
-            if (APData.PlayerRB != null && APData.PlayerRB.velocity.sqrMagnitude > 1f) {
-                Vector3 flatVel = Vector3.ProjectOnPlane(APData.PlayerRB.velocity, Vector3.up);
+            if (GameBindings.Player.Aircraft.GetAircraft()?.rb != null && GameBindings.Player.Aircraft.GetAircraft()?.rb.velocity.sqrMagnitude > 1f) {
+                Vector3 flatVel = Vector3.ProjectOnPlane(GameBindings.Player.Aircraft.GetAircraft().rb.velocity, Vector3.up);
                 InternalState.currentCourse = Quaternion.LookRotation(flatVel).eulerAngles.y;
             }
             InternalState.targetCourse = APData.TargetCourse;
