@@ -420,7 +420,7 @@ public class NOAutopilotComponent {
             InternalState.targetRoll = APData.TargetRoll;
 
             // Row 4: Speed
-            InternalState.currentTAS = APData.LocalAircraft?.speed ?? 0f;
+            InternalState.currentTAS = GameBindings.Player.Aircraft.GetAircraft()?.speed ?? 0f;
             InternalState.targetSpeed = APData.TargetSpeed;
 
             // Row 5: Course
