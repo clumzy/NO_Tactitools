@@ -28,7 +28,6 @@ class InterceptionVectorPlugin {
 class InterceptionVectorTask {
     public enum State {
         Init,
-        Reset,
         Idle,
         TargetInitiallyUntracked,
         Intercepting
@@ -62,9 +61,6 @@ class InterceptionVectorTask {
             case State.Init:
                 HandleInitState();
                 break;
-            case State.Reset:
-                HandleResetState();
-                break;
             case State.Idle:
                 HandleIdleState();
                 break;
@@ -78,9 +74,6 @@ class InterceptionVectorTask {
     }
 
     static void HandleInitState() {
-        if (GameBindings.Player.TargetList.GetTargets().Count != 1) {
-            return;
-        }// Do not init if no target is selected
         Plugin.Log("[IV] Init state");
         if (containerObject != null) {
             Object.Destroy(containerObject);
@@ -124,13 +117,6 @@ class InterceptionVectorTask {
             Color.magenta,
             2f
         );
-
-        currentState = State.Reset;
-        Plugin.Log("[IV] Transitioning to Reset state");
-        return;
-    }
-
-    static void HandleResetState() {
         bearingLabel.SetText("");
         timerLabel.SetText("");
         indicatorTargetBox.GetGameObject().SetActive(false);
@@ -163,7 +149,7 @@ class InterceptionVectorTask {
     static void HandleTargetInitiallyUntracked() {
         if (((List<Unit>)GameBindings.Player.TargetList.GetTargets()).Count != 1
             || ((List<Unit>)GameBindings.Player.TargetList.GetTargets())[0] != targetUnit) {
-            currentState = State.Reset;
+            currentState = State.Init;
             Plugin.Log("[IV] Switched target, returning to Reset state");
             return;
         }
@@ -178,7 +164,7 @@ class InterceptionVectorTask {
         if (((List<Unit>)GameBindings.Player.TargetList.GetTargets()).Count != 1
             || ((List<Unit>)GameBindings.Player.TargetList.GetTargets())[0] != targetUnit ||
             GameBindings.Player.Aircraft.GetAircraft() == null) {
-            currentState = State.Reset;
+            currentState = State.Init;
             Plugin.Log("[IV] Returning to Reset state");
             return;
         }
