@@ -13,7 +13,7 @@ class InterceptionVectorPlugin {
             Plugin.Log($"[IV] Interception Vector plugin starting !");
             // APPLY SUB PATCHES
             Plugin.harmony.PatchAll(typeof(InterceptionVectorTask));
-            Plugin.harmony.PatchAll(typeof(ResetInterceptionVectorOnRespawnPatch));
+            Plugin.harmony.PatchAll(typeof(OnPlatformStart));
             initialized = true;
             Plugin.Log("[IV] Interception Vector plugin succesfully started !");
         }
@@ -377,8 +377,8 @@ class InterceptionVectorTask {
     }
 }
 
-[HarmonyPatch(typeof(FlightHud), "ResetAircraft")]
-class ResetInterceptionVectorOnRespawnPatch {
+[HarmonyPatch(typeof(TacScreen), "Initialize")]
+class OnPlatformStart {
     static void Postfix() {
         // Reset the FSM state when the aircraft is destroyed
         InterceptionVectorPlugin.Reset();
