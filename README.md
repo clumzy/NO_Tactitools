@@ -70,7 +70,6 @@ George
 - Can be assigned to any peripheral button
 - Direct-select weapon slots via dedicated buttons (0–5)
 - Slot order is based on the order weapons are first shown on the loadout screen
-- Long-press on slot 0 toggles Turret Auto Control
 
 ### 💥 Separate, dedicated buttons for Flares and Jammer selection (Uses [new bindings](#how-to-setup-the-mod-to-use-your-peripherals))
 

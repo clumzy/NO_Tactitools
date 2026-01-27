@@ -14,39 +14,38 @@ class WeaponSwitcherPlugin {
             InputCatcher.RegisterNewInput(
                 Plugin.weaponSwitcherControllerName0.Value,
                 Plugin.weaponSwitcherButtonIndex0.Value,
-                0.5f,
-                onRelease: HandleClick0,
-                onLongPress: HandleToggleAutoControl // Long press to switch to the first weapon station
+                0.0001f, 
+                onLongPress: HandleClick0
                 );
             InputCatcher.RegisterNewInput(
                 Plugin.weaponSwitcherControllerName1.Value,
                 Plugin.weaponSwitcherButtonIndex1.Value,
-                0.2f,
-                onRelease: HandleClick1
+                0.0001f, 
+                onLongPress: HandleClick1
                 );
             InputCatcher.RegisterNewInput(
                 Plugin.weaponSwitcherControllerName2.Value,
                 Plugin.weaponSwitcherButtonIndex2.Value,
-                0.2f,
-                onRelease: HandleClick2
+                0.0001f, 
+                onLongPress: HandleClick2
                 );
             InputCatcher.RegisterNewInput(
                 Plugin.weaponSwitcherControllerName3.Value,
                 Plugin.weaponSwitcherButtonIndex3.Value,
-                0.2f,
-                onRelease: HandleClick3
+                0.0001f, 
+                onLongPress: HandleClick3
                 );
             InputCatcher.RegisterNewInput(
                 Plugin.weaponSwitcherControllerName4.Value,
                 Plugin.weaponSwitcherButtonIndex4.Value,
-                0.2f,
-                onRelease: HandleClick4
+                0.0001f, 
+                onLongPress: HandleClick4
                 );
             InputCatcher.RegisterNewInput(
                 Plugin.weaponSwitcherControllerName5.Value,
                 Plugin.weaponSwitcherButtonIndex5.Value,
-                0.2f,
-                onRelease: HandleClick5
+                0.0001f, 
+                onLongPress: HandleClick5
                 );
             initialized = true;
             Plugin.Log("[WS] Weapon Switcher plugin succesfully started !");
@@ -55,10 +54,6 @@ class WeaponSwitcherPlugin {
 
     private static void HandleClick0() {
         GameBindings.Player.Aircraft.Weapons.SetActiveStation(0);
-    }
-
-    private static void HandleToggleAutoControl() {
-        GameBindings.Player.Aircraft.ToggleAutoControl();
     }
 
     private static void HandleClick1() {
