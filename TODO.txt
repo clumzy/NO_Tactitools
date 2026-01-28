@@ -53,7 +53,7 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> Implemented full caching for ALL reflections throughout the code, good performance increases, no Exceptions and bugs FOR now
 -> Fixed advanced rectangles and their implementations, much better pixel scaling now
 
-0.5.2 :
+0.6.0 :
 -> Investigate the POV up format encountered by some users
 -> More generally, find a new way to work with "non-standard" buttons
 -> Control the AP from the MFD
