@@ -174,7 +174,7 @@ public static class NOAutopilotControlPlugin {
                 float currentAlt = (APData.LocalAircraft != null) ? APData.LocalAircraft.GlobalPosition().y : 0f;
                 // Try to get Speed of Sound, fallback to 340 if LevelInfo not available (though it should be)
                 float sos = 340f; 
-                try { sos = LevelInfo.GetSpeedofSound(currentAlt); } catch { } 
+                try { sos = LevelInfo.GetSpeedOfSound(currentAlt); } catch { } 
 
                 if (APData.TargetSpeed >= 0)
                 {
@@ -913,13 +913,13 @@ public class NOAutopilotComponent {
                 case 3: 
                     // Convert current TAS to display units, then round
                     if (APData.SpeedHoldIsMach) {
-                       float sos = 340f; 
-                       try { float currentAlt = (APData.LocalAircraft != null) ? APData.LocalAircraft.GlobalPosition().y : 0f; sos = LevelInfo.GetSpeedofSound(currentAlt); } catch { }
-                       float currentMach = InternalState.currentTAS / sos;
-                       InternalState.stagedSpeed = Mathf.Round(currentMach / InternalState.speedIncrement) * InternalState.speedIncrement;
+                        float sos = 340f; 
+                        try { float currentAlt = (APData.LocalAircraft != null) ? APData.LocalAircraft.GlobalPosition().y : 0f; sos = LevelInfo.GetSpeedOfSound(currentAlt); } catch { }
+                        float currentMach = InternalState.currentTAS / sos;
+                        InternalState.stagedSpeed = Mathf.Round(currentMach / InternalState.speedIncrement) * InternalState.speedIncrement;
                     } else {
-                       float displaySpeed = GameBindings.Units.ConvertSpeed_ToDisplay(InternalState.currentTAS);
-                       InternalState.stagedSpeed = Mathf.Round(displaySpeed / InternalState.speedIncrement) * InternalState.speedIncrement;
+                        float displaySpeed = GameBindings.Units.ConvertSpeed_ToDisplay(InternalState.currentTAS);
+                        InternalState.stagedSpeed = Mathf.Round(displaySpeed / InternalState.speedIncrement) * InternalState.speedIncrement;
                     }
                     break;
                 case 4: InternalState.stagedCourse = Mathf.Round(InternalState.currentCourse / InternalState.courseIncrement) * InternalState.courseIncrement; break;
@@ -980,7 +980,7 @@ public class NOAutopilotComponent {
                     if (InternalState.stagedSpeed < 0) {
                         if (APData.SpeedHoldIsMach) {
                             float sos = 340f; 
-                            try { float currentAlt = (APData.LocalAircraft != null) ? APData.LocalAircraft.GlobalPosition().y : 0f; sos = LevelInfo.GetSpeedofSound(currentAlt); } catch { }
+                            try { float currentAlt = (APData.LocalAircraft != null) ? APData.LocalAircraft.GlobalPosition().y : 0f; sos = LevelInfo.GetSpeedOfSound(currentAlt); } catch { }
                             InternalState.stagedSpeed = InternalState.currentTAS / sos;
                         } else {
                             // Assumed metric initialization or safe fallback if imperial conversion needed happens elsewhere?

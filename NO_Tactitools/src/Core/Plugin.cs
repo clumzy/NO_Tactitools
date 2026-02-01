@@ -11,7 +11,7 @@ using NO_Tactitools.UI.HMD;
 using NO_Tactitools.UI.MFD;
 
 namespace NO_Tactitools.Core {
-    [BepInPlugin("NO_Tactitools", "NOTT", "0.6.0.1")]
+    [BepInPlugin("NO_Tactitools", "NOTT", "0.6.0.2")]
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;
         public static ConfigEntry<string> MFDNavEnterInput;

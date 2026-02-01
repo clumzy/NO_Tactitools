@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>NO_Tactitools</AssemblyName>
     <Product>Nuclear Option Tactical Tools</Product>
-    <Version>0.6.0.1</Version>
+    <Version>0.6.0.2</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
@@ -21,10 +21,11 @@
 
   <!-- Debug configuration -->
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugType>full</DebugType>
+    <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <EmbedAllSources>true</EmbedAllSources>
   </PropertyGroup>
 
   <!-- Release configuration - strip debug info and source paths -->
