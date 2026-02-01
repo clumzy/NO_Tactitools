@@ -62,7 +62,7 @@
       <HintPath>$(GameDirectory)/NuclearOption_Data/Managed/Rewired_Core.dll</HintPath>
     </Reference>
     <Reference Include="com.qwerty1423.NOAutopilot">
-      <HintPath>$(GameDirectory)/BepInEx/plugins/com.qwerty1423.NOAutopilot.dll</HintPath>
+      <HintPath>$(GameDirectory)/BepInEx/plugins/no-autopilot-mod/com.qwerty1423.NOAutopilot.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">

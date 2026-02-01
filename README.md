@@ -254,8 +254,8 @@ As time goes on I will allow more features to be precisely configured using text
 
 - **QoL** (qol_1.1.6.1b3)
 - **FQ-106** Kestrel (fq106_2.0.2)
-- **Vanilla Icons PLUS** (VanillaIconsPLUS_1.5.0)
-- **NOAutopilot** (NOAutopilot v4.13.8)
+- **Vanilla Icons PLUS** (VanillaIconsPLUS_1.5.1)
+- **NOAutopilot** (NOAutopilot v4.13.11)
 
 ## Common issues
 

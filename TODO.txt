@@ -60,12 +60,13 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> AP : Long press on bearing value toggles waypoint mode. Bearing button is green in waypoint mode.
 -> AP : Long press on down / up goes fast, like left right
 -> Add their own controller to every button
-
-IN PROGRESS :
 --> the issue is easy to see : since the traverse is always null (since the cached object doesn't exist) it will keep overwriting itself in GetValue
 -> FIX THE TACSCREEN CONSTANT RESET WHEN DESTROYED IN FLIGHT, sometimes happens ? Maybe when intercepting
 
+IN PROGRESS :
+
 TODO :
+-> Rename Medusa in load screen
 -> Add functionalty to see if a targeted unit is being targeted by a friendly missile
 -> Add main menu patch reset, no need to restart the game
 -> Implement container for Weapon Display
