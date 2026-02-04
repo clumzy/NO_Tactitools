@@ -67,6 +67,7 @@ IN PROGRESS :
 
 TODO :
 -> Rename Medusa in load screen
+-> fix reload percentage
 -> Add functionalty to see if a targeted unit is being targeted by a friendly missile
 -> Add main menu patch reset, no need to restart the game
 -> Implement container for Weapon Display
