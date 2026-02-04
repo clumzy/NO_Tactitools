@@ -42,11 +42,7 @@ internal sealed class RewiredConfigManager {
                             IList elements = Traverse.Create(controller).Field("KHksquAJKcDEUkNfJQjMANjDEBFB").GetValue<IList>();
                             string controllerName = controller.name.Trim();
                             string buttonName = Traverse.Create(elements[i]).Property("elementIdentifier").GetValue<ControllerElementIdentifier>().name;
-                            
-                            // 1. Maintain the full composite string as it was
                             _targetEntry.BoxedValue = controllerName + " | " + buttonName + " | " + i.ToString();
-
-                            // 2. Simple assignment to facultative linked configs
                             if (_targetControllerEntry != null) _targetControllerEntry.BoxedValue = controllerName;
                             if (_targetIndexEntry != null) _targetIndexEntry.BoxedValue = i;
                             
