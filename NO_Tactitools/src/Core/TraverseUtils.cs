@@ -1,6 +1,5 @@
 using HarmonyLib;
 
-
 namespace NO_Tactitools.Core;
 
 /// <summary>
