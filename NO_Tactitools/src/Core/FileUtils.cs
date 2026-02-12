@@ -9,7 +9,7 @@ public static class FileUtilities
     {
         var assemblyDir = Path.GetDirectoryName(typeof(Plugin).Assembly.Location) ?? Environment.CurrentDirectory;
         var absolutePath = Path.Combine(assemblyDir, "config", configFile);
-        if (!File.Exists(absolutePath)) return new List<string>();
+        if (!File.Exists(absolutePath)) return [];
 
         var lines = File.ReadAllLines(absolutePath);
         var result = new List<string>(lines.Length);

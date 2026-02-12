@@ -14,52 +14,24 @@ namespace NO_Tactitools.Core {
     [BepInPlugin("NO_Tactitools", "NOTT", "0.6.0.2")]
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;
-        public static ConfigEntry<string> MFDNavEnterInput;
-        public static ConfigEntry<string> MFDNavEnterControllerName;
-        public static ConfigEntry<int> MFDNavEnterButtonIndex;
-        public static ConfigEntry<string> MFDNavUpInput;
-        public static ConfigEntry<string> MFDNavUpControllerName;
-        public static ConfigEntry<int> MFDNavUpButtonIndex;
-        public static ConfigEntry<string> MFDNavDownInput;
-        public static ConfigEntry<string> MFDNavDownControllerName;
-        public static ConfigEntry<int> MFDNavDownButtonIndex;
-        public static ConfigEntry<string> MFDNavLeftInput;
-        public static ConfigEntry<string> MFDNavLeftControllerName;
-        public static ConfigEntry<int> MFDNavLeftButtonIndex;
-        public static ConfigEntry<string> MFDNavRightInput;
-        public static ConfigEntry<string> MFDNavRightControllerName;
-        public static ConfigEntry<int> MFDNavRightButtonIndex;
-        public static ConfigEntry<string> MFDNavToggleInput;
-        public static ConfigEntry<string> MFDNavToggleController;
-        public static ConfigEntry<int> MFDNavToggleButtonIndex;
+        public static RewiredInputConfig MFDNavEnter;
+        public static RewiredInputConfig MFDNavUp;
+        public static RewiredInputConfig MFDNavDown;
+        public static RewiredInputConfig MFDNavLeft;
+        public static RewiredInputConfig MFDNavRight;
+        public static RewiredInputConfig MFDNavToggle;
         public static ConfigEntry<bool> targetListControllerEnabled;
         public static ConfigEntry<bool> interceptionVectorEnabled;
         public static ConfigEntry<bool> countermeasureControlsEnabled;
-        public static ConfigEntry<string> countermeasureControlsFlareInput;
-        public static ConfigEntry<string> countermeasureControlsFlareControllerName;
-        public static ConfigEntry<int> countermeasureControlsFlareButtonIndex;
-        public static ConfigEntry<string> countermeasureControlsJammerInput;
-        public static ConfigEntry<string> countermeasureControlsJammerControllerName;
-        public static ConfigEntry<int> countermeasureControlsJammerButtonIndex;
+        public static RewiredInputConfig countermeasureControlsFlare;
+        public static RewiredInputConfig countermeasureControlsJammer;
         public static ConfigEntry<bool> weaponSwitcherEnabled;
-        public static ConfigEntry<string> weaponSwitcherInput0;
-        public static ConfigEntry<string> weaponSwitcherControllerName0;
-        public static ConfigEntry<int> weaponSwitcherButtonIndex0;
-        public static ConfigEntry<string> weaponSwitcherInput1;
-        public static ConfigEntry<string> weaponSwitcherControllerName1;
-        public static ConfigEntry<int> weaponSwitcherButtonIndex1;
-        public static ConfigEntry<string> weaponSwitcherInput2;
-        public static ConfigEntry<string> weaponSwitcherControllerName2;
-        public static ConfigEntry<int> weaponSwitcherButtonIndex2;
-        public static ConfigEntry<string> weaponSwitcherInput3;
-        public static ConfigEntry<string> weaponSwitcherControllerName3;
-        public static ConfigEntry<int> weaponSwitcherButtonIndex3;
-        public static ConfigEntry<string> weaponSwitcherInput4;
-        public static ConfigEntry<string> weaponSwitcherControllerName4;
-        public static ConfigEntry<int> weaponSwitcherButtonIndex4;
-        public static ConfigEntry<string> weaponSwitcherInput5;
-        public static ConfigEntry<string> weaponSwitcherControllerName5;
-        public static ConfigEntry<int> weaponSwitcherButtonIndex5;
+        public static RewiredInputConfig weaponSwitcher0;
+        public static RewiredInputConfig weaponSwitcher1;
+        public static RewiredInputConfig weaponSwitcher2;
+        public static RewiredInputConfig weaponSwitcher3;
+        public static RewiredInputConfig weaponSwitcher4;
+        public static RewiredInputConfig weaponSwitcher5;
         public static ConfigEntry<bool> weaponDisplayEnabled;
         public static ConfigEntry<bool> weaponDisplayVanillaUIEnabled;
         public static ConfigEntry<bool> unitDistanceEnabled;
@@ -85,6 +57,8 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<int> loadoutPreviewPositionY;
         public static ConfigEntry<float> loadoutPreviewBackgroundTransparency;
         public static ConfigEntry<float> loadoutPreviewTextAndBorderTransparency;
+        public static ConfigEntry<bool> resetCockpitFOVEnabled;
+        public static RewiredInputConfig resetCockpitFOV;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
         public static Plugin Instance;
@@ -96,186 +70,13 @@ namespace NO_Tactitools.Core {
         private void Awake() {
             Instance = this;
             // MFD Nav
-            MFDNavEnterControllerName = Config.Bind("MFD Nav",
-                "MFD Nav - Enter - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Browsable = false
-                    }));
-            MFDNavEnterButtonIndex = Config.Bind("MFD Nav",
-                "MFD Nav - Enter - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Browsable = false
-                    }));
-            MFDNavEnterInput = Config.Bind("MFD Nav",
-                "MFD Nav - Enter - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign for MFD Nav - Enter",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 0,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = MFDNavEnterControllerName,
-                        ButtonIndex = MFDNavEnterButtonIndex
-                    }));
-            MFDNavUpControllerName = Config.Bind("MFD Nav",
-                "MFD Nav - Up - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Browsable = false
-                    }));
-            MFDNavUpButtonIndex = Config.Bind("MFD Nav",
-                "MFD Nav - Up - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Browsable = false
-                    }));
-            MFDNavUpInput = Config.Bind("MFD Nav",
-                "MFD Nav - Up - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign for MFD Nav - Up",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -1,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = MFDNavUpControllerName,
-                        ButtonIndex = MFDNavUpButtonIndex
-                    }));
-            MFDNavDownControllerName = Config.Bind("MFD Nav",
-                "MFD Nav - Down - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Browsable = false
-                    }));
-            MFDNavDownButtonIndex = Config.Bind("MFD Nav",
-                "MFD Nav - Down - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Browsable = false
-                    }));
-            MFDNavDownInput = Config.Bind("MFD Nav",
-                "MFD Nav - Down - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign for MFD Nav - Down",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -2,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = MFDNavDownControllerName,
-                        ButtonIndex = MFDNavDownButtonIndex
-                    }));
-            MFDNavLeftControllerName = Config.Bind("MFD Nav",
-                "MFD Nav - Left - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Browsable = false
-                    }));
-            MFDNavLeftButtonIndex = Config.Bind("MFD Nav",
-                "MFD Nav - Left - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Browsable = false
-                    }));
-            MFDNavLeftInput = Config.Bind("MFD Nav",
-                "MFD Nav - Left - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign for MFD Nav - Left",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -3,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = MFDNavLeftControllerName,
-                        ButtonIndex = MFDNavLeftButtonIndex
-                    }));
-            MFDNavRightControllerName = Config.Bind("MFD Nav",
-                "MFD Nav - Right - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Browsable = false
-                    }));
-            MFDNavRightButtonIndex = Config.Bind("MFD Nav",
-                "MFD Nav - Right - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Browsable = false
-                    }));
-            MFDNavRightInput = Config.Bind("MFD Nav",
-                "MFD Nav - Right - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign for MFD Nav - Right",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = -4,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = MFDNavRightControllerName,
-                        ButtonIndex = MFDNavRightButtonIndex
-                    }));
-            MFDNavToggleController = Config.Bind("MFD Nav",
-                "Toggle Screens - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Browsable = false
-                    }));
-            MFDNavToggleButtonIndex = Config.Bind("MFD Nav",
-                "Toggle Screens - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Browsable = false
-                    }));
-            MFDNavToggleInput = Config.Bind("MFD Nav",
-                "MFD Nav - Toggle Screens - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign for toggling MFD screens",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 1,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = MFDNavToggleController,
-                        ButtonIndex = MFDNavToggleButtonIndex
-                    }));
+            MFDNavEnter = new RewiredInputConfig(Config, "MFD Nav", "MFD Nav - Enter", "Input you want to assign for MFD Nav - Enter", 0);
+            MFDNavUp = new RewiredInputConfig(Config, "MFD Nav", "MFD Nav - Up", "Input you want to assign for MFD Nav - Up", -1);
+            MFDNavDown = new RewiredInputConfig(Config, "MFD Nav", "MFD Nav - Down", "Input you want to assign for MFD Nav - Down", -2);
+            MFDNavLeft = new RewiredInputConfig(Config, "MFD Nav", "MFD Nav - Left", "Input you want to assign for MFD Nav - Left", -3);
+            MFDNavRight = new RewiredInputConfig(Config, "MFD Nav", "MFD Nav - Right", "Input you want to assign for MFD Nav - Right", -4);
+            MFDNavToggle = new RewiredInputConfig(Config, "MFD Nav", "MFD Nav - Toggle Screens", "Input you want to assign for toggling MFD screens", 1);
+            
             // Target Recall settings
             targetListControllerEnabled = Config.Bind("Target List Controller", //Category
                 "Target List Controller - Enabled", // Setting name
@@ -305,70 +106,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 4
                     }));
-            countermeasureControlsFlareControllerName = Config.Bind("Countermeasures",
-                "Countermeasure Controls - Flares - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 3,
-                        Browsable = false
-                    }));
-            countermeasureControlsFlareButtonIndex = Config.Bind("Countermeasures",
-                "Countermeasure Controls - Flares - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 3,
-                        Browsable = false
-                    }));
-            countermeasureControlsFlareInput = Config.Bind("Countermeasures",
-                "Countermeasure Controls - Flares - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign for selecting Flares",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 2,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = countermeasureControlsFlareControllerName,
-                        ButtonIndex = countermeasureControlsFlareButtonIndex
-                    }));
-            countermeasureControlsJammerControllerName = Config.Bind("Countermeasures",
-                "Countermeasure Controls - Jammer - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 1,
-                        Browsable = false
-                    }));
-            countermeasureControlsJammerButtonIndex = Config.Bind("Countermeasures",
-                "Countermeasure Controls - Jammer - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 1,
-                        Browsable = false
-                    }));
-            countermeasureControlsJammerInput = Config.Bind("Countermeasures",
-                "Countermeasure Controls - Jammer - Input",
-                "",
-                new ConfigDescription(
-                    "Input you want to assign for selecting Jammer",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 0,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = countermeasureControlsJammerControllerName,
-                        ButtonIndex = countermeasureControlsJammerButtonIndex
-                    }));
+            countermeasureControlsFlare = new RewiredInputConfig(Config, "Countermeasures", "Countermeasure Controls - Flares", "Input you want to assign for selecting Flares", 2);
+            countermeasureControlsJammer = new RewiredInputConfig(Config, "Countermeasures", "Countermeasure Controls - Jammer", "Input you want to assign for selecting Jammer", 0);
             // Weapon Switcher settings
             weaponSwitcherEnabled = Config.Bind("Advanced Slot Selection",
                 "Advanced Slot Selection - Enabled",
@@ -379,198 +118,12 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 7
                     }));
-            weaponSwitcherControllerName0 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 0 - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 6,
-                        Browsable = false
-                    }));
-            weaponSwitcherButtonIndex0 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 0 - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 6,
-                        Browsable = false
-                    }));
-            weaponSwitcherInput0 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 0 - Input",
-                "",
-                new ConfigDescription(
-                    "Input for slot 0 (Long press to toggle Turret Auto Control)",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 5,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = weaponSwitcherControllerName0,
-                        ButtonIndex = weaponSwitcherButtonIndex0
-                    }));
-            weaponSwitcherControllerName1 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 1 - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 4,
-                        Browsable = false
-                    }));
-            weaponSwitcherButtonIndex1 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 1 - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 4,
-                        Browsable = false
-                    }));
-            weaponSwitcherInput1 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 1 - Input",
-                "",
-                new ConfigDescription(
-                    "Input for slot 1",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 4,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = weaponSwitcherControllerName1,
-                        ButtonIndex = weaponSwitcherButtonIndex1
-                    }));
-            weaponSwitcherControllerName2 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 2 - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 3,
-                        Browsable = false
-                    }));
-            weaponSwitcherButtonIndex2 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 2 - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 3,
-                        Browsable = false
-                    }));
-            weaponSwitcherInput2 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 2 - Input",
-                "",
-                new ConfigDescription(
-                    "Input for slot 2",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 3,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = weaponSwitcherControllerName2,
-                        ButtonIndex = weaponSwitcherButtonIndex2
-                    }));
-            weaponSwitcherControllerName3 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 3 - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 2,
-                        Browsable = false
-                    }));
-            weaponSwitcherButtonIndex3 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 3 - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 2,
-                        Browsable = false
-                    }));
-            weaponSwitcherInput3 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 3 - Input",
-                "",
-                new ConfigDescription(
-                    "Input for slot 3",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 2,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = weaponSwitcherControllerName3,
-                        ButtonIndex = weaponSwitcherButtonIndex3
-                    }));
-            weaponSwitcherControllerName4 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 4 - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 1,
-                        Browsable = false
-                    }));
-            weaponSwitcherButtonIndex4 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 4 - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 1,
-                        Browsable = false
-                    }));
-            weaponSwitcherInput4 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 4 - Input",
-                "",
-                new ConfigDescription(
-                    "Input for slot 4",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 1,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = weaponSwitcherControllerName4,
-                        ButtonIndex = weaponSwitcherButtonIndex4
-                    }));
-            weaponSwitcherControllerName5 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 5 - Controller Name",
-                "",
-                new ConfigDescription(
-                    "Name of the peripheral",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 0,
-                        Browsable = false
-                    }));
-            weaponSwitcherButtonIndex5 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 5 - Button Index",
-                -1,
-                new ConfigDescription(
-                    "Index of the button",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 0,
-                        Browsable = false
-                    }));
-            weaponSwitcherInput5 = Config.Bind("Advanced Slot Selection",
-                "Advanced Slot Selection - Slot 5 - Input",
-                "",
-                new ConfigDescription(
-                    "Input for slot 5",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 0,
-                        CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
-                        ControllerName = weaponSwitcherControllerName5,
-                        ButtonIndex = weaponSwitcherButtonIndex5
-                    }));
+            weaponSwitcher0 = new RewiredInputConfig(Config, "Advanced Slot Selection", "Advanced Slot Selection - Slot 0", "Input for slot 0 (Long press to toggle Turret Auto Control)", 5);
+            weaponSwitcher1 = new RewiredInputConfig(Config, "Advanced Slot Selection", "Advanced Slot Selection - Slot 1", "Input for slot 1", 4);
+            weaponSwitcher2 = new RewiredInputConfig(Config, "Advanced Slot Selection", "Advanced Slot Selection - Slot 2", "Input for slot 2", 3);
+            weaponSwitcher3 = new RewiredInputConfig(Config, "Advanced Slot Selection", "Advanced Slot Selection - Slot 3", "Input for slot 3", 2);
+            weaponSwitcher4 = new RewiredInputConfig(Config, "Advanced Slot Selection", "Advanced Slot Selection - Slot 4", "Input for slot 4", 1);
+            weaponSwitcher5 = new RewiredInputConfig(Config, "Advanced Slot Selection", "Advanced Slot Selection - Slot 5", "Input for slot 5", 0);
             // Weapon Display settings
             weaponDisplayEnabled = Config.Bind("CM & Weapon Display",
                 "CM & Weapon Display - Enabled",
@@ -723,6 +276,17 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 7
                     }));
+            // Reset Cockpit FOV settings
+            resetCockpitFOVEnabled = Config.Bind("Cockpit",
+                "Reset Cockpit FOV - Enabled",
+                true,
+                new ConfigDescription(
+                    "Enable or disable the Reset Cockpit FOV feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2
+                    }));
+            resetCockpitFOV = new RewiredInputConfig(Config, "Cockpit", "Reset Cockpit FOV", "Input you want to assign for Resetting Cockpit FOV", 0);
             // Loadout Preview settings
             loadoutPreviewEnabled = Config.Bind("Loadout Preview",
                 "Loadout Preview - Enabled",

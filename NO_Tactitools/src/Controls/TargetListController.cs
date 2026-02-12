@@ -19,32 +19,27 @@ class TargetListControllerPlugin {
             Plugin.harmony.PatchAll(typeof(TargetListControllerComponent.OnPlatformStart));
             Plugin.harmony.PatchAll(typeof(TargetListControllerComponent.OnPlatformUpdate));
             InputCatcher.RegisterNewInput(
-                Plugin.MFDNavUpControllerName.Value,
-                Plugin.MFDNavUpButtonIndex.Value,
+                Plugin.MFDNavUp,
                 0.2f,
                 onRelease: RecallTargets,
                 onLongPress: RememberTargets);
             InputCatcher.RegisterNewInput(
-                Plugin.MFDNavRightControllerName.Value,
-                Plugin.MFDNavRightButtonIndex.Value,
+                Plugin.MFDNavRight,
                 0.5f,
                 onRelease: NextTarget,
                 onLongPress: SortTargetsByDistance);
             InputCatcher.RegisterNewInput(
-                Plugin.MFDNavLeftControllerName.Value,
-                Plugin.MFDNavLeftButtonIndex.Value,
+                Plugin.MFDNavLeft,
                 0.5f,
                 onRelease: PreviousTarget,
                 onLongPress: SortTargetsByName);
             InputCatcher.RegisterNewInput(
-                Plugin.MFDNavEnterControllerName.Value,
-                Plugin.MFDNavEnterButtonIndex.Value,
+                Plugin.MFDNavEnter,
                 0.2f,
                 onRelease: PopCurrentTarget,
                 onLongPress: KeepOnlyCurrentTarget);
             InputCatcher.RegisterNewInput(
-                Plugin.MFDNavDownControllerName.Value,
-                Plugin.MFDNavDownButtonIndex.Value,
+                Plugin.MFDNavDown,
                 0.2f,
                 onRelease: KeepOnlyDataLinkedTargets,
                 onLongPress: KeepClosestTargetsBasedOnAmmo);

@@ -26,6 +26,23 @@ internal sealed class ConfigurationManagerAttributes
     public object ButtonIndex;
 }
 
+public class RewiredInputConfig {
+    public ConfigEntry<string> Input { get; private set; }
+    public ConfigEntry<string> ControllerName { get; private set; }
+    public ConfigEntry<int> ButtonIndex { get; private set; }
+
+    public RewiredInputConfig(ConfigFile config, string category, string featureName, string description, int order) {
+        ControllerName = config.Bind(category, $"{featureName} - Controller Name", "", new ConfigDescription("Name of the peripheral", null, new ConfigurationManagerAttributes { Browsable = false }));
+        ButtonIndex = config.Bind(category, $"{featureName} - Button Index", -1, new ConfigDescription("Index of the button", null, new ConfigurationManagerAttributes { Browsable = false }));
+        Input = config.Bind(category, $"{featureName} - Input", "", new ConfigDescription(description, null, new ConfigurationManagerAttributes {
+            Order = order,
+            CustomDrawer = RewiredConfigManager.RewiredButtonDrawer,
+            ControllerName = ControllerName,
+            ButtonIndex = ButtonIndex
+        }));
+    }
+}
+
 internal sealed class RewiredConfigManager {
     private static bool _isListeningForInput = false;
     private static ConfigEntryBase _targetEntry = null;

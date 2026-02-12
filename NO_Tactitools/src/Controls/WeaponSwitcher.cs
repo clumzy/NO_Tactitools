@@ -12,38 +12,32 @@ class WeaponSwitcherPlugin {
         if (!initialized) {
             Plugin.Log($"[WS] Weapon Switcher plugin starting !");
             InputCatcher.RegisterNewInput(
-                Plugin.weaponSwitcherControllerName0.Value,
-                Plugin.weaponSwitcherButtonIndex0.Value,
+                Plugin.weaponSwitcher0,
                 0.0001f, 
                 onLongPress: HandleClick0
                 );
             InputCatcher.RegisterNewInput(
-                Plugin.weaponSwitcherControllerName1.Value,
-                Plugin.weaponSwitcherButtonIndex1.Value,
+                Plugin.weaponSwitcher1,
                 0.0001f, 
                 onLongPress: HandleClick1
                 );
             InputCatcher.RegisterNewInput(
-                Plugin.weaponSwitcherControllerName2.Value,
-                Plugin.weaponSwitcherButtonIndex2.Value,
+                Plugin.weaponSwitcher2,
                 0.0001f, 
                 onLongPress: HandleClick2
                 );
             InputCatcher.RegisterNewInput(
-                Plugin.weaponSwitcherControllerName3.Value,
-                Plugin.weaponSwitcherButtonIndex3.Value,
+                Plugin.weaponSwitcher3,
                 0.0001f, 
                 onLongPress: HandleClick3
                 );
             InputCatcher.RegisterNewInput(
-                Plugin.weaponSwitcherControllerName4.Value,
-                Plugin.weaponSwitcherButtonIndex4.Value,
+                Plugin.weaponSwitcher4,
                 0.0001f, 
                 onLongPress: HandleClick4
                 );
             InputCatcher.RegisterNewInput(
-                Plugin.weaponSwitcherControllerName5.Value,
-                Plugin.weaponSwitcherButtonIndex5.Value,
+                Plugin.weaponSwitcher5,
                 0.0001f, 
                 onLongPress: HandleClick5
                 );

@@ -17,6 +17,16 @@ public class InputCatcher {
     public static Rewired.Keyboard keyboardController = null;
 
     public static void RegisterNewInput(
+        RewiredInputConfig config,
+        float longPressThreshold = 0.2f,
+        System.Action onRelease = null,
+        System.Action onHold = null,
+        System.Action onLongPress = null
+    ) {
+        RegisterNewInput(config.ControllerName.Value, config.ButtonIndex.Value, longPressThreshold, onRelease, onHold, onLongPress);
+    }
+
+    public static void RegisterNewInput(
         string controllerName,
         int buttonIndex,
         float longPressThreshold = 0.2f,

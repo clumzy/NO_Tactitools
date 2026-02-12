@@ -23,43 +23,37 @@ public static class NOAutopilotControlPlugin {
                 Plugin.harmony.PatchAll(typeof(NOAutopilotComponent.OnPlatformStart));
                 Plugin.harmony.PatchAll(typeof(NOAutopilotComponent.OnPlatformUpdate));
                 InputCatcher.RegisterNewInput(
-                    Plugin.MFDNavToggleController.Value,
-                    Plugin.MFDNavToggleButtonIndex.Value,
+                    Plugin.MFDNavToggle,
                     0.2f,
                     ToggleMenu,
                     onLongPress: () => { }
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.MFDNavEnterControllerName.Value,
-                    Plugin.MFDNavEnterButtonIndex.Value,
+                    Plugin.MFDNavEnter,
                     999f, // High threshold so OnHold keeps running indefinitely
                     SelectActionShort,
                     SelectActionHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.MFDNavUpControllerName.Value,
-                    Plugin.MFDNavUpButtonIndex.Value,
+                    Plugin.MFDNavUp,
                     999f, // High threshold so OnHold keeps running
                     NavigateUpShort,
                     NavigateUpHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.MFDNavDownControllerName.Value,
-                    Plugin.MFDNavDownButtonIndex.Value,
+                    Plugin.MFDNavDown,
                     999f, // High threshold so OnHold keeps running
                     NavigateDownShort,
                     NavigateDownHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.MFDNavLeftControllerName.Value,
-                    Plugin.MFDNavLeftButtonIndex.Value,
+                    Plugin.MFDNavLeft,
                     999f,
                     NavigateLeftShort,
                     NavigateLeftHold
                 );
                 InputCatcher.RegisterNewInput(
-                    Plugin.MFDNavRightControllerName.Value,
-                    Plugin.MFDNavRightButtonIndex.Value,
+                    Plugin.MFDNavRight,
                     999f,
                     NavigateRightShort,
                     NavigateRightHold

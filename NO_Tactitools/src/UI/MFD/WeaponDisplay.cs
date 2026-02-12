@@ -15,8 +15,7 @@ class WeaponDisplayPlugin {
             Plugin.harmony.PatchAll(typeof(WeaponDisplayComponent.OnPlatformUpdate));
             // Register the new button for toggling the weapon display
             InputCatcher.RegisterNewInput(
-                Plugin.MFDNavToggleController.Value,
-                Plugin.MFDNavToggleButtonIndex.Value,
+                Plugin.MFDNavToggle,
                 0.2f,
                 onLongPress: HandleDisplayToggle
             );
