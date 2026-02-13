@@ -13,7 +13,7 @@ class ResetCockpitFOV {
 
     static void Postfix() {
         if (!initialized) {
-            Plugin.Log($"[RCFOV] Reset Cockpit FOV plugin starting !");
+            Plugin.Log($"[RCF] Reset Cockpit FOV plugin starting !");
             
             InputCatcher.RegisterNewInput(
                 Plugin.resetCockpitFOV,
@@ -22,7 +22,7 @@ class ResetCockpitFOV {
             );
             
             initialized = true;
-            Plugin.Log("[RCFOV] Reset Cockpit FOV plugin successfully started !");
+            Plugin.Log("[RCF] Reset Cockpit FOV plugin successfully started !");
         }
     }
 
