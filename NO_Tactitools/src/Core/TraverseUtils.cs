@@ -45,6 +45,18 @@ public class TraverseCache<TObject, TValue>(string fieldName) where TObject : cl
         return _traverse.GetValue<TValue>();
     }
 
+    public void SetValue(TObject currentObject, TValue value, bool silent = false) {
+        if (_traverse == null || _cachedObject != currentObject) {
+            _cachedObject = currentObject;
+            _traverse = Traverse.Create(currentObject).Field(fieldName);
+            if (!silent)
+                Plugin.Log("[TraverseCache<" + typeof(TObject).Name.ToString() + ", " + typeof(TValue).Name.ToString() + ">] "
+                +"Cached field '" + fieldName.ToString() 
+                + "' for object of type '" + typeof(TObject).Name.ToString() + "'.");
+        }
+        _traverse.SetValue(value);
+    }
+
     /// <summary>
     /// Clears the cached object and traverse instance.
     /// </summary>

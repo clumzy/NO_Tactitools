@@ -52,6 +52,7 @@ internal sealed class RewiredConfigManager {
     public static void Update() {
         if (_isListeningForInput) {
             if (ReInput.controllers == null) return;
+            
             foreach (var controller in InputCatcher.controllerInputs.Keys) {
                 if (controller.GetAnyButtonDown()) {
                     for (int i = 0; i < controller.buttonCount; i++) {
@@ -59,6 +60,30 @@ internal sealed class RewiredConfigManager {
                             IList elements = Traverse.Create(controller).Field("KHksquAJKcDEUkNfJQjMANjDEBFB").GetValue<IList>();
                             string controllerName = controller.name.Trim();
                             string buttonName = Traverse.Create(elements[i]).Property("elementIdentifier").GetValue<ControllerElementIdentifier>().name;
+
+                            // Handle special management keys for the config drawer
+                            if (controller.type == ControllerType.Keyboard) {
+                                string lowerName = buttonName.ToLower();
+                                if (lowerName == "escape" || lowerName == "esc") {
+                                    _isListeningForInput = false;
+                                    _targetEntry = null;
+                                    _targetControllerEntry = null;
+                                    _targetIndexEntry = null;
+                                    return;
+                                }
+                                if (lowerName == "delete" || lowerName == "backspace" || lowerName == "suppr" || lowerName == "del") {
+                                    _targetEntry.BoxedValue = "";
+                                    if (_targetControllerEntry != null) _targetControllerEntry.BoxedValue = "";
+                                    if (_targetIndexEntry != null) _targetIndexEntry.BoxedValue = -1;
+
+                                    _isListeningForInput = false;
+                                    _targetEntry = null;
+                                    _targetControllerEntry = null;
+                                    _targetIndexEntry = null;
+                                    return;
+                                }
+                            }
+
                             _targetEntry.BoxedValue = controllerName + " | " + buttonName + " | " + i.ToString();
                             if (_targetControllerEntry != null) _targetControllerEntry.BoxedValue = controllerName;
                             if (_targetIndexEntry != null) _targetIndexEntry.BoxedValue = i;
@@ -71,12 +96,6 @@ internal sealed class RewiredConfigManager {
                         }
                     }
                 }
-            }
-            if (Input.GetKeyDown(KeyCode.Escape)) {
-                _isListeningForInput = false;
-                _targetEntry = null;
-                _targetControllerEntry = null;
-                _targetIndexEntry = null;
             }
         }
     }

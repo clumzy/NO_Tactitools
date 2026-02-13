@@ -58,6 +58,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<float> loadoutPreviewBackgroundTransparency;
         public static ConfigEntry<float> loadoutPreviewTextAndBorderTransparency;
         public static ConfigEntry<bool> resetCockpitFOVEnabled;
+        public static ConfigEntry<float> resetCockpitFOVSpeed;
         public static RewiredInputConfig resetCockpitFOV;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
@@ -277,8 +278,8 @@ namespace NO_Tactitools.Core {
                         Order = 7
                     }));
             // Reset Cockpit FOV settings
-            resetCockpitFOVEnabled = Config.Bind("Cockpit",
-                "Reset Cockpit FOV - Enabled",
+            resetCockpitFOVEnabled = Config.Bind("Cockpit Camera Reset FOV",
+                "Cockpit Camera Reset FOV - Enabled",
                 true,
                 new ConfigDescription(
                     "Enable or disable the Reset Cockpit FOV feature.",
@@ -286,7 +287,16 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 2
                     }));
-            resetCockpitFOV = new RewiredInputConfig(Config, "Cockpit", "Reset Cockpit FOV", "Input you want to assign for Resetting Cockpit FOV", 0);
+            resetCockpitFOVSpeed = Config.Bind("Cockpit Camera Reset FOV",
+                "Cockpit Camera Reset FOV - Speed",
+                150f,
+                new ConfigDescription(
+                    "Speed at which the FOV resets (50 - 300).",
+                    new AcceptableValueRange<float>(50f, 300f),
+                    new ConfigurationManagerAttributes {
+                        Order = 1
+                    }));
+            resetCockpitFOV = new RewiredInputConfig(Config, "Cockpit Camera Reset FOV", "Cockpit Camera Reset FOV", "Input you want to assign for Resetting Cockpit FOV", 0);
             // Loadout Preview settings
             loadoutPreviewEnabled = Config.Bind("Loadout Preview",
                 "Loadout Preview - Enabled",
@@ -444,6 +454,12 @@ namespace NO_Tactitools.Core {
             if (unitIconRecolorEnabled.Value) {
                 Log($"Unit Icon Recolor is enabled, patching...");
                 harmony.PatchAll(typeof(UnitIconRecolorPlugin));
+            }
+            // COCKPIT FOV PATCHES
+            // Patch Reset Cockpit FOV
+            if (resetCockpitFOVEnabled.Value) {
+                Log($"Reset Cockpit FOV is enabled, patching...");
+                harmony.PatchAll(typeof(ResetCockpitFOV));
             }
             // MOD COMPAT PATCHES
             if (autopilotMenuEnabled.Value){

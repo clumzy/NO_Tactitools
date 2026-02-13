@@ -56,7 +56,7 @@ public class GameBindings {
         }
     }
 
-    public class Player {
+    public class Player { 
         public class Aircraft {
             private static readonly TraverseCache<global::Aircraft, Radar> _radarCache = new("radar");
             
