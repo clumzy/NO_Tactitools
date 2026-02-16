@@ -266,16 +266,16 @@ public class WeaponDisplayComponent {
                 case "VL-49 Tarantula":
                     flarePos = new Vector2(105, 40);
                     jammerPos = new Vector2(105, -40);
-                    lineStart = new Vector2(50, -60);
-                    lineEnd = new Vector2(50, 60);
-                    weaponNamePos = new Vector2(-60, 0);
+                    lineStart = new Vector2(40, -60);
+                    lineEnd = new Vector2(40, 60);
+                    weaponNamePos = new Vector2(-60, -10);
                     weaponAmmoPos = new Vector2(-60, -50);
                     weaponImagePos = new Vector2(-60, 40);
                     flareFont = 25;
                     jammerFont = 25;
                     weaponNameFont = 18;
                     weaponAmmoFont = 40;
-                    imageScaleFactor = 0.8f;
+                    imageScaleFactor = 0.6f;
                     break;
                 case "EW-1 Medusa":
                     flarePos = new Vector2(-60, -70);

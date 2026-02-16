@@ -63,6 +63,9 @@ CHECKLIST WHEN ADDING A FEATURE :
 --> the issue is easy to see : since the traverse is always null (since the cached object doesn't exist) it will keep overwriting itself in GetValue
 -> FIX THE TACSCREEN CONSTANT RESET WHEN DESTROYED IN FLIGHT, sometimes happens ? Maybe when intercepting
 
+0.6.1 :
+-> Add fov reset
+-W fix weapon display for Tarantula
 IN PROGRESS :
 
 TODO :
@@ -71,6 +74,8 @@ TODO :
 -> Rename Medusa in load screen
 -> fix reload percentage
 -> Add functionalty to see if a targeted unit is being targeted by a friendly missile
+-> make sure you can't bind the same control twice
+-> make control combos
 -> Implement container for Weapon Display
 -> Adapt sling for the wpon screen
 
