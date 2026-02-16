@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
 using NO_Tactitools.Core;
+using System.Linq;
 
 namespace NO_Tactitools.UI.MFD;
 
@@ -26,26 +27,43 @@ public class DeliveryCheckerComponent {
 
     static class LogicEngine {
         static public void Init() {
-            InternalState.deliveryIndicators.Clear();
+            InternalState.deliveryChecker?.Destroy();
+            InternalState.deliveryChecker = null;
+            InternalState.deliveryStateVersion = 0;
+            InternalState.lastRenderedVersion = -1;
+            InternalState.deliveries.Clear();
         }
-        
+
         static public void Update() {
             if (GameBindings.Player.Aircraft.GetAircraft() == null
                 || UIBindings.Game.GetTargetScreenTransform(true) == null
                 || UIBindings.Game.GetTacScreenTransform(true) == null) {
                 return; // no aircraft or no targeting screen
             }
-            // collect keys to remove to avoid modifying the collection during enumeration
-            var toRemove = new List<Missile>();
-            foreach (var delivery in InternalState.deliveryIndicators) {
-                if (delivery.Value.GetDisplayCountdown() > 0f) {
-                    if (Time.time - delivery.Value.GetHitTime() > delivery.Value.GetDisplayCountdown()) {
-                        toRemove.Add(delivery.Key);
+            List<Missile> deliveriesToRemove = [];
+            for (int i = 0; i < InternalState.deliveries.Count; i++) {
+                if (InternalState.deliveries.ElementAt(i).Value.Status == InternalState.DeliveryStatus.InFlight) {
+                    // check if the delivery has been in flight for more than 120 seconds
+                    if (Time.time - InternalState.deliveries.ElementAt(i).Value.startTime > 120f) {
+                        InternalState.deliveries.ElementAt(i).Value.Status = InternalState.DeliveryStatus.Missed;
+                        InternalState.deliveries.ElementAt(i).Value.hitTime = Time.time;
+                        InternalState.IncrementVersion();
+                    }
+                }
+                else if (
+                    InternalState.deliveries.ElementAt(i).Value.Status == InternalState.DeliveryStatus.Hit
+                    || InternalState.deliveries.ElementAt(i).Value.Status == InternalState.DeliveryStatus.Missed) {
+                    // check if the delivery has been in hit/missed status for more than 3 seconds
+                    if (Time.time - InternalState.deliveries.ElementAt(i).Value.hitTime > 3f) {
+                        // add the delivery to the list of deliveries to remove
+                        deliveriesToRemove.Add(InternalState.deliveries.ElementAt(i).Key);
+                        InternalState.IncrementVersion();
                     }
                 }
             }
-            foreach (var missile in toRemove) {
-                DisplayEngine.RemoveMissile(missile);
+            // remove the deliveries that have been in hit/missed status for more than 3 seconds
+            foreach (Missile missile in deliveriesToRemove) {
+                InternalState.deliveries.Remove(missile);
             }
         }
 
@@ -56,18 +74,13 @@ public class DeliveryCheckerComponent {
                 return; // no targeting screen available
             }
             if (missile.owner == SceneSingleton<CombatHUD>.i.aircraft) {
-                if (InternalState.deliveryBarContainer == null) {
-                    DisplayEngine.CreateContainer();
-                }
-                DeliveryIndicator deliveryIndicator = new(
-                    new Vector2(
-                        -120f + InternalState.deliveryIndicators.Count * 17f,
-                        -115f
-                    ),
-                    !missile.GetWeaponInfo().bomb // rotate missiles (bombs are not rotated)
-                );
-                InternalState.deliveryIndicators.Add(missile, deliveryIndicator);
-                DisplayEngine.RepositionIndicators();
+                InternalState.deliveries[missile] = new InternalState.DeliveryInfo() {
+                    Type = InternalState.DeliveryType.Missile,
+                    Status = InternalState.DeliveryStatus.InFlight,
+                    startTime = Time.time,
+                    hitTime = -1f
+                };
+                InternalState.IncrementVersion();
             }
         }
 
@@ -76,10 +89,10 @@ public class DeliveryCheckerComponent {
                 && GameBindings.Player.Aircraft.GetAircraft() != null
                 && UIBindings.Game.GetTargetScreenTransform(true) != null
                 && UIBindings.Game.GetTacScreenTransform(true) != null) {
-                if (InternalState.deliveryIndicators.ContainsKey(missile)) {
-                    InternalState.deliveryIndicators[missile].SetDisplayCountdown(2f);
-                    InternalState.deliveryIndicators[missile].SetHitTime();
-                    InternalState.deliveryIndicators[missile].SetSuccess(hitArmor);
+                if (InternalState.deliveries.ContainsKey(missile)) {
+                    InternalState.deliveries[missile].Status = hitArmor ? InternalState.DeliveryStatus.Hit : InternalState.DeliveryStatus.Missed;
+                    InternalState.deliveries[missile].hitTime = Time.time;
+                    InternalState.IncrementVersion();
                 }
             }
         }
@@ -87,113 +100,98 @@ public class DeliveryCheckerComponent {
     }
 
     public static class InternalState {
-        static public Dictionary<Missile, DeliveryIndicator> deliveryIndicators = new();
-        static public Transform deliveryBarContainer;
+        public enum DeliveryType {
+            Missile,
+            Bomb
+        }
+        public enum DeliveryStatus {
+            InFlight,
+            Hit,
+            Missed
+        }
+        public class DeliveryInfo {
+            public DeliveryType Type;
+            public DeliveryStatus Status;
+            public float startTime;
+            public float hitTime;
+        }
+        static public Dictionary<Missile, DeliveryInfo> deliveries = [];
+        static public DeliveryChecker deliveryChecker;
+        static public int deliveryStateVersion = 0;
+        static public int lastRenderedVersion = -1;
+        static public void IncrementVersion() => ++deliveryStateVersion;
     }
 
     static class DisplayEngine {
-        static public void CreateContainer() {
-            if (UIBindings.Game.GetTargetScreenTransform(true) == null ||
-                GameBindings.Player.Aircraft.GetAircraft() == null ||
-                UIBindings.Game.GetTacScreenTransform(true) == null) {
-                return; // no targeting screen available
-            }
-            
-            // if delivery bar container is not null, destroy it properly
-            if (InternalState.deliveryBarContainer != null) {
-                GameObject.Destroy(InternalState.deliveryBarContainer.gameObject);
-            }
-            InternalState.deliveryBarContainer = null;
-            // Create new container as a child of the target screen
-            GameObject containerObj = new("DeliveryBar_Container");
-            InternalState.deliveryBarContainer = containerObj.transform;
-            InternalState.deliveryBarContainer.SetParent(UIBindings.Game.GetTargetScreenTransform(), false);
-            InternalState.deliveryBarContainer.localPosition = Vector3.zero;
+        static public void Init() {
+            Plugin.Log("[DC] Initializing Delivery Checker for Target Screen");
+            InternalState.deliveryChecker = new DeliveryChecker();
+            Plugin.Log("[DC] Delivery Checker for Target Screen initialized");
         }
-
-        static public void RemoveMissile(Missile missile) {
-            if (InternalState.deliveryIndicators.ContainsKey(missile)) {
-                InternalState.deliveryIndicators[missile].Destroy();
-                InternalState.deliveryIndicators.Remove(missile);
-                RepositionIndicators();
+        static public void Update() {
+            if (GameBindings.Player.Aircraft.GetAircraft() == null
+                || UIBindings.Game.GetTargetScreenTransform(true) == null
+                || UIBindings.Game.GetTacScreenTransform(true) == null) {
+                return; // no aircraft or no targeting screen
             }
-        }
-
-        static public void RepositionIndicators() {
-            int i = 0;
-            foreach (var indicator in InternalState.deliveryIndicators.Values) {
-                indicator.SetPosition(new Vector2(-120f + i * 12f, -60f));
-                i++;
+            if (InternalState.deliveryChecker == null) {
+                Init();
             }
+            // skip ui
+            if (InternalState.deliveryStateVersion == InternalState.lastRenderedVersion) return;
+            // do update work
+            // TODO
+            // end update work
+            InternalState.lastRenderedVersion = InternalState.deliveryStateVersion;
         }
     }
 
-    public class DeliveryIndicator {
-        private UIBindings.Draw.UIAdvancedRectangle indicator;
-        private float displayCountdown;
-        private float hitTime;
+    public class DeliveryChecker {
+        public GameObject containerObject;
+        public Transform containerTransform;
+        public UIBindings.Draw.UIAdvancedRectangleLabeled missileLabel;
+        public UIBindings.Draw.UIAdvancedRectangleLabeled bombLabel;
+        private const float xOffset = -110f;
+        private const float yOffset = -110f;
 
-        public DeliveryIndicator(Vector2 pos, bool rotate = false) {
-            // Generate a unique name for this indicator
-            string randomString = "";
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-            System.Random rand = new();
-            for (int i = 0; i < 6; i++) {
-                randomString += chars[rand.Next(chars.Length)];
-            }
-
-            indicator = new UIBindings.Draw.UIAdvancedRectangle(
-                "DeliveryIndicator" + randomString,
-                new Vector2(0f, 0f),
-                new Vector2(8f, 8f),
-                Color.black,
-                3f,
-                InternalState.deliveryBarContainer,
-                Color.yellow);
-            
-            indicator.SetCenter(pos);
-            
-            // Ensure that elements don't inherit their parent scaling
-            indicator.GetRectObject().transform.localScale = Vector3.one;
-            
-            // Rotate missiles 45 degrees (bombs are not rotated)
-            if (rotate) {
-                SetRotation(45f);
-            }
-            
-            displayCountdown = -1f;
-        }
-
-        public void SetPosition(Vector2 pos) {
-            indicator.SetCenter(pos);
-        }
-
-        public void SetRotation(float rotation) {
-            indicator.GetRectObject().transform.localRotation = Quaternion.Euler(0f, 0f, rotation);
-        }
-
-        public float GetDisplayCountdown() {
-            return displayCountdown;
-        }
-
-        public void SetDisplayCountdown(float countdown) {
-            displayCountdown = countdown;
-        }
-
-        public void SetHitTime() {
-            hitTime = Time.time;
-        }
-
-        public float GetHitTime() {
-            return hitTime;
-        }
-
-        public void SetSuccess(bool success) {
-            indicator.SetFillColor(success ? Color.green : Color.red);
+        public DeliveryChecker() {
+            Transform parentTransform = UIBindings.Game.GetTargetScreenTransform();
+            // Create container GameObject to hold all DeliveryChecker elements
+            containerObject = new GameObject("i_dc_DeliveryCheckerContainer");
+            containerObject.AddComponent<RectTransform>();
+            containerTransform = containerObject.transform;
+            containerTransform.SetParent(parentTransform, false);
+            // Create a M for missile and B for bomb labels using AdvancedUIRectangleLabel
+            missileLabel = new UIBindings.Draw.UIAdvancedRectangleLabeled(
+                name: "i_dc_MissileLabel",
+                cornerA: new Vector2(xOffset - 18f, yOffset - 10f),
+                cornerB: new Vector2(xOffset + 18f, yOffset + 10f),
+                borderColor: Color.clear,
+                borderThickness: 0f,
+                UIParent: containerTransform,
+                fillColor: new Color(0f, 0f, 0f, 0.8f),
+                fontStyle: FontStyle.Normal,
+                textColor: Color.white,
+                fontSize: 20
+            );
+            missileLabel.SetText("M");
+            bombLabel = new UIBindings.Draw.UIAdvancedRectangleLabeled(
+                name: "i_dc_BombLabel",
+                cornerA: new Vector2(xOffset + 18f, yOffset - 10f),
+                cornerB: new Vector2(xOffset + 18 * 3f, yOffset + 10f),
+                borderColor: Color.clear,
+                borderThickness: 0f,
+                UIParent: containerTransform,
+                fillColor: new Color(0f, 0f, 0f, 0.8f),
+                fontStyle: FontStyle.Normal,
+                textColor: Color.white,
+                fontSize: 20
+            );
+            bombLabel.SetText("B");
         }
 
         public void Destroy() {
-            GameObject.Destroy(indicator.GetRectObject());
+            GameObject.Destroy(containerObject);
         }
     }
 
@@ -216,6 +214,8 @@ public class DeliveryCheckerComponent {
     public static class OnPlatformStart {
         static void Postfix() {
             LogicEngine.Init();
+            // DisplayEngine.Init();
+            // Since there is no target screen at the start of the game, we will initialize the display engine on the first update instead
         }
     }
 
@@ -223,6 +223,7 @@ public class DeliveryCheckerComponent {
     public static class OnPlatformUpdate {
         static void Postfix() {
             LogicEngine.Update();
+            DisplayEngine.Update();
         }
     }
 
