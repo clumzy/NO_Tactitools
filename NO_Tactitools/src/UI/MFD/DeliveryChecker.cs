@@ -3,6 +3,7 @@ using HarmonyLib;
 using UnityEngine;
 using NO_Tactitools.Core;
 using System.Linq;
+using System;
 
 namespace NO_Tactitools.UI.MFD;
 
@@ -75,7 +76,7 @@ public class DeliveryCheckerComponent {
             }
             if (missile.owner == SceneSingleton<CombatHUD>.i.aircraft) {
                 InternalState.deliveries[missile] = new InternalState.DeliveryInfo() {
-                    Type = InternalState.DeliveryType.Missile,
+                    Type = missile.GetWeaponInfo().bomb ? InternalState.DeliveryType.Bomb : InternalState.DeliveryType.Missile,
                     Status = InternalState.DeliveryStatus.InFlight,
                     startTime = Time.time,
                     hitTime = -1f
