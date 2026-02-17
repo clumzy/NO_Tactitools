@@ -4,6 +4,7 @@ using UnityEngine;
 using NO_Tactitools.Core;
 using System.Linq;
 using System;
+using JetBrains.Annotations;
 
 namespace NO_Tactitools.UI.MFD;
 
@@ -141,7 +142,60 @@ public class DeliveryCheckerComponent {
             // skip ui
             if (InternalState.deliveryStateVersion == InternalState.lastRenderedVersion) return;
             // do update work
-            // TODO
+            int missilesInFlight = InternalState.deliveries.Values.Count(d => d.Type == InternalState.DeliveryType.Missile && d.Status == InternalState.DeliveryStatus.InFlight);
+            int bombsInFlight = InternalState.deliveries.Values.Count(d => d.Type == InternalState.DeliveryType.Bomb && d.Status == InternalState.DeliveryStatus.InFlight);
+            int missilesHit = InternalState.deliveries.Values.Count(d => d.Type == InternalState.DeliveryType.Missile && d.Status == InternalState.DeliveryStatus.Hit);
+            int bombsHit = InternalState.deliveries.Values.Count(d => d.Type == InternalState.DeliveryType.Bomb && d.Status == InternalState.DeliveryStatus.Hit);
+            int missilesMissed = InternalState.deliveries.Values.Count(d => d.Type == InternalState.DeliveryType.Missile && d.Status == InternalState.DeliveryStatus.Missed);
+            int bombsMissed = InternalState.deliveries.Values.Count(d => d.Type == InternalState.DeliveryType.Bomb && d.Status == InternalState.DeliveryStatus.Missed);
+
+            // Toggle visibility of M/B category labels based on whether there are any deliveries
+            InternalState.deliveryChecker.missileLabel.GetGameObject().SetActive(missilesInFlight + missilesHit + missilesMissed > 0);
+            InternalState.deliveryChecker.bombLabel.GetGameObject().SetActive(bombsInFlight + bombsHit + bombsMissed > 0);
+
+            // Update missile in flight label
+            // - update value and vis
+            InternalState.deliveryChecker.missileInFlightLabel.SetText(missilesInFlight > 0 ? missilesInFlight.ToString() : "");
+            InternalState.deliveryChecker.missileInFlightLabel.GetGameObject().SetActive(missilesInFlight > 0);
+            InternalState.deliveryChecker.missileInFlightLabel.SetCorners(
+                new Vector2(InternalState.deliveryChecker.xOffsetMissile - 18f, InternalState.deliveryChecker.yOffset + 10f),
+                new Vector2(InternalState.deliveryChecker.xOffsetMissile + 18f, InternalState.deliveryChecker.yOffset + 30f)
+            );
+            // Update bomb in flight label
+            InternalState.deliveryChecker.bombInFlightLabel.SetText(bombsInFlight > 0 ? bombsInFlight.ToString() : "");
+            InternalState.deliveryChecker.bombInFlightLabel.GetGameObject().SetActive(bombsInFlight > 0);
+            InternalState.deliveryChecker.bombInFlightLabel.SetCorners(
+                new Vector2(InternalState.deliveryChecker.xOffsetBomb - 18f, InternalState.deliveryChecker.yOffset + 10f),
+                new Vector2(InternalState.deliveryChecker.xOffsetBomb + 18f, InternalState.deliveryChecker.yOffset + 30f)
+            );
+            // Update missile hit label
+            InternalState.deliveryChecker.missileHitLabel.SetText(missilesHit > 0 ? missilesHit.ToString() : "");
+            InternalState.deliveryChecker.missileHitLabel.GetGameObject().SetActive(missilesHit > 0);
+            InternalState.deliveryChecker.missileHitLabel.SetCorners(
+                new Vector2(InternalState.deliveryChecker.xOffsetMissile - 18f, InternalState.deliveryChecker.yOffset + 10f + 20f * (missilesInFlight > 0 ? 1 : 0)),
+                new Vector2(InternalState.deliveryChecker.xOffsetMissile + 18f, InternalState.deliveryChecker.yOffset + 30f + 20f * (missilesInFlight > 0 ? 1 : 0))
+            );
+            // Update bomb hit label
+            InternalState.deliveryChecker.bombHitLabel.SetText(bombsHit > 0 ? bombsHit.ToString() : "");
+            InternalState.deliveryChecker.bombHitLabel.GetGameObject().SetActive(bombsHit > 0);
+            InternalState.deliveryChecker.bombHitLabel.SetCorners(
+                new Vector2(InternalState.deliveryChecker.xOffsetBomb - 18f, InternalState.deliveryChecker.yOffset + 10f + 20f * (bombsInFlight > 0 ? 1 : 0)),
+                new Vector2(InternalState.deliveryChecker.xOffsetBomb + 18f, InternalState.deliveryChecker.yOffset + 30f + 20f * (bombsInFlight > 0 ? 1 : 0))
+            );
+            // Update missile missed label
+            InternalState.deliveryChecker.missileMissedLabel.SetText(missilesMissed > 0 ? missilesMissed.ToString() : "");
+            InternalState.deliveryChecker.missileMissedLabel.GetGameObject().SetActive(missilesMissed > 0);
+            InternalState.deliveryChecker.missileMissedLabel.SetCorners(
+                new Vector2(InternalState.deliveryChecker.xOffsetMissile - 18f, InternalState.deliveryChecker.yOffset + 10f + 20f * (missilesInFlight > 0 ? 1 : 0) + 20f * (missilesHit > 0 ? 1 : 0)),
+                new Vector2(InternalState.deliveryChecker.xOffsetMissile + 18f, InternalState.deliveryChecker.yOffset + 30f + 20f * (missilesInFlight > 0 ? 1 : 0) + 20f * (missilesHit > 0 ? 1 : 0))
+            );
+            // Update bomb missed label
+            InternalState.deliveryChecker.bombMissedLabel.SetText(bombsMissed > 0 ? bombsMissed.ToString() : "");
+            InternalState.deliveryChecker.bombMissedLabel.GetGameObject().SetActive(bombsMissed > 0);
+            InternalState.deliveryChecker.bombMissedLabel.SetCorners(
+                new Vector2(InternalState.deliveryChecker.xOffsetBomb - 18f, InternalState.deliveryChecker.yOffset + 10f + 20f * (bombsInFlight > 0 ? 1 : 0) + 20f * (bombsHit > 0 ? 1 : 0)),
+                new Vector2(InternalState.deliveryChecker.xOffsetBomb + 18f, InternalState.deliveryChecker.yOffset + 30f + 20f * (bombsInFlight > 0 ? 1 : 0) + 20f * (bombsHit > 0 ? 1 : 0))
+            );
             // end update work
             InternalState.lastRenderedVersion = InternalState.deliveryStateVersion;
         }
@@ -152,11 +206,32 @@ public class DeliveryCheckerComponent {
         public Transform containerTransform;
         public UIBindings.Draw.UIAdvancedRectangleLabeled missileLabel;
         public UIBindings.Draw.UIAdvancedRectangleLabeled bombLabel;
-        private const float xOffset = -110f;
-        private const float yOffset = -110f;
+        public UIBindings.Draw.UIAdvancedRectangleLabeled missileInFlightLabel;
+        public UIBindings.Draw.UIAdvancedRectangleLabeled bombInFlightLabel;
+        public UIBindings.Draw.UIAdvancedRectangleLabeled missileHitLabel;
+        public UIBindings.Draw.UIAdvancedRectangleLabeled bombHitLabel;
+        public UIBindings.Draw.UIAdvancedRectangleLabeled missileMissedLabel;
+        public UIBindings.Draw.UIAdvancedRectangleLabeled bombMissedLabel;
+        public float xOffsetMissile;
+        public float xOffsetBomb;
+        public float yOffset;
 
         public DeliveryChecker() {
             Transform parentTransform = UIBindings.Game.GetTargetScreenTransform();
+            RectTransform rectTransform = parentTransform as RectTransform;
+
+            if (rectTransform != null) {
+                float halfWidth = rectTransform.rect.width / 2f;
+                float halfHeight = rectTransform.rect.height / 2f;
+                xOffsetMissile = -halfWidth + 18f;
+                xOffsetBomb = halfWidth - 18f;
+                yOffset = -halfHeight + 10f + 64f; // 64f is the height of the bearing
+            } else {
+                xOffsetMissile = -110f;
+                xOffsetBomb = 110f;
+                yOffset = -110f;
+            }
+
             // Create container GameObject to hold all DeliveryChecker elements
             containerObject = new GameObject("i_dc_DeliveryCheckerContainer");
             containerObject.AddComponent<RectTransform>();
@@ -165,30 +240,114 @@ public class DeliveryCheckerComponent {
             // Create a M for missile and B for bomb labels using AdvancedUIRectangleLabel
             missileLabel = new UIBindings.Draw.UIAdvancedRectangleLabeled(
                 name: "i_dc_MissileLabel",
-                cornerA: new Vector2(xOffset - 18f, yOffset - 10f),
-                cornerB: new Vector2(xOffset + 18f, yOffset + 10f),
+                cornerA: new Vector2(xOffsetMissile - 18f, yOffset - 10f),
+                cornerB: new Vector2(xOffsetMissile + 18f, yOffset + 10f),
                 borderColor: Color.clear,
                 borderThickness: 0f,
                 UIParent: containerTransform,
                 fillColor: new Color(0f, 0f, 0f, 0.8f),
-                fontStyle: FontStyle.Normal,
+                fontStyle: FontStyle.Bold,
                 textColor: Color.white,
                 fontSize: 20
             );
             missileLabel.SetText("M");
             bombLabel = new UIBindings.Draw.UIAdvancedRectangleLabeled(
                 name: "i_dc_BombLabel",
-                cornerA: new Vector2(xOffset + 18f, yOffset - 10f),
-                cornerB: new Vector2(xOffset + 18 * 3f, yOffset + 10f),
+                cornerA: new Vector2(xOffsetBomb - 18f, yOffset - 10f),
+                cornerB: new Vector2(xOffsetBomb + 18f, yOffset + 10f),
                 borderColor: Color.clear,
                 borderThickness: 0f,
                 UIParent: containerTransform,
                 fillColor: new Color(0f, 0f, 0f, 0.8f),
-                fontStyle: FontStyle.Normal,
+                fontStyle: FontStyle.Bold,
                 textColor: Color.white,
                 fontSize: 20
             );
             bombLabel.SetText("B");
+            missileInFlightLabel = new UIBindings.Draw.UIAdvancedRectangleLabeled(
+                name: "i_dc_MissileInFlightLabel",
+                cornerA: new Vector2(xOffsetMissile - 18f, yOffset - 10f),
+                cornerB: new Vector2(xOffsetMissile + 18f, yOffset + 10f),
+                borderColor: Color.clear,
+                borderThickness: 0f,
+                UIParent: containerTransform,
+                fillColor: new Color(1f, 1f, 0f, 0.8f),
+                fontStyle: FontStyle.Bold,
+                textColor: Color.black,
+                fontSize: 20
+            );
+            missileInFlightLabel.SetText("");
+            missileInFlightLabel.GetGameObject().SetActive(false);
+            bombInFlightLabel = new UIBindings.Draw.UIAdvancedRectangleLabeled(
+                name: "i_dc_BombInFlightLabel",
+                cornerA: new Vector2(xOffsetBomb - 18f, yOffset - 10f),
+                cornerB: new Vector2(xOffsetBomb + 18f, yOffset + 10f),
+                borderColor: Color.clear,
+                borderThickness: 0f,
+                UIParent: containerTransform,
+                fillColor: new Color(1f, 1f, 0f, 0.8f),
+                fontStyle: FontStyle.Bold,
+                textColor: Color.black,
+                fontSize: 20
+            );
+            bombInFlightLabel.SetText("");
+            bombInFlightLabel.GetGameObject().SetActive(false);
+            missileHitLabel = new UIBindings.Draw.UIAdvancedRectangleLabeled(
+                name: "i_dc_MissileHitLabel",
+                cornerA: new Vector2(xOffsetMissile - 18f, yOffset - 10f),
+                cornerB: new Vector2(xOffsetMissile + 18f, yOffset + 10f),
+                borderColor: Color.clear,
+                borderThickness: 0f,
+                UIParent: containerTransform,
+                fillColor: new Color(0f, 1f, 0f, 0.8f),
+                fontStyle: FontStyle.Bold,
+                textColor: Color.black,
+                fontSize: 20
+            );
+            missileHitLabel.SetText("");
+            missileHitLabel.GetGameObject().SetActive(false);
+            bombHitLabel = new UIBindings.Draw.UIAdvancedRectangleLabeled(
+                name: "i_dc_BombHitLabel",
+                cornerA: new Vector2(xOffsetBomb - 18f, yOffset - 10f),
+                cornerB: new Vector2(xOffsetBomb + 18f, yOffset + 10f),
+                borderColor: Color.clear,
+                borderThickness: 0f,
+                UIParent: containerTransform,
+                fillColor: new Color(0f, 1f, 0f, 0.8f),
+                fontStyle: FontStyle.Bold,
+                textColor: Color.black,
+                fontSize: 20
+            );
+            bombHitLabel.SetText("");
+            bombHitLabel.GetGameObject().SetActive(false);
+            missileMissedLabel = new UIBindings.Draw.UIAdvancedRectangleLabeled(
+                name: "i_dc_MissileMissedLabel",
+                cornerA: new Vector2(xOffsetMissile - 18f, yOffset - 10f),
+                cornerB: new Vector2(xOffsetMissile + 18f, yOffset + 10f),
+                borderColor: Color.clear,
+                borderThickness: 0f,
+                UIParent: containerTransform,
+                fillColor: new Color(1f, 0f, 0f, 0.8f),
+                fontStyle: FontStyle.Bold,
+                textColor: Color.black,
+                fontSize: 20
+            );
+            missileMissedLabel.SetText("");
+            missileMissedLabel.GetGameObject().SetActive(false);
+            bombMissedLabel = new UIBindings.Draw.UIAdvancedRectangleLabeled(
+                name: "i_dc_BombMissedLabel",
+                cornerA: new Vector2(xOffsetBomb - 18f, yOffset - 10f),
+                cornerB: new Vector2(xOffsetBomb + 18f, yOffset + 10f),
+                borderColor: Color.clear,
+                borderThickness: 0f,
+                UIParent: containerTransform,
+                fillColor: new Color(1f, 0f, 0f, 0.8f),
+                fontStyle: FontStyle.Normal,
+                textColor: Color.black,
+                fontSize: 20
+            );
+            bombMissedLabel.SetText("");
+            bombMissedLabel.GetGameObject().SetActive(false);
         }
 
         public void Destroy() {
