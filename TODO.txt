@@ -65,7 +65,9 @@ CHECKLIST WHEN ADDING A FEATURE :
 
 0.6.1 :
 -> Add fov reset
--W fix weapon display for Tarantula
+-> fix weapon display for Tarantula
+-> improve delivery indicator
+-> make sure you can't bind the same control twice
 IN PROGRESS :
 
 TODO :
@@ -74,7 +76,6 @@ TODO :
 -> Rename Medusa in load screen
 -> fix reload percentage
 -> Add functionalty to see if a targeted unit is being targeted by a friendly missile
--> make sure you can't bind the same control twice
 -> make control combos
 -> Implement container for Weapon Display
 -> Adapt sling for the wpon screen

@@ -27,6 +27,7 @@ internal sealed class ConfigurationManagerAttributes
 }
 
 public class RewiredInputConfig {
+    public static System.Collections.Generic.List<RewiredInputConfig> AllConfigs = new();
     public ConfigEntry<string> Input { get; private set; }
     public ConfigEntry<string> ControllerName { get; private set; }
     public ConfigEntry<int> ButtonIndex { get; private set; }
@@ -40,6 +41,9 @@ public class RewiredInputConfig {
             ControllerName = ControllerName,
             ButtonIndex = ButtonIndex
         }));
+
+        if (!AllConfigs.Contains(this))
+            AllConfigs.Add(this);
     }
 }
 
@@ -48,8 +52,15 @@ internal sealed class RewiredConfigManager {
     private static ConfigEntryBase _targetEntry = null;
     private static ConfigEntryBase _targetControllerEntry = null;
     private static ConfigEntryBase _targetIndexEntry = null;
+    private static string _errorMessage = null;
+    private static float _errorTimer = 0f;
 
     public static void Update() {
+        if (_errorTimer > 0) {
+            _errorTimer -= Time.unscaledDeltaTime;
+            if (_errorTimer <= 0) _errorMessage = null;
+        }
+
         if (_isListeningForInput) {
             if (ReInput.controllers == null) return;
             
@@ -69,6 +80,7 @@ internal sealed class RewiredConfigManager {
                                     _targetEntry = null;
                                     _targetControllerEntry = null;
                                     _targetIndexEntry = null;
+                                    _errorMessage = null;
                                     return;
                                 }
                                 if (lowerName == "delete" || lowerName == "backspace" || lowerName == "suppr" || lowerName == "del") {
@@ -80,6 +92,19 @@ internal sealed class RewiredConfigManager {
                                     _targetEntry = null;
                                     _targetControllerEntry = null;
                                     _targetIndexEntry = null;
+                                    _errorMessage = null;
+                                    return;
+                                }
+                            }
+
+                            // Conflict check
+                            foreach (var config in RewiredInputConfig.AllConfigs) {
+                                if (config.Input == _targetEntry) continue;
+                                if (config.ControllerName.Value == controllerName && config.ButtonIndex.Value == i) {
+                                    string conflictName = config.Input.Definition.Key;
+                                    if (conflictName.EndsWith(" - Input")) conflictName = conflictName.Substring(0, conflictName.Length - 8);
+                                    _errorMessage = $"Conflict: {conflictName}";
+                                    _errorTimer = 3f;
                                     return;
                                 }
                             }
@@ -92,6 +117,7 @@ internal sealed class RewiredConfigManager {
                             _targetEntry = null;
                             _targetControllerEntry = null;
                             _targetIndexEntry = null;
+                            _errorMessage = null;
                             return;
                         }
                     }
@@ -103,11 +129,13 @@ internal sealed class RewiredConfigManager {
     public static void RewiredButtonDrawer(ConfigEntryBase entry) {
         if (_isListeningForInput && _targetEntry == entry) {
             GUIUtility.keyboardControl = 0;
-            if (GUILayout.Button("Listening... (Press button or ESC)", GUILayout.ExpandWidth(true))) {
+            string label = string.IsNullOrEmpty(_errorMessage) ? "Listening... (Press button or ESC)" : _errorMessage;
+            if (GUILayout.Button(label, GUILayout.ExpandWidth(true))) {
                 _isListeningForInput = false;
                 _targetEntry = null;
                 _targetControllerEntry = null;
                 _targetIndexEntry = null;
+                _errorMessage = null;
             }
         }
         else {
@@ -116,9 +144,11 @@ internal sealed class RewiredConfigManager {
             if (GUILayout.Button(val, GUILayout.ExpandWidth(true))) {
                 _isListeningForInput = true;
                 _targetEntry = entry;
+                _errorMessage = null;
+                _errorTimer = 0f;
                 
-                // Abstracted lookup of the linked facultative entries
-                var attr = entry.Description.Tags?.OfType<ConfigurationManagerAttributes>().FirstOrDefault();
+                // lookup of the linked facultative entries
+                ConfigurationManagerAttributes attr = entry.Description.Tags?.OfType<ConfigurationManagerAttributes>().FirstOrDefault();
                 _targetControllerEntry = attr?.ControllerName as ConfigEntryBase;
                 _targetIndexEntry = attr?.ButtonIndex as ConfigEntryBase;
             }
