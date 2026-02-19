@@ -45,6 +45,8 @@ public class WeaponDisplayComponent {
         static public void Init() {
             string name = GameBindings.Player.Aircraft.GetPlatformName();
             Plugin.Log("[WD] Initializing Logic Engine for platform " + name);
+            InternalState.weaponDisplay?.Destroy();
+            InternalState.weaponDisplay = null;
             InternalState.hasJammer = GameBindings.Player.Aircraft.Countermeasures.HasJammer();
             InternalState.hasIRFlare = GameBindings.Player.Aircraft.Countermeasures.HasIRFlare();
             InternalState.hasStations = GameBindings.Player.Aircraft.Weapons.GetStationCount() > 0;
@@ -138,7 +140,9 @@ public class WeaponDisplayComponent {
     }
 
     public class WeaponDisplay {
-        public Transform weaponDisplay_transform;
+        public GameObject containerObject;
+        public Transform containerTransform;
+        public Transform destinationTransform;
         public UIBindings.Draw.UILabel flareLabel;
         public UIBindings.Draw.UILabel jammerLabel;
         public UIBindings.Draw.UILine MFD_systemsLine;
@@ -170,7 +174,13 @@ public class WeaponDisplayComponent {
                 "SFB-81" => Get("weaponPanel"),
                 _ => null
             };
-            weaponDisplay_transform = destination;
+            destinationTransform = destination;
+
+            containerObject = new GameObject("i_wd_WeaponDisplayContainer");
+            containerObject.AddComponent<RectTransform>();
+            containerTransform = containerObject.transform;
+            containerTransform.SetParent(destination, false);
+
             // Default settings for the weapon display
             bool rotateWeaponImage = false;
             float imageScaleFactor = 0.6f;
@@ -405,7 +415,7 @@ public class WeaponDisplayComponent {
             flareLabel = new(
                 "flareLabel",
                 flarePos,
-                destination,
+                containerTransform,
                 FontStyle.Normal,
                 InternalState.textColor,
                 flareFont,
@@ -415,7 +425,7 @@ public class WeaponDisplayComponent {
             jammerLabel = new(
                 "radarLabel",
                 jammerPos,
-                destination,
+                containerTransform,
                 FontStyle.Normal,
                 InternalState.textColor,
                 jammerFont,
@@ -426,14 +436,14 @@ public class WeaponDisplayComponent {
                 "MFD_systemsLine",
                 lineStart,
                 lineEnd,
-                destination,
+                containerTransform,
                 InternalState.mainColor,
                 1f
             );
             weaponNameLabel = new(
                 "weaponNameLabel",
                 weaponNamePos,
-                destination,
+                containerTransform,
                 FontStyle.Normal,
                 InternalState.textColor,
                 weaponNameFont,
@@ -443,7 +453,7 @@ public class WeaponDisplayComponent {
             weaponAmmoLabel = new(
                 "weaponAmmoLabel",
                 weaponAmmoPos,
-                destination,
+                containerTransform,
                 FontStyle.Normal,
                 InternalState.textColor,
                 weaponAmmoFont,
@@ -452,13 +462,13 @@ public class WeaponDisplayComponent {
             weaponAmmoLabel.SetText("");
             // Clone the weapon image and set it as a child of the systems MFD
             if (GameBindings.Player.Aircraft.Weapons.GetStationCount() != 0)
-                weaponImageClone = GameObject.Instantiate(GameBindings.Player.Aircraft.Weapons.GetActiveStationImage().gameObject, destination);
+                weaponImageClone = GameObject.Instantiate(GameBindings.Player.Aircraft.Weapons.GetActiveStationImage().gameObject, containerTransform);
             else
                 weaponImageClone = new UIBindings.Draw.UIRectangle(
                     "empty_texture",
                     new Vector2(0, 0),
                     new Vector2(1, 1),
-                    destination,
+                    containerTransform,
                     Color.black
                 ).GetGameObject();
             var cloneImg = weaponImageClone.GetComponent<Image>();
@@ -471,26 +481,35 @@ public class WeaponDisplayComponent {
         }
 
         public void ToggleChildrenActiveState() {
-            if (weaponDisplay_transform == null) return;
-            if (GameBindings.Player.Aircraft.GetPlatformName() == "SFB-81") {
-                if (weaponDisplay_transform.localRotation.eulerAngles.z == 0) {
-                    weaponDisplay_transform.localRotation = Quaternion.Euler(0, 0, -90);
-                    weaponDisplay_transform.GetComponent<Image>().enabled = false;
+            if (containerObject == null) return;
+            bool active = !containerObject.activeSelf;
+            containerObject.SetActive(active);
+
+            if (removeOriginalMFDContent) {
+                foreach (Transform child in destinationTransform) {
+                    if (child == containerTransform) continue;
+                    //Specific fix for the Medusa, ThrottleGauge1 was initially hidden
+                    if (child.name != "ThrottleGauge1") {
+                        child.gameObject.SetActive(!active);
+                    }
                 }
-                else {
-                    weaponDisplay_transform.localRotation = Quaternion.Euler(0, 0, 0);
-                    weaponDisplay_transform.GetComponent<Image>().enabled = true;
+                if (GameBindings.Player.Aircraft.GetPlatformName() == "SFB-81") {
+                    if (active) {
+                        destinationTransform.localRotation = Quaternion.Euler(0, 0, -90);
+                        destinationTransform.GetComponent<Image>().enabled = false;
+                    }
+                    else {
+                        destinationTransform.localRotation = Quaternion.Euler(0, 0, 0);
+                        destinationTransform.GetComponent<Image>().enabled = true;
+                    }
                 }
             }
-            LayoutGroup lg = weaponDisplay_transform.GetComponent<LayoutGroup>();
-            if (lg != null)
-                lg.enabled = !lg.enabled;
-            foreach (Transform childTransform in weaponDisplay_transform) {
-                GameObject child = childTransform.gameObject;
-                //Specific fix for the Medusa, ThrottleGauge1 was initially hidden
-                if (child.name != "ThrottleGauge1") {
-                    child.SetActive(!child.activeSelf);
-                }
+        }
+
+        public void Destroy() {
+            if (containerObject != null) {
+                Object.Destroy(containerObject);
+                containerObject = null;
             }
         }
     }

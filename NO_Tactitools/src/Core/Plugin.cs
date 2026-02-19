@@ -60,6 +60,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> resetCockpitFOVEnabled;
         public static ConfigEntry<float> resetCockpitFOVSpeed;
         public static RewiredInputConfig resetCockpitFOV;
+        public static ConfigEntry<bool> ILSScreenEnabled;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
         public static Plugin Instance;
@@ -297,6 +298,16 @@ namespace NO_Tactitools.Core {
                         Order = 1
                     }));
             resetCockpitFOV = new RewiredInputConfig(Config, "Cockpit Camera Reset FOV", "Cockpit Camera Reset FOV", "Input you want to assign for Resetting Cockpit FOV", 0);
+            // ILS Screen settings
+            ILSScreenEnabled = Config.Bind("ILS Screen",
+                "ILS Screen - Enabled",
+                true,
+                new ConfigDescription(
+                    "Enable or disable the ILS Screen feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
             // Loadout Preview settings
             loadoutPreviewEnabled = Config.Bind("Loadout Preview",
                 "Loadout Preview - Enabled",
@@ -433,6 +444,7 @@ namespace NO_Tactitools.Core {
                 Log($"Delivery Checker is enabled, patching...");
                 harmony.PatchAll(typeof(DeliveryCheckerPlugin));
             }
+            // we load this one last so that the boot applies to the elements we add to the cockpit as well
             // Patch Boot Screen
             if (bootScreenEnabled.Value) {
                 Log($"Boot Screen is enabled, patching...");
@@ -448,6 +460,12 @@ namespace NO_Tactitools.Core {
             if (artificialHorizonEnabled.Value) {
                 Log($"Artificial Horizon is enabled, patching...");
                 harmony.PatchAll(typeof(ArtificialHorizonPlugin));
+            }
+            // HUD DISPLAY PATCHES
+            // Patch ILS Screen
+            if (ILSScreenEnabled.Value) {
+                Log($"ILS Screen is enabled, patching...");
+                harmony.PatchAll(typeof(ILSScreenPlugin));
             }
             // MAP DISPLAY PATCHES
             // Patch Unit Icon Recolor
