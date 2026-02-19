@@ -61,7 +61,7 @@ class ILSScreenComponent {
             Airbase.Runway runway,
             bool reverse
             ) {
-            Vector3 touchdownPos = reverse ? runway.End.position : runway.Start.position;
+            Vector3 touchdownPos = reverse ? runway.End.position : runway.Start != null ? runway.Start.position : runway.End.position;
             Vector3 offset = aircraft.transform.position - touchdownPos;
             Vector3 horizontalOffset = new(offset.x, 0, offset.z);
             float horizontalDistance = horizontalOffset.magnitude;

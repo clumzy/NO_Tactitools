@@ -1,6 +1,8 @@
 using HarmonyLib;
 using UnityEngine;
 using NO_Tactitools.Core;
+using System.Collections.Generic;
+using UnityEngine.UI;
 
 namespace NO_Tactitools.UI.MFD;
 
@@ -9,11 +11,13 @@ class AmmoConIndicatorPlugin {
     private static bool initialized = false;
     static void Postfix() {
         if (!initialized) {
-            Plugin.Log($"[AmmoCon] Ammo Conservation Indicator plugin starting !");
+            Plugin.Log($"[AC] Ammo Conservation Indicator plugin starting !");
             Plugin.harmony.PatchAll(typeof(AmmoConIndicatorComponent.OnPlatformStart));
             Plugin.harmony.PatchAll(typeof(AmmoConIndicatorComponent.OnPlatformUpdate));
+            Plugin.harmony.PatchAll(typeof(AmmoConIndicatorComponent.OnMissileStart));
+            Plugin.harmony.PatchAll(typeof(AmmoConIndicatorComponent.OnMissileDetonate));
             initialized = true;
-            Plugin.Log("[AmmoCon] Ammo Conservation Indicator plugin successfully started !");
+            Plugin.Log("[AC] Ammo Conservation Indicator plugin successfully started !");
         }
     }
 }
@@ -21,17 +25,43 @@ class AmmoConIndicatorPlugin {
 class AmmoConIndicatorComponent {
     static public class LogicEngine {
         public static void Init() {
+            InternalState.activeMissiles.Clear();
         }
 
         public static void Update() {
-            if (GameBindings.GameState.IsGamePaused() || GameBindings.Player.Aircraft.GetAircraft() == null)
+            if (
+                GameBindings.GameState.IsGamePaused()
+                || GameBindings.Player.Aircraft.GetAircraft() == null)
                 return;
 
-            // Add calculations here
+            // Prune null or inactive missiles
+            List<Missile> toRemove = [];
+            foreach (Missile missile in InternalState.activeMissiles.Keys) {
+                if (missile == null) {
+                    toRemove.Add(missile);
+                }
+            }
+            foreach (var missile in toRemove) {
+                InternalState.activeMissiles.Remove(missile);
+            }
+        }
+
+        public static void OnMissileStart(Missile missile) {
+            if (missile.targetID == null) return;
+            Unit targetUnit;
+            if (missile.targetID.TryGetUnit(out targetUnit)) {
+                InternalState.activeMissiles[missile] = targetUnit;
+            }
+        }
+
+        public static void OnMissileDetonate(Missile missile, bool hitArmor) {
+            InternalState.activeMissiles.Remove(missile);
         }
     }
 
     static public class InternalState {
+        static public Dictionary<Missile, Unit> activeMissiles = [];
+        public static readonly TraverseCache<TargetScreenUI, List<Image>> _targetBoxesCache = new("targetBoxes");
     }
 
     static public class DisplayEngine {
@@ -39,35 +69,52 @@ class AmmoConIndicatorComponent {
         }
 
         public static void Update() {
-            if (GameBindings.GameState.IsGamePaused() || GameBindings.Player.Aircraft.GetAircraft() == null) {
+            if (
+                GameBindings.GameState.IsGamePaused()
+                || GameBindings.Player.Aircraft.GetAircraft() == null
+                || UIBindings.Game.GetTargetScreenTransform(silent: true) == null) {
                 return;
             }
 
-            // Update UI components based on logic results
+            TargetScreenUI targetScreen = UIBindings.Game.GetTargetScreenUIComponent();
+            if (targetScreen == null) return;
+
+            List<Unit> targets = GameBindings.Player.TargetList.GetTargets();
+            List<Image> targetIcons = InternalState._targetBoxesCache.GetValue(targetScreen);
+
+            if (targetIcons == null || targetIcons.Count < targets.Count) return;
+
+            for (int i = 0; i < targets.Count; i++) {
+                bool isTracked = InternalState.activeMissiles.ContainsValue(targets[i]);
+
+                Vector2 halfSize = targetIcons[i].rectTransform.rect.size / 2f;
+
+                // Red dot if tracked
+                UIBindings.Draw.UIRectangle trackerDot = new(
+                    "TrackerDot",
+                    new Vector2(-5, -30),
+                    new Vector2(5, -40),
+                    fillColor: new Color(0f, 1f, 0f, 0.95f),
+                    UIParent: targetIcons[i].rectTransform
+                );
+                trackerDot.GetGameObject().SetActive(isTracked);
+                trackerDot.GetImageComponent().raycastTarget = false;
+            }
         }
     }
 
-    public class AmmoConWidget {
-        public GameObject containerObject;
-        public Transform containerTransform;
-
-        public AmmoConWidget(Transform parent) {
-            containerObject = new GameObject("i_AmmoConContainer");
-            containerObject.AddComponent<RectTransform>();
-            containerTransform = containerObject.transform;
-            containerTransform.SetParent(parent, false);
-            containerTransform.localPosition = Vector3.zero;
-
-            // Create UI elements using UIBindings.Draw here
+    // HARMONY PATCHES
+    [HarmonyPatch(typeof(Missile), "StartMissile")]
+    public static class OnMissileStart {
+        static void Postfix(Missile __instance) {
+            LogicEngine.OnMissileStart(__instance);
         }
+    }
 
-        public void SetActive(bool active) => containerObject?.SetActive(active);
-
-        public void Destroy() {
-            if (containerObject != null) {
-                Object.Destroy(containerObject);
-                containerObject = null;
-            }
+    [HarmonyPatch(typeof(Missile), "UserCode_RpcDetonate_897349600")]
+    public static class OnMissileDetonate {
+        static void Postfix(Missile __instance, bool hitArmor) {
+            LogicEngine.OnMissileDetonate(__instance, hitArmor);
         }
     }
 
