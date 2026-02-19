@@ -109,7 +109,7 @@ public class WeaponDisplayComponent {
             if (InternalState.hasStations) { // do not refresh weapon info if the player has no weapon stations
                 InternalState.weaponDisplay.weaponNameLabel.SetText(GameBindings.Player.Aircraft.Weapons.GetActiveStationName());
                 if (InternalState.isReloading)
-                    InternalState.weaponDisplay.weaponAmmoLabel.SetText(((int)(GameBindings.Player.Aircraft.Weapons.GetActiveStationReloadProgress() * 100f)).ToString() + "%");
+                    InternalState.weaponDisplay.weaponAmmoLabel.SetText(((int)(100f - GameBindings.Player.Aircraft.Weapons.GetActiveStationReloadProgress() * 100f)).ToString() + "%");
                 else
                     InternalState.weaponDisplay.weaponAmmoLabel.SetText(GameBindings.Player.Aircraft.Weapons.GetActiveStationAmmoString().Replace(" ", ""));
                 InternalState.weaponDisplay.weaponAmmoLabel.SetFontSize(
