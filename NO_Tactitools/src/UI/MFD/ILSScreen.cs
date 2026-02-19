@@ -100,14 +100,14 @@ class ILSScreenComponent {
                 || InternalState.airbaseOverlayCached == null) {
                 return;
             }
-            if (InternalState.isGlideslope){
+            if (InternalState.isGlideslope) {
                 InternalState.FLOLSWidget.SetActive(true);
-                InternalState.FLOLSWidget.SetBallPosition(-InternalState.currentGlideslopeError);
+                InternalState.FLOLSWidget.SetBallPosition(InternalState.currentGlideslopeError);
                 if (InternalState.isAuthorized) {
-                    InternalState.FLOLSWidget.SetSideColor(Color.green);
+                    InternalState.FLOLSWidget.SetSideColor(new Color(0f,1f,0f,0.7f));
                 }
                 else {
-                    InternalState.FLOLSWidget.SetSideColor(Color.red);
+                    InternalState.FLOLSWidget.SetSideColor(new Color(1f,0f,0f,0.7f));
                 }
             }
             else {
@@ -129,34 +129,65 @@ class ILSScreenComponent {
             containerObject.AddComponent<RectTransform>();
             containerTransform = containerObject.transform;
             containerTransform.SetParent(parent, false);
-            containerTransform.localPosition = new Vector3(0, -180, 0);
+            containerTransform.localPosition = new Vector3(430, 10, 0);
 
-            background = new UIBindings.Draw.UIRectangle(
-                "FLOLS_Background",
-                new Vector2(-15, -60),
-                new Vector2(15, 60),
-                containerTransform,
-                new Color(0.1f, 0.2f, 0.4f, 0.7f)
+            background = new UIBindings.Draw.UIAdvancedRectangle(
+                name: "FLOLS_Background",
+                cornerA: new Vector2(-10, -50),
+                cornerB: new Vector2(10, 50),
+                borderColor: new Color(1, 1, 1, 0.7f),
+                borderThickness: 0.75f,
+                UIParent: containerTransform,
+                fillColor: Color.clear
             );
 
             ball = new UIBindings.Draw.UIRectangle(
                 "FLOLS_Ball",
-                new Vector2(-12, -12),
-                new Vector2(12, 12),
+                new Vector2(-10, -5),
+                new Vector2(10, 5),
                 containerTransform,
                 Color.yellow
             );
 
-            sideBars[0] = new UIBindings.Draw.UIRectangle("SideBar_L1", new Vector2(-70, -8), new Vector2(-45, 8), containerTransform, Color.green);
-            sideBars[1] = new UIBindings.Draw.UIRectangle("SideBar_L2", new Vector2(-40, -8), new Vector2(-20, 8), containerTransform, Color.green);
-            sideBars[2] = new UIBindings.Draw.UIRectangle("SideBar_R1", new Vector2(20, -8), new Vector2(40, 8), containerTransform, Color.green);
-            sideBars[3] = new UIBindings.Draw.UIRectangle("SideBar_R2", new Vector2(45, -8), new Vector2(70, 8), containerTransform, Color.green);
+            sideBars[0] = new UIBindings.Draw.UIAdvancedRectangle(
+                "SideBar_L1",
+                new Vector2(-50, -5),
+                new Vector2(-35, 5),
+                borderColor: new Color(1, 1, 1, 0.7f),
+                borderThickness: 0.75f,
+                UIParent: containerTransform,
+                fillColor: Color.green);
+
+            sideBars[1] = new UIBindings.Draw.UIAdvancedRectangle(
+                "SideBar_L2",
+                new Vector2(-30, -5),
+                new Vector2(-15, 5),
+                borderColor: new Color(1, 1, 1, 0.7f),
+                borderThickness: 0.75f,
+                UIParent: containerTransform);
+
+            sideBars[2] = new UIBindings.Draw.UIAdvancedRectangle(
+                "SideBar_R1",
+                new Vector2(35, -5),
+                new Vector2(50, 5),
+                borderColor: new Color(1, 1, 1, 0.7f),
+                borderThickness: 0.75f,
+                UIParent: containerTransform);
+
+            sideBars[3] = new UIBindings.Draw.UIAdvancedRectangle(
+                "SideBar_R2",
+                new Vector2(15, -5),
+                new Vector2(30, 5),
+                borderColor: new Color(1, 1, 1, 0.7f),
+                borderThickness: 0.75f,
+                UIParent: containerTransform);
         }
 
         public void SetActive(bool active) => containerObject?.SetActive(active);
 
         public void SetBallPosition(float error) {
-            float yPos = Mathf.Clamp(error * -50f, -50f, 50f);
+            Plugin.Log("Error"+error.ToString());
+            float yPos = Mathf.Clamp(error * 25f, -50f, 50f);
             ball.SetCenter(new Vector2(0, yPos));
         }
 
