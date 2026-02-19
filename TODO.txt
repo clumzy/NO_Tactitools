@@ -70,15 +70,16 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> make sure you can't bind the same control twice
 -> new "meatball" wifget for carrier landings (see discord)
 -> Add functionalty to see if a targeted unit is being targeted by a friendly missile
+-> fix reload percentage
 IN PROGRESS :
 
 TODO :
 -> Add main menu patch reset, no need to restart the game
 -> Rename Medusa in load screen
--> fix reload percentage
 -> make control combos
 -> Implement container for Weapon Display
 -> Adapt sling for the wpon screen
+-> Add helicopter drift indicator
 
 TO TEST :
 

@@ -266,8 +266,8 @@ public class WeaponDisplayComponent {
                 case "VL-49 Tarantula":
                     flarePos = new Vector2(105, 40);
                     jammerPos = new Vector2(105, -40);
-                    lineStart = new Vector2(40, -60);
-                    lineEnd = new Vector2(40, 60);
+                    lineStart = new Vector2(30, -60);
+                    lineEnd = new Vector2(30, 60);
                     weaponNamePos = new Vector2(-60, -10);
                     weaponAmmoPos = new Vector2(-60, -50);
                     weaponImagePos = new Vector2(-60, 40);

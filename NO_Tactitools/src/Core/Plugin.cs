@@ -482,7 +482,7 @@ namespace NO_Tactitools.Core {
             // Patch ILS Screen
             if (ILSScreenEnabled.Value) {
                 Log($"ILS Screen is enabled, patching...");
-                harmony.PatchAll(typeof(ILSScreenPlugin));
+                harmony.PatchAll(typeof(ILSIndicatorPlugin));
             }
             // MAP DISPLAY PATCHES
             // Patch Unit Icon Recolor

@@ -6,20 +6,20 @@ using NO_Tactitools.Core;
 namespace NO_Tactitools.UI.HUD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
-class ILSScreenPlugin {
+class ILSIndicatorPlugin {
     private static bool initialized = false;
     static void Postfix() {
         if (!initialized) {
             Plugin.Log($"[ILS] ILS Screen plugin starting !");
-            Plugin.harmony.PatchAll(typeof(ILSScreenComponent.OnPlatformStart));
-            Plugin.harmony.PatchAll(typeof(ILSScreenComponent.OnPlatformUpdate));
+            Plugin.harmony.PatchAll(typeof(ILSIndicatorComponent.OnPlatformStart));
+            Plugin.harmony.PatchAll(typeof(ILSIndicatorComponent.OnPlatformUpdate));
             initialized = true;
             Plugin.Log("[ILS] ILS Screen plugin succesfully started !");
         }
     }
 }
 
-class ILSScreenComponent {
+class ILSIndicatorComponent {
     static public class LogicEngine {
         public static void Init() {
             InternalState.FLOLSWidget?.Destroy();
@@ -81,13 +81,13 @@ class ILSScreenComponent {
         public static TraverseCache<AirbaseOverlay, Image> glideslopeCache = new("glideslope");
         public static TraverseCache<AirbaseOverlay, Image[]> runwayBordersCache = new("runwayBorders");
         public static TraverseCache<AirbaseOverlay, Airbase.Runway.RunwayUsage> runwayUsageCache = new("runwayUsage");
-        public static FLOLS FLOLSWidget = null;
+        public static ILSIndicator FLOLSWidget = null;
     }
 
     static public class DisplayEngine {
         public static void Init() {
             if (InternalState.FLOLSWidget == null) {
-                InternalState.FLOLSWidget = new FLOLS(UIBindings.Game.GetFlightHUDTransform());
+                InternalState.FLOLSWidget = new ILSIndicator(UIBindings.Game.GetFlightHUDTransform());
                 Plugin.Log("[ILS] FLOLS Widget initialized and added to MFD.");
             }
             InternalState.FLOLSWidget.SetActive(false);
@@ -117,14 +117,14 @@ class ILSScreenComponent {
     }
 
     // ILS WIDGET PATCH
-    public class FLOLS {
+    public class ILSIndicator {
         public GameObject containerObject;
         public Transform containerTransform;
         public UIBindings.Draw.UIRectangle background;
         public UIBindings.Draw.UIRectangle ball;
         public UIBindings.Draw.UIRectangle[] sideBars = new UIBindings.Draw.UIRectangle[4];
 
-        public FLOLS(Transform parent) {
+        public ILSIndicator(Transform parent) {
             containerObject = new GameObject("i_ils_FLOLSContainer");
             containerObject.AddComponent<RectTransform>();
             containerTransform = containerObject.transform;
@@ -132,7 +132,7 @@ class ILSScreenComponent {
             containerTransform.localPosition = new Vector3(430, 10, 0);
 
             background = new UIBindings.Draw.UIAdvancedRectangle(
-                name: "FLOLS_Background",
+                name: "ILS_Background",
                 cornerA: new Vector2(-10, -50),
                 cornerB: new Vector2(10, 50),
                 borderColor: new Color(1, 1, 1, 0.7f),
