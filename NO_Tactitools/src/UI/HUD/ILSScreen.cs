@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using NO_Tactitools.Core;
 
-namespace NO_Tactitools.UI.MFD;
+namespace NO_Tactitools.UI.HUD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class ILSScreenPlugin {

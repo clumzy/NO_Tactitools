@@ -9,6 +9,7 @@ using Rewired;
 using NO_Tactitools.Controls;
 using NO_Tactitools.UI.HMD;
 using NO_Tactitools.UI.MFD;
+using NO_Tactitools.UI.HUD;
 
 namespace NO_Tactitools.Core {
     [BepInPlugin("NO_Tactitools", "NOTT", "0.6.0.2")]
@@ -26,6 +27,7 @@ namespace NO_Tactitools.Core {
         public static RewiredInputConfig countermeasureControlsFlare;
         public static RewiredInputConfig countermeasureControlsJammer;
         public static ConfigEntry<bool> weaponSwitcherEnabled;
+        public static ConfigEntry<bool> ammoConIndicatorEnabled;
         public static RewiredInputConfig weaponSwitcher0;
         public static RewiredInputConfig weaponSwitcher1;
         public static RewiredInputConfig weaponSwitcher2;
@@ -126,6 +128,16 @@ namespace NO_Tactitools.Core {
             weaponSwitcher3 = new RewiredInputConfig(Config, "Advanced Slot Selection", "Advanced Slot Selection - Slot 3", "Input for slot 3", 2);
             weaponSwitcher4 = new RewiredInputConfig(Config, "Advanced Slot Selection", "Advanced Slot Selection - Slot 4", "Input for slot 4", 1);
             weaponSwitcher5 = new RewiredInputConfig(Config, "Advanced Slot Selection", "Advanced Slot Selection - Slot 5", "Input for slot 5", 0);
+            // Ammo Conservation Indicator settings
+            ammoConIndicatorEnabled = Config.Bind("Ammo Conservation Indicator",
+                "Ammo Conservation Indicator - Enabled",
+                true,
+                new ConfigDescription(
+                    "Enable or disable the Ammo Conservation Indicator feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
             // Weapon Display settings
             weaponDisplayEnabled = Config.Bind("CM & Weapon Display",
                 "CM & Weapon Display - Enabled",
@@ -443,6 +455,11 @@ namespace NO_Tactitools.Core {
             if (deliveryCheckerEnabled.Value) {
                 Log($"Delivery Checker is enabled, patching...");
                 harmony.PatchAll(typeof(DeliveryCheckerPlugin));
+            }
+            // Patch Ammo Conservation Indicator
+            if (ammoConIndicatorEnabled.Value) {
+                Log("Ammo Conservation Indicator is enabled, patching...");
+                harmony.PatchAll(typeof(AmmoConIndicatorPlugin));
             }
             // we load this one last so that the boot applies to the elements we add to the cockpit as well
             // Patch Boot Screen
