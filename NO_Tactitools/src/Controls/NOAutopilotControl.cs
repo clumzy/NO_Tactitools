@@ -73,7 +73,6 @@ public static class NOAutopilotControlPlugin {
 
         if (!wasMenuOpen && NOAutopilotComponent.InternalState.showMenu) {
             // Populate staged values and reset position when menu opens
-            NOAutopilotComponent.LogicEngine.UpdateIncrements();
             NOAutopilotComponent.LogicEngine.ResetStagedValues();
             if (NOAutopilotComponent.InternalState.autopilotMenu != null) {
                 NOAutopilotComponent.InternalState.autopilotMenu.selectedRow = 0;
@@ -185,7 +184,6 @@ public static class NOAutopilotControlPlugin {
                 }
                 
                 APData.SpeedHoldIsMach = !APData.SpeedHoldIsMach;
-                NOAutopilotComponent.LogicEngine.UpdateIncrements();
 
                 // Reset staged speed to match current target (or OFF) in new units
                 if (APData.TargetSpeed < 0) {
@@ -375,13 +373,10 @@ public class NOAutopilotComponent {
 
         public static void UpdateIncrements() {
             if (GameBindings.Units.IsImperial()) {
-                // Imperial units: feet, feet per minute, knots
-                // Clean display increments
                 InternalState.altIncrement = 500f;      // feet
                 InternalState.climbIncrement = 1000f;   // feet per minute
                 InternalState.speedIncrement = 25f;     // knots
             } else {
-                // Metric units: meters, m/s, km/h
                 InternalState.altIncrement = 100f;      // meters
                 InternalState.climbIncrement = 5f;      // m/s
                 InternalState.speedIncrement = 50f;     // km/h
