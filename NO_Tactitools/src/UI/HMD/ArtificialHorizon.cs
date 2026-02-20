@@ -1,3 +1,4 @@
+using BepInEx.Bootstrap;
 using HarmonyLib;
 using UnityEngine;
 using NO_Tactitools.Core;
@@ -11,9 +12,13 @@ namespace NO_Tactitools.UI.HMD;
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class ArtificialHorizonPlugin {
     private static bool initialized = false;
+    private const string ThirdPersonModGUID = "com.gnol.thirdpersonhud";
+    public static bool IsThirdPersonModLoaded = false;
     static void Postfix() {
         if (!initialized) {
             Plugin.Log($"[AH] Artificial Horizon plugin starting !");
+            if (Chainloader.PluginInfos.ContainsKey(ThirdPersonModGUID)) IsThirdPersonModLoaded = true;
+            Plugin.Log($"[AH] Artificial Horizon plugin dependency check complete. IsThirdPersonModLoaded: {IsThirdPersonModLoaded.ToString()}");
             Plugin.harmony.PatchAll(typeof(ArtificialHorizonComponent.OnPlatformStart));
             Plugin.harmony.PatchAll(typeof(ArtificialHorizonComponent.OnPlatformUpdate));
             ArtificialHorizonComponent.InternalState.authorizedPlatforms = FileUtilities.GetListFromConfigFile("ArtificialHorizon_AuthorizedPlatforms.txt");
@@ -37,8 +42,7 @@ public class ArtificialHorizonComponent {
                 }
                 return;
             }
-            InternalState.destination = UIBindings.Game.GetCombatHUDTransform();
-            InternalState.canvasRectTransform = InternalState.destination?.GetComponent<RectTransform>();
+            InternalState.canvasRectTransform = UIBindings.Game.GetCombatHUDTransform()?.GetComponent<RectTransform>();
             InternalState.mainCamera = UIBindings.Game.GetCameraStateManager()?.mainCamera;
             Plugin.Log("[AH] Logic Engine initialized");
         }
@@ -207,11 +211,9 @@ public class ArtificialHorizonComponent {
     }
 
     public static class InternalState {
-        static public Transform destination;
         static public RectTransform canvasRectTransform;
         static public ArtificialHorizon artificialHorizon;
         static public Camera mainCamera;
-
         // Screen space coordinates for the horizon line
         static public Vector2 horizonStart;
         static public Vector2 horizonEnd;
@@ -242,6 +244,68 @@ public class ArtificialHorizonComponent {
         static public float westLabelOpacity = 1f;
         static public bool isAuthorized = false;
         static public List<String> authorizedPlatforms;
+    }
+
+    static class DisplayEngine {
+        static public void Init() {
+            if (UIBindings.Game.GetCombatHUDTransform() == null ||
+                !InternalState.isAuthorized) {
+                return;
+            }
+            InternalState.artificialHorizon = new ArtificialHorizon(UIBindings.Game.GetCombatHUDTransform());
+
+        }
+
+        static public void Update() {
+            if (GameBindings.GameState.IsGamePaused() ||
+                GameBindings.Player.Aircraft.GetAircraft() == null ||
+                !InternalState.isAuthorized)
+                return; // do not refresh anything if the game is paused or the player aircraft is not available
+            // Third person view mod patch
+            if (CameraStateManager.cameraMode != CameraMode.cockpit
+                && ArtificialHorizonPlugin.IsThirdPersonModLoaded) {
+                InternalState.artificialHorizon?.SetActive(false);
+                return;
+            }
+            InternalState.artificialHorizon.SetActive(true);
+            // patch end
+            InternalState.artificialHorizon.horizonLine.SetCoordinates(
+                InternalState.horizonStart,
+                InternalState.horizonEnd
+            );
+            InternalState.artificialHorizon.northLine.SetCoordinates(
+                InternalState.northStart,
+                InternalState.northEnd
+            );
+            InternalState.artificialHorizon.northLine.SetOpacity(InternalState.northLineOpacity);
+            InternalState.artificialHorizon.northLabel.SetPosition(InternalState.northLabelPos);
+            InternalState.artificialHorizon.northLabel.SetText(InternalState.northLabelText);
+            InternalState.artificialHorizon.northLabel.SetOpacity(InternalState.northLabelOpacity);
+            InternalState.artificialHorizon.southLine.SetCoordinates(
+                InternalState.southStart,
+                InternalState.southEnd
+            );
+            InternalState.artificialHorizon.southLine.SetOpacity(InternalState.southLineOpacity);
+            InternalState.artificialHorizon.southLabel.SetPosition(InternalState.southLabelPos);
+            InternalState.artificialHorizon.southLabel.SetText(InternalState.southLabelText);
+            InternalState.artificialHorizon.southLabel.SetOpacity(InternalState.southLabelOpacity);
+            InternalState.artificialHorizon.eastLine.SetCoordinates(
+                InternalState.eastStart,
+                InternalState.eastEnd
+            );
+            InternalState.artificialHorizon.eastLine.SetOpacity(InternalState.eastLineOpacity);
+            InternalState.artificialHorizon.eastLabel.SetPosition(InternalState.eastLabelPos);
+            InternalState.artificialHorizon.eastLabel.SetText(InternalState.eastLabelText);
+            InternalState.artificialHorizon.eastLabel.SetOpacity(InternalState.eastLabelOpacity);
+            InternalState.artificialHorizon.westLine.SetCoordinates(
+                InternalState.westStart,
+                InternalState.westEnd
+            );
+            InternalState.artificialHorizon.westLine.SetOpacity(InternalState.westLineOpacity);
+            InternalState.artificialHorizon.westLabel.SetPosition(InternalState.westLabelPos);
+            InternalState.artificialHorizon.westLabel.SetText(InternalState.westLabelText);
+            InternalState.artificialHorizon.westLabel.SetOpacity(InternalState.westLabelOpacity);
+        }
     }
 
     public class ArtificialHorizon {
@@ -357,59 +421,17 @@ public class ArtificialHorizonComponent {
             westLine.Destroy();
             westLabel.Destroy();
         }
-    }
 
-    static class DisplayEngine {
-        static public void Init() {
-            if (InternalState.destination == null ||
-                !InternalState.isAuthorized) {
-                return;
-            }
-            InternalState.artificialHorizon = new ArtificialHorizon(InternalState.destination);
-
-        }
-
-        static public void Update() {
-            if (GameBindings.GameState.IsGamePaused() ||
-                GameBindings.Player.Aircraft.GetAircraft() == null ||
-                !InternalState.isAuthorized)
-                return; // do not refresh anything if the game is paused or the player aircraft is not available
-            InternalState.artificialHorizon.horizonLine.SetCoordinates(
-                InternalState.horizonStart,
-                InternalState.horizonEnd
-            );
-            InternalState.artificialHorizon.northLine.SetCoordinates(
-                InternalState.northStart,
-                InternalState.northEnd
-            );
-            InternalState.artificialHorizon.northLine.SetOpacity(InternalState.northLineOpacity);
-            InternalState.artificialHorizon.northLabel.SetPosition(InternalState.northLabelPos);
-            InternalState.artificialHorizon.northLabel.SetText(InternalState.northLabelText);
-            InternalState.artificialHorizon.northLabel.SetOpacity(InternalState.northLabelOpacity);
-            InternalState.artificialHorizon.southLine.SetCoordinates(
-                InternalState.southStart,
-                InternalState.southEnd
-            );
-            InternalState.artificialHorizon.southLine.SetOpacity(InternalState.southLineOpacity);
-            InternalState.artificialHorizon.southLabel.SetPosition(InternalState.southLabelPos);
-            InternalState.artificialHorizon.southLabel.SetText(InternalState.southLabelText);
-            InternalState.artificialHorizon.southLabel.SetOpacity(InternalState.southLabelOpacity);
-            InternalState.artificialHorizon.eastLine.SetCoordinates(
-                InternalState.eastStart,
-                InternalState.eastEnd
-            );
-            InternalState.artificialHorizon.eastLine.SetOpacity(InternalState.eastLineOpacity);
-            InternalState.artificialHorizon.eastLabel.SetPosition(InternalState.eastLabelPos);
-            InternalState.artificialHorizon.eastLabel.SetText(InternalState.eastLabelText);
-            InternalState.artificialHorizon.eastLabel.SetOpacity(InternalState.eastLabelOpacity);
-            InternalState.artificialHorizon.westLine.SetCoordinates(
-                InternalState.westStart,
-                InternalState.westEnd
-            );
-            InternalState.artificialHorizon.westLine.SetOpacity(InternalState.westLineOpacity);
-            InternalState.artificialHorizon.westLabel.SetPosition(InternalState.westLabelPos);
-            InternalState.artificialHorizon.westLabel.SetText(InternalState.westLabelText);
-            InternalState.artificialHorizon.westLabel.SetOpacity(InternalState.westLabelOpacity);
+        public void SetActive(bool active) {
+            horizonLine.GetGameObject().SetActive(active);
+            northLine.GetGameObject().SetActive(active);
+            northLabel.GetGameObject().SetActive(active);
+            southLine.GetGameObject().SetActive(active);
+            southLabel.GetGameObject().SetActive(active);
+            eastLine.GetGameObject().SetActive(active);
+            eastLabel.GetGameObject().SetActive(active);
+            westLine.GetGameObject().SetActive(active);
+            westLabel.GetGameObject().SetActive(active);
         }
     }
 

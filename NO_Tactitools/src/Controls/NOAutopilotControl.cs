@@ -4,21 +4,20 @@ using UnityEngine;
 using NOAutopilot; // Reference from .csproj
 using Plugin = NO_Tactitools.Core.Plugin;
 using NO_Tactitools.Core;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 
 namespace NO_Tactitools.Controls;
 [HarmonyPatch(typeof(MainMenu), "Start")]
 public static class NOAutopilotControlPlugin {
     private static bool initialized = false;
     private const string AutopilotModGUID = "com.qwerty1423.NOAutopilot";
-
+    public static bool IsAutopilotModLoaded = false;
     public static void Postfix() {
         if (!initialized) {
             Plugin.Log($"[AP] NOAutopilotControl checking dependencies...");
-
-            if (Chainloader.PluginInfos.ContainsKey(AutopilotModGUID)) {
+            if (Chainloader.PluginInfos.ContainsKey(AutopilotModGUID)) IsAutopilotModLoaded = true;
+            Plugin.Log($"[AP] NOAutopilotControl dependency check complete. IsAutopilotModLoaded: {IsAutopilotModLoaded.ToString()}");
+            if (IsAutopilotModLoaded) {
                 Plugin.Log("[AP] Found 'no-autopilot-mod'. Enabling Autopilot controls.");
                 Plugin.harmony.PatchAll(typeof(NOAutopilotComponent.OnPlatformStart));
                 Plugin.harmony.PatchAll(typeof(NOAutopilotComponent.OnPlatformUpdate));
