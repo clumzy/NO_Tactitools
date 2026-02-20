@@ -48,13 +48,12 @@ class AmmoConIndicatorComponent {
 
         public static void OnMissileStart(Missile missile) {
             if (missile.targetID == null) return;
-            Unit targetUnit;
-            if (missile.targetID.TryGetUnit(out targetUnit)) {
+            if (missile.targetID.TryGetUnit(out Unit targetUnit)) {
                 InternalState.activeMissiles[missile] = targetUnit;
             }
         }
 
-        public static void OnMissileDetonate(Missile missile, bool hitArmor) {
+        public static void OnMissileDetonate(Missile missile, bool _) {
             InternalState.activeMissiles.Remove(missile);
         }
     }
@@ -87,9 +86,6 @@ class AmmoConIndicatorComponent {
             for (int i = 0; i < targets.Count; i++) {
                 bool isTracked = InternalState.activeMissiles.ContainsValue(targets[i]);
 
-                Vector2 halfSize = targetIcons[i].rectTransform.rect.size / 2f;
-
-                // Red dot if tracked
                 UIBindings.Draw.UIRectangle trackerDot = new(
                     "TrackerDot",
                     new Vector2(-5, -30),

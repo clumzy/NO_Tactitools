@@ -74,12 +74,13 @@ CHECKLIST WHEN ADDING A FEATURE :
 IN PROGRESS :
 
 TODO :
+-> Add helicopter drift indicator
+-> Add compat patch to hide horizon line with 3rd person mod
 -> Add main menu patch reset, no need to restart the game
 -> Rename Medusa in load screen
 -> make control combos
 -> Implement container for Weapon Display
 -> Adapt sling for the wpon screen
--> Add helicopter drift indicator
 
 TO TEST :
 

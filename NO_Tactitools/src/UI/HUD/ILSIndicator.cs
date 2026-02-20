@@ -99,7 +99,7 @@ class ILSIndicatorComponent {
             if (InternalState.isLanding) {
                 InternalState.ILSWidget.SetActive(true);
                 InternalState.ILSWidget.SetBallPosition(InternalState.currentGlideslopeError);
-                if (InternalState.currentGlideslopeError < -0.5f) {
+                if (InternalState.currentGlideslopeError < -0.6f) {
                     InternalState.ILSWidget.SetBallColor(Color.red);
                 }
                 else {
