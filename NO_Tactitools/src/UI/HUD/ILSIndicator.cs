@@ -22,10 +22,9 @@ class ILSIndicatorPlugin {
 class ILSIndicatorComponent {
     static public class LogicEngine {
         public static void Init() {
-            InternalState.FLOLSWidget?.Destroy();
-            InternalState.FLOLSWidget = null;
-            InternalState.isGlideslope = false;
-            InternalState.isAuthorized = false;
+            InternalState.ILSWidget?.Destroy();
+            InternalState.ILSWidget = null;
+            InternalState.isLanding = false;
             InternalState.currentGlideslopeError = 0f;
             if (InternalState.airbaseOverlayCached == null) {
                 InternalState.airbaseOverlayCached = GameObject.FindFirstObjectByType<AirbaseOverlay>();
@@ -44,10 +43,9 @@ class ILSIndicatorComponent {
                 || GameBindings.Player.Aircraft.GetAircraft() == null
                 || InternalState.airbaseOverlayCached == null)
                 return;
-            InternalState.isGlideslope = InternalState.glideslopeCache.GetValue(InternalState.airbaseOverlayCached).enabled;
-            InternalState.isAuthorized = InternalState.runwayBordersCache.GetValue(InternalState.airbaseOverlayCached)[0].enabled;
+            InternalState.isLanding = InternalState.landingCache.GetValue(InternalState.airbaseOverlayCached);
             InternalState.runwayUsage = InternalState.runwayUsageCache.GetValue(InternalState.airbaseOverlayCached);
-            if (InternalState.isGlideslope) {
+            if (InternalState.isLanding) {
                 InternalState.currentGlideslopeError = LogicEngine.GetGlideslopeAngleError(
                     GameBindings.Player.Aircraft.GetAircraft(),
                     InternalState.runwayUsage.Runway,
@@ -73,24 +71,22 @@ class ILSIndicatorComponent {
         }
     }
     static public class InternalState {
-        public static bool isGlideslope = false;
-        public static bool isAuthorized = false;
+        public static bool isLanding = false;
         public static Airbase.Runway.RunwayUsage runwayUsage;
         public static float currentGlideslopeError = 0f;
         public static AirbaseOverlay airbaseOverlayCached = null;
-        public static TraverseCache<AirbaseOverlay, Image> glideslopeCache = new("glideslope");
-        public static TraverseCache<AirbaseOverlay, Image[]> runwayBordersCache = new("runwayBorders");
         public static TraverseCache<AirbaseOverlay, Airbase.Runway.RunwayUsage> runwayUsageCache = new("runwayUsage");
-        public static ILSIndicator FLOLSWidget = null;
+        public static TraverseCache<AirbaseOverlay, bool> landingCache = new("landing");
+        public static ILSIndicator ILSWidget = null;
     }
 
     static public class DisplayEngine {
         public static void Init() {
-            if (InternalState.FLOLSWidget == null) {
-                InternalState.FLOLSWidget = new ILSIndicator(UIBindings.Game.GetFlightHUDTransform());
+            if (InternalState.ILSWidget == null) {
+                InternalState.ILSWidget = new ILSIndicator(UIBindings.Game.GetFlightHUDLockedToHUDTransform());
                 Plugin.Log("[ILS] FLOLS Widget initialized and added to MFD.");
             }
-            InternalState.FLOLSWidget.SetActive(false);
+            InternalState.ILSWidget.SetActive(false);
         }
 
         public static void Update() {
@@ -100,18 +96,18 @@ class ILSIndicatorComponent {
                 || InternalState.airbaseOverlayCached == null) {
                 return;
             }
-            if (InternalState.isGlideslope) {
-                InternalState.FLOLSWidget.SetActive(true);
-                InternalState.FLOLSWidget.SetBallPosition(InternalState.currentGlideslopeError);
-                if (InternalState.isAuthorized) {
-                    InternalState.FLOLSWidget.SetSideColor(new Color(0f,1f,0f,0.7f));
+            if (InternalState.isLanding) {
+                InternalState.ILSWidget.SetActive(true);
+                InternalState.ILSWidget.SetBallPosition(InternalState.currentGlideslopeError);
+                if (InternalState.currentGlideslopeError < -0.5f) {
+                    InternalState.ILSWidget.SetBallColor(Color.red);
                 }
                 else {
-                    InternalState.FLOLSWidget.SetSideColor(new Color(1f,0f,0f,0.7f));
+                    InternalState.ILSWidget.SetBallColor(Color.yellow);
                 }
             }
             else {
-                InternalState.FLOLSWidget.SetActive(false);
+                InternalState.ILSWidget.SetActive(false);
             }
         }
     }
@@ -164,7 +160,8 @@ class ILSIndicatorComponent {
                 new Vector2(-15, 5),
                 borderColor: new Color(1, 1, 1, 0.7f),
                 borderThickness: 0.75f,
-                UIParent: containerTransform);
+                UIParent: containerTransform,
+                fillColor: Color.green);
 
             sideBars[2] = new UIBindings.Draw.UIAdvancedRectangle(
                 "SideBar_R1",
@@ -172,7 +169,8 @@ class ILSIndicatorComponent {
                 new Vector2(50, 5),
                 borderColor: new Color(1, 1, 1, 0.7f),
                 borderThickness: 0.75f,
-                UIParent: containerTransform);
+                UIParent: containerTransform,
+                fillColor: Color.green);
 
             sideBars[3] = new UIBindings.Draw.UIAdvancedRectangle(
                 "SideBar_R2",
@@ -180,19 +178,20 @@ class ILSIndicatorComponent {
                 new Vector2(30, 5),
                 borderColor: new Color(1, 1, 1, 0.7f),
                 borderThickness: 0.75f,
-                UIParent: containerTransform);
+                UIParent: containerTransform,
+                fillColor: Color.green);
         }
 
         public void SetActive(bool active) => containerObject?.SetActive(active);
 
         public void SetBallPosition(float error) {
             Plugin.Log("Error"+error.ToString());
-            float yPos = Mathf.Clamp(error * 25f, -50f, 50f);
+            float yPos = Mathf.Clamp(error * 45f, -45f, 45f);
             ball.SetCenter(new Vector2(0, yPos));
         }
 
-        public void SetSideColor(Color color) {
-            foreach (var bar in sideBars) bar.SetFillColor(color);
+        public void SetBallColor(Color color) {
+            ball.SetColor(color);
         }
 
         public void Destroy() {

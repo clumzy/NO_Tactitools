@@ -83,7 +83,7 @@ class InterceptionVectorTask {
         containerObject.AddComponent<RectTransform>();
         containerTransform = containerObject.transform;
         containerTransform.SetParent(parentTransform, false);
-        playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
+        playerFactionHQ = GameBindings.Player.Aircraft.GetAircraft().NetworkHQ;
         bearingLabel = new UIBindings.Draw.UILabel(
             "bearingLabel",
             new Vector2(0, -70),
@@ -174,8 +174,8 @@ class InterceptionVectorTask {
             return;
         }
 
-        playerPosition = SceneSingleton<CombatHUD>.i.aircraft.rb.transform.position;
-        playerVelocity = SceneSingleton<CombatHUD>.i.aircraft.rb.velocity;
+        playerPosition = GameBindings.Player.Aircraft.GetAircraft().rb.transform.position;
+        playerVelocity = GameBindings.Player.Aircraft.GetAircraft().rb.velocity;
         if (playerFactionHQ.IsTargetPositionAccurate(targetUnit, 20f)) {
             HandleTracked();
             solutionTime = FindSolutionTime(targetUnit);
@@ -210,8 +210,8 @@ class InterceptionVectorTask {
         int interceptBearing = (int)(Vector3.SignedAngle(Vector3.forward, interceptVectorXZ, Vector3.up) + 360) % 360;
         int interceptionTimeInSeconds = (int)Mathf.Clamp(interceptVector.magnitude / playerVelocity.magnitude - interceptArraySize / 60, 0, 999);
         Vector3 interceptScreen = UIBindings.Game.GetCameraStateManager().mainCamera.WorldToScreenPoint(interceptPosition);
-        Vector3 velocityUpNormal = Vector3.Cross(SceneSingleton<CombatHUD>.i.aircraft.rb.velocity, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.right).normalized;
-        Vector3 velocityRightNormal = Vector3.Cross(SceneSingleton<CombatHUD>.i.aircraft.rb.velocity, velocityUpNormal).normalized;
+        Vector3 velocityUpNormal = Vector3.Cross(GameBindings.Player.Aircraft.GetAircraft().rb.velocity, GameBindings.Player.Aircraft.GetAircraft().rb.transform.right).normalized;
+        Vector3 velocityRightNormal = Vector3.Cross(GameBindings.Player.Aircraft.GetAircraft().rb.velocity, velocityUpNormal).normalized;
         int relativeHeight = (int)(
             Vector3.SignedAngle(
                 Vector3.ProjectOnPlane(interceptVector, velocityUpNormal),

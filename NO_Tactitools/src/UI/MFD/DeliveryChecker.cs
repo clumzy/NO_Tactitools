@@ -75,7 +75,7 @@ public class DeliveryCheckerComponent {
                 UIBindings.Game.GetTacScreenTransform(true) == null) {
                 return; // no targeting screen available
             }
-            if (missile.owner == SceneSingleton<CombatHUD>.i.aircraft) {
+            if (missile.owner == GameBindings.Player.Aircraft.GetAircraft()) {
                 InternalState.deliveries[missile] = new InternalState.DeliveryInfo() {
                     Type = missile.GetWeaponInfo().bomb ? InternalState.DeliveryType.Bomb : InternalState.DeliveryType.Missile,
                     Status = InternalState.DeliveryStatus.InFlight,
@@ -87,7 +87,7 @@ public class DeliveryCheckerComponent {
         }
 
         static public void OnMissileDetonate(Missile missile, bool hitArmor) {
-            if (missile.owner == SceneSingleton<CombatHUD>.i.aircraft
+            if (missile.owner == GameBindings.Player.Aircraft.GetAircraft()
                 && GameBindings.Player.Aircraft.GetAircraft() != null
                 && UIBindings.Game.GetTargetScreenTransform(true) != null
                 && UIBindings.Game.GetTacScreenTransform(true) != null) {

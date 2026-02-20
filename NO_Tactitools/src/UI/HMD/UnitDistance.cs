@@ -36,7 +36,7 @@ class UnitDistanceTask {
     public static readonly Dictionary<HUDUnitMarker, Transform> _transformCache = [];
 
     static void Postfix(HUDUnitMarker __instance) {
-        if (__instance.unit is not Aircraft || __instance.unit.NetworkHQ == SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ) return; // Only apply to enemy aircraft units
+        if (__instance.unit is not Aircraft || __instance.unit.NetworkHQ == GameBindings.Player.Aircraft.GetAircraft().NetworkHQ) return; // Only apply to enemy aircraft units
         
         // Cache the transform per marker instance
         if (!_transformCache.TryGetValue(__instance, out Transform markerTransform)) {
@@ -44,8 +44,8 @@ class UnitDistanceTask {
             markerTransform = transformCache.GetValue(__instance);
             _transformCache[__instance] = markerTransform;
         }
-        if (SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ.IsTargetPositionAccurate(__instance.unit, 20f)) {
-            int distanceToPlayer = Mathf.RoundToInt(Vector3.Distance(__instance.unit.rb.transform.position, SceneSingleton<CombatHUD>.i.aircraft.rb.transform.position));
+        if (GameBindings.Player.Aircraft.GetAircraft().NetworkHQ.IsTargetPositionAccurate(__instance.unit, 20f)) {
+            int distanceToPlayer = Mathf.RoundToInt(Vector3.Distance(__instance.unit.rb.transform.position, GameBindings.Player.Aircraft.GetAircraft().rb.transform.position));
             int threshold = UnitDistancePlugin.unitDistanceThreshold;
             int rotationThreshold = threshold + 250; // Convert threshold from kilometers to Unity units (1 unit = 1 meter)
 
@@ -88,7 +88,7 @@ class UnitDistanceTask {
     }
 }
 
-[HarmonyPatch(typeof(FlightHud), "ResetAircraft")]
+[HarmonyPatch(typeof(TacScreen), "Initialize")]
 class ResetUnitDistanceDictOnRespawnPatch {
     static void Postfix() {
         // Reset the unitStates when the aircraft is destroyed

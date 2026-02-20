@@ -230,7 +230,7 @@ public static class TargetListControllerComponent {
         public static void Init() {
             InternalState.previousTargetList = [];
             InternalState.targetIndex = 0;
-            InternalState.playerFactionHQ = SceneSingleton<CombatHUD>.i.aircraft.NetworkHQ;
+            InternalState.playerFactionHQ = GameBindings.Player.Aircraft.GetAircraft().NetworkHQ;
         }
 
         public static void Update() {
@@ -333,13 +333,13 @@ public static class TargetListControllerComponent {
 
                 if (hq.IsTargetPositionAccurate(unit, 20f) && isAirOrMissile) {
                     GlobalPosition globalPos = unit.GlobalPosition();
-                    Vector3 relPos = globalPos - SceneSingleton<CombatHUD>.i.aircraft.GlobalPosition();
+                    Vector3 relPos = globalPos - GameBindings.Player.Aircraft.GetAircraft().GlobalPosition();
 
                     heading.text = string.Format("HDG {0:F0}°", unit.transform.eulerAngles.y);
                     altitude.text = "ALT " + UnitConverter.AltitudeReading(globalPos.y);
                     rel_altitude.text = "REL " + UnitConverter.AltitudeReading(relPos.y);
                     speed.text = "SPD " + UnitConverter.SpeedReading(unit.speed);
-                    rel_speed.text = "REL " + UnitConverter.SpeedReading(Vector3.Dot(SceneSingleton<CombatHUD>.i.aircraft.rb.velocity, relPos.normalized) - Vector3.Dot(unit.rb.velocity, relPos.normalized));
+                    rel_speed.text = "REL " + UnitConverter.SpeedReading(Vector3.Dot(GameBindings.Player.Aircraft.GetAircraft().rb.velocity, relPos.normalized) - Vector3.Dot(unit.rb.velocity, relPos.normalized));
                 }
                 else {
                     heading.text = "HDG -";
@@ -348,7 +348,7 @@ public static class TargetListControllerComponent {
                     speed.text = "SPD -";
                     rel_speed.text = "REL -";
                 }
-                distance.text = "RNG " + UnitConverter.DistanceReading(Vector3.Distance(SceneSingleton<CombatHUD>.i.aircraft.transform.position, unit.transform.position));
+                distance.text = "RNG " + UnitConverter.DistanceReading(Vector3.Distance(GameBindings.Player.Aircraft.GetAircraft().transform.position, unit.transform.position));
                 typeText.text = string.Format("[{0}/{1}] ", targets.Count - index, targets.Count) + ((unit is Aircraft) ? unit.definition.unitName : unit.unitName);
             }
             // PROPER UPDATE START

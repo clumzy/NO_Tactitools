@@ -59,9 +59,10 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<int> loadoutPreviewPositionY;
         public static ConfigEntry<float> loadoutPreviewBackgroundTransparency;
         public static ConfigEntry<float> loadoutPreviewTextAndBorderTransparency;
-        public static ConfigEntry<bool> resetCockpitFOVEnabled;
+        public static ConfigEntry<bool> cameraTweaksEnabled;
         public static ConfigEntry<float> resetCockpitFOVSpeed;
         public static RewiredInputConfig resetCockpitFOV;
+        public static RewiredInputConfig lookAtNearestTarget;
         public static ConfigEntry<bool> ILSScreenEnabled;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
@@ -290,9 +291,9 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 7
                     }));
-            // Reset Cockpit FOV settings
-            resetCockpitFOVEnabled = Config.Bind("Cockpit Camera Reset FOV",
-                "Cockpit Camera Reset FOV - Enabled",
+            // Camera Tweaks settings
+            cameraTweaksEnabled = Config.Bind("Camera Tweaks",
+                "Camera Tweaks - Enabled",
                 true,
                 new ConfigDescription(
                     "Enable or disable the Reset Cockpit FOV feature.",
@@ -300,8 +301,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 2
                     }));
-            resetCockpitFOVSpeed = Config.Bind("Cockpit Camera Reset FOV",
-                "Cockpit Camera Reset FOV - Speed",
+            resetCockpitFOVSpeed = Config.Bind("Camera Tweaks",
+                "Camera Tweaks - Reset Cockpit FOV - Speed",
                 150f,
                 new ConfigDescription(
                     "Speed at which the FOV resets (50 - 300).",
@@ -309,7 +310,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 1
                     }));
-            resetCockpitFOV = new RewiredInputConfig(Config, "Cockpit Camera Reset FOV", "Cockpit Camera Reset FOV", "Input you want to assign for Resetting Cockpit FOV", 0);
+            resetCockpitFOV = new RewiredInputConfig(Config, "Camera Tweaks", "Camera Tweaks - Reset Cockpit FOV", "Input you want to assign for Resetting Cockpit FOV", 0);
+            lookAtNearestTarget = new RewiredInputConfig(Config, "Camera Tweaks", "Camera Tweaks - Look At Nearest Target", "Input for pointing the camera at the nearest selected target", 0);
             // ILS Screen settings
             ILSScreenEnabled = Config.Bind("ILS Screen",
                 "ILS Screen - Enabled",
@@ -490,11 +492,11 @@ namespace NO_Tactitools.Core {
                 Log($"Unit Icon Recolor is enabled, patching...");
                 harmony.PatchAll(typeof(UnitIconRecolorPlugin));
             }
-            // COCKPIT FOV PATCHES
-            // Patch Reset Cockpit FOV
-            if (resetCockpitFOVEnabled.Value) {
-                Log($"Reset Cockpit FOV is enabled, patching...");
-                harmony.PatchAll(typeof(ResetCockpitFOV));
+            // CAMERA TWEAKS PATCHES
+            // Patch Camera Tweaks
+            if (cameraTweaksEnabled.Value) {
+                Log($"Camera Tweaks is enabled, patching...");
+                harmony.PatchAll(typeof(CameraTweaksPlugin));
             }
             // MOD COMPAT PATCHES
             if (autopilotMenuEnabled.Value){

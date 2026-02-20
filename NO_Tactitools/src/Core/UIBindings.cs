@@ -407,6 +407,14 @@ public class UIBindings {
                 catch (NullReferenceException) { Plugin.Log("[UIBindings.Game.GetFlightHUD] NullReferenceException: FlightHud singleton not available; returning null."); return null; }
             }
 
+            public static Transform GetFlightHUDLockedToHUDTransform() {
+                try {
+                    Transform hudLockedTransform = new TraverseCache<FlightHud, Transform>("HUDCenter").GetValue(SceneSingleton<FlightHud>.i);
+                    return hudLockedTransform;
+                }
+                catch (NullReferenceException) { Plugin.Log("[UIBindings.Game.GetFlightHUDLockedToHUDTransform] NullReferenceException: FlightHud singleton or hudLockedToHUD transform not available; returning null."); return null; }
+            }
+
             public static Transform GetTargetScreenTransform(bool silent = false) {
                 try {
                     TargetCam currentTargetCam = SceneSingleton<CombatHUD>.i.aircraft.targetCam;

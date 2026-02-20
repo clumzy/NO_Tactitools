@@ -6,28 +6,37 @@ using UnityEngine;
 namespace NO_Tactitools.Controls;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
-class ResetCockpitFOV {
+class CameraTweaksPlugin {
     private static bool initialized = false;
     private static TraverseCache<CameraStateManager, CameraCockpitState> _cockpitStateCache = new("cockpitState");
     private static TraverseCache<CameraCockpitState, float> _fovAdjustmentCache = new("FOVAdjustment");
 
     static void Postfix() {
         if (!initialized) {
-            Plugin.Log($"[RCF] Reset Cockpit FOV plugin starting !");
+            Plugin.Log($"[CT] Camera Tweaks plugin starting !");
             
             InputCatcher.RegisterNewInput(
                 Plugin.resetCockpitFOV,
                 999f, // High threshold so onHold runs as long as the button is pressed
                 onHold: HandleResetFOV
             );
+
+            InputCatcher.RegisterNewInput(
+                Plugin.lookAtNearestTarget,
+                0.2f,
+                onRelease: HandleLookAtNearest
+            );
             
             initialized = true;
-            Plugin.Log("[RCF] Reset Cockpit FOV plugin successfully started !");
+            Plugin.Log("[CT] Camera Tweaks plugin successfully started !");
         }
     }
 
+    private static void HandleLookAtNearest() {
+        if (CameraStateManager.cameraMode != CameraMode.cockpit) return;
+    }
+
     private static void HandleResetFOV() {
-        if (!Plugin.resetCockpitFOVEnabled.Value) return;
         if (CameraStateManager.cameraMode != CameraMode.cockpit) return;
 
         CameraStateManager cam = SceneSingleton<CameraStateManager>.i;
