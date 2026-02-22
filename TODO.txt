@@ -71,11 +71,11 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> new "meatball" wifget for carrier landings (see discord)
 -> Add functionalty to see if a targeted unit is being targeted by a friendly missile
 -> fix reload percentage
+-> Add compat patch to hide horizon line with 3rd person mod
 IN PROGRESS :
 
 TODO :
 -> Add helicopter drift indicator
--> Add compat patch to hide horizon line with 3rd person mod
 -> Add main menu patch reset, no need to restart the game
 -> Rename Medusa in load screen
 -> make control combos

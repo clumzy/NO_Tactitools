@@ -15,7 +15,7 @@ class AmmoConIndicatorPlugin {
             Plugin.harmony.PatchAll(typeof(AmmoConIndicatorComponent.OnPlatformStart));
             Plugin.harmony.PatchAll(typeof(AmmoConIndicatorComponent.OnPlatformUpdate));
             Plugin.harmony.PatchAll(typeof(AmmoConIndicatorComponent.OnMissileStart));
-            Plugin.harmony.PatchAll(typeof(AmmoConIndicatorComponent.OnMissileDetonate));
+            Plugin.harmony.PatchAll(typeof(AmmoConIndicatorComponent.OnMissileSetTarget));
             initialized = true;
             Plugin.Log("[AC] Ammo Conservation Indicator plugin successfully started !");
         }
@@ -48,13 +48,17 @@ class AmmoConIndicatorComponent {
 
         public static void OnMissileStart(Missile missile) {
             if (missile.targetID == null) return;
-            if (missile.targetID.TryGetUnit(out Unit targetUnit)) {
-                InternalState.activeMissiles[missile] = targetUnit;
+            if (missile.targetID.TryGetUnit(out Unit unit)) {
+                InternalState.activeMissiles[missile] = unit;
             }
         }
 
-        public static void OnMissileDetonate(Missile missile, bool _) {
-            InternalState.activeMissiles.Remove(missile);
+        public static void OnMissileSetTarget(Missile missile, Unit unit) {
+            // make the mod update proof
+            if (unit == null) // this always happens when a missile detonates
+                InternalState.activeMissiles.Remove(missile);
+            else
+                InternalState.activeMissiles[missile] = unit;
         }
     }
 
@@ -107,10 +111,10 @@ class AmmoConIndicatorComponent {
         }
     }
 
-    [HarmonyPatch(typeof(Missile), "UserCode_RpcDetonate_897349600")]
-    public static class OnMissileDetonate {
-        static void Postfix(Missile __instance, bool hitArmor) {
-            LogicEngine.OnMissileDetonate(__instance, hitArmor);
+    [HarmonyPatch(typeof(Missile), "SetTarget")]
+    public static class OnMissileSetTarget {
+        static void Postfix(Missile __instance, Unit target) {
+            LogicEngine.OnMissileSetTarget(__instance, target);
         }
     }
 
