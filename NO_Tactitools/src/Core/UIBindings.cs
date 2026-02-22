@@ -428,6 +428,26 @@ public class UIBindings {
                 }
             }
 
+            public static TargetScreenUI GetTargetScreenUIComponent(bool silent = false) {
+                try {
+                    TargetCam currentTargetCam = SceneSingleton<CombatHUD>.i.aircraft.targetCam;
+                    TargetScreenUI targetScreenUI = _targetScreenUICache.GetValue(currentTargetCam);
+                    return targetScreenUI;
+                }
+                catch (NullReferenceException) {
+                    if (!silent)
+                        Plugin.Log("[UIBindings.Game.GetTargetScreenUIComponent] NullReferenceException: TargetScreenUI not available; returning null.");
+                    return null;
+                }
+            }
+
+            public static TargetCam GetTargetCamComponent() {
+                try {
+                    return SceneSingleton<CombatHUD>.i.aircraft.targetCam;
+                }
+                catch (NullReferenceException) { Plugin.Log("[UIBindings.Game.GetTargetCamComponent] NullReferenceException: TargetCam or CombatHUD/aircraft was null; returning null."); return null; }
+            }
+
             public static Transform GetTacScreenTransform(bool silent = false) {
                 try {
                     TacScreen tacScreenObject = GetTacScreenComponent(silent:silent);
@@ -469,25 +489,6 @@ public class UIBindings {
                 catch (NullReferenceException) { Plugin.Log("[UIBindings.Game.GetTacScreenComponent] NullReferenceException: TacScreen or cockpit reference was null; returning null."); return null; }
             }
 
-            public static TargetCam GetTargetCamComponent() {
-                try {
-                    return SceneSingleton<CombatHUD>.i.aircraft.targetCam;
-                }
-                catch (NullReferenceException) { Plugin.Log("[UIBindings.Game.GetTargetCamComponent] NullReferenceException: TargetCam or CombatHUD/aircraft was null; returning null."); return null; }
-            }
-
-            public static TargetScreenUI GetTargetScreenUIComponent(bool silent = false) {
-                try {
-                    TargetCam currentTargetCam = SceneSingleton<CombatHUD>.i.aircraft.targetCam;
-                    TargetScreenUI targetScreenUI = _targetScreenUICache.GetValue(currentTargetCam);
-                    return targetScreenUI;
-                }
-                catch (NullReferenceException) {
-                    if (!silent)
-                        Plugin.Log("[UIBindings.Game.GetTargetScreenUIComponent] NullReferenceException: TargetScreenUI not available; returning null.");
-                    return null;
-                }
-            }
             public static WeaponStatus GetWeaponStatus() {
                 try {
                     CombatHUD currentCombatHUD = SceneSingleton<CombatHUD>.i;

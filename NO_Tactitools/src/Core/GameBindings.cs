@@ -54,6 +54,13 @@ public class GameBindings {
             }
             catch (NullReferenceException) { Plugin.Log("[GameBindings.GameState.IsGamePaused] NullReferenceException: GameplayUI singleton not available; assuming game is not paused."); return false; }
         }
+
+        public static FactionHQ GetCurrentFactionHQ() {
+            try {
+                return Player.Aircraft.GetAircraft().NetworkHQ;
+            }
+            catch (NullReferenceException) { Plugin.Log("[GameBindings.GameState.GetCurrentFactionHQ] NullReferenceException: FactionHQ  not available; returning null."); return null; }
+        }
     }
 
     public class Player { 

@@ -62,7 +62,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> cameraTweaksEnabled;
         public static ConfigEntry<float> resetCockpitFOVSpeed;
         public static RewiredInputConfig resetCockpitFOV;
-        public static RewiredInputConfig lookAtNearestTarget;
+        public static RewiredInputConfig lookAtNearestAirbase;
         public static ConfigEntry<bool> ILSScreenEnabled;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
@@ -311,7 +311,7 @@ namespace NO_Tactitools.Core {
                         Order = 1
                     }));
             resetCockpitFOV = new RewiredInputConfig(Config, "Camera Tweaks", "Camera Tweaks - Reset Cockpit FOV", "Input you want to assign for Resetting Cockpit FOV", 0);
-            lookAtNearestTarget = new RewiredInputConfig(Config, "Camera Tweaks", "Camera Tweaks - Look At Nearest Target", "Input for pointing the camera at the nearest selected target", 0);
+            lookAtNearestAirbase = new RewiredInputConfig(Config, "Camera Tweaks", "Camera Tweaks - Look At Nearest Airbase", "Input for pointing the camera at the nearest Airbase.", 0);
             // ILS Screen settings
             ILSScreenEnabled = Config.Bind("ILS Screen",
                 "ILS Screen - Enabled",

@@ -156,7 +156,7 @@ public static class BootScreenComponent {
 
             if (go == null) yield break;
             go.SetActive(true);
-            var cg = go.GetComponent<CanvasGroup>() ?? go.AddComponent<CanvasGroup>();
+            CanvasGroup cg = go.GetComponent<CanvasGroup>() ?? go.AddComponent<CanvasGroup>();
             float baseAlpha = Mathf.Clamp01(cg.alpha <= 0f ? 1f : cg.alpha);
             float lowAlpha = 0.25f;
             int pulses = 2;
