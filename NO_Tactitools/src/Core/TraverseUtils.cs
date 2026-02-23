@@ -1,3 +1,5 @@
+#nullable enable
+
 using HarmonyLib;
 
 namespace NO_Tactitools.Core;
@@ -23,8 +25,8 @@ namespace NO_Tactitools.Core;
 /// </example>
 public class TraverseCache<TObject, TValue>(string fieldName) where TObject : class {
     // this post was made by George Gang
-    private TObject _cachedObject;
-    private Traverse _traverse;
+    private TObject? _cachedObject;
+    private Traverse? _traverse;
 
     /// <summary>
     /// Retrieves the value of the field for the specified object instance.
@@ -33,7 +35,7 @@ public class TraverseCache<TObject, TValue>(string fieldName) where TObject : cl
     /// <param name="currentObject">The object instance to retrieve the value from.</param>
     /// <param name="silent">If true, suppresses the log message when the cache is updated.</param>
     /// <returns>The value of the field.</returns>
-    public TValue GetValue(TObject currentObject, bool silent = false) {
+    public TValue? GetValue(TObject currentObject, bool silent = false) {
         if (_traverse == null || _cachedObject != currentObject) {
             _cachedObject = currentObject;
             _traverse = Traverse.Create(currentObject).Field(fieldName);

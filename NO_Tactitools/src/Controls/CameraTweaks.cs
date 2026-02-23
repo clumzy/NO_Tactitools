@@ -38,7 +38,6 @@ class CameraTweaksPlugin {
     private static TraverseCache<CameraCockpitState, float> _panViewCache = new("panView");
     private static TraverseCache<CameraCockpitState, float> _tiltViewCache = new("tiltView");
     private static AirbaseOverlay _airbaseOverlayCached = null;
-    private static TraverseCache<AirbaseOverlay, bool> _landingCache = new("landing");
     private static TraverseCache<AirbaseOverlay, Airbase.Runway.RunwayUsage> _runwayUsageCache = new("runwayUsage");
     private static void HandleLookAtNearest() {
         if (
@@ -59,11 +58,14 @@ class CameraTweaksPlugin {
         Airbase nearest = GameBindings.GameState.GetCurrentFactionHQ().GetNearestAirbase(playerAircraft.transform.position);
         if (nearest != null) {
             Vector3 aimingPosition;
-            if (_airbaseOverlayCached != null
-                && _landingCache.GetValue(_airbaseOverlayCached)) {
-                Airbase.Runway.RunwayUsage runwayUsage = _runwayUsageCache.GetValue(_airbaseOverlayCached);
-                aimingPosition = runwayUsage.Reverse ?
-                    runwayUsage.Runway.End.position : runwayUsage.Runway.Start != null ? runwayUsage.Runway.Start.position : runwayUsage.Runway.End.position;
+            Airbase.Runway.RunwayUsage? runwayUsage = _runwayUsageCache.GetValue(_airbaseOverlayCached);
+            if (runwayUsage != null) {
+                Airbase.Runway.RunwayUsage runwayNonNullable = _runwayUsageCache.GetValue(_airbaseOverlayCached);
+                aimingPosition = runwayNonNullable.Reverse ?
+                    runwayNonNullable.Runway.End.position 
+                    : runwayNonNullable.Runway.Start != null ? 
+                        runwayNonNullable.Runway.Start.position 
+                        : runwayNonNullable.Runway.End.position;
             }
             else {
                 aimingPosition = nearest.center.position;
