@@ -390,21 +390,21 @@ public class UIBindings {
                 try {
                     return SceneSingleton<CombatHUD>.i.transform;
                 }
-                catch (NullReferenceException) { Plugin.Log("[UIBindings.Game.GetCombatHUD] NullReferenceException: CombatHUD singleton not available; returning null."); return null; }
+                catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
             }
 
             public static CombatHUD GetCombatHUDComponent() {
                 try {
                     return SceneSingleton<CombatHUD>.i;
                 }
-                catch (NullReferenceException) { Plugin.Log("[UIBindings.Game.GetCombatHUDComponent] NullReferenceException: CombatHUD singleton not available; returning null."); return null; }
+                catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
             }
 
             public static Transform GetFlightHUDTransform() { // HUD
                 try {
                     return SceneSingleton<FlightHud>.i.transform;
                 }
-                catch (NullReferenceException) { Plugin.Log("[UIBindings.Game.GetFlightHUD] NullReferenceException: FlightHud singleton not available; returning null."); return null; }
+                catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
             }
 
             public static Transform GetFlightHUDLockedToHUDTransform() {
@@ -412,7 +412,7 @@ public class UIBindings {
                     Transform hudLockedTransform = new TraverseCache<FlightHud, Transform>("HUDCenter").GetValue(SceneSingleton<FlightHud>.i);
                     return hudLockedTransform;
                 }
-                catch (NullReferenceException) { Plugin.Log("[UIBindings.Game.GetFlightHUDLockedToHUDTransform] NullReferenceException: FlightHud singleton or hudLockedToHUD transform not available; returning null."); return null; }
+                catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
             }
 
             public static Transform GetTargetScreenTransform(bool silent = false) {
@@ -421,9 +421,9 @@ public class UIBindings {
                     TargetScreenUI targetScreenUIObject = _targetScreenUICache.GetValue(currentTargetCam);
                     return targetScreenUIObject.transform;
                 }
-                catch (NullReferenceException) {
+                catch (NullReferenceException e) {
                     if (!silent)
-                        Plugin.Log("[UIBindings.Game.GetTargetScreen] NullReferenceException: targetCam or TargetScreenUI not available; returning null.");
+                        Plugin.Log(e.ToString());
                     return null;
                 }
             }
@@ -434,9 +434,9 @@ public class UIBindings {
                     TargetScreenUI targetScreenUI = _targetScreenUICache.GetValue(currentTargetCam);
                     return targetScreenUI;
                 }
-                catch (NullReferenceException) {
+                catch (NullReferenceException e) {
                     if (!silent)
-                        Plugin.Log("[UIBindings.Game.GetTargetScreenUIComponent] NullReferenceException: TargetScreenUI not available; returning null.");
+                        Plugin.Log(e.ToString());
                     return null;
                 }
             }
@@ -445,7 +445,7 @@ public class UIBindings {
                 try {
                     return SceneSingleton<CombatHUD>.i.aircraft.targetCam;
                 }
-                catch (NullReferenceException) { Plugin.Log("[UIBindings.Game.GetTargetCamComponent] NullReferenceException: TargetCam or CombatHUD/aircraft was null; returning null."); return null; }
+                catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
             }
 
             public static Transform GetTacScreenTransform(bool silent = false) {
@@ -460,9 +460,9 @@ public class UIBindings {
                         return null;
                     }
                 }
-                catch (NullReferenceException) { 
+                catch (NullReferenceException e) { 
                     if (!silent)
-                        Plugin.Log("[UIBindings.Game.GetTacScreen] NullReferenceException: TacScreen or cockpit reference was null; returning null."); 
+                        Plugin.Log(e.ToString()); 
                     return null; }
             }
 
@@ -486,7 +486,7 @@ public class UIBindings {
                         Plugin.Log("[BD] No Cockpit with TacScreen found !");
                     return null;
                 }
-                catch (NullReferenceException) { Plugin.Log("[UIBindings.Game.GetTacScreenComponent] NullReferenceException: TacScreen or cockpit reference was null; returning null."); return null; }
+                catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
             }
 
             public static WeaponStatus GetWeaponStatus() {
@@ -496,7 +496,7 @@ public class UIBindings {
                     WeaponStatus weaponStatus = topRightPanel.GetComponentInChildren<WeaponStatus>();
                     return weaponStatus;
                 }
-                catch (NullReferenceException) { Plugin.Log("[UIBindings.Game.GetWeaponStatus] NullReferenceException: CombatHUD or weaponIndicator singleton not available; returning null."); return null; }
+                catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
                 catch (IndexOutOfRangeException) { return null; } // this means the game is paused and there is no weapon status displayed
             }
 
@@ -504,7 +504,7 @@ public class UIBindings {
                 try {
                     return SceneSingleton<CameraStateManager>.i;
                 }
-                catch (NullReferenceException) { Plugin.Log("[UIBindings.Game.GetCameraStateManager] NullReferenceException: CameraStateManager singleton not available; returning null."); return null; }
+                catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
             }
 
             public static void HideWeaponPanel() {
