@@ -52,9 +52,9 @@ class InterceptionVectorTask {
     public static Color mainColor = Color.green;
 
     static void Postfix() {
-        if (UIBindings.Game.GetTacScreenTransform(silent:false) == null
+        if (UIBindings.Game.GetTacScreenTransform(true) == null
             || GameBindings.Player.Aircraft.GetAircraft() == null
-            || UIBindings.Game.GetTargetScreenTransform(silent: true) == null) {
+            || UIBindings.Game.GetTargetScreenTransform(true) == null) {
             return;
         } // Do not run if Tac Screen or aircraft is null OR TARGET SCREEN is null
         switch (currentState) {
