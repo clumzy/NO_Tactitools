@@ -56,10 +56,12 @@ class CameraTweaksPlugin {
         }
         Aircraft playerAircraft = GameBindings.Player.Aircraft.GetAircraft();
         Airbase nearest = GameBindings.GameState.GetCurrentFactionHQ().GetNearestAirbase(playerAircraft.transform.position);
-        if (nearest != null) {
+        if (nearest != null 
+            && _airbaseOverlayCached != null) {
             Vector3 aimingPosition;
             Airbase.Runway.RunwayUsage? runwayUsage = _runwayUsageCache.GetValue(_airbaseOverlayCached);
-            if (runwayUsage != null) {
+            if (runwayUsage != null
+                && runwayUsage.Value.Runway != null) {
                 Airbase.Runway.RunwayUsage runwayNonNullable = _runwayUsageCache.GetValue(_airbaseOverlayCached);
                 aimingPosition = runwayNonNullable.Reverse ?
                     runwayNonNullable.Runway.End.position 

@@ -72,6 +72,7 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> Add functionalty to see if a targeted unit is being targeted by a friendly missile
 -> fix reload percentage
 -> Add compat patch to hide horizon line with 3rd person mod
+-> look at nearest airbase button
 IN PROGRESS :
 
 TODO :
