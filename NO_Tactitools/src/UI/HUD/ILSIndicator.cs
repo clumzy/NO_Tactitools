@@ -185,7 +185,6 @@ class ILSIndicatorComponent {
         public void SetActive(bool active) => containerObject?.SetActive(active);
 
         public void SetBallPosition(float error) {
-            Plugin.Log("Error"+error.ToString());
             float yPos = Mathf.Clamp(error * 45f, -45f, 45f);
             ball.SetCenter(new Vector2(0, yPos));
         }
