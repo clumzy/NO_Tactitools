@@ -49,6 +49,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> bootScreenEnabled;
         public static ConfigEntry<bool> artificialHorizonEnabled;
         public static ConfigEntry<float> artificialHorizonTransparency;
+        public static ConfigEntry<bool> rotorBankIndicatorEnabled;
         public static ConfigEntry<bool> autopilotMenuEnabled;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
         public static ConfigEntry<bool> loadoutPreviewOnlyShowOnBoot;
@@ -281,6 +282,16 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));
+            // Rotor Bank Indicator settings
+            rotorBankIndicatorEnabled = Config.Bind("Rotor Bank Indicator",
+                "Rotor Bank Indicator - Enabled",
+                true,
+                new ConfigDescription(
+                    "Enable or disable the Rotor Bank Indicator feature.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -1
+                    }));
             // Autopilot settings
             autopilotMenuEnabled = Config.Bind("Autopilot",
                 "Autopilot - Enabled",
@@ -479,6 +490,11 @@ namespace NO_Tactitools.Core {
             if (artificialHorizonEnabled.Value) {
                 Log($"Artificial Horizon is enabled, patching...");
                 harmony.PatchAll(typeof(ArtificialHorizonPlugin));
+            }
+            // Patch Rotor Bank Indicator
+            if (rotorBankIndicatorEnabled.Value) {
+                Log($"Rotor Bank Indicator is enabled, patching...");
+                harmony.PatchAll(typeof(RotorBankIndicatorPlugin));
             }
             // HUD DISPLAY PATCHES
             // Patch ILS Screen

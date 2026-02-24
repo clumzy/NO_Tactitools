@@ -73,11 +73,11 @@ CHECKLIST WHEN ADDING A FEATURE :
 -> fix reload percentage
 -> Add compat patch to hide horizon line with 3rd person mod
 -> look at nearest airbase button
+-> Add controls reassignement ingame
 IN PROGRESS :
 
 TODO :
 -> Add helicopter drift indicator
--> Add main menu patch reset, no need to restart the game
 -> Rename Medusa in load screen
 -> make control combos
 -> Implement container for Weapon Display
