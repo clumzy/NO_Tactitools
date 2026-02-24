@@ -22,18 +22,15 @@ public class InputCatcher {
         System.Action onRelease = null,
         System.Action onHold = null,
         System.Action onLongPress = null
-    ) {
-        RegisterNewInput(config.ControllerName.Value, config.ButtonIndex.Value, longPressThreshold, onRelease, onHold, onLongPress);
-    }
-
-    public static void RegisterNewInput(
-        string controllerName,
-        int buttonIndex,
-        float longPressThreshold = 0.2f,
-        System.Action onRelease = null,
-        System.Action onHold = null,
-        System.Action onLongPress = null
         ) {
+        // Store actions in config for later use (re-registration after config change)
+        config.LongPressThreshold = longPressThreshold;
+        config.OnShortPress = onRelease;
+        config.OnHold = onHold;
+        config.OnLongPress = onLongPress;
+
+        string controllerName = config.ControllerName.Value.Trim();
+        int buttonIndex = config.ButtonIndex.Value;
         if (controllerName == "") {
             Plugin.Log("[IC] No controller name provided for button registration. Skipping.");
             return;
@@ -46,7 +43,21 @@ public class InputCatcher {
         bool found = false;
         foreach (Controller controller in controllerInputs.Keys) {
             if (controller.name.Trim() == controllerName) {
-                RegisterInputNow(controller, buttonIndex, longPressThreshold, onRelease, onHold, onLongPress);
+                // Avoid double registration
+                if (controllerInputs[controller].Any(input => input.config == config)) {
+                    Plugin.Log("[IC] Input already registered for " + config.Input.Definition.Key + ". Modifying instead.");
+                    ModifyInputAfterNewConfig(config);
+                    return;
+                }
+
+                RegisterInputNow(
+                    config,
+                    controller,
+                    buttonIndex,
+                    longPressThreshold,
+                    onRelease,
+                    onHold,
+                    onLongPress);
                 found = true;
                 break;
             }
@@ -55,30 +66,42 @@ public class InputCatcher {
         if (!found) {
             if (!pendingControllerInputs.ContainsKey(controllerName))
                 pendingControllerInputs[controllerName] = [];
-            pendingControllerInputs[controllerName].Add(new PendingInput(buttonIndex, longPressThreshold, onRelease, onHold, onLongPress));
-            Plugin.Log("[IC] Controller not connected, input " + buttonIndex + " added to pending list for " + controllerName);
+            
+            // Avoid double pending
+            if (!pendingControllerInputs[controllerName].Any(p => p.config == config)) {
+                pendingControllerInputs[controllerName].Add(new PendingInput(config, buttonIndex, longPressThreshold, onRelease, onHold, onLongPress));
+                Plugin.Log("[IC] Controller not connected, input " + buttonIndex + " added to pending list for " + controllerName);
+            }
         }
     }
 
     public static IEnumerator RegisterPendingInputsRoutine(Controller controller, List<PendingInput> pendingInputs) {
         yield return null;
         foreach (PendingInput pending in pendingInputs) {
-            RegisterInputNow(controller, pending.inputIndex, pending.longPressThreshold, pending.onShortPress, pending.onHold, pending.onLongPress);
+            RegisterInputNow(
+                pending.config,
+                controller,
+                pending.inputIndex,
+                pending.longPressThreshold,
+                pending.onShortPress,
+                pending.onHold,
+                pending.onLongPress);
         }
     }
 
     public static void RegisterInputNow(
+        RewiredInputConfig config,
         Controller controller,
         int inputIndex,
         float longPressThreshold,
         System.Action onRelease,
         System.Action onHold,
-        System.Action onLongPress) 
-        {
+        System.Action onLongPress) {
         string controllerName = controller.name.Trim();
         Plugin.Log("[IC] Registering button " + inputIndex + " on controller " + controllerName);
 
         ControllerInput newInput = new(
+                    config,
                     inputIndex,
                     longPressThreshold,
                     onRelease,
@@ -90,9 +113,80 @@ public class InputCatcher {
         Plugin.Log("[IC] Registered input " + inputIndex + " on controller " + controllerName + ".");
     }
 
+    public static void ModifyInputAfterNewConfig(
+        RewiredInputConfig config) {
+        string controllerName = config.ControllerName.Value.Trim();
+        int buttonIndex = config.ButtonIndex.Value;
+
+        // existing controllers
+        foreach (Controller controller in controllerInputs.Keys.ToList()) {
+            ControllerInput existingInput = controllerInputs[controller].FirstOrDefault(input => input.config == config);
+            if (existingInput != null) {
+                if (controller.name.Trim() != controllerName) {
+                    // Controller has changed, move the input to the right controller
+                    controllerInputs[controller].Remove(existingInput);
+                    
+                    bool targetFound = false;
+                    foreach (Controller targetController in controllerInputs.Keys) {
+                        if (targetController.name.Trim() == controllerName) {
+                            existingInput.buttonNumber = buttonIndex;
+                            controllerInputs[targetController].Add(existingInput);
+                            Plugin.Log("[IC] Moved active input for config " + config.Input.Definition.Key + " to new controller " + controllerName);
+                            targetFound = true;
+                            break;
+                        }
+                    }
+                    if (!targetFound) {
+                        // move to pending
+                        if (!pendingControllerInputs.ContainsKey(controllerName))
+                            pendingControllerInputs[controllerName] = [];
+                        
+                        pendingControllerInputs[controllerName].Add(new PendingInput(config, buttonIndex, existingInput.longPressThreshold, existingInput.OnShortPress, existingInput.OnHold, existingInput.OnLongPress));
+                        Plugin.Log("[IC] Moved active input for config " + config.Input.Definition.Key + " to pending for " + controllerName);
+                    }
+                }
+                else if (existingInput.buttonNumber != buttonIndex) {
+                    // Button index has changed
+                    existingInput.buttonNumber = buttonIndex;
+                    Plugin.Log("[IC] Updated active button index for config " + config.Input.Definition.Key + " to " + buttonIndex.ToString());
+                }
+                return;
+            }
+        }
+
+        // pending controllers
+        foreach (string pendingController in pendingControllerInputs.Keys.ToList()) {
+            PendingInput existingPending = pendingControllerInputs[pendingController].FirstOrDefault(p => p.config == config);
+            if (existingPending != null) {
+                pendingControllerInputs[pendingController].Remove(existingPending);
+                // use RegisterNewInput to handle moving to another pending controller or to an active controller if the name now matches
+                RegisterNewInput(config, config.LongPressThreshold, config.OnShortPress, config.OnHold, config.OnLongPress);
+                return;
+            }
+        }
+    }
+
+    public static void UnregisterInput(RewiredInputConfig config) {
+        foreach (Controller controller in controllerInputs.Keys) {
+            ControllerInput existingInput = controllerInputs[controller].FirstOrDefault(input => input.config == config);
+            if (existingInput != null) {
+                controllerInputs[controller].Remove(existingInput);
+                Plugin.Log("[IC] Unregistered input for config " + config.Input.Definition.Key);
+            }
+        }
+
+        // Also remove from pending inputs
+        foreach (string controllerName in pendingControllerInputs.Keys.ToList()) {
+            int removed = pendingControllerInputs[controllerName].RemoveAll(p => p.config == config);
+            if (removed > 0) {
+                Plugin.Log("[IC] Removed " + removed + " pending input(s) for config " + config.Input.Definition.Key);
+            }
+        }
+    }
 }
 
 public class ControllerInput {
+    public RewiredInputConfig config; // Only used for config entries, not for actual input catching
     public int buttonNumber;
     public System.Action OnShortPress;
     public System.Action OnHold;
@@ -104,13 +198,15 @@ public class ControllerInput {
     public bool longPressHandled;
     public bool holdLogHandled;
 
-    public ControllerInput( // CONSTRUCTOR FOR BUTTONS AND HATS
+    public ControllerInput(
+        RewiredInputConfig config,
         int buttonNumber,
         float longPressThreshold = 0.2f, // 200ms,
         System.Action onShortPress = null,
         System.Action onHold = null,
         System.Action onLongPress = null
         ) {
+        this.config = config;
         this.buttonNumber = buttonNumber;
         this.longPressThreshold = longPressThreshold;
         if (onShortPress == null && onLongPress == null && onHold == null) {
@@ -125,15 +221,14 @@ public class ControllerInput {
     }
 }
 
-public class PendingInput(int inputIndex, float longPressThreshold, System.Action onShortPress, System.Action onHold, System.Action onLongPress) {
-    // Different because we don't have button number yet
+public class PendingInput(RewiredInputConfig config, int inputIndex, float longPressThreshold, System.Action onShortPress, System.Action onHold, System.Action onLongPress) {
+    public RewiredInputConfig config = config;
     public int inputIndex = inputIndex;
     public float longPressThreshold = longPressThreshold;
     public System.Action onShortPress = onShortPress;
     public System.Action onHold = onHold;
     public System.Action onLongPress = onLongPress;
 }
-
 
 [HarmonyPatch(typeof(Rewired.Controller), "pBrAJYWOGkILyqjLrMpmCdajATI")]
 class ControllerInputInterceptionPatch {

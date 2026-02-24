@@ -32,6 +32,13 @@ public class RewiredInputConfig {
     public ConfigEntry<string> ControllerName { get; private set; }
     public ConfigEntry<int> ButtonIndex { get; private set; }
 
+    // Actions stored for re-registration
+    public Action OnShortPress { get; set; }
+    public Action OnHold { get; set; }
+    public Action OnLongPress { get; set; }
+    public float LongPressThreshold { get; set; }
+    private bool _wasBound = false;
+
     public RewiredInputConfig(ConfigFile config, string category, string featureName, string description, int order) {
         ControllerName = config.Bind(category, $"{featureName} - Controller Name", "", new ConfigDescription("Name of the peripheral", null, new ConfigurationManagerAttributes { Browsable = false }));
         ButtonIndex = config.Bind(category, $"{featureName} - Button Index", -1, new ConfigDescription("Index of the button", null, new ConfigurationManagerAttributes { Browsable = false }));
@@ -44,6 +51,28 @@ public class RewiredInputConfig {
 
         if (!AllConfigs.Contains(this))
             AllConfigs.Add(this);
+
+        // Track initial state
+        _wasBound = !string.IsNullOrEmpty(ControllerName.Value) && ButtonIndex.Value >= 0;
+
+        // Listen for changes
+        ControllerName.SettingChanged += (s, e) => OnSettingChanged();
+        ButtonIndex.SettingChanged += (s, e) => OnSettingChanged();
+    }
+
+    private void OnSettingChanged() {
+        bool isBound = !string.IsNullOrEmpty(ControllerName.Value) && ButtonIndex.Value >= 0;
+
+        if (isBound && !_wasBound) {
+            InputCatcher.RegisterNewInput(this, LongPressThreshold, OnShortPress, OnHold, OnLongPress);
+        }
+        else if (isBound && _wasBound) {
+            InputCatcher.ModifyInputAfterNewConfig(this);
+        }
+        else if (!isBound && _wasBound) {
+            InputCatcher.UnregisterInput(this);
+        }
+        _wasBound = isBound;
     }
 }
 
