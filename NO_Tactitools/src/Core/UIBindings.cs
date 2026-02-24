@@ -407,7 +407,7 @@ public class UIBindings {
                 catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
             }
 
-            public static Transform GetFlightHUDLockedToHUDTransform() {
+            public static Transform GetFlightHUDCenterTransform() {
                 try {
                     Transform hudLockedTransform = new TraverseCache<FlightHud, Transform>("HUDCenter").GetValue(SceneSingleton<FlightHud>.i);
                     return hudLockedTransform;

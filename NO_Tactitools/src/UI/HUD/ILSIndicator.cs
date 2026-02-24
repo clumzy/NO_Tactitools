@@ -83,7 +83,7 @@ class ILSIndicatorComponent {
     static public class DisplayEngine {
         public static void Init() {
             if (InternalState.ILSWidget == null) {
-                InternalState.ILSWidget = new ILSIndicator(UIBindings.Game.GetFlightHUDLockedToHUDTransform());
+                InternalState.ILSWidget = new ILSIndicator(UIBindings.Game.GetFlightHUDCenterTransform());
                 Plugin.Log("[ILS] FLOLS Widget initialized and added to MFD.");
             }
             InternalState.ILSWidget.SetActive(false);
