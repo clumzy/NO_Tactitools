@@ -19,7 +19,8 @@ public class UIBindings {
                 protected UIElement(
                     string name,
                     Transform UIParent = null,
-                    string mfdKey = null) {
+                    string mfdKey = null,
+                    Material material = null) {
                     this.mfdKey = mfdKey;
                     if (UIParent != null) {
                         foreach (Transform child in UIParent) {
@@ -27,6 +28,7 @@ public class UIBindings {
                                 gameObject = child.gameObject;
                                 rectTransform = gameObject.GetComponent<RectTransform>();
                                 imageComponent = gameObject.GetComponent<Image>();
+                                if (material != null) imageComponent.material = material;
                                 return;
                             }
                         }
@@ -36,6 +38,7 @@ public class UIBindings {
                     gameObject.transform.SetParent(UIParent, false);
                     rectTransform = gameObject.AddComponent<RectTransform>();
                     imageComponent = gameObject.AddComponent<Image>();
+                    if (material != null) imageComponent.material = material;
                     return;
                 }
 
@@ -72,7 +75,8 @@ public class UIBindings {
                     FontStyle fontStyle = FontStyle.Normal,
                     Color? color = null,
                     int fontSize = 24,
-                    float backgroundOpacity = 0.8f) : base(name, UIParent) {
+                    float backgroundOpacity = 0.8f,
+                    Material material = null) : base(name, UIParent) {
                     this.backgroundOpacity = backgroundOpacity;
                     rectTransform.anchoredPosition = position;
                     rectTransform.sizeDelta = new Vector2(200, 40);
@@ -97,6 +101,9 @@ public class UIBindings {
                     rectTransform.sizeDelta = new Vector2(textComp.preferredWidth, textComp.fontSize);
                     Transform textTransform = gameObject.transform.Find("LabelText");
                     textComponent = textTransform.GetComponent<Text>();
+                    if (material != null) {
+                        textComponent.material = material;
+                    }
                     return;
                 }
 
@@ -142,7 +149,8 @@ public class UIBindings {
                     Vector2 end,
                     Transform UIParent = null,
                     Color? color = null,
-                    float thickness = 2f) : base(name, UIParent) {
+                    float thickness = 2f,
+                    Material material = null) : base(name, UIParent, material: material) {
                     this.thickness = thickness;
                     imageComponent.color = color ?? Color.white;
                     this.baseOpacity = imageComponent.color.a;
@@ -192,7 +200,8 @@ public class UIBindings {
                     Vector2 cornerA,
                     Vector2 cornerB,
                     Transform UIParent = null,
-                    Color? fillColor = null) : base(name, UIParent) {
+                    Color? fillColor = null,
+                    Material material = null) : base(name, UIParent, material: material) {
 
                     this.cornerA = cornerA;
                     this.cornerB = cornerB;
@@ -256,15 +265,16 @@ public class UIBindings {
                     Color borderColor,
                     float borderThickness,
                     Transform UIParent = null,
-                    Color? fillColor = null) : base(name, cornerA, cornerB, UIParent, fillColor) {
+                    Color? fillColor = null,
+                    Material material = null) : base(name, cornerA, cornerB, UIParent, fillColor, material: material) {
 
                     this.borderColor = borderColor;
                     this.borderThickness = borderThickness;
 
-                    topBorder = new UIRectangle(name + "_Top", Vector2.zero, Vector2.zero, gameObject.transform, borderColor);
-                    bottomBorder = new UIRectangle(name + "_Bottom", Vector2.zero, Vector2.zero, gameObject.transform, borderColor);
-                    leftBorder = new UIRectangle(name + "_Left", Vector2.zero, Vector2.zero, gameObject.transform, borderColor);
-                    rightBorder = new UIRectangle(name + "_Right", Vector2.zero, Vector2.zero, gameObject.transform, borderColor);
+                    topBorder = new UIRectangle(name + "_Top", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, material: material);
+                    bottomBorder = new UIRectangle(name + "_Bottom", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, material: material);
+                    leftBorder = new UIRectangle(name + "_Left", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, material: material);
+                    rightBorder = new UIRectangle(name + "_Right", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, material: material);
 
                     UpdateBorders();
                 }
@@ -331,10 +341,11 @@ public class UIBindings {
                     Color? fillColor = null,
                     FontStyle fontStyle = FontStyle.Normal,
                     Color? textColor = null,
-                    int fontSize = 24)
-                    : base(name, cornerA, cornerB, borderColor, borderThickness, UIParent, fillColor) {
+                    int fontSize = 24,
+                    Material material = null)
+                    : base(name, cornerA, cornerB, borderColor, borderThickness, UIParent, fillColor, material: material) {
 
-                    label = new UILabel(name + "_Label", Vector2.zero, gameObject.transform, fontStyle, textColor, fontSize, 0);
+                    label = new UILabel(name + "_Label", Vector2.zero, gameObject.transform, fontStyle, textColor, fontSize, 0, material: material);
                     label.SetPosition(Vector2.zero);
                 }
 
@@ -349,27 +360,6 @@ public class UIBindings {
                 public UILabel GetLabel() => label;
             }
 
-            public class UIGridLayout : UIElement {
-                private UIElement[,] cells;
-
-                public UIGridLayout(
-                    string name,
-                    Vector2 position,
-                    int rows,
-                    int columns,
-                    float cellWidth,
-                    float cellHeight,
-                    float spacingX,
-                    float spacingY,
-                    float side_padding,
-                    Transform UIParent) : base(name, UIParent) {
-                    cells = new UIElement[rows, columns];
-                    rectTransform.anchoredPosition = position;
-                    rectTransform.sizeDelta = new Vector2(
-                        columns * cellWidth + (columns - 1) * spacingX + 2 * side_padding,
-                        rows * cellHeight + (rows - 1) * spacingY + 2 * side_padding);
-                }
-            }
             public static Font GetDefaultFont() {
                 Text weaponText = UIBindings.Game.GetFlightHUDTransform().GetComponentInChildren<Text>();
                 return weaponText.font;
@@ -411,6 +401,15 @@ public class UIBindings {
                 try {
                     Transform hudLockedTransform = new TraverseCache<FlightHud, Transform>("HUDCenter").GetValue(SceneSingleton<FlightHud>.i);
                     return hudLockedTransform;
+                }
+                catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
+            }
+
+            // using find functions, get the first material from a text
+            public static Material GetFlightHUDFontMaterial() {
+                try {
+                    Text textComponent = SceneSingleton<FlightHud>.i.transform.GetComponentInChildren<Text>();
+                    return textComponent.material;
                 }
                 catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
             }

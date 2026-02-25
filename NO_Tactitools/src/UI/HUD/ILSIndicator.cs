@@ -26,6 +26,7 @@ class ILSIndicatorComponent {
             InternalState.ILSWidget = null;
             InternalState.isLanding = false;
             InternalState.currentGlideslopeError = 0f;
+            InternalState.maxGlideslopeAngle = Plugin.ILSIndicatorMaxAngle.Value;
             if (InternalState.airbaseOverlayCached == null) {
                 InternalState.airbaseOverlayCached = GameObject.FindFirstObjectByType<AirbaseOverlay>();
                 if (InternalState.airbaseOverlayCached != null) {
@@ -74,6 +75,7 @@ class ILSIndicatorComponent {
         public static bool isLanding = false;
         public static Airbase.Runway.RunwayUsage runwayUsage;
         public static float currentGlideslopeError = 0f;
+        public static float maxGlideslopeAngle = 1f;
         public static AirbaseOverlay airbaseOverlayCached = null;
         public static TraverseCache<AirbaseOverlay, Airbase.Runway.RunwayUsage> runwayUsageCache = new("runwayUsage");
         public static TraverseCache<AirbaseOverlay, bool> landingCache = new("landing");
@@ -131,10 +133,11 @@ class ILSIndicatorComponent {
                 name: "ILS_Background",
                 cornerA: new Vector2(-10, -50),
                 cornerB: new Vector2(10, 50),
-                borderColor: new Color(1, 1, 1, 0.7f),
+                borderColor: new Color(1, 1, 1, 0.8f),
                 borderThickness: 0.75f,
                 UIParent: containerTransform,
-                fillColor: Color.clear
+                fillColor: Color.clear,
+                material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
 
             ball = new UIBindings.Draw.UIRectangle(
@@ -142,50 +145,55 @@ class ILSIndicatorComponent {
                 new Vector2(-10, -5),
                 new Vector2(10, 5),
                 containerTransform,
-                Color.yellow
+                new Color(1f, 1f, 0f, 0.8f),
+                material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
 
             sideBars[0] = new UIBindings.Draw.UIAdvancedRectangle(
                 "SideBar_L1",
                 new Vector2(-50, -5),
                 new Vector2(-35, 5),
-                borderColor: new Color(1, 1, 1, 0.7f),
+                borderColor: new Color(1, 1, 1, 0.8f),
                 borderThickness: 0.75f,
                 UIParent: containerTransform,
-                fillColor: Color.green);
+                fillColor: new Color(0f, 1f, 0f, 0.8f),
+                material: UIBindings.Game.GetFlightHUDFontMaterial());
 
             sideBars[1] = new UIBindings.Draw.UIAdvancedRectangle(
                 "SideBar_L2",
                 new Vector2(-30, -5),
                 new Vector2(-15, 5),
-                borderColor: new Color(1, 1, 1, 0.7f),
+                borderColor: new Color(1, 1, 1, 0.8f),
                 borderThickness: 0.75f,
                 UIParent: containerTransform,
-                fillColor: Color.green);
+                fillColor: new Color(0f, 1f, 0f, 0.8f),
+                material: UIBindings.Game.GetFlightHUDFontMaterial());
 
             sideBars[2] = new UIBindings.Draw.UIAdvancedRectangle(
                 "SideBar_R1",
                 new Vector2(35, -5),
                 new Vector2(50, 5),
-                borderColor: new Color(1, 1, 1, 0.7f),
+                borderColor: new Color(1, 1, 1, 0.8f),
                 borderThickness: 0.75f,
                 UIParent: containerTransform,
-                fillColor: Color.green);
+                fillColor: new Color(0f, 1f, 0f, 0.8f),
+                material: UIBindings.Game.GetFlightHUDFontMaterial());
 
             sideBars[3] = new UIBindings.Draw.UIAdvancedRectangle(
                 "SideBar_R2",
                 new Vector2(15, -5),
                 new Vector2(30, 5),
-                borderColor: new Color(1, 1, 1, 0.7f),
+                borderColor: new Color(1, 1, 1, 0.8f),
                 borderThickness: 0.75f,
                 UIParent: containerTransform,
-                fillColor: Color.green);
+                fillColor: new Color(0f, 1f, 0f, 0.8f),
+                material: UIBindings.Game.GetFlightHUDFontMaterial());
         }
 
         public void SetActive(bool active) => containerObject?.SetActive(active);
 
         public void SetBallPosition(float error) {
-            float yPos = Mathf.Clamp(error * 45f, -45f, 45f);
+            float yPos = Mathf.Clamp(error * (45f / InternalState.maxGlideslopeAngle), -45f, 45f);
             ball.SetCenter(new Vector2(0, yPos));
         }
 

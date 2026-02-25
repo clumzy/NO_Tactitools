@@ -3,29 +3,30 @@ using UnityEngine.UI;
 using NO_Tactitools.Core;
 using UnityEngine;
 
-namespace NO_Tactitools.UI.HMD;
+namespace NO_Tactitools.UI.HUD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
-class RotorBankIndicatorPlugin {
+class BankIndicatorPlugin {
     private static bool initialized = false;
     static void Postfix() {
         if (!initialized) {
-            Plugin.Log($"[RBI] Rotor Bank Indicator plugin starting !");
-            Plugin.harmony.PatchAll(typeof(RotorBankIndicatorComponent.OnPlatformStart));
-            Plugin.harmony.PatchAll(typeof(RotorBankIndicatorComponent.OnPlatformUpdate));
+            Plugin.Log($"[BI] Rotor Bank Indicator plugin starting !");
+            Plugin.harmony.PatchAll(typeof(BankIndicatorComponent.OnPlatformStart));
+            Plugin.harmony.PatchAll(typeof(BankIndicatorComponent.OnPlatformUpdate));
             initialized = true;
-            Plugin.Log("[RBI] Rotor Bank Indicator plugin successfully started !");
+            Plugin.Log("[BI] Rotor Bank Indicator plugin successfully started !");
         }
     }
 }
 
-public class RotorBankIndicatorComponent {
+public class BankIndicatorComponent {
     // LOGIC ENGINE, INTERNAL STATE, DISPLAY ENGINE
     static class LogicEngine {
         static public void Init() {
             InternalState.arc = null;
             InternalState.needle = null;
             InternalState.currentBankAngle = 0f;
+            InternalState.maxBankAngle = Plugin.bankIndicatorMaxBank.Value;
         }
 
         static public void Update() {
@@ -42,7 +43,9 @@ public class RotorBankIndicatorComponent {
     public static class InternalState {
         public static Image arc;
         public static Image needle;
+        public static UIBindings.Draw.UILabel bankLabel;
         public static float currentBankAngle = 0f;
+        public static float maxBankAngle = 15f;
     }
 
     static class DisplayEngine {
@@ -61,25 +64,41 @@ public class RotorBankIndicatorComponent {
             InternalState.needle.name = "i_RBI_needle";
             // make it 2/3 the size of the compass needle and move it to the same position as the arc
             InternalState.needle.rectTransform.localScale = new Vector3(0.66f, 0.66f, 0.66f);
+            InternalState.bankLabel = new UIBindings.Draw.UILabel(
+                name: "i_RBI_bankLabel",
+                position: new Vector2(0, 223),
+                UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
+                color: new Color(0f, 1f, 0f, 0.8f),
+                fontSize: 34,
+                backgroundOpacity:0f,
+                material: UIBindings.Game.GetFlightHUDFontMaterial()
+            );
+            // so that it looks like the bearing label
+            InternalState.bankLabel.GetRectTransform().localScale = new Vector3(0.5f, 0.5f, 0.5f);
         }
 
         static public void Update() {
             if (GameBindings.GameState.IsGamePaused()
                 || GameBindings.Player.Aircraft.GetAircraft() == null)
                 return;
-            float clampedBankAngle = Mathf.Clamp(InternalState.currentBankAngle, -15f, 15f);
+            float clampedBankAngle = Mathf.Clamp(InternalState.currentBankAngle, -InternalState.maxBankAngle, InternalState.maxBankAngle);
 
             // needle position using trig to stay on arc
             // calculated radius = 724, center Y = -534 (relative to flight HUD center)
             // at 15 deg bank, needle is at -76 X and 186 Y (from 190 Y top)
-            float yCenter = -212f;
-            float radius = 406f;
+            float yCenter = -150f;
+            float radius = 350f;
             // indicator at max clamped angle is at 8.8 degrees on the arc, so we can use that to calculate the angle on the arc for any given bank angle
-            float arcAngle = (-clampedBankAngle / 15f) * 10.9f;
+            float arcAngle = (-clampedBankAngle / InternalState.maxBankAngle) * 12.8f;
             float x = radius * Mathf.Sin(arcAngle * Mathf.Deg2Rad);
             float y = yCenter + radius * Mathf.Cos(arcAngle * Mathf.Deg2Rad);
             InternalState.needle.rectTransform.anchoredPosition = new Vector2(x, y);
-            InternalState.needle.rectTransform.rotation = Quaternion.Euler(0, 0, clampedBankAngle/15f*14f);
+            InternalState.needle.rectTransform.rotation = Quaternion.Euler(
+                0, 
+                0, 
+                -arcAngle + UIBindings.Game.GetFlightHUDCenterTransform().rotation.eulerAngles.z);
+                // set text with one decimal place and a degree symbol
+            InternalState.bankLabel.SetText($"{(-InternalState.currentBankAngle).ToString("F1")}°");
         }
     }
 

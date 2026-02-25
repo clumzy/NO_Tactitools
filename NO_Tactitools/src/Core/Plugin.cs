@@ -49,7 +49,8 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> bootScreenEnabled;
         public static ConfigEntry<bool> artificialHorizonEnabled;
         public static ConfigEntry<float> artificialHorizonTransparency;
-        public static ConfigEntry<bool> rotorBankIndicatorEnabled;
+        public static ConfigEntry<bool> bankIndicatorEnabled;
+        public static ConfigEntry<float> bankIndicatorMaxBank;
         public static ConfigEntry<bool> autopilotMenuEnabled;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
         public static ConfigEntry<bool> loadoutPreviewOnlyShowOnBoot;
@@ -65,6 +66,7 @@ namespace NO_Tactitools.Core {
         public static RewiredInputConfig resetCockpitFOV;
         public static RewiredInputConfig lookAtNearestAirbase;
         public static ConfigEntry<bool> ILSScreenEnabled;
+        public static ConfigEntry<float> ILSIndicatorMaxAngle;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
         public static Plugin Instance;
@@ -282,15 +284,24 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));
-            // Rotor Bank Indicator settings
-            rotorBankIndicatorEnabled = Config.Bind("Rotor Bank Indicator",
-                "Rotor Bank Indicator - Enabled",
+            // Bank Indicator settings
+            bankIndicatorEnabled = Config.Bind("Bank Indicator",
+                "Bank Indicator - Enabled",
                 true,
                 new ConfigDescription(
-                    "Enable or disable the Rotor Bank Indicator feature.",
+                    "Enable or disable the Bank Indicator feature.",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = -1
+                        Order = 1
+                    }));
+            bankIndicatorMaxBank = Config.Bind("Bank Indicator",
+                "Bank Indicator - Max Bank Angle",
+                15f,
+                new ConfigDescription(
+                    "Maximum bank angle shown on the Bank Indicator (Default is 15 degrees).",
+                    new AcceptableValueRange<float>(15f, 45f),
+                    new ConfigurationManagerAttributes {
+                        Order = 0
                     }));
             // Autopilot settings
             autopilotMenuEnabled = Config.Bind("Autopilot",
@@ -330,6 +341,15 @@ namespace NO_Tactitools.Core {
                 new ConfigDescription(
                     "Enable or disable the ILS Screen feature.",
                     null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1
+                    }));
+            ILSIndicatorMaxAngle = Config.Bind("ILS Screen",
+                "ILS Screen - Max Glideslope Error Angle",
+                1f,
+                new ConfigDescription(
+                    "Maximum glideslope error angle shown on the ILS indicator (Default is 1 degree).",
+                    new AcceptableValueRange<float>(0.5f, 5f),
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));
@@ -491,16 +511,16 @@ namespace NO_Tactitools.Core {
                 Log($"Artificial Horizon is enabled, patching...");
                 harmony.PatchAll(typeof(ArtificialHorizonPlugin));
             }
-            // Patch Rotor Bank Indicator
-            if (rotorBankIndicatorEnabled.Value) {
-                Log($"Rotor Bank Indicator is enabled, patching...");
-                harmony.PatchAll(typeof(RotorBankIndicatorPlugin));
-            }
             // HUD DISPLAY PATCHES
-            // Patch ILS Screen
+            // Patch ILS
             if (ILSScreenEnabled.Value) {
-                Log($"ILS Screen is enabled, patching...");
+                Log($"ILS is enabled, patching...");
                 harmony.PatchAll(typeof(ILSIndicatorPlugin));
+            }
+            // Patch Bank Indicator
+            if (bankIndicatorEnabled.Value) {
+                Log($"Bank Indicator is enabled, patching...");
+                harmony.PatchAll(typeof(BankIndicatorPlugin));
             }
             // MAP DISPLAY PATCHES
             // Patch Unit Icon Recolor
