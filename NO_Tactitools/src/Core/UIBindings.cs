@@ -370,6 +370,7 @@ public class UIBindings {
             private static readonly TraverseCache<CombatHUD, GameObject> _topRightPanelCache = new("topRightPanel");
             private static readonly TraverseCache<TargetCam, TargetScreenUI> _targetScreenUICache = new("targetScreenUI");
             private static readonly TraverseCache<Cockpit, TacScreen> _tacScreenCache = new("tacScreen");
+            private static readonly TraverseCache<FlightHud, Transform> _flightHUDCenterCache = new("HUDCenter");
             private static TacScreen _cachedTacScreen = null; // For caching the tacscreen instance since finding it is expensive
             
             public static void DisplayToast(string message, float duration = 2f) {
@@ -399,7 +400,7 @@ public class UIBindings {
 
             public static Transform GetFlightHUDCenterTransform() {
                 try {
-                    Transform hudLockedTransform = new TraverseCache<FlightHud, Transform>("HUDCenter").GetValue(SceneSingleton<FlightHud>.i);
+                    Transform hudLockedTransform = _flightHUDCenterCache.GetValue(SceneSingleton<FlightHud>.i);
                     return hudLockedTransform;
                 }
                 catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
