@@ -44,7 +44,6 @@ public class SlipIndicatorComponent {
                 force, 
                 GameBindings.Player.Aircraft.GetAircraft().transform.up);
             
-            // Use Abs for verticalForce so the ball doesn't flip its logic when inverted or in negative Gs
             if (Mathf.Abs(verticalForce) > 0.1f) {
                 float targetOffset = -lateralForce / Mathf.Abs(verticalForce);
                 // slowly moving the ball
@@ -70,7 +69,6 @@ public class SlipIndicatorComponent {
         public static Vector2 basePosition = new Vector2(0, 180);
     }
 
-    // DISPLAY ENGINE: Handles UI creation and updates
     static class DisplayEngine {
         static public void Init() {
             InternalState.leftBar = new UIBindings.Draw.UILine(
