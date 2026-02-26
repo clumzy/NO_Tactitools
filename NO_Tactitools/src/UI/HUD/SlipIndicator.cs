@@ -20,14 +20,10 @@ class SlipIndicatorPlugin {
 }
 
 public class SlipIndicatorComponent {
-    // LOGIC ENGINE: Handles calculations and aircraft state
     static class LogicEngine {
-        private static Vector3 lastVelocity = Vector3.zero;
-        private static float smoothingFactor = 5f; // Adjust for more/less smoothing
-
         static public void Init() {
             InternalState.slipBallOffset = 0f;
-            lastVelocity = Vector3.zero;
+            InternalState.lastVelocity = Vector3.zero;
         }
 
         static public void Update() {
@@ -38,8 +34,8 @@ public class SlipIndicatorComponent {
             if (dt <= 0) return;
 
             Vector3 currentVelocity = GameBindings.Player.Aircraft.GetAircraft().rb.velocity;
-            Vector3 accel = (currentVelocity - lastVelocity) / dt;
-            lastVelocity = currentVelocity;
+            Vector3 accel = (currentVelocity - InternalState.lastVelocity) / dt;
+            InternalState.lastVelocity = currentVelocity;
             Vector3 force = accel - Physics.gravity;
             float lateralForce = Vector3.Dot(
                 force, 
@@ -48,12 +44,13 @@ public class SlipIndicatorComponent {
                 force, 
                 GameBindings.Player.Aircraft.GetAircraft().transform.up);
             
+            // Use Abs for verticalForce so the ball doesn't flip its logic when inverted or in negative Gs
             if (Mathf.Abs(verticalForce) > 0.1f) {
-                float targetOffset = -lateralForce / verticalForce;
+                float targetOffset = -lateralForce / Mathf.Abs(verticalForce);
                 // slowly moving the ball
-                InternalState.slipBallOffset = Mathf.Lerp(InternalState.slipBallOffset, targetOffset, dt * smoothingFactor);
+                InternalState.slipBallOffset = Mathf.Lerp(InternalState.slipBallOffset, targetOffset, dt * InternalState.smoothingFactor);
             } else {
-                InternalState.slipBallOffset = Mathf.Lerp(InternalState.slipBallOffset, 0f, dt * smoothingFactor);
+                InternalState.slipBallOffset = Mathf.Lerp(InternalState.slipBallOffset, 0f, dt * InternalState.smoothingFactor);
             }
         }
     }
@@ -64,6 +61,8 @@ public class SlipIndicatorComponent {
         public static UIBindings.Draw.UILine leftOuterBar;
         public static UIBindings.Draw.UILine rightOuterBar;
         public static UIBindings.Draw.UILabel ballLabel;
+        public static Vector3 lastVelocity = Vector3.zero;
+        public static float smoothingFactor = 5f; // Adjust for more/less smoothing
         public static float slipBallOffset = 0f;
         public static float sensitivity = 150f;
         public static float maxOffset = 50f;
@@ -80,7 +79,7 @@ public class SlipIndicatorComponent {
                 end: InternalState.basePosition + new Vector2(-10, 7),
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
                 color: new Color(0f, 1f, 0f, 0.8f),
-                thickness: 1f,
+                thickness: 0.75f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
             InternalState.rightBar = new UIBindings.Draw.UILine(
@@ -89,7 +88,7 @@ public class SlipIndicatorComponent {
                 end: InternalState.basePosition + new Vector2(10, 7),
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
                 color: new Color(0f, 1f, 0f, 0.8f),
-                thickness: 1f,
+                thickness: 0.75f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
             InternalState.leftOuterBar = new UIBindings.Draw.UILine(
