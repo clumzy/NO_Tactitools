@@ -67,7 +67,7 @@ public class SlipIndicatorComponent {
         public static UIBindings.Draw.UILine rightOuterBar;
         public static UIBindings.Draw.UILabel ballLabel;
         public static Vector3 lastVelocity = Vector3.zero;
-        public static float smoothingFactor = 10f; // to be adjusted
+        public static float smoothingFactor = 8f; // to be adjusted
         public static float slipBallOffset = 0f;
         public static float sensitivity = 333.33f; // full deflection at 0.15G lateral acceleration
         public static float maxOffset = 50f;
