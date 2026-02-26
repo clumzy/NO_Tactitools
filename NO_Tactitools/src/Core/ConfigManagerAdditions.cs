@@ -32,7 +32,7 @@ public class RewiredInputConfig {
     public ConfigEntry<string> ControllerName { get; private set; }
     public ConfigEntry<int> ButtonIndex { get; private set; }
 
-    // actions stored for re-registration /!\
+    // Actions stored for re-registration
     public Action OnShortPress { get; set; }
     public Action OnHold { get; set; }
     public Action OnLongPress { get; set; }
@@ -52,10 +52,10 @@ public class RewiredInputConfig {
         if (!AllConfigs.Contains(this))
             AllConfigs.Add(this);
 
-        // track initial state
+        // Track initial state
         _wasBound = !string.IsNullOrEmpty(ControllerName.Value) && ButtonIndex.Value >= 0;
 
-        // listen for changes to re-register inputs as needed
+        // Listen for changes
         ControllerName.SettingChanged += (s, e) => OnSettingChanged();
         ButtonIndex.SettingChanged += (s, e) => OnSettingChanged();
     }
@@ -64,7 +64,7 @@ public class RewiredInputConfig {
         bool isBound = !string.IsNullOrEmpty(ControllerName.Value) && ButtonIndex.Value >= 0;
 
         if (isBound && !_wasBound) {
-            InputCatcher.RegisterNewBinding(this);
+            InputCatcher.RegisterNewInput(this, LongPressThreshold, OnShortPress, OnHold, OnLongPress);
         }
         else if (isBound && _wasBound) {
             InputCatcher.ModifyInputAfterNewConfig(this);
