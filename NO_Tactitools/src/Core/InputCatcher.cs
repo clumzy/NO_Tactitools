@@ -13,8 +13,6 @@ public class InputCatcher {
     public static Dictionary<Rewired.Controller, List<ControllerInput>> controllerInputs = [];
     // Dictionary mapping controller names to pending buttons
     public static Dictionary<string, List<PendingInput>> pendingControllerInputs = [];
-    // keyboard pointer for easy access
-    public static Rewired.Keyboard keyboardController = null;
 
     public static void RegisterNewInput(
         RewiredInputConfig config,
@@ -23,11 +21,10 @@ public class InputCatcher {
         System.Action onHold = null,
         System.Action onLongPress = null
         ) {
-        // Store actions in config for later use (re-registration after config change)
         config.LongPressThreshold = longPressThreshold;
-        config.OnShortPress = onRelease;
-        config.OnHold = onHold;
-        config.OnLongPress = onLongPress;
+        if (onRelease != null)   config.OnShortPress = config.OnShortPress == null ? onRelease   : config.OnShortPress + onRelease;
+        if (onHold != null)      config.OnHold       = config.OnHold       == null ? onHold      : config.OnHold + onHold;
+        if (onLongPress != null) config.OnLongPress  = config.OnLongPress  == null ? onLongPress : config.OnLongPress + onLongPress;
 
         string controllerName = config.ControllerName.Value.Trim();
         int buttonIndex = config.ButtonIndex.Value;
@@ -40,39 +37,7 @@ public class InputCatcher {
             return;
         }
 
-        bool found = false;
-        foreach (Controller controller in controllerInputs.Keys) {
-            if (controller.name.Trim() == controllerName) {
-                // Avoid double registration
-                if (controllerInputs[controller].Any(input => input.config == config)) {
-                    Plugin.Log("[IC] Input already registered for " + config.Input.Definition.Key + ". Modifying instead.");
-                    ModifyInputAfterNewConfig(config);
-                    return;
-                }
-
-                RegisterInputNow(
-                    config,
-                    controller,
-                    buttonIndex,
-                    longPressThreshold,
-                    onRelease,
-                    onHold,
-                    onLongPress);
-                found = true;
-                break;
-            }
-        }
-
-        if (!found) {
-            if (!pendingControllerInputs.ContainsKey(controllerName))
-                pendingControllerInputs[controllerName] = [];
-            
-            // Avoid double pending
-            if (!pendingControllerInputs[controllerName].Any(p => p.config == config)) {
-                pendingControllerInputs[controllerName].Add(new PendingInput(config, buttonIndex, longPressThreshold, onRelease, onHold, onLongPress));
-                Plugin.Log("[IC] Controller not connected, input " + buttonIndex + " added to pending list for " + controllerName);
-            }
-        }
+        TryRegisterOrQueue(config, controllerName, buttonIndex, longPressThreshold, onRelease, onHold, onLongPress);
     }
 
     public static IEnumerator RegisterPendingInputsRoutine(Controller controller, List<PendingInput> pendingInputs) {
@@ -113,6 +78,15 @@ public class InputCatcher {
         Plugin.Log("[IC] Registered input " + inputIndex + " on controller " + controllerName + ".");
     }
 
+
+    public static void RegisterNewBinding(RewiredInputConfig config) {
+        string controllerName = config.ControllerName.Value.Trim();
+        int buttonIndex = config.ButtonIndex.Value;
+        if (controllerName == "" || buttonIndex < 0) return;
+
+        TryRegisterOrQueue(config, controllerName, buttonIndex, config.LongPressThreshold, config.OnShortPress, config.OnHold, config.OnLongPress);
+    }
+    
     public static void ModifyInputAfterNewConfig(
         RewiredInputConfig config) {
         string controllerName = config.ControllerName.Value.Trim();
@@ -159,8 +133,7 @@ public class InputCatcher {
             PendingInput existingPending = pendingControllerInputs[pendingController].FirstOrDefault(p => p.config == config);
             if (existingPending != null) {
                 pendingControllerInputs[pendingController].Remove(existingPending);
-                // use RegisterNewInput to handle moving to another pending controller or to an active controller if the name now matches
-                RegisterNewInput(config, config.LongPressThreshold, config.OnShortPress, config.OnHold, config.OnLongPress);
+                TryRegisterOrQueue(config, controllerName, buttonIndex, existingPending.longPressThreshold, existingPending.onShortPress, existingPending.onHold, existingPending.onLongPress);
                 return;
             }
         }
@@ -181,6 +154,50 @@ public class InputCatcher {
             if (removed > 0) {
                 Plugin.Log("[IC] Removed " + removed + " pending input(s) for config " + config.Input.Definition.Key);
             }
+        }
+    }
+
+    private static void TryRegisterOrQueue(
+        RewiredInputConfig config,
+        string controllerName,
+        int buttonIndex,
+        float longPressThreshold,
+        System.Action onRelease,
+        System.Action onHold,
+        System.Action onLongPress
+        ) {
+        foreach (Controller controller in controllerInputs.Keys) {
+            if (controller.name.Trim() != controllerName) continue;
+
+            ControllerInput existing = controllerInputs[controller].FirstOrDefault(input => input.config == config);
+            if (existing != null) {
+                // same config already registered: merge new callbacks
+                if (onRelease != null)   existing.OnShortPress = existing.OnShortPress == null ? onRelease   : existing.OnShortPress + onRelease;
+                if (onHold != null)      existing.OnHold       = existing.OnHold       == null ? onHold      : existing.OnHold + onHold;
+                if (onLongPress != null) existing.OnLongPress  = existing.OnLongPress  == null ? onLongPress : existing.OnLongPress + onLongPress;
+                Plugin.Log("[IC] Merged callbacks for already-registered config " + config.Input.Definition.Key);
+            }
+            else {
+                RegisterInputNow(config, controller, buttonIndex, longPressThreshold, onRelease, onHold, onLongPress);
+            }
+            return;
+        }
+
+        // controller not connected yet: queue as pending
+        if (!pendingControllerInputs.ContainsKey(controllerName))
+            pendingControllerInputs[controllerName] = [];
+
+        PendingInput existingPending = pendingControllerInputs[controllerName].FirstOrDefault(p => p.config == config);
+        if (existingPending != null) {
+            // same config already pending: merge new callbacks
+            if (onRelease != null)   existingPending.onShortPress = existingPending.onShortPress == null ? onRelease   : existingPending.onShortPress + onRelease;
+            if (onHold != null)      existingPending.onHold       = existingPending.onHold       == null ? onHold      : existingPending.onHold + onHold;
+            if (onLongPress != null) existingPending.onLongPress  = existingPending.onLongPress  == null ? onLongPress : existingPending.onLongPress + onLongPress;
+            Plugin.Log("[IC] Merged callbacks for already-pending config " + config.Input.Definition.Key);
+        }
+        else {
+            pendingControllerInputs[controllerName].Add(new PendingInput(config, buttonIndex, longPressThreshold, onRelease, onHold, onLongPress));
+            Plugin.Log("[IC] Controller not connected, input " + buttonIndex + " added to pending list for " + controllerName);
         }
     }
 }
@@ -300,44 +317,3 @@ class RegisterControllerPatch {
         }
     }
 }
-
-/* [HarmonyPatch(typeof(Rewired.Controller), "pBrAJYWOGkILyqjLrMpmCdajATI")]
-class TestInput {
-
-    static int FindFirstDifferenceIndex(IList<bool> list1, IList<bool> list2) {
-        for (int i = 0; i < list1.Count && i < list2.Count; i++) {
-            if (list1[i] != list2[i]) {
-                return i;
-            }
-        }
-
-        return Math.Min(list1.Count, list2.Count);
-    }
-    static double time = -1;
-    static IList<bool> previousHatStates = [];
-    static void Postfix(Controller __instance) {
-        if (__instance.name != "Keyboard") {
-            return;
-        }
-        if (previousHatStates == null) {
-            for (int i = 0; i < __instance.Buttons.Count; i++) {
-                previousHatStates.Add(__instance.Buttons[i].value);
-            }
-        }
-        double newTime = __instance.GetLastTimeAnyButtonPressed();
-        if (newTime != time) {
-            time = newTime;
-            int diffIndex = FindFirstDifferenceIndex(previousHatStates, [.. __instance.Buttons.Select(b => b.value)]);
-            previousHatStates.Clear();
-            for (int i = 0; i < __instance.Buttons.Count; i++) {
-                previousHatStates.Add(__instance.Buttons[i].value);
-            }
-            Plugin.Log($"[IC] input detected on controller {__instance.name.Trim()} at time {time.ToString()}");
-            // MES TROUVAILLES ICI
-            // LES HAT DEMARRENT A L'INDEX 128.
-            // L'ALGO C'EST INDEX = 128 * HAT NUMBER + DIRECTION (0-7)
-            Plugin.Log(diffIndex.ToString());
-        }
-    }
-} */
-
