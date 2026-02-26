@@ -23,12 +23,12 @@ class BankIndicatorPlugin {
 public class BankIndicatorComponent {
     static class LogicEngine {
         static public void Init() {
+            InternalState.BIWidget?.Destroy();
+            InternalState.BIWidget = null;
             InternalState.authorizedPlatforms = FileUtilities.GetListFromConfigFile("BankIndicator_AuthorizedPlatforms.txt");
             InternalState.isAuthorized = InternalState.authorizedPlatforms.Contains(GameBindings.Player.Aircraft.GetPlatformName());
             if (!InternalState.isAuthorized) return;
 
-            InternalState.arc = null;
-            InternalState.needle = null;
             InternalState.currentBankAngle = 0f;
             InternalState.maxBankAngle = Plugin.bankIndicatorMaxBank.Value;
         }
@@ -46,44 +46,21 @@ public class BankIndicatorComponent {
     }
 
     public static class InternalState {
-        public static Image arc;
-        public static Image needle;
-        public static UIBindings.Draw.UILabel bankLabel;
         public static float currentBankAngle = 0f;
         public static float maxBankAngle = 15f;
         public static bool isAuthorized = false;
         public static List<string> authorizedPlatforms = new();
+        public static BankIndicatorWidget BIWidget = null;
     }
 
     static class DisplayEngine {
         static public void Init() {
             if (!InternalState.isAuthorized) return;
 
-            FuelGauge fg = GameObject.FindFirstObjectByType<FuelGauge>();
-            InternalState.arc = GameObject.Instantiate(
-                new TraverseCache<FuelGauge, Image>("fuelArc").GetValue(fg).GetComponent<Image>(), 
-                UIBindings.Game.GetFlightHUDCenterTransform());
-            InternalState.arc.name = "i_RBI_arc";
-            // move center of arc to top of the screen and rotate it 90 degrees right
-            InternalState.arc.rectTransform.anchoredPosition = new Vector2(0, 200);
-            InternalState.arc.rectTransform.rotation = Quaternion.Euler(0, 0, -90);
-            InternalState.needle = GameObject.Instantiate(
-                UIBindings.Game.GetFlightHUDCenterTransform().Find("compass/compassPoint").GetComponent<Image>(),
-                UIBindings.Game.GetFlightHUDCenterTransform());
-            InternalState.needle.name = "i_RBI_needle";
-            // make it 2/3 the size of the compass needle and move it to the same position as the arc
-            InternalState.needle.rectTransform.localScale = new Vector3(0.66f, 0.66f, 0.66f);
-            InternalState.bankLabel = new UIBindings.Draw.UILabel(
-                name: "i_RBI_bankLabel",
-                position: new Vector2(0, 223),
-                UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
-                color: new Color(0f, 1f, 0f, 0.8f),
-                fontSize: 34,
-                backgroundOpacity:0f,
-                material: UIBindings.Game.GetFlightHUDFontMaterial()
-            );
-            // so that it looks like the bearing label
-            InternalState.bankLabel.GetRectTransform().localScale = new Vector3(0.5f, 0.5f, 0.5f);
+            if (InternalState.BIWidget == null) {
+                InternalState.BIWidget = new BankIndicatorWidget(UIBindings.Game.GetFlightHUDCenterTransform());
+                Plugin.Log("[BI] Bank Indicator Widget initialized and added to HUD.");
+            }
         }
 
         static public void Update() {
@@ -91,7 +68,58 @@ public class BankIndicatorComponent {
                 || GameBindings.Player.Aircraft.GetAircraft() == null
                 || !InternalState.isAuthorized)
                 return;
-            float clampedBankAngle = Mathf.Clamp(InternalState.currentBankAngle, -InternalState.maxBankAngle, InternalState.maxBankAngle);
+            
+            InternalState.BIWidget.UpdateDisplay(InternalState.currentBankAngle, InternalState.maxBankAngle);
+        }
+    }
+
+    public class BankIndicatorWidget {
+        public GameObject containerObject;
+        public Transform containerTransform;
+        public Image arc;
+        public Image needle;
+        public UIBindings.Draw.UILabel bankLabel;
+
+        public BankIndicatorWidget(Transform parent) {
+            containerObject = new GameObject("i_RBI_Container");
+            containerObject.AddComponent<RectTransform>();
+            containerTransform = containerObject.transform;
+            containerTransform.SetParent(parent, false);
+            containerTransform.localPosition = Vector3.zero;
+
+            FuelGauge fg = GameObject.FindFirstObjectByType<FuelGauge>();
+            arc = GameObject.Instantiate(
+                new TraverseCache<FuelGauge, Image>("fuelArc").GetValue(fg).GetComponent<Image>(), 
+                containerTransform);
+            arc.name = "i_RBI_arc";
+            // move center of arc to top of the screen and rotate it 90 degrees right
+            arc.rectTransform.anchoredPosition = new Vector2(0, 200);
+            arc.rectTransform.rotation = Quaternion.Euler(0, 0, -90);
+            
+            needle = GameObject.Instantiate(
+                UIBindings.Game.GetFlightHUDCenterTransform().Find("compass/compassPoint").GetComponent<Image>(),
+                containerTransform);
+            needle.name = "i_RBI_needle";
+            // make it 2/3 the size of the compass needle and move it to the same position as the arc
+            needle.rectTransform.localScale = new Vector3(0.66f, 0.66f, 0.66f);
+            
+            bankLabel = new UIBindings.Draw.UILabel(
+                name: "i_RBI_bankLabel",
+                position: new Vector2(0, 223),
+                UIParent: containerTransform,
+                color: new Color(0f, 1f, 0f, 0.8f),
+                fontSize: 34,
+                backgroundOpacity:0f,
+                material: UIBindings.Game.GetFlightHUDFontMaterial()
+            );
+            // so that it looks like the bearing label
+            bankLabel.GetRectTransform().localScale = new Vector3(0.5f, 0.5f, 0.5f);
+        }
+
+        public void SetActive(bool active) => containerObject?.SetActive(active);
+
+        public void UpdateDisplay(float currentBankAngle, float maxBankAngle) {
+            float clampedBankAngle = Mathf.Clamp(currentBankAngle, -maxBankAngle, maxBankAngle);
 
             // needle position using trig to stay on arc
             // calculated radius = 724, center Y = -534 (relative to flight HUD center)
@@ -99,16 +127,23 @@ public class BankIndicatorComponent {
             float yCenter = -150f;
             float radius = 350f;
             // indicator at max clamped angle is at 8.8 degrees on the arc, so we can use that to calculate the angle on the arc for any given bank angle
-            float arcAngle = (-clampedBankAngle / InternalState.maxBankAngle) * 12.8f;
+            float arcAngle = (-clampedBankAngle / maxBankAngle) * 12.8f;
             float x = radius * Mathf.Sin(arcAngle * Mathf.Deg2Rad);
             float y = yCenter + radius * Mathf.Cos(arcAngle * Mathf.Deg2Rad);
-            InternalState.needle.rectTransform.anchoredPosition = new Vector2(x, y);
-            InternalState.needle.rectTransform.rotation = Quaternion.Euler(
+            needle.rectTransform.anchoredPosition = new Vector2(x, y);
+            needle.rectTransform.rotation = Quaternion.Euler(
                 0, 
                 0, 
                 -arcAngle + UIBindings.Game.GetFlightHUDCenterTransform().rotation.eulerAngles.z);
-                // set text with one decimal place and a degree symbol
-            InternalState.bankLabel.SetText($"{(-InternalState.currentBankAngle).ToString("F1")}°");
+            // set text with one decimal place and a degree symbol
+            bankLabel.SetText($"{(-currentBankAngle).ToString("F1")}°");
+        }
+
+        public void Destroy() {
+            if (containerObject != null) {
+                Object.Destroy(containerObject);
+                containerObject = null;
+            }
         }
     }
 
