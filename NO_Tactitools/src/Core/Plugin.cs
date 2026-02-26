@@ -50,7 +50,8 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> artificialHorizonEnabled;
         public static ConfigEntry<float> artificialHorizonTransparency;
         public static ConfigEntry<bool> bankIndicatorEnabled;
-        public static ConfigEntry<float> bankIndicatorMaxBank;
+        public static ConfigEntry<int> bankIndicatorMaxBank;
+        public static ConfigEntry<bool> slipIndicatorEnabled;
         public static ConfigEntry<bool> autopilotMenuEnabled;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
         public static ConfigEntry<bool> loadoutPreviewOnlyShowOnBoot;
@@ -62,7 +63,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<float> loadoutPreviewBackgroundTransparency;
         public static ConfigEntry<float> loadoutPreviewTextAndBorderTransparency;
         public static ConfigEntry<bool> cameraTweaksEnabled;
-        public static ConfigEntry<float> resetCockpitFOVSpeed;
+        public static ConfigEntry<int> resetCockpitFOVSpeed;
         public static RewiredInputConfig resetCockpitFOV;
         public static RewiredInputConfig lookAtNearestAirbase;
         public static ConfigEntry<bool> ILSScreenEnabled;
@@ -296,10 +297,20 @@ namespace NO_Tactitools.Core {
                     }));
             bankIndicatorMaxBank = Config.Bind("Bank Indicator",
                 "Bank Indicator - Max Bank Angle",
-                15f,
+                15,
                 new ConfigDescription(
                     "Maximum bank angle shown on the Bank Indicator (Default is 15 degrees).",
-                    new AcceptableValueRange<float>(15f, 45f),
+                    new AcceptableValueRange<int>(10, 90),
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
+            // Slip Indicator settings
+            slipIndicatorEnabled = Config.Bind("Slip Indicator",
+                "Slip Indicator - Enabled",
+                true,
+                new ConfigDescription(
+                    "Enable or disable the Slip Indicator feature.",
+                    null,
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));
@@ -325,10 +336,10 @@ namespace NO_Tactitools.Core {
                     }));
             resetCockpitFOVSpeed = Config.Bind("Camera Tweaks",
                 "Camera Tweaks - Reset Cockpit FOV - Speed",
-                150f,
+                150,
                 new ConfigDescription(
                     "Speed at which the FOV resets (50 - 300).",
-                    new AcceptableValueRange<float>(50f, 300f),
+                    new AcceptableValueRange<int>(50, 300),
                     new ConfigurationManagerAttributes {
                         Order = 1
                     }));
@@ -521,6 +532,11 @@ namespace NO_Tactitools.Core {
             if (bankIndicatorEnabled.Value) {
                 Log($"Bank Indicator is enabled, patching...");
                 harmony.PatchAll(typeof(BankIndicatorPlugin));
+            }
+            // Patch Slip Indicator
+            if (slipIndicatorEnabled.Value) {
+                Log($"Slip Indicator is enabled, patching...");
+                harmony.PatchAll(typeof(SlipIndicatorPlugin));
             }
             // MAP DISPLAY PATCHES
             // Patch Unit Icon Recolor
