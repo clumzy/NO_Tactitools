@@ -2,6 +2,7 @@ using HarmonyLib;
 using UnityEngine.UI;
 using NO_Tactitools.Core;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace NO_Tactitools.UI.HUD;
 
@@ -20,9 +21,12 @@ class BankIndicatorPlugin {
 }
 
 public class BankIndicatorComponent {
-    // LOGIC ENGINE, INTERNAL STATE, DISPLAY ENGINE
     static class LogicEngine {
         static public void Init() {
+            InternalState.authorizedPlatforms = FileUtilities.GetListFromConfigFile("BankIndicator_AuthorizedPlatforms.txt");
+            InternalState.isAuthorized = InternalState.authorizedPlatforms.Contains(GameBindings.Player.Aircraft.GetPlatformName());
+            if (!InternalState.isAuthorized) return;
+
             InternalState.arc = null;
             InternalState.needle = null;
             InternalState.currentBankAngle = 0f;
@@ -31,7 +35,8 @@ public class BankIndicatorComponent {
 
         static public void Update() {
             if (GameBindings.GameState.IsGamePaused()
-                || GameBindings.Player.Aircraft.GetAircraft() == null)
+                || GameBindings.Player.Aircraft.GetAircraft() == null
+                || !InternalState.isAuthorized)
                 return;
             Transform aircraftTransform = GameBindings.Player.Aircraft.GetAircraft().transform;
             float bank = aircraftTransform.localEulerAngles.z;
@@ -46,10 +51,14 @@ public class BankIndicatorComponent {
         public static UIBindings.Draw.UILabel bankLabel;
         public static float currentBankAngle = 0f;
         public static float maxBankAngle = 15f;
+        public static bool isAuthorized = false;
+        public static List<string> authorizedPlatforms = new();
     }
 
     static class DisplayEngine {
         static public void Init() {
+            if (!InternalState.isAuthorized) return;
+
             FuelGauge fg = GameObject.FindFirstObjectByType<FuelGauge>();
             InternalState.arc = GameObject.Instantiate(
                 new TraverseCache<FuelGauge, Image>("fuelArc").GetValue(fg).GetComponent<Image>(), 
@@ -79,7 +88,8 @@ public class BankIndicatorComponent {
 
         static public void Update() {
             if (GameBindings.GameState.IsGamePaused()
-                || GameBindings.Player.Aircraft.GetAircraft() == null)
+                || GameBindings.Player.Aircraft.GetAircraft() == null
+                || !InternalState.isAuthorized)
                 return;
             float clampedBankAngle = Mathf.Clamp(InternalState.currentBankAngle, -InternalState.maxBankAngle, InternalState.maxBankAngle);
 

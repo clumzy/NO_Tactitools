@@ -21,7 +21,6 @@ class ArtificialHorizonPlugin {
             Plugin.Log($"[AH] Artificial Horizon plugin dependency check complete. IsThirdPersonModLoaded: {IsThirdPersonModLoaded.ToString()}");
             Plugin.harmony.PatchAll(typeof(ArtificialHorizonComponent.OnPlatformStart));
             Plugin.harmony.PatchAll(typeof(ArtificialHorizonComponent.OnPlatformUpdate));
-            ArtificialHorizonComponent.InternalState.authorizedPlatforms = FileUtilities.GetListFromConfigFile("ArtificialHorizon_AuthorizedPlatforms.txt");
             initialized = true;
             Plugin.Log("[AH] Artificial Horizon plugin successfully started !");
         }
@@ -33,6 +32,7 @@ public class ArtificialHorizonComponent {
     static class LogicEngine {
         static public void Init() {
             Plugin.Log("[AH] Initializing Artificial Horizon");
+            InternalState.authorizedPlatforms = FileUtilities.GetListFromConfigFile("ArtificialHorizon_AuthorizedPlatforms.txt");
             InternalState.isAuthorized = InternalState.authorizedPlatforms.Contains(GameBindings.Player.Aircraft.GetPlatformName());
             if (!InternalState.isAuthorized) {
                 Plugin.Log("[AH] Platform not authorized for Artificial Horizon");
@@ -243,7 +243,7 @@ public class ArtificialHorizonComponent {
         static public string westLabelText = "270°";
         static public float westLabelOpacity = 1f;
         static public bool isAuthorized = false;
-        static public List<String> authorizedPlatforms;
+        static public List<String> authorizedPlatforms = new();
     }
 
     static class DisplayEngine {

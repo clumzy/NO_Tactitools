@@ -2,6 +2,7 @@ using HarmonyLib;
 using UnityEngine.UI;
 using NO_Tactitools.Core;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace NO_Tactitools.UI.HUD;
 
@@ -22,13 +23,18 @@ class SlipIndicatorPlugin {
 public class SlipIndicatorComponent {
     static class LogicEngine {
         static public void Init() {
+            InternalState.authorizedPlatforms = FileUtilities.GetListFromConfigFile("SlipIndicator_AuthorizedPlatforms.txt");
+            InternalState.isAuthorized = InternalState.authorizedPlatforms.Contains(GameBindings.Player.Aircraft.GetPlatformName());
+            if (!InternalState.isAuthorized) return;
+
             InternalState.slipBallOffset = 0f;
             InternalState.lastVelocity = Vector3.zero;
         }
 
         static public void Update() {
             if (GameBindings.GameState.IsGamePaused()
-                || GameBindings.Player.Aircraft.GetAircraft() == null)
+                || GameBindings.Player.Aircraft.GetAircraft() == null
+                || !InternalState.isAuthorized)
                 return;
             float dt = Time.fixedDeltaTime; 
             if (dt <= 0) return;
@@ -61,16 +67,20 @@ public class SlipIndicatorComponent {
         public static UIBindings.Draw.UILine rightOuterBar;
         public static UIBindings.Draw.UILabel ballLabel;
         public static Vector3 lastVelocity = Vector3.zero;
-        public static float smoothingFactor = 5f; // Adjust for more/less smoothing
+        public static float smoothingFactor = 10f; // to be adjusted
         public static float slipBallOffset = 0f;
-        public static float sensitivity = 150f;
+        public static float sensitivity = 333.33f; // full deflection at 0.15G lateral acceleration
         public static float maxOffset = 50f;
         public static float padding = 10f;
-        public static Vector2 basePosition = new Vector2(0, 180);
+        public static Vector2 basePosition = new(0, 180);
+        public static bool isAuthorized = false;
+        public static List<string> authorizedPlatforms = new();
     }
 
     static class DisplayEngine {
         static public void Init() {
+            if (!InternalState.isAuthorized) return;
+
             InternalState.leftBar = new UIBindings.Draw.UILine(
                 name: "i_SI_leftBar",
                 start: InternalState.basePosition + new Vector2(-10, -7),
@@ -121,7 +131,8 @@ public class SlipIndicatorComponent {
 
         static public void Update() {
             if (GameBindings.GameState.IsGamePaused()
-                || GameBindings.Player.Aircraft.GetAircraft() == null)
+                || GameBindings.Player.Aircraft.GetAircraft() == null
+                || !InternalState.isAuthorized)
                 return;
             float xOffset = Mathf.Clamp(InternalState.slipBallOffset * InternalState.sensitivity, -InternalState.maxOffset, InternalState.maxOffset);
             InternalState.ballLabel.SetPosition(InternalState.basePosition + new Vector2(xOffset, 2));
