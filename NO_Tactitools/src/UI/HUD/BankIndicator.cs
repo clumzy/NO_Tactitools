@@ -91,6 +91,7 @@ public class BankIndicatorComponent {
             containerTransform = containerObject.transform;
             containerTransform.SetParent(parent, false);
             containerTransform.localPosition = Vector3.zero;
+            int radius = 70;
 
             needle = GameObject.Instantiate(
                 UIBindings.Game.GetFlightHUDCenterTransform().Find("compass/compassPoint").GetComponent<Image>(),
@@ -98,10 +99,11 @@ public class BankIndicatorComponent {
             needle.name = "i_RBI_needle";
             // make it 2/3 the size of the compass needle and move it to the same position as the arc
             needle.rectTransform.localScale = new Vector3(0.66f, 0.66f, 0.66f);
+            needle.rectTransform.localPosition = new Vector3(0, -radius - 10, 0);
 
             bankLabel = new UIBindings.Draw.UILabel(
                 name: "i_RBI_bankLabel",
-                position: new Vector2(0, 0),
+                position: new Vector2(0, -radius - 25),
                 UIParent: containerTransform,
                 color: new Color(0f, 1f, 0f, 0.8f),
                 fontSize: 34,
@@ -112,7 +114,6 @@ public class BankIndicatorComponent {
             bankLabel.GetRectTransform().localScale = new Vector3(0.5f, 0.5f, 0.5f);
             // now we create the arc with only the increments, with increments as lines, thick ones for 15 degree increments and thin ones for 5 degree increments
             // they stay fixed with the aircraft, and below the needle that stays fixed with the horizon, so we put them in the same container as the needle but behind it
-            int radius = 150;
             for (int i = -InternalState.maxBankAngle; i <= InternalState.maxBankAngle; i += 5) {
                 UIBindings.Draw.UILine line = new (
                     name: $"i_RBI_increment_{i.ToString()}",
@@ -128,9 +129,12 @@ public class BankIndicatorComponent {
             }
         }
 
-        public void SetActive(bool active) => containerObject?.SetActive(active);
-
         public void UpdateDisplay(float currentBankAngle) {
+            if (containerObject == null) return;
+            float clampedBankAngle = Mathf.Clamp(currentBankAngle, -InternalState.maxBankAngle, InternalState.maxBankAngle);
+            // we first reset the need to 0 rotation, then we rotate it around the center in the opposite direction of the clamped bank angle so that it stays fixed with the horizon
+            needle.rectTransform.transform.RotateAround(containerTransform.position, Vector3.forward, -needle.rectTransform.transform.rotation.eulerAngles.z - clampedBankAngle);
+            bankLabel.SetText($"{Mathf.RoundToInt(currentBankAngle).ToString()}°");
         }
 
         public void Destroy() {
