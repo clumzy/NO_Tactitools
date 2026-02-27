@@ -88,7 +88,7 @@ public class SlipIndicatorComponent {
                 end: InternalState.basePosition + new Vector2(-10, 7),
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
                 color: new Color(0f, 1f, 0f, 0.8f),
-                thickness: 0.75f,
+                thickness: 1f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
             InternalState.rightBar = new UIBindings.Draw.UILine(
@@ -97,7 +97,7 @@ public class SlipIndicatorComponent {
                 end: InternalState.basePosition + new Vector2(10, 7),
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
                 color: new Color(0f, 1f, 0f, 0.8f),
-                thickness: 0.75f,
+                thickness: 1f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
             InternalState.leftOuterBar = new UIBindings.Draw.UILine(
@@ -106,7 +106,7 @@ public class SlipIndicatorComponent {
                 end: InternalState.basePosition + new Vector2(-InternalState.maxOffset - InternalState.padding, 10),
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
                 color: new Color(0f, 1f, 0f, 0.8f),
-                thickness: 1.5f,
+                thickness: 2f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
             InternalState.rightOuterBar = new UIBindings.Draw.UILine(
@@ -115,7 +115,7 @@ public class SlipIndicatorComponent {
                 end: InternalState.basePosition + new Vector2(InternalState.maxOffset + InternalState.padding, 10),
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
                 color: new Color(0f, 1f, 0f, 0.8f),
-                thickness: 1.5f,
+                thickness: 2f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
             InternalState.ballLabel = new UIBindings.Draw.UILabel(

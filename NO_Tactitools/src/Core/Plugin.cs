@@ -299,8 +299,8 @@ namespace NO_Tactitools.Core {
                 "Bank Indicator - Max Bank Angle",
                 15,
                 new ConfigDescription(
-                    "Maximum bank angle shown on the Bank Indicator (Default is 15 degrees).",
-                    new AcceptableValueRange<int>(10, 90),
+                    "Maximum bank angle shown on the Bank Indicator (Default is 15 degrees, value is rounded to 5).",
+                    new AcceptableValueRange<int>(5, 45),
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));

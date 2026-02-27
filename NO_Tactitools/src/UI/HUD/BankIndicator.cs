@@ -30,7 +30,11 @@ public class BankIndicatorComponent {
             if (!InternalState.isAuthorized) return;
 
             InternalState.currentBankAngle = 0f;
-            InternalState.maxBankAngle = Plugin.bankIndicatorMaxBank.Value;
+            InternalState.maxBankAngle = (int)Mathf.Clamp(
+                Mathf.Round((float)Plugin.bankIndicatorMaxBank.Value / 5f) * 5f,
+                5,
+                45);
+
         }
 
         static public void Update() {
@@ -47,9 +51,9 @@ public class BankIndicatorComponent {
 
     public static class InternalState {
         public static float currentBankAngle = 0f;
-        public static float maxBankAngle = 15f;
+        public static int maxBankAngle = 15;
         public static bool isAuthorized = false;
-        public static List<string> authorizedPlatforms = new();
+        public static List<string> authorizedPlatforms = [];
         public static BankIndicatorWidget BIWidget = null;
     }
 
@@ -68,8 +72,8 @@ public class BankIndicatorComponent {
                 || GameBindings.Player.Aircraft.GetAircraft() == null
                 || !InternalState.isAuthorized)
                 return;
-            
-            InternalState.BIWidget.UpdateDisplay(InternalState.currentBankAngle, InternalState.maxBankAngle);
+
+            InternalState.BIWidget.UpdateDisplay(InternalState.currentBankAngle);
         }
     }
 
@@ -79,6 +83,7 @@ public class BankIndicatorComponent {
         public Image arc;
         public Image needle;
         public UIBindings.Draw.UILabel bankLabel;
+        public UIBindings.Draw.UILine[] increments;
 
         public BankIndicatorWidget(Transform parent) {
             containerObject = new GameObject("i_RBI_Container");
@@ -87,56 +92,45 @@ public class BankIndicatorComponent {
             containerTransform.SetParent(parent, false);
             containerTransform.localPosition = Vector3.zero;
 
-            FuelGauge fg = GameObject.FindFirstObjectByType<FuelGauge>();
-            arc = GameObject.Instantiate(
-                new TraverseCache<FuelGauge, Image>("fuelArc").GetValue(fg).GetComponent<Image>(), 
-                containerTransform);
-            arc.name = "i_RBI_arc";
-            // move center of arc to top of the screen and rotate it 90 degrees right
-            arc.rectTransform.anchoredPosition = new Vector2(0, 200);
-            arc.rectTransform.rotation = Quaternion.Euler(0, 0, -90);
-            
             needle = GameObject.Instantiate(
                 UIBindings.Game.GetFlightHUDCenterTransform().Find("compass/compassPoint").GetComponent<Image>(),
                 containerTransform);
             needle.name = "i_RBI_needle";
             // make it 2/3 the size of the compass needle and move it to the same position as the arc
             needle.rectTransform.localScale = new Vector3(0.66f, 0.66f, 0.66f);
-            
+
             bankLabel = new UIBindings.Draw.UILabel(
                 name: "i_RBI_bankLabel",
-                position: new Vector2(0, 223),
+                position: new Vector2(0, 0),
                 UIParent: containerTransform,
                 color: new Color(0f, 1f, 0f, 0.8f),
                 fontSize: 34,
-                backgroundOpacity:0f,
+                backgroundOpacity: 0f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
             // so that it looks like the bearing label
             bankLabel.GetRectTransform().localScale = new Vector3(0.5f, 0.5f, 0.5f);
+            // now we create the arc with only the increments, with increments as lines, thick ones for 15 degree increments and thin ones for 5 degree increments
+            // they stay fixed with the aircraft, and below the needle that stays fixed with the horizon, so we put them in the same container as the needle but behind it
+            int radius = 150;
+            for (int i = -InternalState.maxBankAngle; i <= InternalState.maxBankAngle; i += 5) {
+                UIBindings.Draw.UILine line = new (
+                    name: $"i_RBI_increment_{i.ToString()}",
+                    start: new Vector2(0, (i % 15 == 0) ? -radius+10 : -radius+5),
+                    end: new Vector2(0, -radius),
+                    UIParent: containerTransform,
+                    color: new Color(0f, 1f, 0f, 0.8f),
+                    thickness: (i % 15 == 0) ? 2f : 1f,
+                    material: UIBindings.Game.GetFlightHUDFontMaterial()
+                );
+                line.GetRectTransform().transform.RotateAround(containerTransform.position, Vector3.forward, -i);
+                increments.AddItem(line);
+            }
         }
 
         public void SetActive(bool active) => containerObject?.SetActive(active);
 
-        public void UpdateDisplay(float currentBankAngle, float maxBankAngle) {
-            float clampedBankAngle = Mathf.Clamp(currentBankAngle, -maxBankAngle, maxBankAngle);
-
-            // needle position using trig to stay on arc
-            // calculated radius = 724, center Y = -534 (relative to flight HUD center)
-            // at 15 deg bank, needle is at -76 X and 186 Y (from 190 Y top)
-            float yCenter = -150f;
-            float radius = 350f;
-            // indicator at max clamped angle is at 8.8 degrees on the arc, so we can use that to calculate the angle on the arc for any given bank angle
-            float arcAngle = (-clampedBankAngle / maxBankAngle) * 12.8f;
-            float x = radius * Mathf.Sin(arcAngle * Mathf.Deg2Rad);
-            float y = yCenter + radius * Mathf.Cos(arcAngle * Mathf.Deg2Rad);
-            needle.rectTransform.anchoredPosition = new Vector2(x, y);
-            needle.rectTransform.rotation = Quaternion.Euler(
-                0, 
-                0, 
-                -arcAngle + UIBindings.Game.GetFlightHUDCenterTransform().rotation.eulerAngles.z);
-            // set text with one decimal place and a degree symbol
-            bankLabel.SetText($"{(-currentBankAngle).ToString("F1")}°");
+        public void UpdateDisplay(float currentBankAngle) {
         }
 
         public void Destroy() {
