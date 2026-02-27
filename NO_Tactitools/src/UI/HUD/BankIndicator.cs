@@ -83,7 +83,7 @@ public class BankIndicatorComponent {
         public Image arc;
         public Image needle;
         public UIBindings.Draw.UILabel bankLabel;
-        public List<UIBindings.Draw.UILine> increments = new();
+        public List<UIBindings.Draw.UILine> increments = [];
 
         public BankIndicatorWidget(Transform parent) {
             containerObject = new GameObject("i_RBI_Container");
