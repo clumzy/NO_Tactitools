@@ -7,16 +7,16 @@ public static class FileUtilities
 {
     public static List<string> GetListFromConfigFile(string configFile)
     {
-        var assemblyDir = Path.GetDirectoryName(typeof(Plugin).Assembly.Location) ?? Environment.CurrentDirectory;
-        var absolutePath = Path.Combine(assemblyDir, "config", configFile);
+        string assemblyDir = Path.GetDirectoryName(typeof(Plugin).Assembly.Location) ?? Environment.CurrentDirectory;
+        string absolutePath = Path.Combine(assemblyDir, "config", configFile);
         if (!File.Exists(absolutePath)) return [];
 
-        var lines = File.ReadAllLines(absolutePath);
-        var result = new List<string>(lines.Length);
+        string[] lines = File.ReadAllLines(absolutePath);
+        List<string> result = new(lines.Length);
         foreach (var line in lines)
         {
             if (string.IsNullOrWhiteSpace(line)) continue;
-            var trimmedStart = line.TrimStart();
+            string trimmedStart = line.TrimStart();
             if (trimmedStart.StartsWith("//")) continue;
             result.Add(trimmedStart.TrimEnd());
         }
