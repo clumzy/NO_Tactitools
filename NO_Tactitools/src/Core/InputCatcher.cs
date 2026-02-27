@@ -32,7 +32,7 @@ public class InputCatcher {
 
         if (exists) {
             Plugin.Log("[IC] Input already registered for " + config.Input.Definition.Key + ". Merging actions instead.");
-            ModifyInputAfterNewConfig(config, onRelease, onHold, onLongPress);
+            ModifyInputAfterNewConfig(config, longPressThreshold, onRelease, onHold, onLongPress);
             return;
         }
 
@@ -118,6 +118,7 @@ public class InputCatcher {
 
     public static void ModifyInputAfterNewConfig(
         RewiredInputConfig config,
+        float longPressThreshold = -1f,
         System.Action onShortPress = null,
         System.Action onHold = null,
         System.Action onLongPress = null) {
@@ -126,6 +127,7 @@ public class InputCatcher {
         if (onShortPress != null) config.OnShortPress += onShortPress;
         if (onHold != null) config.OnHold += onHold;
         if (onLongPress != null) config.OnLongPress += onLongPress;
+        if (longPressThreshold >= 0) config.LongPressThreshold = Math.Max(config.LongPressThreshold, longPressThreshold);
 
         string controllerName = config.ControllerName.Value.Trim();
         int buttonIndex = config.ButtonIndex.Value;
