@@ -66,6 +66,7 @@ CHECKLIST WHEN ADDING A FEATURE :
 0.7.0 :
 -> IMPROVEMENTS:
   -> fully revamped delivery indicator
+  -> improved cockpit color editing
 -> NEW STUFF
   -> new "meatball" widget for ILS landing
   -> Add functionalty to see if a targeted unit is being targeted by a friendly missile

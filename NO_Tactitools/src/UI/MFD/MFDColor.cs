@@ -81,8 +81,8 @@ public static class MFDColorComponent {
                     if (InternalState.MFDAlternativeAttitudeEnabled) {
                         Color groundColor = Color.HSVToRGB(
                             InternalState.mainHue,
-                            1f,
-                            0.5f);
+                            InternalState.mainSaturation,
+                            Mathf.Clamp(InternalState.mainBrightness - 0.5f, 0.0f, 1f)); // we darken the ground a bit to make it more distinguishable from the sky
                         groundColor.a = originalAlpha;
                         image.color = groundColor;
                     } // Skip the ground image if alternative attitude is not enabled
@@ -91,8 +91,8 @@ public static class MFDColorComponent {
                     if (InternalState.MFDAlternativeAttitudeEnabled) {
                         Color skyColor = Color.HSVToRGB(
                             InternalState.mainHue,
-                            0.7f,
-                            1f);
+                            Mathf.Clamp(InternalState.mainSaturation - 0.2f, 0.0f, 1f), // we desaturate the sky a bit more to make it more distinguishable from the ground
+                            InternalState.mainBrightness);
                         skyColor.a = originalAlpha;
                         image.color = skyColor;
                     } // Skip the horizon image if alternative attitude is not enabled
@@ -101,8 +101,8 @@ public static class MFDColorComponent {
                     Color.RGBToHSV(image.color, out _, out float saturation, out float brightness);
                     Color newImageColor = Color.HSVToRGB(
                         InternalState.mainHue,
-                        saturation, // we keep the original saturation
-                        brightness);
+                        InternalState.mainSaturation, // we keep the original saturation
+                        brightness); // we modulate the original brightness with the main brightness
                     newImageColor.a = originalAlpha;
                     image.color = newImageColor;
                 } // we keep the original brightness
@@ -110,7 +110,7 @@ public static class MFDColorComponent {
             // Apply the main color to other components (other plugins + System Status through InternalState colors)
             InternalState.otherComponentMainColor = Color.HSVToRGB(
                 InternalState.mainHue,
-                1.0f,
+                InternalState.mainSaturation,
                 1.0f);
             InternalState.otherComponentMainColor.a = 1;
             InternalState.otherComponentTextColor = Color.HSVToRGB(
