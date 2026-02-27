@@ -301,7 +301,7 @@ namespace NO_Tactitools.Core {
                     }));
             bankIndicatorMaxBank = Config.Bind("Bank Indicator",
                 "Bank Indicator - Max Bank Angle",
-                15,
+                45,
                 new ConfigDescription(
                     "Maximum bank angle shown on the Bank Indicator (Default is 15 degrees, value is rounded to 5).",
                     new AcceptableValueRange<int>(5, 45),
