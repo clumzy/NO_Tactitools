@@ -83,7 +83,7 @@ public class BankIndicatorComponent {
         public Image arc;
         public Image needle;
         public UIBindings.Draw.UILabel bankLabel;
-        public UIBindings.Draw.UILine[] increments;
+        public List<UIBindings.Draw.UILine> increments = new();
 
         public BankIndicatorWidget(Transform parent) {
             containerObject = new GameObject("i_RBI_Container");
@@ -112,28 +112,35 @@ public class BankIndicatorComponent {
             );
             // so that it looks like the bearing label
             bankLabel.GetRectTransform().localScale = new Vector3(0.5f, 0.5f, 0.5f);
-            // now we create the arc with only the increments, with increments as lines, thick ones for 15 degree increments and thin ones for 5 degree increments
+            
+            int smallIncrement = InternalState.maxBankAngle <= 10 ? 1 : 5;
+            int bigIncrement = InternalState.maxBankAngle <= 10 ? 5 : 15;
+            float visualScale = 45f / InternalState.maxBankAngle;
+
+            // now we create the arc with only the increments, with increments as lines, thick ones for big increments and thin ones for small increments
             // they stay fixed with the aircraft, and below the needle that stays fixed with the horizon, so we put them in the same container as the needle but behind it
-            for (int i = -InternalState.maxBankAngle; i <= InternalState.maxBankAngle; i += 5) {
+            for (int i = -InternalState.maxBankAngle; i <= InternalState.maxBankAngle; i += smallIncrement) {
+                bool isBigIncrement = i % bigIncrement == 0 || i == -InternalState.maxBankAngle || i == InternalState.maxBankAngle;
                 UIBindings.Draw.UILine line = new (
                     name: $"i_RBI_increment_{i.ToString()}",
-                    start: new Vector2(0, (i % 15 == 0) ? -radius+10 : -radius+5),
+                    start: new Vector2(0, isBigIncrement ? -radius+10 : -radius+5),
                     end: new Vector2(0, -radius),
                     UIParent: containerTransform,
                     color: new Color(0f, 1f, 0f, 0.8f),
-                    thickness: (i % 15 == 0) ? 2f : 1f,
+                    thickness: isBigIncrement ? 2f : 1f,
                     material: UIBindings.Game.GetFlightHUDFontMaterial()
                 );
-                line.GetRectTransform().transform.RotateAround(containerTransform.position, Vector3.forward, -i);
-                increments.AddItem(line);
+                line.GetRectTransform().transform.RotateAround(containerTransform.position, Vector3.forward, -i * visualScale);
+                increments.Add(line);
             }
         }
 
         public void UpdateDisplay(float currentBankAngle) {
             if (containerObject == null) return;
             float clampedBankAngle = Mathf.Clamp(currentBankAngle, -InternalState.maxBankAngle, InternalState.maxBankAngle);
+            float visualScale = 45f / InternalState.maxBankAngle;
             // we first reset the need to 0 rotation, then we rotate it around the center in the opposite direction of the clamped bank angle so that it stays fixed with the horizon
-            needle.rectTransform.transform.RotateAround(containerTransform.position, Vector3.forward, -needle.rectTransform.transform.rotation.eulerAngles.z - clampedBankAngle);
+            needle.rectTransform.transform.RotateAround(containerTransform.position, Vector3.forward, -needle.rectTransform.transform.rotation.eulerAngles.z - (clampedBankAngle * visualScale));
             bankLabel.SetText($"{Mathf.RoundToInt(currentBankAngle).ToString()}°");
         }
 
