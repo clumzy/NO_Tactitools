@@ -24,8 +24,7 @@ public static class NOAutopilotControlPlugin {
                 InputCatcher.RegisterNewInput(
                     Plugin.MFDNavToggle,
                     0.2f,
-                    ToggleMenu,
-                    onLongPress: () => { }
+                    ToggleMenu
                 );
                 InputCatcher.RegisterNewInput(
                     Plugin.MFDNavEnter,
@@ -183,6 +182,7 @@ public static class NOAutopilotControlPlugin {
                 }
                 
                 APData.SpeedHoldIsMach = !APData.SpeedHoldIsMach;
+                NOAutopilotComponent.LogicEngine.UpdateIncrements();
 
                 // Reset staged speed to match current target (or OFF) in new units
                 if (APData.TargetSpeed < 0) {
@@ -394,6 +394,7 @@ public class NOAutopilotComponent {
             if (GameBindings.Player.Aircraft.GetAircraft() == null) {
                 return;
             }
+
 
             // Row 1: Altitude
             InternalState.currentAlt = APData.CurrentAlt;
@@ -897,7 +898,7 @@ public class NOAutopilotComponent {
                     float displayVS = GameBindings.Units.ConvertVerticalSpeed_ToDisplay(InternalState.currentVS);
                     InternalState.stagedMaxClimbRate = Mathf.Max(InternalState.climbIncrement, Mathf.Round(displayVS / InternalState.climbIncrement) * InternalState.climbIncrement); 
                     break;
-                case 2: InternalState.stagedRoll = Mathf.Round(InternalState.currentRoll / InternalState.rollIncrement) * InternalState.rollIncrement; break;
+                case 2: InternalState.stagedRoll = - Mathf.Round(InternalState.currentRoll / InternalState.rollIncrement) * InternalState.rollIncrement; break;
                 case 3: 
                     // Convert current TAS to display units, then round
                     if (APData.SpeedHoldIsMach) {
@@ -946,7 +947,7 @@ public class NOAutopilotComponent {
             switch (row) {
                 case 0: // Alt
                     if (InternalState.stagedAlt < 0) {
-                        InternalState.stagedAlt = GameBindings.Units.ConvertAltitude_ToDisplay(InternalState.currentAlt);
+                        InternalState.stagedAlt = 0f;
                     }
 
                     float altAdjustment = direction * InternalState.altIncrement * multiplier;
@@ -966,15 +967,7 @@ public class NOAutopilotComponent {
                     break;
                 case 3: // Speed
                     if (InternalState.stagedSpeed < 0) {
-                        if (APData.SpeedHoldIsMach) {
-                            float sos = 340f; 
-                            try { float currentAlt = (APData.LocalAircraft != null) ? APData.LocalAircraft.GlobalPosition().y : 0f; sos = LevelInfo.GetSpeedOfSound(currentAlt); } catch { }
-                            InternalState.stagedSpeed = InternalState.currentTAS / sos;
-                        } else {
-                            // Assumed metric initialization or safe fallback if imperial conversion needed happens elsewhere?
-                            // Using standard safe fallback
-                            InternalState.stagedSpeed = GameBindings.Units.ConvertSpeed_ToDisplay(InternalState.currentTAS);
-                        }
+                        InternalState.stagedSpeed = 0f;
                     }
 
                     float speedAdjustment = direction * InternalState.speedIncrement * multiplier;
@@ -1006,7 +999,7 @@ public class NOAutopilotComponent {
             // MaxClimbRate is always positive
             APData.CurrentMaxClimbRate = imperial ? InternalState.stagedMaxClimbRate / 196.850394f : InternalState.stagedMaxClimbRate;
 
-            APData.TargetRoll = InternalState.stagedRoll;
+            APData.TargetRoll = -InternalState.stagedRoll;
             // Convert from display units to m/s
             if (APData.SpeedHoldIsMach) {
                 APData.TargetSpeed = InternalState.stagedSpeed;
