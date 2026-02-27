@@ -32,11 +32,6 @@ public class RewiredInputConfig {
     public ConfigEntry<string> ControllerName { get; private set; }
     public ConfigEntry<int> ButtonIndex { get; private set; }
 
-    // actions stored for re-registration /!\
-    public Action OnShortPress { get; set; }
-    public Action OnHold { get; set; }
-    public Action OnLongPress { get; set; }
-    public float LongPressThreshold { get; set; }
     private bool _wasBound = false;
 
     public RewiredInputConfig(ConfigFile config, string category, string featureName, string description, int order) {

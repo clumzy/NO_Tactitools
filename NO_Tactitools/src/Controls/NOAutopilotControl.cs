@@ -24,7 +24,8 @@ public static class NOAutopilotControlPlugin {
                 InputCatcher.RegisterNewInput(
                     Plugin.MFDNavToggle,
                     0.2f,
-                    ToggleMenu
+                    onRelease:ToggleMenu,
+                    onLongPress: () => { }
                 );
                 InputCatcher.RegisterNewInput(
                     Plugin.MFDNavEnter,

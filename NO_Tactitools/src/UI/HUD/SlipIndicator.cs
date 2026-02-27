@@ -70,10 +70,10 @@ public class SlipIndicatorComponent {
         public static Vector3 lastVelocity = Vector3.zero;
         public static float smoothingFactor = 5f; // to be adjusted
         public static float slipBallOffset = 0f;
-        public static float sensitivity = 100f; // full deflection at 0.5G lateral acceleration ratio
-        public static float maxOffset = 50f;
+        public static float sensitivity = 50f; // full deflection at 0.5G lateral acceleration ratio
+        public static float maxOffset = 25f;
         public static float padding = 10f;
-        public static Vector2 basePosition = new(0, 180);
+        public static Vector2 basePosition = new(0, 230);
         public static bool isAuthorized = false;
         public static List<string> authorizedPlatforms = [];
     }
@@ -87,7 +87,7 @@ public class SlipIndicatorComponent {
                 start: InternalState.basePosition + new Vector2(-10, -7),
                 end: InternalState.basePosition + new Vector2(-10, 7),
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
-                color: new Color(0f, 1f, 0f, 0.8f),
+                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
                 thickness: 1f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
@@ -96,25 +96,25 @@ public class SlipIndicatorComponent {
                 start: InternalState.basePosition + new Vector2(10, -7),
                 end: InternalState.basePosition + new Vector2(10, 7),
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
-                color: new Color(0f, 1f, 0f, 0.8f),
+                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
                 thickness: 1f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
             InternalState.leftOuterBar = new UIBindings.Draw.UILine(
                 name: "i_SI_leftOuterBar",
-                start: InternalState.basePosition + new Vector2(-InternalState.maxOffset - InternalState.padding, -10),
-                end: InternalState.basePosition + new Vector2(-InternalState.maxOffset - InternalState.padding, 10),
+                start: InternalState.basePosition + new Vector2(-InternalState.maxOffset - InternalState.padding, -7),
+                end: InternalState.basePosition + new Vector2(-InternalState.maxOffset - InternalState.padding, 7),
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
-                color: new Color(0f, 1f, 0f, 0.8f),
+                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
                 thickness: 2f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
             InternalState.rightOuterBar = new UIBindings.Draw.UILine(
                 name: "i_SI_rightOuterBar",
-                start: InternalState.basePosition + new Vector2(InternalState.maxOffset + InternalState.padding, -10),
-                end: InternalState.basePosition + new Vector2(InternalState.maxOffset + InternalState.padding, 10),
+                start: InternalState.basePosition + new Vector2(InternalState.maxOffset + InternalState.padding, -7),
+                end: InternalState.basePosition + new Vector2(InternalState.maxOffset + InternalState.padding, 7),
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
-                color: new Color(0f, 1f, 0f, 0.8f),
+                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
                 thickness: 2f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
@@ -122,7 +122,7 @@ public class SlipIndicatorComponent {
                 name: "i_SI_ballLabel",
                 position: InternalState.basePosition,
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
-                color: new Color(0f, 1f, 0f, 0.8f),
+                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
                 fontSize: 25,
                 backgroundOpacity: 0f, // No background for the ball
                 material: UIBindings.Game.GetFlightHUDFontMaterial()

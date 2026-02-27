@@ -51,12 +51,16 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<float> artificialHorizonTransparency;
         public static ConfigEntry<bool> bankIndicatorEnabled;
         public static ConfigEntry<int> bankIndicatorMaxBank;
+        public static ConfigEntry<bool> bankIndicatorShowLabel;
+        public static ConfigEntry<float> bankIndicatorTransparency;
         public static ConfigEntry<bool> slipIndicatorEnabled;
+        public static ConfigEntry<float> slipIndicatorTransparency;
         public static ConfigEntry<bool> autopilotMenuEnabled;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
         public static ConfigEntry<bool> loadoutPreviewOnlyShowOnBoot;
         public static ConfigEntry<float> loadoutPreviewDuration;
         public static ConfigEntry<bool> loadoutPreviewSendToHMD;
+        public static ConfigEntry<bool> loadoutPreviewHMDShowBorders;
         public static ConfigEntry<bool> loadoutPreviewManualPlacement;
         public static ConfigEntry<int> loadoutPreviewPositionX;
         public static ConfigEntry<int> loadoutPreviewPositionY;
@@ -280,8 +284,8 @@ namespace NO_Tactitools.Core {
                 "Artificial Horizon - Transparency",
                 0.4f,
                 new ConfigDescription(
-                    "Transparency level for the Artificial Horizon display (0.2 = almost transparent, 1 = fully opaque).",
-                    new AcceptableValueRange<float>(0.2f, 1f),
+                    "Transparency level for the Artificial Horizon display (0.2 = almost transparent, 0.8 = vanilla opaque).",
+                    new AcceptableValueRange<float>(0.2f, 0.8f),
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));
@@ -304,6 +308,24 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));
+            bankIndicatorShowLabel = Config.Bind("Bank Indicator",
+                "Bank Indicator - Show Label",
+                true,
+                new ConfigDescription(
+                    "Show the bank angle label below the indicator.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = -1
+                    }));
+            bankIndicatorTransparency = Config.Bind("Bank Indicator",
+                "Bank Indicator - Transparency",
+                0.8f,
+                new ConfigDescription(
+                    "Transparency level for the Bank Indicator display (0.2 = almost transparent, 0.8 = vanilla opaque).",
+                    new AcceptableValueRange<float>(0.2f, 0.8f),
+                    new ConfigurationManagerAttributes {
+                        Order = -2
+                    }));
             // Slip Indicator settings
             slipIndicatorEnabled = Config.Bind("Slip Indicator",
                 "Slip Indicator - Enabled",
@@ -311,6 +333,15 @@ namespace NO_Tactitools.Core {
                 new ConfigDescription(
                     "Enable or disable the Slip Indicator feature.",
                     null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1
+                    }));
+            slipIndicatorTransparency = Config.Bind("Slip Indicator",
+                "Slip Indicator - Transparency",
+                0.8f,
+                new ConfigDescription(
+                    "Transparency level for the Slip Indicator display (0.2 = almost transparent, 0.8 = fully opaque).",
+                    new AcceptableValueRange<float>(0.2f, 0.8f),
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));
@@ -401,6 +432,15 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 2
                     }));
+            loadoutPreviewHMDShowBorders = Config.Bind("Loadout Preview",
+                "Loadout Preview - Send To HMD - Show Borders",
+                true,
+                new ConfigDescription(
+                    "If enabled, shows the borders for the loadout preview when sent to the HMD.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 1
+                    }));
             loadoutPreviewManualPlacement = Config.Bind("Loadout Preview",
                 "Loadout Preview - Send To HMD - Manual Placement",
                 false,
@@ -429,20 +469,20 @@ namespace NO_Tactitools.Core {
                         Order = -3
                     }));
             loadoutPreviewBackgroundTransparency = Config.Bind("Loadout Preview",
-                "Loadout Preview - Send To HMD - Transparency",
+                "Loadout Preview - Send To HMD - Background Transparency",
                 0.6f,
                 new ConfigDescription(
-                    "Transparency level for the Loadout Preview display when sent to the HMD (0 = transparent, 0.8 = fully opaque).",
-                    new AcceptableValueRange<float>(0.0f, 1.0f),
+                    "Transparency level for the Loadout Preview display's background when sent to the HMD (0 = transparent, 0.8 = vanilla opaque).",
+                    new AcceptableValueRange<float>(0.0f, 0.8f),
                     new ConfigurationManagerAttributes {
                         Order = -4
                     }));
             loadoutPreviewTextAndBorderTransparency = Config.Bind("Loadout Preview",
                 "Loadout Preview - Send To HMD - Text and Border Transparency",
-                0.9f,
+                0.8f,
                 new ConfigDescription(
-                    "Transparency level for the Loadout Preview text and border when sent to the HMD (0 = transparent, 1 = fully opaque).",
-                    new AcceptableValueRange<float>(0.0f, 1.0f),
+                    "Transparency level for the Loadout Preview text and border when sent to the HMD (0 = transparent, 0.8 = vanilla opaque).",
+                    new AcceptableValueRange<float>(0.0f, 0.8f),
                     new ConfigurationManagerAttributes {
                         Order = -5
                     }));

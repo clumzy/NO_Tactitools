@@ -100,18 +100,20 @@ public class BankIndicatorComponent {
             // make it 2/3 the size of the compass needle and move it to the same position as the arc
             needle.rectTransform.localScale = new Vector3(0.66f, 0.66f, 0.66f);
             needle.rectTransform.localPosition = new Vector3(0, -radius - 10, 0);
+            needle.color = new Color(needle.color.r, needle.color.g, needle.color.b, Plugin.bankIndicatorTransparency.Value);
 
             bankLabel = new UIBindings.Draw.UILabel(
                 name: "i_RBI_bankLabel",
                 position: new Vector2(0, -radius - 25),
                 UIParent: containerTransform,
-                color: new Color(0f, 1f, 0f, 0.8f),
+                color: new Color(0f, 1f, 0f, Plugin.bankIndicatorTransparency.Value),
                 fontSize: 34,
                 backgroundOpacity: 0f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
             // so that it looks like the bearing label
             bankLabel.GetRectTransform().localScale = new Vector3(0.5f, 0.5f, 0.5f);
+            bankLabel.GetGameObject().SetActive(Plugin.bankIndicatorShowLabel.Value);
             
             int smallIncrement = InternalState.maxBankAngle <= 10 ? 1 : 5;
             int bigIncrement = InternalState.maxBankAngle <= 10 ? 5 : 15;
@@ -126,7 +128,7 @@ public class BankIndicatorComponent {
                     start: new Vector2(0, isBigIncrement ? -radius+10 : -radius+5),
                     end: new Vector2(0, -radius),
                     UIParent: containerTransform,
-                    color: new Color(0f, 1f, 0f, 0.8f),
+                    color: new Color(0f, 1f, 0f, Plugin.bankIndicatorTransparency.Value),
                     thickness: isBigIncrement ? 2f : 1f,
                     material: UIBindings.Game.GetFlightHUDFontMaterial()
                 );
@@ -141,7 +143,10 @@ public class BankIndicatorComponent {
             float visualScale = 45f / InternalState.maxBankAngle;
             // we first reset the need to 0 rotation, then we rotate it around the center in the opposite direction of the clamped bank angle so that it stays fixed with the horizon
             needle.rectTransform.transform.RotateAround(containerTransform.position, Vector3.forward, -needle.rectTransform.transform.rotation.eulerAngles.z - (clampedBankAngle * visualScale));
-            bankLabel.SetText($"{Mathf.RoundToInt(currentBankAngle).ToString()}°");
+            
+            if (bankLabel.GetGameObject().activeSelf) {
+                bankLabel.SetText($"{Mathf.RoundToInt(-currentBankAngle).ToString()}°");
+            }
         }
 
         public void Destroy() {

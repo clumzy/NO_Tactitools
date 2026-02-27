@@ -36,6 +36,7 @@ public class LoadoutPreviewComponent {
             InternalState.displayDuration = Plugin.loadoutPreviewDuration.Value;
             InternalState.onlyShowOnBoot = Plugin.loadoutPreviewOnlyShowOnBoot.Value;
             InternalState.sendToHMD = Plugin.loadoutPreviewSendToHMD.Value;
+            InternalState.hmdShowBorders = Plugin.loadoutPreviewHMDShowBorders.Value;
             InternalState.vanillaUIEnabled = Plugin.weaponDisplayVanillaUIEnabled.Value; // WE READ THIS SETTING HERE BECAUSE WE NEED IT, WE COULD CALL IT FROM WEAPON DISPLAY BUT THIS LETS US AVOID LOAD ORDER ISSUES
             InternalState.manualPlacement = Plugin.loadoutPreviewManualPlacement.Value;
             InternalState.horizontalOffset = Plugin.loadoutPreviewPositionX.Value;
@@ -99,6 +100,7 @@ public class LoadoutPreviewComponent {
         public static List<WeaponStationInfo> weaponStations = [];
         public static LoadoutPreview loadoutPreview;
         public static bool sendToHMD = false;
+        public static bool hmdShowBorders = true;
         public static bool vanillaUIEnabled = true;
         public static bool manualPlacement = false;
         public static int horizontalOffset = 0;
@@ -254,6 +256,9 @@ public class LoadoutPreviewComponent {
                 InternalState.mainColor = new(0f, 1f, 0f, InternalState.textAndBorderTransparency);
                 InternalState.textColor = new(0f, 1f, 0f, InternalState.textAndBorderTransparency);
                 backgroundColor = new(0f, 0f, 0f, InternalState.backgroundTransparency);
+                if (!InternalState.hmdShowBorders) {
+                    border = 0;
+                }
             }
             // Create background rectangle
             borderRect = new(

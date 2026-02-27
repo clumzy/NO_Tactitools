@@ -63,17 +63,29 @@ CHECKLIST WHEN ADDING A FEATURE :
 --> the issue is easy to see : since the traverse is always null (since the cached object doesn't exist) it will keep overwriting itself in GetValue
 -> FIX THE TACSCREEN CONSTANT RESET WHEN DESTROYED IN FLIGHT, sometimes happens ? Maybe when intercepting
 
-0.6.1 :
--> Add fov reset
--> fix weapon display for Tarantula
--> improve delivery indicator
--> make sure you can't bind the same control twice
--> new "meatball" wifget for carrier landings (see discord)
--> Add functionalty to see if a targeted unit is being targeted by a friendly missile
--> fix reload percentage
--> Add compat patch to hide horizon line with 3rd person mod
--> look at nearest airbase button
--> Add controls reassignement ingame
+0.7.0 :
+-> IMPROVEMENTS:
+  -> fully revamped delivery indicator
+-> NEW STUFF
+  -> new "meatball" widget for ILS landing
+  -> Add functionalty to see if a targeted unit is being targeted by a friendly missile
+  -> new bank indicator with scaling
+  -> new slip/skid indicator
+-> CONTROLS:
+  -> Add fov reset button
+  -> Add look at nearest airbase button
+  -> make sure you can't bind the same control twice
+  -> Add controls reassignement ingame
+-> FIXES:
+  -> Add compat patch to hide horizon line with 3rd person mod
+  -> fix weapon display for Tarantula
+  -> fix reload percentage
+  -> fix NOAutopilot mach view and bank angle
+  -> many small fixes
+
+TODO :
+-> Make hot swapping inputs not activate them on setting
+
 IN PROGRESS :
 
 TODO :
@@ -83,6 +95,5 @@ TODO :
 -> Implement container for Weapon Display
 -> Adapt sling for the wpon screen
 
-TO TEST :
 
 NICE TO HAVE :
