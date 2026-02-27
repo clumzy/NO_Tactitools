@@ -243,7 +243,7 @@ public class ArtificialHorizonComponent {
         static public string westLabelText = "270°";
         static public float westLabelOpacity = 1f;
         static public bool isAuthorized = false;
-        static public List<String> authorizedPlatforms = new();
+        static public List<String> authorizedPlatforms = [];
     }
 
     static class DisplayEngine {
@@ -311,7 +311,7 @@ public class ArtificialHorizonComponent {
     public class ArtificialHorizon {
         public UIBindings.Draw.UILine horizonLine;
         const float horizonLineThickness = 1.5f;
-        readonly Color mainColor = new(0.2f, 1f, 0.2f, 0.6f); // Green with transparency
+        readonly Color mainColor = new(0f, 1f, 0f, 0.8f); // Green with transparency
         public UIBindings.Draw.UILine northLine;
         public UIBindings.Draw.UILabel northLabel;
         public UIBindings.Draw.UILine southLine;
@@ -321,8 +321,8 @@ public class ArtificialHorizonComponent {
         public UIBindings.Draw.UILine westLine;
         public UIBindings.Draw.UILabel westLabel;
         const float cardinalLineThickness = 1f;
-        public Color cardinalLineColor = new(0.2f, 1f, 0.2f, 0.8f); // Green with less transparency
-        public Color cardinalLabelColor = new(0.2f, 1f, 0.2f, 1f); // Green with even less transparency
+        public Color cardinalLineColor = new(0f, 1f, 0f, 0.6f); // Green with less transparency
+        public Color cardinalLabelColor = new(0f, 1f, 0f, 0.8f); // Green with even less transparency
         public int cardinalLabelFontSize = 16;
         public float cardinalLabelBgOpacity = 0.1f;
 
@@ -337,7 +337,8 @@ public class ArtificialHorizonComponent {
                 new Vector2(0, 0),
                 destination,
                 mainColor,
-                horizonLineThickness
+                horizonLineThickness,
+                UIBindings.Game.GetFlightHUDFontMaterial()
             );
             northLine = new UIBindings.Draw.UILine(
                 "northLine",
@@ -345,7 +346,8 @@ public class ArtificialHorizonComponent {
                 new Vector2(0, 0),
                 destination,
                 cardinalLineColor,
-                cardinalLineThickness
+                cardinalLineThickness,
+                UIBindings.Game.GetFlightHUDFontMaterial()
             );
             northLabel = new UIBindings.Draw.UILabel(
                 "northLabel",
@@ -354,7 +356,8 @@ public class ArtificialHorizonComponent {
                 FontStyle.Normal,
                 cardinalLabelColor,
                 cardinalLabelFontSize,
-                cardinalLabelBgOpacity
+                cardinalLabelBgOpacity,
+                UIBindings.Game.GetFlightHUDFontMaterial()
             );
             southLine = new UIBindings.Draw.UILine(
                 "southLine",
@@ -362,7 +365,8 @@ public class ArtificialHorizonComponent {
                 new Vector2(0, 0),
                 destination,
                 cardinalLineColor,
-                cardinalLineThickness
+                cardinalLineThickness,
+                UIBindings.Game.GetFlightHUDFontMaterial()
             );
             southLabel = new UIBindings.Draw.UILabel(
                 "southLabel",
@@ -371,7 +375,8 @@ public class ArtificialHorizonComponent {
                 FontStyle.Normal,
                 cardinalLabelColor,
                 cardinalLabelFontSize,
-                cardinalLabelBgOpacity
+                cardinalLabelBgOpacity,
+                UIBindings.Game.GetFlightHUDFontMaterial()
             );
             eastLine = new UIBindings.Draw.UILine(
                 "eastLine",
@@ -379,7 +384,8 @@ public class ArtificialHorizonComponent {
                 new Vector2(0, 0),
                 destination,
                 cardinalLineColor,
-                cardinalLineThickness
+                cardinalLineThickness,
+                UIBindings.Game.GetFlightHUDFontMaterial()
             );
             eastLabel = new UIBindings.Draw.UILabel(
                 "eastLabel",
@@ -388,7 +394,8 @@ public class ArtificialHorizonComponent {
                 FontStyle.Normal,
                 cardinalLabelColor,
                 cardinalLabelFontSize,
-                cardinalLabelBgOpacity
+                cardinalLabelBgOpacity,
+                UIBindings.Game.GetFlightHUDFontMaterial()
             );
             westLine = new UIBindings.Draw.UILine(
                 "westLine",
@@ -396,7 +403,8 @@ public class ArtificialHorizonComponent {
                 new Vector2(0, 0),
                 destination,
                 cardinalLineColor,
-                cardinalLineThickness
+                cardinalLineThickness,
+                UIBindings.Game.GetFlightHUDFontMaterial()
             );
             westLabel = new UIBindings.Draw.UILabel(
                 "westLabel",
@@ -405,7 +413,8 @@ public class ArtificialHorizonComponent {
                 FontStyle.Normal,
                 cardinalLabelColor,
                 cardinalLabelFontSize,
-                cardinalLabelBgOpacity
+                cardinalLabelBgOpacity,
+                UIBindings.Game.GetFlightHUDFontMaterial()
             );
             Plugin.Log("[AH] Artificial Horizon display created");
         }
