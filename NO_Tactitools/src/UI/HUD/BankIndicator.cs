@@ -142,7 +142,7 @@ public class BankIndicatorComponent {
             float clampedBankAngle = Mathf.Clamp(currentBankAngle, -InternalState.maxBankAngle, InternalState.maxBankAngle);
             float visualScale = 45f / InternalState.maxBankAngle;
             // we first reset the need to 0 rotation, then we rotate it around the center in the opposite direction of the clamped bank angle so that it stays fixed with the horizon
-            needle.rectTransform.transform.RotateAround(containerTransform.position, Vector3.forward, -needle.rectTransform.transform.rotation.eulerAngles.z - (clampedBankAngle * visualScale));
+            needle.rectTransform.transform.RotateAround(containerTransform.position, Vector3.forward, -needle.rectTransform.transform.rotation.eulerAngles.z - (clampedBankAngle * visualScale) + containerTransform.rotation.eulerAngles.z);
             
             if (bankLabel.GetGameObject().activeSelf) {
                 bankLabel.SetText($"{Mathf.RoundToInt(-currentBankAngle).ToString()}°");
