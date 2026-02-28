@@ -375,7 +375,7 @@ namespace NO_Tactitools.Core {
                 "Slip/Skid Indicator - Sensitivity ratio",
                 0.5f,
                 new ConfigDescription(
-                    "Sensitivity ratio for the Slip/Skid Indicator. Defines the lateral/vertical force ratio for max ball offset (0.1 = high sensitivity, 2 = low sensitivity).",
+                    "Sensitivity ratio for the Slip/Skid Indicator. Defines the lateral/(vertical+forward) force ratio for max ball offset (0.1 = high sensitivity, 2 = low sensitivity).",
                     new AcceptableValueRange<float>(0.1f, 2.0f),
                     new ConfigurationManagerAttributes {
                         Order = -1
