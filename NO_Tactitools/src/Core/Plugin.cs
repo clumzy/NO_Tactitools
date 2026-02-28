@@ -352,57 +352,57 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = -4
                     }));
-            // Slip Indicator settings
-            slipIndicatorEnabled = Config.Bind("Slip Indicator",
-                "Slip Indicator - Enabled",
+            // Slip/Skid Indicator settings
+            slipIndicatorEnabled = Config.Bind("Slip/Skid Indicator",
+                "Slip/Skid Indicator - Enabled",
                 true,
                 new ConfigDescription(
-                    "Enable or disable the Slip Indicator feature.",
+                    "Enable or disable the Slip/Skid Indicator feature.",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = 1
                     }));
-            slipIndicatorSmoothing = Config.Bind("Slip Indicator",
-                "Slip Indicator - Smoothing",
+            slipIndicatorSmoothing = Config.Bind("Slip/Skid Indicator",
+                "Slip/Skid Indicator - Smoothing",
                 10,
                 new ConfigDescription(
-                    "Smoothing level for the Slip Indicator (1 = high responsiveness, 20 = high smoothing).",
+                    "Smoothing level for the Slip/Skid Indicator (1 = high responsiveness, 20 = high smoothing).",
                     new AcceptableValueRange<int>(1, 20),
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));
-            slipIndicatorSensitivity = Config.Bind("Slip Indicator",
-                "Slip Indicator - Sensitivity ratio",
+            slipIndicatorSensitivity = Config.Bind("Slip/Skid Indicator",
+                "Slip/Skid Indicator - Sensitivity ratio",
                 0.5f,
                 new ConfigDescription(
-                    "Sensitivity ratio for the Slip Indicator. Defines the lateral/vertical force ratio for max ball offset (0.1 = high sensitivity, 2 = low sensitivity).",
+                    "Sensitivity ratio for the Slip/Skid Indicator. Defines the lateral/vertical force ratio for max ball offset (0.1 = high sensitivity, 2 = low sensitivity).",
                     new AcceptableValueRange<float>(0.1f, 2.0f),
                     new ConfigurationManagerAttributes {
                         Order = -1
                     }));
-            slipIndicatorTransparency = Config.Bind("Slip Indicator",
-                "Slip Indicator - Transparency",
+            slipIndicatorTransparency = Config.Bind("Slip/Skid Indicator",
+                "Slip/Skid Indicator - Transparency",
                 0.8f,
                 new ConfigDescription(
-                    "Transparency level for the Slip Indicator display (0.2 = almost transparent, 0.8 = vanilla opaque).",
+                    "Transparency level for the Slip/Skid Indicator display (0.2 = almost transparent, 0.8 = vanilla opaque).",
                     new AcceptableValueRange<float>(0.2f, 0.8f),
                     new ConfigurationManagerAttributes {
                         Order = -2
                     }));
-            slipIndicatorPositionX = Config.Bind("Slip Indicator",
-                "Slip Indicator - Position X",
+            slipIndicatorPositionX = Config.Bind("Slip/Skid Indicator",
+                "Slip/Skid Indicator - Position X",
                 0,
                 new ConfigDescription(
-                    "X position center of the Slip Indicator in the HUD.",
+                    "X position center of the Slip/Skid Indicator in the HUD.",
                     new AcceptableValueRange<int>(-1000, 1000),
                     new ConfigurationManagerAttributes {
                         Order = -3
                     }));
-            slipIndicatorPositionY = Config.Bind("Slip Indicator",
-                "Slip Indicator - Position Y",
+            slipIndicatorPositionY = Config.Bind("Slip/Skid Indicator",
+                "Slip/Skid Indicator - Position Y",
                 230,
                 new ConfigDescription(
-                    "Y position center of the Slip Indicator in the HUD.",
+                    "Y position center of the Slip/Skid Indicator in the HUD.",
                     new AcceptableValueRange<int>(-1000, 1000),
                     new ConfigurationManagerAttributes {
                         Order = -4
@@ -653,9 +653,9 @@ namespace NO_Tactitools.Core {
                 Log($"Bank Indicator is enabled, patching...");
                 harmony.PatchAll(typeof(BankIndicatorPlugin));
             }
-            // Patch Slip Indicator
+            // Patch Slip/Skid Indicator
             if (slipIndicatorEnabled.Value) {
-                Log($"Slip Indicator is enabled, patching...");
+                Log($"Slip/Skid Indicator is enabled, patching...");
                 harmony.PatchAll(typeof(SlipIndicatorPlugin));
             }
             // MAP DISPLAY PATCHES
