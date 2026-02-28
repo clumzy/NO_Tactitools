@@ -438,9 +438,9 @@ namespace NO_Tactitools.Core {
                     }));
             resetCockpitFOV = new RewiredInputConfig(Config, "Camera Tweaks", "Camera Tweaks - Reset Cockpit FOV", "Input you want to assign for Resetting Cockpit FOV", 0);
             lookAtNearestAirbase = new RewiredInputConfig(Config, "Camera Tweaks", "Camera Tweaks - Look At Nearest Airbase", "Input for pointing the camera at the nearest Airbase.", 0);
-            // ILS Screen settings
+            // ILS Widget settings
             ILSWidgetEnabled = Config.Bind("ILS Widget",
-                "ILS Screen - Enabled",
+                "ILS Widget - Enabled",
                 true,
                 new ConfigDescription(
                     "Enable or disable the LS Widget feature.",
@@ -449,7 +449,7 @@ namespace NO_Tactitools.Core {
                         Order = 2
                     }));
             ILSIndicatorPositionX = Config.Bind("ILS Widget",
-                "ILS Screen - Position X",
+                "ILS Widget - Position X",
                 430,
                 new ConfigDescription(
                     "X position of the ILS Widget on the HUD.",
@@ -457,8 +457,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 1
                     }));
-            ILSIndicatorPositionY = Config.Bind("ILS Screen",
-                "ILS Screen - Position Y",
+            ILSIndicatorPositionY = Config.Bind("ILS Widget",
+                "ILS Widget - Position Y",
                 10,
                 new ConfigDescription(
                     "Y position of the ILS Widget on the HUD.",
@@ -466,8 +466,8 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));
-            ILSIndicatorMaxAngle = Config.Bind("ILS Screen",
-                "ILS Screen - Max Glideslope Error Angle",
+            ILSIndicatorMaxAngle = Config.Bind("ILS Widget",
+                "ILS Widget - Max Glideslope Error Angle",
                 1f,
                 new ConfigDescription(
                     "Maximum glideslope error angle shown on the ILS Widget (Default is 1 degree).",
