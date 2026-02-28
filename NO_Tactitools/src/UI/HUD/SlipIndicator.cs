@@ -88,8 +88,9 @@ public class SlipIndicatorComponent {
                 end: InternalState.basePosition + new Vector2(-10, 7),
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
                 color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
-                thickness: 1f,
-                material: UIBindings.Game.GetFlightHUDFontMaterial()
+                thickness: 1.5f,
+                material: UIBindings.Game.GetFlightHUDFontMaterial(),
+                antialiased: true
             );
             InternalState.rightBar = new UIBindings.Draw.UILine(
                 name: "i_SI_rightBar",
@@ -97,8 +98,9 @@ public class SlipIndicatorComponent {
                 end: InternalState.basePosition + new Vector2(10, 7),
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
                 color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
-                thickness: 1f,
-                material: UIBindings.Game.GetFlightHUDFontMaterial()
+                thickness: 1.5f,
+                material: UIBindings.Game.GetFlightHUDFontMaterial(),
+                antialiased: true
             );
             InternalState.leftOuterBar = new UIBindings.Draw.UILine(
                 name: "i_SI_leftOuterBar",
@@ -106,8 +108,9 @@ public class SlipIndicatorComponent {
                 end: InternalState.basePosition + new Vector2(-InternalState.maxOffset - InternalState.padding, 7),
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
                 color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
-                thickness: 2f,
-                material: UIBindings.Game.GetFlightHUDFontMaterial()
+                thickness: 3f,
+                material: UIBindings.Game.GetFlightHUDFontMaterial(),
+                antialiased: true
             );
             InternalState.rightOuterBar = new UIBindings.Draw.UILine(
                 name: "i_SI_rightOuterBar",
@@ -115,8 +118,9 @@ public class SlipIndicatorComponent {
                 end: InternalState.basePosition + new Vector2(InternalState.maxOffset + InternalState.padding, 7),
                 UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
                 color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
-                thickness: 2f,
-                material: UIBindings.Game.GetFlightHUDFontMaterial()
+                thickness: 3f,
+                material: UIBindings.Game.GetFlightHUDFontMaterial(),
+                antialiased: true
             );
             InternalState.ballLabel = new UIBindings.Draw.UILabel(
                 name: "i_SI_ballLabel",
