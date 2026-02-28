@@ -5,12 +5,12 @@ SAH-46 Chicane
 VL-49 Tarantula
 UH-80 Ibis
 CI-22 Cricket
+T/A-30 Compass
+FS-12 Revoker
+FS-3 Ternion
+FS-20 Vortex
+KR-67 Ifrit
 EW-1 Medusa
 SFB-81
 A-19 Brawler
-//T/A-30 Compass
-//FS-12 Revoker
-//FS-3 Ternion
-//FS-20 Vortex
-//KR-67 Ifrit
-//FQ-106 Kestrel
+FQ-106 Kestrel

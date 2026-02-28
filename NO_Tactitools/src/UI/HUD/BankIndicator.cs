@@ -34,6 +34,8 @@ public class BankIndicatorComponent {
                 Mathf.Round((float)Plugin.bankIndicatorMaxBank.Value / 5f) * 5f,
                 5,
                 45);
+            InternalState.currentX = Plugin.bankIndicatorPositionX.Value;
+            InternalState.currentY = Plugin.bankIndicatorPositionY.Value;
 
         }
 
@@ -46,12 +48,20 @@ public class BankIndicatorComponent {
             float bank = aircraftTransform.localEulerAngles.z;
             if (bank > 180f) bank -= 360f;
             InternalState.currentBankAngle = bank;
+            InternalState.needsUpdate = (InternalState.currentX != Plugin.bankIndicatorPositionX.Value || InternalState.currentY != Plugin.bankIndicatorPositionY.Value);
+            if (InternalState.needsUpdate) {
+                InternalState.currentX = Plugin.bankIndicatorPositionX.Value;
+                InternalState.currentY = Plugin.bankIndicatorPositionY.Value;
+            }
         }
     }
 
     public static class InternalState {
         public static float currentBankAngle = 0f;
         public static int maxBankAngle = 15;
+        public static int currentX;
+        public static int currentY;
+        public static bool needsUpdate = false;
         public static bool isAuthorized = false;
         public static List<string> authorizedPlatforms = [];
         public static BankIndicatorWidget BIWidget = null;
@@ -74,6 +84,9 @@ public class BankIndicatorComponent {
                 return;
 
             InternalState.BIWidget.UpdateDisplay(InternalState.currentBankAngle);
+            if (InternalState.needsUpdate) {
+                InternalState.BIWidget.SetPosition(new Vector2(InternalState.currentX, InternalState.currentY));
+            }
         }
     }
 
@@ -90,7 +103,7 @@ public class BankIndicatorComponent {
             containerObject.AddComponent<RectTransform>();
             containerTransform = containerObject.transform;
             containerTransform.SetParent(parent, false);
-            containerTransform.localPosition = Vector3.zero;
+            containerTransform.localPosition = new Vector3(Plugin.bankIndicatorPositionX.Value, Plugin.bankIndicatorPositionY.Value, 0);
             int radius = 70;
 
             needle = GameObject.Instantiate(
@@ -129,7 +142,7 @@ public class BankIndicatorComponent {
                     end: new Vector2(0, -radius),
                     UIParent: containerTransform,
                     color: new Color(0f, 1f, 0f, Plugin.bankIndicatorTransparency.Value),
-                    thickness: isBigIncrement ? 3f : 1.5f,
+                    thickness: isBigIncrement ? 2f : 1f,
                     material: UIBindings.Game.GetFlightHUDFontMaterial(),
                     antialiased: true
                 );
@@ -147,6 +160,12 @@ public class BankIndicatorComponent {
             
             if (bankLabel.GetGameObject().activeSelf) {
                 bankLabel.SetText($"{Mathf.RoundToInt(-currentBankAngle).ToString()}°");
+            }
+        }
+
+        public void SetPosition(Vector2 position) {
+            if (containerTransform != null) {
+                containerTransform.localPosition = new Vector3(position.x, position.y, 0);
             }
         }
 

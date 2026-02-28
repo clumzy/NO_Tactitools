@@ -53,8 +53,12 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<int> bankIndicatorMaxBank;
         public static ConfigEntry<bool> bankIndicatorShowLabel;
         public static ConfigEntry<float> bankIndicatorTransparency;
+        public static ConfigEntry<int> bankIndicatorPositionX;
+        public static ConfigEntry<int> bankIndicatorPositionY;
         public static ConfigEntry<bool> slipIndicatorEnabled;
         public static ConfigEntry<float> slipIndicatorTransparency;
+        public static ConfigEntry<int> slipIndicatorPositionX;
+        public static ConfigEntry<int> slipIndicatorPositionY;
         public static ConfigEntry<bool> autopilotMenuEnabled;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
         public static ConfigEntry<bool> loadoutPreviewOnlyShowOnBoot;
@@ -72,6 +76,8 @@ namespace NO_Tactitools.Core {
         public static RewiredInputConfig lookAtNearestAirbase;
         public static ConfigEntry<bool> ILSScreenEnabled;
         public static ConfigEntry<float> ILSIndicatorMaxAngle;
+        public static ConfigEntry<int> ILSIndicatorPositionX;
+        public static ConfigEntry<int> ILSIndicatorPositionY;
         public static ConfigEntry<bool> debugModeEnabled;
         internal static new ManualLogSource Logger;
         public static Plugin Instance;
@@ -326,6 +332,24 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = -2
                     }));
+            bankIndicatorPositionX = Config.Bind("Bank Indicator",
+                "Bank Indicator - Position X",
+                0,
+                new ConfigDescription(
+                    "X position of the Bank Indicator in the HUD.",
+                    new AcceptableValueRange<int>(-1000, 1000),
+                    new ConfigurationManagerAttributes {
+                        Order = -3
+                    }));
+            bankIndicatorPositionY = Config.Bind("Bank Indicator",
+                "Bank Indicator - Position Y",
+                0,
+                new ConfigDescription(
+                    "Y position of the Bank Indicator in the HUD.",
+                    new AcceptableValueRange<int>(-1000, 1000),
+                    new ConfigurationManagerAttributes {
+                        Order = -4
+                    }));
             // Slip Indicator settings
             slipIndicatorEnabled = Config.Bind("Slip Indicator",
                 "Slip Indicator - Enabled",
@@ -344,6 +368,24 @@ namespace NO_Tactitools.Core {
                     new AcceptableValueRange<float>(0.2f, 0.8f),
                     new ConfigurationManagerAttributes {
                         Order = 0
+                    }));
+            slipIndicatorPositionX = Config.Bind("Slip Indicator",
+                "Slip Indicator - Position X",
+                0,
+                new ConfigDescription(
+                    "X position center of the Slip Indicator in the HUD.",
+                    new AcceptableValueRange<int>(-1000, 1000),
+                    new ConfigurationManagerAttributes {
+                        Order = -1
+                    }));
+            slipIndicatorPositionY = Config.Bind("Slip Indicator",
+                "Slip Indicator - Position Y",
+                230,
+                new ConfigDescription(
+                    "Y position center of the Slip Indicator in the HUD.",
+                    new AcceptableValueRange<int>(-1000, 1000),
+                    new ConfigurationManagerAttributes {
+                        Order = -2
                     }));
             // Autopilot settings
             autopilotMenuEnabled = Config.Bind("Autopilot",
@@ -384,7 +426,25 @@ namespace NO_Tactitools.Core {
                     "Enable or disable the ILS Screen feature.",
                     null,
                     new ConfigurationManagerAttributes {
+                        Order = 2
+                    }));
+            ILSIndicatorPositionX = Config.Bind("ILS Screen",
+                "ILS Screen - Position X",
+                430,
+                new ConfigDescription(
+                    "X position of the ILS indicator in the HUD/HMD.",
+                    new AcceptableValueRange<int>(-1000, 1000),
+                    new ConfigurationManagerAttributes {
                         Order = 1
+                    }));
+            ILSIndicatorPositionY = Config.Bind("ILS Screen",
+                "ILS Screen - Position Y",
+                10,
+                new ConfigDescription(
+                    "Y position of the ILS indicator in the HUD/HMD.",
+                    new AcceptableValueRange<int>(-1000, 1000),
+                    new ConfigurationManagerAttributes {
+                        Order = 0
                     }));
             ILSIndicatorMaxAngle = Config.Bind("ILS Screen",
                 "ILS Screen - Max Glideslope Error Angle",
@@ -393,7 +453,7 @@ namespace NO_Tactitools.Core {
                     "Maximum glideslope error angle shown on the ILS indicator (Default is 1 degree).",
                     new AcceptableValueRange<float>(0.5f, 5f),
                     new ConfigurationManagerAttributes {
-                        Order = 0
+                        Order = 3
                     }));
             // Loadout Preview settings
             loadoutPreviewEnabled = Config.Bind("Loadout Preview",

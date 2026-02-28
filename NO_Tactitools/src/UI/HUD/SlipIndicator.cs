@@ -29,6 +29,8 @@ public class SlipIndicatorComponent {
 
             InternalState.slipBallOffset = 0f;
             InternalState.lastVelocity = Vector3.zero;
+            InternalState.currentX = Plugin.slipIndicatorPositionX.Value;
+            InternalState.currentY = Plugin.slipIndicatorPositionY.Value;
         }
 
         static public void Update() {
@@ -58,89 +60,136 @@ public class SlipIndicatorComponent {
             } else {
                 InternalState.slipBallOffset = Mathf.Lerp(InternalState.slipBallOffset, 0f, dt * InternalState.smoothingFactor);
             }
+            InternalState.needsUpdate = (InternalState.currentX != Plugin.slipIndicatorPositionX.Value || InternalState.currentY != Plugin.slipIndicatorPositionY.Value);
+            if (InternalState.needsUpdate) {
+                InternalState.currentX = Plugin.slipIndicatorPositionX.Value;
+                InternalState.currentY = Plugin.slipIndicatorPositionY.Value;
+            }
         }
     }
 
     public static class InternalState {
-        public static UIBindings.Draw.UILine leftBar;
-        public static UIBindings.Draw.UILine rightBar;
-        public static UIBindings.Draw.UILine leftOuterBar;
-        public static UIBindings.Draw.UILine rightOuterBar;
-        public static UIBindings.Draw.UILabel ballLabel;
         public static Vector3 lastVelocity = Vector3.zero;
-        public static float smoothingFactor = 5f; // to be adjusted
+        public static float smoothingFactor = 5f; 
         public static float slipBallOffset = 0f;
-        public static float sensitivity = 50f; // full deflection at 0.5G lateral acceleration ratio
+        public static float sensitivity = 50f; 
         public static float maxOffset = 25f;
-        public static float padding = 10f;
-        public static Vector2 basePosition = new(0, 230);
+        public static int currentX;
+        public static int currentY;
+        public static bool needsUpdate = false;
         public static bool isAuthorized = false;
         public static List<string> authorizedPlatforms = [];
+        public static SlipIndicatorWidget SIWidget = null;
     }
 
     static class DisplayEngine {
         static public void Init() {
             if (!InternalState.isAuthorized) return;
-
-            InternalState.leftBar = new UIBindings.Draw.UILine(
-                name: "i_SI_leftBar",
-                start: InternalState.basePosition + new Vector2(-10, -7),
-                end: InternalState.basePosition + new Vector2(-10, 7),
-                UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
-                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
-                thickness: 1.5f,
-                material: UIBindings.Game.GetFlightHUDFontMaterial(),
-                antialiased: true
-            );
-            InternalState.rightBar = new UIBindings.Draw.UILine(
-                name: "i_SI_rightBar",
-                start: InternalState.basePosition + new Vector2(10, -7),
-                end: InternalState.basePosition + new Vector2(10, 7),
-                UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
-                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
-                thickness: 1.5f,
-                material: UIBindings.Game.GetFlightHUDFontMaterial(),
-                antialiased: true
-            );
-            InternalState.leftOuterBar = new UIBindings.Draw.UILine(
-                name: "i_SI_leftOuterBar",
-                start: InternalState.basePosition + new Vector2(-InternalState.maxOffset - InternalState.padding, -7),
-                end: InternalState.basePosition + new Vector2(-InternalState.maxOffset - InternalState.padding, 7),
-                UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
-                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
-                thickness: 3f,
-                material: UIBindings.Game.GetFlightHUDFontMaterial(),
-                antialiased: true
-            );
-            InternalState.rightOuterBar = new UIBindings.Draw.UILine(
-                name: "i_SI_rightOuterBar",
-                start: InternalState.basePosition + new Vector2(InternalState.maxOffset + InternalState.padding, -7),
-                end: InternalState.basePosition + new Vector2(InternalState.maxOffset + InternalState.padding, 7),
-                UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
-                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
-                thickness: 3f,
-                material: UIBindings.Game.GetFlightHUDFontMaterial(),
-                antialiased: true
-            );
-            InternalState.ballLabel = new UIBindings.Draw.UILabel(
-                name: "i_SI_ballLabel",
-                position: InternalState.basePosition,
-                UIParent: UIBindings.Game.GetFlightHUDCenterTransform(),
-                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
-                fontSize: 25,
-                backgroundOpacity: 0f, // No background for the ball
-                material: UIBindings.Game.GetFlightHUDFontMaterial()
-            );
-            InternalState.ballLabel.SetText("●");
+            InternalState.SIWidget?.Destroy();
+            InternalState.SIWidget = new SlipIndicatorWidget(UIBindings.Game.GetFlightHUDCenterTransform());
         }
 
         static public void Update() {
             if (GameBindings.GameState.IsGamePaused()
                 || GameBindings.Player.Aircraft.GetAircraft() == null
-                || !InternalState.isAuthorized)
+                || !InternalState.isAuthorized
+                || InternalState.SIWidget == null)
                 return;
+
+            if (InternalState.needsUpdate) {
+                InternalState.SIWidget.SetPosition(new Vector2(InternalState.currentX, InternalState.currentY));
+            }
+
             float xOffset = Mathf.Clamp(InternalState.slipBallOffset * InternalState.sensitivity, -InternalState.maxOffset, InternalState.maxOffset);
-            InternalState.ballLabel.SetPosition(InternalState.basePosition + new Vector2(xOffset, 2));
+            InternalState.SIWidget.UpdateDisplay(xOffset);
+        }
+    }
+
+    public class SlipIndicatorWidget {
+        public GameObject containerObject;
+        public Transform containerTransform;
+        public UIBindings.Draw.UILine leftBar;
+        public UIBindings.Draw.UILine rightBar;
+        public UIBindings.Draw.UILine leftOuterBar;
+        public UIBindings.Draw.UILine rightOuterBar;
+        public UIBindings.Draw.UILabel ballLabel;
+        public float maxOffset = 25f;
+        public float padding = 10f;
+
+        public SlipIndicatorWidget(Transform parent) {
+            containerObject = new GameObject("i_SI_Container");
+            containerObject.AddComponent<RectTransform>();
+            containerTransform = containerObject.transform;
+            containerTransform.SetParent(parent, false);
+            containerTransform.localPosition = new Vector3(Plugin.slipIndicatorPositionX.Value, Plugin.slipIndicatorPositionY.Value, 0);
+
+            leftBar = new UIBindings.Draw.UILine(
+                name: "i_SI_leftBar",
+                start: new Vector2(-10, -7),
+                end: new Vector2(-10, 7),
+                UIParent: containerTransform,
+                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
+                thickness: 1f,
+                material: UIBindings.Game.GetFlightHUDFontMaterial(),
+                antialiased: true
+            );
+            rightBar = new UIBindings.Draw.UILine(
+                name: "i_SI_rightBar",
+                start: new Vector2(10, -7),
+                end: new Vector2(10, 7),
+                UIParent: containerTransform,
+                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
+                thickness: 1f,
+                material: UIBindings.Game.GetFlightHUDFontMaterial(),
+                antialiased: true
+            );
+            leftOuterBar = new UIBindings.Draw.UILine(
+                name: "i_SI_leftOuterBar",
+                start: new Vector2(-maxOffset - padding, -7),
+                end: new Vector2(-maxOffset - padding, 7),
+                UIParent: containerTransform,
+                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
+                thickness: 2f,
+                material: UIBindings.Game.GetFlightHUDFontMaterial(),
+                antialiased: true
+            );
+            rightOuterBar = new UIBindings.Draw.UILine(
+                name: "i_SI_rightOuterBar",
+                start: new Vector2(maxOffset + padding, -7),
+                end: new Vector2(maxOffset + padding, 7),
+                UIParent: containerTransform,
+                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
+                thickness: 2f,
+                material: UIBindings.Game.GetFlightHUDFontMaterial(),
+                antialiased: true
+            );
+            ballLabel = new UIBindings.Draw.UILabel(
+                name: "i_SI_ballLabel",
+                position: Vector2.zero,
+                UIParent: containerTransform,
+                color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
+                fontSize: 25,
+                backgroundOpacity: 0f,
+                material: UIBindings.Game.GetFlightHUDFontMaterial()
+            );
+            ballLabel.SetText("●");
+        }
+
+        public void SetPosition(Vector2 position) {
+            if (containerTransform != null) {
+                containerTransform.localPosition = new Vector3(position.x, position.y, 0);
+            }
+        }
+
+        public void UpdateDisplay(float xOffset) {
+            ballLabel.SetPosition(new Vector2(xOffset, 2));
+        }
+
+        public void Destroy() {
+            if (containerObject != null) {
+                Object.Destroy(containerObject);
+                containerObject = null;
+            }
         }
     }
 

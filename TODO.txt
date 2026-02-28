@@ -82,6 +82,8 @@ CHECKLIST WHEN ADDING A FEATURE :
   -> fix weapon display for Tarantula
   -> fix reload percentage
   -> fix NOAutopilot mach view and bank angle
+  -> add AA to UI elements I add
+  -> all settings are at minimum reset on aircraft respawn
   -> many small fixes
 
 TODO :

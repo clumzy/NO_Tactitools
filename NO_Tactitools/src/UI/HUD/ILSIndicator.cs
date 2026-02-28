@@ -27,6 +27,8 @@ class ILSIndicatorComponent {
             InternalState.isLanding = false;
             InternalState.currentGlideslopeError = 0f;
             InternalState.maxGlideslopeAngle = Plugin.ILSIndicatorMaxAngle.Value;
+            InternalState.currentX = Plugin.ILSIndicatorPositionX.Value;
+            InternalState.currentY = Plugin.ILSIndicatorPositionY.Value;
             if (InternalState.airbaseOverlayCached == null) {
                 InternalState.airbaseOverlayCached = GameObject.FindFirstObjectByType<AirbaseOverlay>();
                 if (InternalState.airbaseOverlayCached != null) {
@@ -46,6 +48,11 @@ class ILSIndicatorComponent {
                 return;
             InternalState.isLanding = InternalState.landingCache.GetValue(InternalState.airbaseOverlayCached);
             InternalState.runwayUsage = InternalState.runwayUsageCache.GetValue(InternalState.airbaseOverlayCached);
+            InternalState.needsUpdate = (InternalState.currentX != Plugin.ILSIndicatorPositionX.Value || InternalState.currentY != Plugin.ILSIndicatorPositionY.Value);
+            if (InternalState.needsUpdate) {
+                InternalState.currentX = Plugin.ILSIndicatorPositionX.Value;
+                InternalState.currentY = Plugin.ILSIndicatorPositionY.Value;
+            }
             if (InternalState.isLanding) {
                 InternalState.currentGlideslopeError = LogicEngine.GetGlideslopeAngleError(
                     GameBindings.Player.Aircraft.GetAircraft(),
@@ -76,6 +83,9 @@ class ILSIndicatorComponent {
         public static Airbase.Runway.RunwayUsage runwayUsage;
         public static float currentGlideslopeError = 0f;
         public static float maxGlideslopeAngle = 1f;
+        public static int currentX;
+        public static int currentY;
+        public static bool needsUpdate = false;
         public static AirbaseOverlay airbaseOverlayCached = null;
         public static TraverseCache<AirbaseOverlay, Airbase.Runway.RunwayUsage> runwayUsageCache = new("runwayUsage");
         public static TraverseCache<AirbaseOverlay, bool> landingCache = new("landing");
@@ -101,6 +111,9 @@ class ILSIndicatorComponent {
             if (InternalState.isLanding) {
                 InternalState.ILSWidget.SetActive(true);
                 InternalState.ILSWidget.SetBallPosition(InternalState.currentGlideslopeError);
+                if (InternalState.needsUpdate) {
+                    InternalState.ILSWidget.SetPosition(new Vector2(InternalState.currentX, InternalState.currentY));
+                }
                 if (InternalState.currentGlideslopeError < -0.6f) {
                     InternalState.ILSWidget.SetBallColor(Color.red);
                 }
@@ -127,7 +140,7 @@ class ILSIndicatorComponent {
             containerObject.AddComponent<RectTransform>();
             containerTransform = containerObject.transform;
             containerTransform.SetParent(parent, false);
-            containerTransform.localPosition = new Vector3(430, 10, 0);
+            containerTransform.localPosition = new Vector3(Plugin.ILSIndicatorPositionX.Value, Plugin.ILSIndicatorPositionY.Value, 0);
 
             background = new UIBindings.Draw.UIAdvancedRectangle(
                 name: "ILS_Background",
@@ -154,7 +167,7 @@ class ILSIndicatorComponent {
                 new Vector2(-50, -5),
                 new Vector2(-35, 5),
                 borderColor: new Color(1, 1, 1, 0.8f),
-                borderThickness: 0.75f,
+                borderThickness: 1f,
                 UIParent: containerTransform,
                 fillColor: new Color(0f, 1f, 0f, 0.8f),
                 material: UIBindings.Game.GetFlightHUDFontMaterial());
@@ -164,7 +177,7 @@ class ILSIndicatorComponent {
                 new Vector2(-30, -5),
                 new Vector2(-15, 5),
                 borderColor: new Color(1, 1, 1, 0.8f),
-                borderThickness: 0.75f,
+                borderThickness: 1f,
                 UIParent: containerTransform,
                 fillColor: new Color(0f, 1f, 0f, 0.8f),
                 material: UIBindings.Game.GetFlightHUDFontMaterial());
@@ -174,7 +187,7 @@ class ILSIndicatorComponent {
                 new Vector2(35, -5),
                 new Vector2(50, 5),
                 borderColor: new Color(1, 1, 1, 0.8f),
-                borderThickness: 0.75f,
+                borderThickness: 1f,
                 UIParent: containerTransform,
                 fillColor: new Color(0f, 1f, 0f, 0.8f),
                 material: UIBindings.Game.GetFlightHUDFontMaterial());
@@ -184,7 +197,7 @@ class ILSIndicatorComponent {
                 new Vector2(15, -5),
                 new Vector2(30, 5),
                 borderColor: new Color(1, 1, 1, 0.8f),
-                borderThickness: 0.75f,
+                borderThickness: 1f,
                 UIParent: containerTransform,
                 fillColor: new Color(0f, 1f, 0f, 0.8f),
                 material: UIBindings.Game.GetFlightHUDFontMaterial());
@@ -199,6 +212,12 @@ class ILSIndicatorComponent {
 
         public void SetBallColor(Color color) {
             ball.SetColor(color);
+        }
+
+        public void SetPosition(Vector2 position) {
+            if (containerTransform != null) {
+                containerTransform.localPosition = new Vector3(position.x, position.y, 0);
+            }
         }
 
         public void Destroy() {

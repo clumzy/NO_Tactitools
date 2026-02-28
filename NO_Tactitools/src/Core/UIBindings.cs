@@ -12,7 +12,7 @@ public class UIBindings {
         private static Sprite _antialiasedSprite;
         private static Sprite GetAntialiasedSprite() {
             if (_antialiasedSprite != null) return _antialiasedSprite;
-            int size = 64; // 64x64 texture with a 2-pixel transparent border for anti-aliasing
+            int size = 64; // 64x64 texture with a 1-pixel transparent border for anti-aliasing
             Texture2D tex = new(size, size, TextureFormat.RGBA32, false);
             for (int x = 0; x < size; x++) {
                 for (int y = 0; y < size; y++) {
@@ -21,8 +21,7 @@ public class UIBindings {
                 }
             }
             tex.Apply();
-            // Vector4(2, 2, 2, 2) defines a 2-pixel border that stays solid while the edge pixels provide the AA
-            _antialiasedSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100, 0, SpriteMeshType.FullRect, new Vector4(2, 2, 2, 2));
+            _antialiasedSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100, 0, SpriteMeshType.FullRect, new Vector4(1, 1, 1, 1));
             return _antialiasedSprite;
         }
 
@@ -69,6 +68,24 @@ public class UIBindings {
 
                 public virtual void SetColor(Color color) {
                     imageComponent.color = color;
+                }
+
+                public virtual void SetAntialiased(bool antialiased) {
+                    if (antialiased) {
+                        if (imageComponent.sprite == null) {
+                            imageComponent.sprite = UIBindings.GetAntialiasedSprite();
+                            imageComponent.type = Image.Type.Sliced;
+                            imageComponent.pixelsPerUnitMultiplier = 1f;
+                            rectTransform.sizeDelta += new Vector2(2, 2);
+                        }
+                    }
+                    else {
+                        if (imageComponent.sprite != null) {
+                            imageComponent.sprite = null;
+                            imageComponent.type = Image.Type.Simple;
+                            rectTransform.sizeDelta -= new Vector2(2, 2);
+                        }
+                    }
                 }
 
                 public GameObject GetGameObject() => gameObject;
@@ -185,15 +202,8 @@ public class UIBindings {
                     return;
                 }
 
-                public void SetAntialiased(bool antialiased) {
-                    if (antialiased) {
-                        imageComponent.sprite = UIBindings.GetAntialiasedSprite();
-                        imageComponent.type = Image.Type.Sliced;
-                        imageComponent.pixelsPerUnitMultiplier = 1f;
-                    } else {
-                        imageComponent.sprite = null;
-                        imageComponent.type = Image.Type.Simple;
-                    }
+                public override void SetAntialiased(bool antialiased) {
+                    base.SetAntialiased(antialiased);
                 }
 
                 public void SetCoordinates(Vector2 start, Vector2 end) {
@@ -201,18 +211,24 @@ public class UIBindings {
                     Vector2 direction = end - start;
                     float length = direction.magnitude;
                     rectTransform.pivot = new Vector2(0.5f, 0.5f);
-                    rectTransform.sizeDelta = new Vector2(length, rectTransform.sizeDelta.y);
+                    
+                    // If antialiased, we need to add the 2-pixel padding (1px on each side)
+                    float padding = (imageComponent.sprite != null) ? 2f : 0f;
+                    rectTransform.sizeDelta = new Vector2(length + padding, rectTransform.sizeDelta.y);
+                    
                     rectTransform.anchoredPosition = start + direction / 2f;
                     float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
                     rectTransform.localRotation = Quaternion.Euler(0, 0, angle);
                 }
 
                 public void SetThickness(float thickness) {
-                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, thickness);
+                    float padding = (imageComponent.sprite != null) ? 2f : 0f;
+                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, thickness + padding);
                 }
 
                 public void ResetThickness() {
-                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, thickness);
+                    float padding = (imageComponent.sprite != null) ? 2f : 0f;
+                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, thickness + padding);
                 }
 
                 public void SetOpacity(float opacity) {
@@ -251,7 +267,8 @@ public class UIBindings {
                     Vector2 center = (min + max) / 2f;
 
                     rectTransform.anchoredPosition = center;
-                    rectTransform.sizeDelta = size;
+                    float padding = (imageComponent.sprite != null) ? 2f : 0f;
+                    rectTransform.sizeDelta = size + new Vector2(padding, padding);
                 }
 
                 public virtual void SetCorners(Vector2 a, Vector2 b) {
@@ -283,10 +300,10 @@ public class UIBindings {
             }
 
             public class UIAdvancedRectangle : UIRectangle {
-                private UIRectangle topBorder;
-                private UIRectangle bottomBorder;
-                private UIRectangle leftBorder;
-                private UIRectangle rightBorder;
+                private UILine topBorder;
+                private UILine bottomBorder;
+                private UILine leftBorder;
+                private UILine rightBorder;
                 private float borderThickness;
                 private Color borderColor;
 
@@ -303,10 +320,51 @@ public class UIBindings {
                     this.borderColor = borderColor;
                     this.borderThickness = borderThickness;
 
-                    topBorder = new UIRectangle(name + "_Top", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, material: material);
-                    bottomBorder = new UIRectangle(name + "_Bottom", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, material: material);
-                    leftBorder = new UIRectangle(name + "_Left", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, material: material);
-                    rightBorder = new UIRectangle(name + "_Right", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, material: material);
+                    topBorder = new UILine(name + "_Top", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, borderThickness, material: material);
+                    bottomBorder = new UILine(name + "_Bottom", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, borderThickness, material: material);
+                    leftBorder = new UILine(name + "_Left", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, borderThickness, material: material);
+                    rightBorder = new UILine(name + "_Right", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, borderThickness, material: material);
+
+                    topBorder = new UILine(
+                        name + "_Top",
+                        Vector2.zero,
+                        Vector2.zero,
+                        gameObject.transform,
+                        borderColor,
+                        borderThickness,
+                        material: material,
+                        antialiased: true
+                    );
+                    bottomBorder = new UILine(
+                        name + "_Bottom",
+                        Vector2.zero,
+                        Vector2.zero,
+                        gameObject.transform,
+                        borderColor,
+                        borderThickness,
+                        material: material,
+                        antialiased: true
+                    );
+                    leftBorder = new UILine(
+                        name + "_Left",
+                        Vector2.zero,
+                        Vector2.zero,
+                        gameObject.transform,
+                        borderColor,
+                        borderThickness,
+                        material: material,
+                        antialiased: true
+                    );
+                    rightBorder = new UILine(
+                        name + "_Right",
+                        Vector2.zero,
+                        Vector2.zero,
+                        gameObject.transform,
+                        borderColor,
+                        borderThickness,
+                        material: material,
+                        antialiased: true
+                    );
 
                     UpdateBorders();
                 }
@@ -316,32 +374,27 @@ public class UIBindings {
                     Vector2 halfSize = size / 2f;
                     float t = borderThickness;
 
-                    // Outward borders
-                    // Top Border: Full width (including corners), thickness t, extending outward at top edge
-                    Vector2 topLeft_Top = new(-halfSize.x - t, halfSize.y + t);
-                    Vector2 bottomRight_Top = new(halfSize.x + t, halfSize.y);
+                    // Outward borders matching the existing outward rectangle logic
+                    // Top: Left to Right across the top edge (extended by t)
+                    topBorder.SetCoordinates(new Vector2(-halfSize.x - t, halfSize.y + t / 2f), new Vector2(halfSize.x + t, halfSize.y + t / 2f));
+                    topBorder.SetThickness(t);
 
-                    // Bottom Border: Full width (including corners), thickness t, extending outward at bottom edge
-                    Vector2 topLeft_Bottom = new(-halfSize.x - t, -halfSize.y);
-                    Vector2 bottomRight_Bottom = new(halfSize.x + t, -halfSize.y - t);
+                    // Bottom: Left to Right across the bottom edge (extended by t)
+                    bottomBorder.SetCoordinates(new Vector2(-halfSize.x - t, -halfSize.y - t / 2f), new Vector2(halfSize.x + t, -halfSize.y - t / 2f));
+                    bottomBorder.SetThickness(t);
 
-                    // Left Border: Full height (between top and bottom borders), thickness t, extending outward at left edge
-                    Vector2 topLeft_Left = new(-halfSize.x - t, halfSize.y);
-                    Vector2 bottomRight_Left = new(-halfSize.x, -halfSize.y);
+                    // Left: Top to Bottom between the top/bottom extensions
+                    leftBorder.SetCoordinates(new Vector2(-halfSize.x - t / 2f, halfSize.y), new Vector2(-halfSize.x - t / 2f, -halfSize.y));
+                    leftBorder.SetThickness(t);
 
-                    // Right Border: Full height (between top and bottom borders), thickness t, extending outward at right edge
-                    Vector2 topLeft_Right = new(halfSize.x, halfSize.y);
-                    Vector2 bottomRight_Right = new(halfSize.x + t, -halfSize.y);
+                    // Right: Top to Bottom between the top/bottom extensions
+                    rightBorder.SetCoordinates(new Vector2(halfSize.x + t / 2f, halfSize.y), new Vector2(halfSize.x + t / 2f, -halfSize.y));
+                    rightBorder.SetThickness(t);
 
-                    topBorder.SetCorners(topLeft_Top, bottomRight_Top);
-                    bottomBorder.SetCorners(topLeft_Bottom, bottomRight_Bottom);
-                    leftBorder.SetCorners(topLeft_Left, bottomRight_Left);
-                    rightBorder.SetCorners(topLeft_Right, bottomRight_Right);
-
-                    topBorder.SetFillColor(borderColor);
-                    bottomBorder.SetFillColor(borderColor);
-                    leftBorder.SetFillColor(borderColor);
-                    rightBorder.SetFillColor(borderColor);
+                    topBorder.SetColor(borderColor);
+                    bottomBorder.SetColor(borderColor);
+                    leftBorder.SetColor(borderColor);
+                    rightBorder.SetColor(borderColor);
                 }
 
                 public override void SetCorners(Vector2 a, Vector2 b) {

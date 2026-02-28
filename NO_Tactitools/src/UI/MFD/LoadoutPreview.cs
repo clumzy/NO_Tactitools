@@ -82,6 +82,16 @@ public class LoadoutPreviewComponent {
                     InternalState.weaponStations[i].maxAmmo = GameBindings.Player.Aircraft.Weapons.GetStationMaxAmmoByIndex(i);
                 }
             }
+            InternalState.configNeedsUpdate = (
+                InternalState.horizontalOffset != Plugin.loadoutPreviewPositionX.Value ||
+                InternalState.verticalOffset != Plugin.loadoutPreviewPositionY.Value ||
+                InternalState.manualPlacement != Plugin.loadoutPreviewManualPlacement.Value
+            );
+            if (InternalState.configNeedsUpdate) {
+                InternalState.horizontalOffset = Plugin.loadoutPreviewPositionX.Value;
+                InternalState.verticalOffset = Plugin.loadoutPreviewPositionY.Value;
+                InternalState.manualPlacement = Plugin.loadoutPreviewManualPlacement.Value;
+            }
         }
     }
 
@@ -95,6 +105,7 @@ public class LoadoutPreviewComponent {
         public static string currentWeaponStation = "";
         public static float lastUpdateTime = 0;
         public static bool needsUpdate = false;
+        public static bool configNeedsUpdate = false;
         public static bool onlyShowOnBoot;
         public static bool neverShown = true;
         public static List<WeaponStationInfo> weaponStations = [];
@@ -139,6 +150,9 @@ public class LoadoutPreviewComponent {
                 return;
             }
             InternalState.loadoutPreview.SetActive(true);
+            if (InternalState.configNeedsUpdate && InternalState.sendToHMD) {
+                InternalState.loadoutPreview.RefreshPosition();
+            }
             for (int i = 0; i < InternalState.weaponStations.Count; i++) {
                 InternalState.loadoutPreview.stationLabels[i].SetColor(
                     (InternalState.weaponStations[i].ammo == 0) ? Color.red : InternalState.sendToHMD ? Color.green : InternalState.textColor);
@@ -329,9 +343,22 @@ public class LoadoutPreviewComponent {
             UpdateLabelPositions();
             // Set background size
             borderRect.SetCorners(
-                a: new Vector2(-rectHalfWidth - padding + horizontalOffset, -rectHalfHeight - padding + verticalOffset),
-                b: new Vector2(rectHalfWidth + padding + horizontalOffset, rectHalfHeight + padding + verticalOffset)
+                a: new Vector2(-rectHalfWidth - padding, -rectHalfHeight - padding),
+                b: new Vector2(rectHalfWidth + padding, rectHalfHeight + padding)
             );
+            // APPLY STARTING POSITION
+            RefreshPosition();
+        }
+
+        public void RefreshPosition() {
+            if (containerTransform != null) {
+                if (InternalState.manualPlacement) {
+                    containerTransform.localPosition = new Vector3(Plugin.loadoutPreviewPositionX.Value, Plugin.loadoutPreviewPositionY.Value, 0);
+                }
+                else {
+                    containerTransform.localPosition = new Vector3(horizontalOffset, verticalOffset, 0);
+                }
+            }
         }
 
         public void UpdateLabelPositions() {
@@ -339,8 +366,8 @@ public class LoadoutPreviewComponent {
                 Vector2 textSize = stationLabels[i].GetTextSize();
                 stationLabels[i].SetPosition(
                     new Vector2(
-                        x: -(maxLabelWidth - textSize.x) / 2f + horizontalOffset - padding/2,
-                        y: (stationLabels.Count - 1) * padding * 2f - i * (fontSize + 6) + verticalOffset));
+                        x: -(maxLabelWidth - textSize.x) / 2f - padding/2,
+                        y: (stationLabels.Count - 1) * padding * 2f - i * (fontSize + 6)));
             }
         }
 
