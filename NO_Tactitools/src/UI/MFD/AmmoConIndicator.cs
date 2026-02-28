@@ -47,6 +47,12 @@ class AmmoConIndicatorComponent {
         }
 
         public static void OnMissileStart(Missile missile) {
+            if (UIBindings.Game.GetTargetScreenTransform(true) == null ||
+                GameBindings.Player.Aircraft.GetAircraft() == null ||
+                UIBindings.Game.GetTacScreenTransform(true) == null) {
+                return;
+            }
+            // no target
             if (missile.targetID == null) return;
             if (missile.targetID.TryGetUnit(out Unit unit)) {
                 InternalState.activeMissiles[missile] = unit;
@@ -54,6 +60,11 @@ class AmmoConIndicatorComponent {
         }
 
         public static void OnMissileSetTarget(Missile missile, Unit unit) {
+            if (UIBindings.Game.GetTargetScreenTransform(true) == null ||
+                GameBindings.Player.Aircraft.GetAircraft() == null ||
+                UIBindings.Game.GetTacScreenTransform(true) == null) {
+                return;
+            }
             // make the mod update proof
             if (unit == null) // this always happens when a missile detonates
                 InternalState.activeMissiles.Remove(missile);
