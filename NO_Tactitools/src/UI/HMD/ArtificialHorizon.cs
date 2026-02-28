@@ -338,7 +338,8 @@ public class ArtificialHorizonComponent {
                 destination,
                 mainColor,
                 horizonLineThickness,
-                UIBindings.Game.GetFlightHUDFontMaterial()
+                UIBindings.Game.GetFlightHUDFontMaterial(),
+                antialiased: true
             );
             northLine = new UIBindings.Draw.UILine(
                 "northLine",
@@ -347,7 +348,8 @@ public class ArtificialHorizonComponent {
                 destination,
                 cardinalLineColor,
                 cardinalLineThickness,
-                UIBindings.Game.GetFlightHUDFontMaterial()
+                UIBindings.Game.GetFlightHUDFontMaterial(),
+                antialiased: true
             );
             northLabel = new UIBindings.Draw.UILabel(
                 "northLabel",
@@ -366,7 +368,8 @@ public class ArtificialHorizonComponent {
                 destination,
                 cardinalLineColor,
                 cardinalLineThickness,
-                UIBindings.Game.GetFlightHUDFontMaterial()
+                UIBindings.Game.GetFlightHUDFontMaterial(),
+                antialiased: true
             );
             southLabel = new UIBindings.Draw.UILabel(
                 "southLabel",
@@ -385,7 +388,8 @@ public class ArtificialHorizonComponent {
                 destination,
                 cardinalLineColor,
                 cardinalLineThickness,
-                UIBindings.Game.GetFlightHUDFontMaterial()
+                UIBindings.Game.GetFlightHUDFontMaterial(),
+                antialiased: true
             );
             eastLabel = new UIBindings.Draw.UILabel(
                 "eastLabel",
@@ -404,7 +408,8 @@ public class ArtificialHorizonComponent {
                 destination,
                 cardinalLineColor,
                 cardinalLineThickness,
-                UIBindings.Game.GetFlightHUDFontMaterial()
+                UIBindings.Game.GetFlightHUDFontMaterial(),
+                antialiased: true
             );
             westLabel = new UIBindings.Draw.UILabel(
                 "westLabel",

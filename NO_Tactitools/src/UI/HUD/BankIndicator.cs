@@ -129,8 +129,9 @@ public class BankIndicatorComponent {
                     end: new Vector2(0, -radius),
                     UIParent: containerTransform,
                     color: new Color(0f, 1f, 0f, Plugin.bankIndicatorTransparency.Value),
-                    thickness: isBigIncrement ? 2f : 1f,
-                    material: UIBindings.Game.GetFlightHUDFontMaterial()
+                    thickness: isBigIncrement ? 3f : 1.5f,
+                    material: UIBindings.Game.GetFlightHUDFontMaterial(),
+                    antialiased: true
                 );
                 line.GetRectTransform().transform.RotateAround(containerTransform.position, Vector3.forward, -i * visualScale);
                 increments.Add(line);

@@ -9,6 +9,23 @@ using System.IO;
 namespace NO_Tactitools.Core;
 
 public class UIBindings {
+        private static Sprite _antialiasedSprite;
+        private static Sprite GetAntialiasedSprite() {
+            if (_antialiasedSprite != null) return _antialiasedSprite;
+            int size = 64; // 64x64 texture with a 2-pixel transparent border for anti-aliasing
+            Texture2D tex = new(size, size, TextureFormat.RGBA32, false);
+            for (int x = 0; x < size; x++) {
+                for (int y = 0; y < size; y++) {
+                    bool isEdge = (x == 0 || x == size - 1 || y == 0 || y == size - 1);
+                    tex.SetPixel(x, y, isEdge ? new Color(1, 1, 1, 0) : Color.white);
+                }
+            }
+            tex.Apply();
+            // Vector4(2, 2, 2, 2) defines a 2-pixel border that stays solid while the edge pixels provide the AA
+            _antialiasedSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100, 0, SpriteMeshType.FullRect, new Vector4(2, 2, 2, 2));
+            return _antialiasedSprite;
+        }
+
         public class Draw {
             public abstract class UIElement {
                 protected GameObject gameObject;
@@ -150,10 +167,12 @@ public class UIBindings {
                     Transform UIParent = null,
                     Color? color = null,
                     float thickness = 2f,
-                    Material material = null) : base(name, UIParent, material: material) {
+                    Material material = null,
+                    bool antialiased = false) : base(name, UIParent, material: material) {
                     this.thickness = thickness;
                     imageComponent.color = color ?? Color.white;
                     this.baseOpacity = imageComponent.color.a;
+
                     Vector2 direction = end - start;
                     float length = direction.magnitude;
                     rectTransform.sizeDelta = new Vector2(length, thickness);
@@ -161,7 +180,20 @@ public class UIBindings {
                     rectTransform.pivot = new Vector2(0.5f, 0.5f);
                     float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
                     rectTransform.localRotation = Quaternion.Euler(0, 0, angle);
+
+                    if (antialiased) SetAntialiased(true);
                     return;
+                }
+
+                public void SetAntialiased(bool antialiased) {
+                    if (antialiased) {
+                        imageComponent.sprite = UIBindings.GetAntialiasedSprite();
+                        imageComponent.type = Image.Type.Sliced;
+                        imageComponent.pixelsPerUnitMultiplier = 1f;
+                    } else {
+                        imageComponent.sprite = null;
+                        imageComponent.type = Image.Type.Simple;
+                    }
                 }
 
                 public void SetCoordinates(Vector2 start, Vector2 end) {
