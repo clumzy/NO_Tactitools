@@ -54,9 +54,9 @@ George
 <IMG src="readme_content/targetlist.png"  alt="1.png"/>
 </details>
 
-### 💣 HUD delivery bar and per-shot indicators to indicate launch/detonation "delivery" status
+### 💣 Target Screen delivery indicators and per-shot indicators to indicate launch/detonation "delivery" status
 
-- Show indicators on the side of the Target Screen for each launched missile/bomb; indicators persist ~2s after impact
+- Show indicators on each side of the Target Screen for each launched missile/bomb; indicators persist ~2s after impact
 - Color delivery: green = armor hit, red = miss for instant outcome feedback
 - Missiles are on the left side of the screen and bombs are on the right side of the screen
 <details>
