@@ -429,7 +429,7 @@ namespace NO_Tactitools.Core {
                     }));
             resetCockpitFOVSpeed = Config.Bind("Camera Tweaks",
                 "Camera Tweaks - Reset Cockpit FOV - Speed",
-                150,
+                250,
                 new ConfigDescription(
                     "Speed at which the FOV resets (50 - 300).",
                     new AcceptableValueRange<int>(50, 300),
