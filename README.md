@@ -316,7 +316,7 @@ As time goes on I will allow more features to be precisely configured using text
 - Click on the *NOTT* tab
 - Bind the controls as you would in-game
   - Press ESC to cancel the assignement
-  - Press SUPPR to clear the assignement (**I STRONGLY RECOMMEND USING THIS INSTEAD OF "Reset"**)
+  - Press SUPPR to clear the assignement
 - That's it !
 
 ## Compatibility
