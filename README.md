@@ -209,8 +209,10 @@ George
 - The animation lasts for 2 seconds
 
 ### **Camera features**
+
 ### 📷 New cockpit camera QoL inputs (Uses [new bindings](#how-to-setup-the-mod-to-use-your-peripherals))
-- Adds a button that smoothly resets the cockpit's camera FOV to it's set default value when held
+
+- Adds a button that smoothly resets the cockpit's camera FOV to it's set default value when pressed
   - The reset speed is configurable in Config Manager
 - Adds a button that focuses the cockpit's camera on the closest airbase when held
 
