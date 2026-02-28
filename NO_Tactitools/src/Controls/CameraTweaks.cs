@@ -18,8 +18,8 @@ class CameraTweaksPlugin {
 
             InputCatcher.RegisterNewInput(
                 Plugin.resetCockpitFOV,
-                999f, // High threshold so onHold runs as long as the button is pressed
-                onHold: HandleResetFOV
+                0.0001f, // High threshold so onHold runs as long as the button is pressed
+                onLongPress: HandleResetFOV
             );
 
             InputCatcher.RegisterNewInput(
@@ -93,29 +93,40 @@ class CameraTweaksPlugin {
         _panViewCache.SetValue(UIBindings.Game.GetCameraStateManager().cockpitState, 0f);
         _tiltViewCache.SetValue(UIBindings.Game.GetCameraStateManager().cockpitState, 0f);
     }
+
+    private static Coroutine _resetFOVCoroutine;
     private static void HandleResetFOV() {
         if (CameraStateManager.cameraMode != CameraMode.cockpit) return;
-
+        if (_resetFOVCoroutine != null) return; // already resetting, do nothing
         CameraStateManager cam = UIBindings.Game.GetCameraStateManager();
         if (cam == null) return;
+        _resetFOVCoroutine = UIBindings.Game.GetTacScreenComponent()?.StartCoroutine(ResetFOVCoroutine(cam));
+    }
 
+    private static IEnumerator ResetFOVCoroutine(CameraStateManager cam) {
         CameraCockpitState cockpitState = _cockpitStateCache.GetValue(cam, true);
-        if (cockpitState == null) return;
+        if (cockpitState == null) yield break;
 
-        float currentAdj = _fovAdjustmentCache.GetValue(cockpitState, true);
-        float currentBase = cam.desiredFOV;
         float targetBase = PlayerSettings.defaultFoV;
+        
+        while (Mathf.Abs(_fovAdjustmentCache.GetValue(cockpitState, true)) > 0.01f || Mathf.Abs(cam.desiredFOV - targetBase) > 0.01f) {
+            float currentAdj = _fovAdjustmentCache.GetValue(cockpitState, true);
+            float currentBase = cam.desiredFOV;
+            float resetSpeed = Plugin.resetCockpitFOVSpeed.Value * Time.unscaledDeltaTime;
 
-        // unzoom speed
-        float resetSpeed = Plugin.resetCockpitFOVSpeed.Value * Time.unscaledDeltaTime;
+            float newAdj = Mathf.MoveTowards(currentAdj, 0f, resetSpeed);
+            float newBase = Mathf.MoveTowards(currentBase, targetBase, resetSpeed);
 
-        float newAdj = Mathf.MoveTowards(currentAdj, 0f, resetSpeed);
-        float newBase = Mathf.MoveTowards(currentBase, targetBase, resetSpeed);
+            if (newAdj != currentAdj)
+                _fovAdjustmentCache.SetValue(cockpitState, newAdj, true);
+            if (newBase != currentBase)
+                cam.SetDesiredFoV(newBase, newBase);
+            
+            yield return null;
+        }
 
-        // adjust game FOV
-        if (newAdj != currentAdj)
-            _fovAdjustmentCache.SetValue(cockpitState, newAdj, true);
-        if (newBase != currentBase)
-            cam.SetDesiredFoV(newBase, newBase);
+        _fovAdjustmentCache.SetValue(cockpitState, 0f, true);
+        cam.SetDesiredFoV(targetBase, targetBase);
+        _resetFOVCoroutine = null;
     }
 }
