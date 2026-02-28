@@ -210,9 +210,9 @@ George
 
 ### **Camera features**
 ### 📷 New cockpit camera QoL inputs (Uses [new bindings](#how-to-setup-the-mod-to-use-your-peripherals))
-- Adds an input that smoothly resets the cockpit's camera FOV to it's set default value when held
+- Adds a button that smoothly resets the cockpit's camera FOV to it's set default value when held
   - The reset speed is configurable in Config Manager
-- Adds an input that focuses the cockpit's camera on the closest airbase when held
+- Adds a button that focuses the cockpit's camera on the closest airbase when held
 
 ### **Mod Compatibility Features**
 
