@@ -320,7 +320,7 @@ public class ArtificialHorizonComponent {
         public UIBindings.Draw.UILabel eastLabel;
         public UIBindings.Draw.UILine westLine;
         public UIBindings.Draw.UILabel westLabel;
-        const float cardinalLineThickness = 1f;
+        const float cardinalLineThickness = 1.5f;
         public Color cardinalLineColor = new(0f, 1f, 0f, 0.6f); // Green with less transparency
         public Color cardinalLabelColor = new(0f, 1f, 0f, 0.8f); // Green with even less transparency
         public int cardinalLabelFontSize = 16;
