@@ -5,6 +5,7 @@ using Rewired;
 using HarmonyLib;
 using System.Collections;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace NO_Tactitools.Core;
 
@@ -27,7 +28,7 @@ internal sealed class ConfigurationManagerAttributes
 }
 
 public class RewiredInputConfig {
-    public static System.Collections.Generic.List<RewiredInputConfig> AllConfigs = new();
+    public static List<RewiredInputConfig> AllConfigs = [];
     public ConfigEntry<string> Input { get; private set; }
     public ConfigEntry<string> ControllerName { get; private set; }
     public ConfigEntry<int> ButtonIndex { get; private set; }
@@ -53,6 +54,9 @@ public class RewiredInputConfig {
         // listen for changes to re-register inputs as needed
         ControllerName.SettingChanged += (s, e) => OnSettingChanged();
         ButtonIndex.SettingChanged += (s, e) => OnSettingChanged();
+
+        // check for reset button pressed
+
     }
 
     private void OnSettingChanged() {
@@ -79,6 +83,18 @@ internal sealed class RewiredConfigManager {
     private static string _errorMessage = null;
     private static float _errorTimer = 0f;
 
+    public static void ResetInputCatcherState(bool fullReset = false) {
+        if (fullReset) {
+            _targetEntry.BoxedValue = "";
+            if (_targetControllerEntry != null) _targetControllerEntry.BoxedValue = "";
+            if (_targetIndexEntry != null) _targetIndexEntry.BoxedValue = -1;
+        }
+        _isListeningForInput = false;
+        _targetEntry = null;
+        _targetControllerEntry = null;
+        _targetIndexEntry = null;
+        _errorMessage = null;
+    }
     public static void Update() {
         if (_errorTimer > 0) {
             _errorTimer -= Time.unscaledDeltaTime;
@@ -87,7 +103,7 @@ internal sealed class RewiredConfigManager {
 
         if (_isListeningForInput) {
             if (ReInput.controllers == null) return;
-            
+
             foreach (var controller in InputCatcher.controllerInputs.Keys) {
                 if (controller.GetAnyButtonDown()) {
                     for (int i = 0; i < controller.buttonCount; i++) {
@@ -100,23 +116,11 @@ internal sealed class RewiredConfigManager {
                             if (controller.type == ControllerType.Keyboard) {
                                 string lowerName = buttonName.ToLower();
                                 if (lowerName == "escape" || lowerName == "esc") {
-                                    _isListeningForInput = false;
-                                    _targetEntry = null;
-                                    _targetControllerEntry = null;
-                                    _targetIndexEntry = null;
-                                    _errorMessage = null;
+                                    ResetInputCatcherState(fullReset: false);
                                     return;
                                 }
                                 if (lowerName == "delete" || lowerName == "backspace" || lowerName == "suppr" || lowerName == "del") {
-                                    _targetEntry.BoxedValue = "";
-                                    if (_targetControllerEntry != null) _targetControllerEntry.BoxedValue = "";
-                                    if (_targetIndexEntry != null) _targetIndexEntry.BoxedValue = -1;
-
-                                    _isListeningForInput = false;
-                                    _targetEntry = null;
-                                    _targetControllerEntry = null;
-                                    _targetIndexEntry = null;
-                                    _errorMessage = null;
+                                    ResetInputCatcherState(fullReset: true);
                                     return;
                                 }
                             }
@@ -136,12 +140,8 @@ internal sealed class RewiredConfigManager {
                             _targetEntry.BoxedValue = controllerName + " | " + buttonName + " | " + i.ToString();
                             if (_targetControllerEntry != null) _targetControllerEntry.BoxedValue = controllerName;
                             if (_targetIndexEntry != null) _targetIndexEntry.BoxedValue = i;
-                            
-                            _isListeningForInput = false;
-                            _targetEntry = null;
-                            _targetControllerEntry = null;
-                            _targetIndexEntry = null;
-                            _errorMessage = null;
+
+                            ResetInputCatcherState(fullReset: false);
                             return;
                         }
                     }
@@ -153,13 +153,9 @@ internal sealed class RewiredConfigManager {
     public static void RewiredButtonDrawer(ConfigEntryBase entry) {
         if (_isListeningForInput && _targetEntry == entry) {
             GUIUtility.keyboardControl = 0;
-            string label = string.IsNullOrEmpty(_errorMessage) ? "Listening... (Press button or ESC)" : _errorMessage;
+            string label = string.IsNullOrEmpty(_errorMessage) ? "Listening... (ESC to cancel or Suppr to unbind)" : _errorMessage;
             if (GUILayout.Button(label, GUILayout.ExpandWidth(true))) {
-                _isListeningForInput = false;
-                _targetEntry = null;
-                _targetControllerEntry = null;
-                _targetIndexEntry = null;
-                _errorMessage = null;
+                ResetInputCatcherState(fullReset: false);
             }
         }
         else {
@@ -170,7 +166,7 @@ internal sealed class RewiredConfigManager {
                 _targetEntry = entry;
                 _errorMessage = null;
                 _errorTimer = 0f;
-                
+
                 // lookup of the linked facultative entries
                 ConfigurationManagerAttributes attr = entry.Description.Tags?.OfType<ConfigurationManagerAttributes>().FirstOrDefault();
                 _targetControllerEntry = attr?.ControllerName as ConfigEntryBase;

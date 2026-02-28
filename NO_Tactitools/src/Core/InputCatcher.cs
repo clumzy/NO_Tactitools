@@ -73,6 +73,7 @@ public class InputCatcher {
 
         ControllerInput newInput = new(
                     registration,
+                    controller,
                     inputIndex
                     );
 
@@ -140,14 +141,20 @@ public class ControllerInput {
     public bool previousButtonState;
     public float buttonPressTime;
     public bool longPressHandled;
-    public bool holdLogHandled;
+    public bool holdLongHandled;
 
     public ControllerInput(
         InputRegistration registration,
+        Controller controller,
         int buttonNumber
         ) {
         this.registration = registration;
         this.buttonNumber = buttonNumber;
+        this.currentButtonState = controller.Buttons[buttonNumber].value;
+        this.previousButtonState = this.currentButtonState;
+        this.buttonPressTime = Time.time;
+        this.longPressHandled = true; // Assume it's already handled if they're holding it down on registration
+        this.holdLongHandled = true;
         if (registration.onShortPress == null && registration.onLongPress == null && registration.onHold == null) {
             Plugin.Logger.LogError("[IC] No actions provided for button " + buttonNumber);
         }
@@ -177,7 +184,7 @@ class ControllerInputInterceptionPatch {
                             // Button just pressed
                             button.buttonPressTime = Time.time;
                             button.longPressHandled = false;
-                            button.holdLogHandled = false;
+                            button.holdLongHandled = false;
                         }
                         else if (button.previousButtonState && button.currentButtonState) {
                             // Button is being held down
@@ -188,9 +195,9 @@ class ControllerInputInterceptionPatch {
                                 button.longPressHandled = true;
                             }
                             else if (holdDuration < button.registration.longPressThreshold && button.registration.onHold != null) {
-                                if (!button.holdLogHandled) {
+                                if (!button.holdLongHandled) {
                                     Plugin.Log($"[IC] Hold detected on button {button.buttonNumber.ToString()}");
-                                    button.holdLogHandled = true;
+                                    button.holdLongHandled = true;
                                 }
                                 button.registration.onHold?.Invoke();
                             }
