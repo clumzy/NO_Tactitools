@@ -82,7 +82,7 @@ public static class MFDColorComponent {
                         Color groundColor = Color.HSVToRGB(
                             InternalState.mainHue,
                             InternalState.mainSaturation,
-                            Mathf.Clamp(InternalState.mainBrightness - 0.5f, 0.0f, 1f)); // we darken the ground a bit to make it more distinguishable from the sky
+                            0.5f);
                         groundColor.a = originalAlpha;
                         image.color = groundColor;
                     } // Skip the ground image if alternative attitude is not enabled
@@ -91,8 +91,8 @@ public static class MFDColorComponent {
                     if (InternalState.MFDAlternativeAttitudeEnabled) {
                         Color skyColor = Color.HSVToRGB(
                             InternalState.mainHue,
-                            Mathf.Clamp(InternalState.mainSaturation - 0.2f, 0.0f, 1f), // we desaturate the sky a bit more to make it more distinguishable from the ground
-                            InternalState.mainBrightness);
+                            InternalState.mainSaturation,
+                            0.7f);
                         skyColor.a = originalAlpha;
                         image.color = skyColor;
                     } // Skip the horizon image if alternative attitude is not enabled
@@ -101,7 +101,7 @@ public static class MFDColorComponent {
                     Color.RGBToHSV(image.color, out _, out float saturation, out float brightness);
                     Color newImageColor = Color.HSVToRGB(
                         InternalState.mainHue,
-                        InternalState.mainSaturation, // we keep the original saturation
+                        InternalState.mainSaturation * saturation, // we keep the original saturation
                         brightness); // we modulate the original brightness with the main brightness
                     newImageColor.a = originalAlpha;
                     image.color = newImageColor;
