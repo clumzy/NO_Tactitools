@@ -53,7 +53,7 @@ public class SlipIndicatorComponent {
                 force, 
                 GameBindings.Player.Aircraft.GetAircraft().transform.up);
             
-            if (Mathf.Abs(verticalForce) > 0.5f) { // to avoid division by zero and noise at very low vertical forces
+            if (Mathf.Abs(verticalForce) > 0.1f) { // to avoid division by zero and noise at very low vertical forces
                 float targetOffset = -lateralForce / Mathf.Abs(verticalForce);
                 // slowly moving the ball
                 InternalState.slipBallOffset = Mathf.Lerp(InternalState.slipBallOffset, targetOffset, dt * InternalState.smoothingFactor);
@@ -149,7 +149,7 @@ public class SlipIndicatorComponent {
                 end: new Vector2(-maxOffset - padding, 7),
                 UIParent: containerTransform,
                 color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
-                thickness: 2f,
+                thickness: 1.5f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial(),
                 antialiased: true
             );
@@ -159,7 +159,7 @@ public class SlipIndicatorComponent {
                 end: new Vector2(maxOffset + padding, 7),
                 UIParent: containerTransform,
                 color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
-                thickness: 2f,
+                thickness: 1.5f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial(),
                 antialiased: true
             );

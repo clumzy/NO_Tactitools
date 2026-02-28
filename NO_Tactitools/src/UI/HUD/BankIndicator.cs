@@ -142,7 +142,7 @@ public class BankIndicatorComponent {
                     end: new Vector2(0, -radius),
                     UIParent: containerTransform,
                     color: new Color(0f, 1f, 0f, Plugin.bankIndicatorTransparency.Value),
-                    thickness: isBigIncrement ? 2f : 1f,
+                    thickness: isBigIncrement ? 1.5f : 0.75f,
                     material: UIBindings.Game.GetFlightHUDFontMaterial(),
                     antialiased: true
                 );
