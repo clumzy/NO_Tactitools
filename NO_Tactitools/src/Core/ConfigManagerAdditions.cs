@@ -72,7 +72,7 @@ public class RewiredInputConfig {
             InputCatcher.ModifyInputAfterNewConfig(this);
         }
         else if (!isBound && _wasBound) {
-            InputCatcher.UnregisterInput(this);
+            InputCatcher.UnregisterInput(this, clearLinkedEntries: false);
         }
         _wasBound = isBound;
     }
@@ -86,12 +86,7 @@ internal sealed class RewiredConfigManager {
     private static string _errorMessage = null;
     private static float _errorTimer = 0f;
 
-    public static void ResetInputCatcherState(bool fullReset = false) {
-        if (fullReset) {
-            _targetEntry.BoxedValue = "";
-            if (_targetControllerEntry != null) _targetControllerEntry.BoxedValue = "";
-            if (_targetIndexEntry != null) _targetIndexEntry.BoxedValue = -1;
-        }
+    public static void ResetInputCatcherState() {
         _isListeningForInput = false;
         _targetEntry = null;
         _targetControllerEntry = null;
@@ -119,11 +114,14 @@ internal sealed class RewiredConfigManager {
                             if (controller.type == ControllerType.Keyboard) {
                                 string lowerName = buttonName.ToLower();
                                 if (lowerName == "escape" || lowerName == "esc") {
-                                    ResetInputCatcherState(fullReset: false);
+                                    ResetInputCatcherState();
                                     return;
                                 }
                                 if (lowerName == "delete" || lowerName == "backspace" || lowerName == "suppr" || lowerName == "del") {
-                                    ResetInputCatcherState(fullReset: true);
+                                    _targetControllerEntry.BoxedValue = "";
+                                    _targetIndexEntry.BoxedValue = -1;
+                                    _targetEntry.BoxedValue = "";
+                                    ResetInputCatcherState();
                                     return;
                                 }
                             }
@@ -144,7 +142,7 @@ internal sealed class RewiredConfigManager {
                             if (_targetControllerEntry != null) _targetControllerEntry.BoxedValue = controllerName;
                             if (_targetIndexEntry != null) _targetIndexEntry.BoxedValue = i;
 
-                            ResetInputCatcherState(fullReset: false);
+                            ResetInputCatcherState();
                             return;
                         }
                     }
@@ -158,7 +156,7 @@ internal sealed class RewiredConfigManager {
             GUIUtility.keyboardControl = 0;
             string label = string.IsNullOrEmpty(_errorMessage) ? "Listening... (ESC to cancel or Suppr to unbind)" : _errorMessage;
             if (GUILayout.Button(label, GUILayout.ExpandWidth(true))) {
-                ResetInputCatcherState(fullReset: false);
+                ResetInputCatcherState();
             }
         }
         else {

@@ -96,7 +96,7 @@ public class InputCatcher {
         RegisterNewBinding(config);
     }
 
-    public static void UnregisterInput(RewiredInputConfig config) {
+    public static void UnregisterInput(RewiredInputConfig config, bool clearLinkedEntries = true) {
         foreach (Controller controller in controllerInputs.Keys) {
             int removed = controllerInputs[controller].RemoveAll(input => input.registration.config == config);
             if (removed > 0) {
@@ -111,11 +111,12 @@ public class InputCatcher {
                 Plugin.Log("[IC] Removed " + removed + " pending input(s) for config " + config.Input.Definition.Key);
             }
         }
-        // also remove from RewiredInputConfig.AllConfigs
-        RewiredInputConfig.AllConfigs.RemoveAll(c => c == config);
-        // also clear the linked entries
-        config.ControllerName.BoxedValue = "";
-        config.ButtonIndex.BoxedValue = -1;
+
+        if (clearLinkedEntries) {
+            // also clear the linked entries
+            config.ControllerName.BoxedValue = "";
+            config.ButtonIndex.BoxedValue = -1;
+        }
     }
 
     private static void TryRegisterOrQueue(
