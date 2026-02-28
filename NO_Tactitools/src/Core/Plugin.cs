@@ -12,7 +12,7 @@ using NO_Tactitools.UI.MFD;
 using NO_Tactitools.UI.HUD;
 
 namespace NO_Tactitools.Core {
-    [BepInPlugin("com.george.NO_Tactitools", "NOTT", "0.6.0.2")]
+    [BepInPlugin("com.george.NO_Tactitools", "NOTT", "0.7.0")]
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;
         public static RewiredInputConfig MFDNavEnter;
@@ -59,6 +59,8 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<float> slipIndicatorTransparency;
         public static ConfigEntry<int> slipIndicatorPositionX;
         public static ConfigEntry<int> slipIndicatorPositionY;
+        public static ConfigEntry<int> slipIndicatorSmoothing;
+        public static ConfigEntry<float> slipIndicatorSensitivity;
         public static ConfigEntry<bool> autopilotMenuEnabled;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
         public static ConfigEntry<bool> loadoutPreviewOnlyShowOnBoot;
@@ -74,7 +76,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<int> resetCockpitFOVSpeed;
         public static RewiredInputConfig resetCockpitFOV;
         public static RewiredInputConfig lookAtNearestAirbase;
-        public static ConfigEntry<bool> ILSScreenEnabled;
+        public static ConfigEntry<bool> ILSWidgetEnabled;
         public static ConfigEntry<float> ILSIndicatorMaxAngle;
         public static ConfigEntry<int> ILSIndicatorPositionX;
         public static ConfigEntry<int> ILSIndicatorPositionY;
@@ -173,7 +175,7 @@ namespace NO_Tactitools.Core {
                         Order = 2
                     }));
             // Unit Distance settings
-            unitDistanceEnabled = Config.Bind("HMD Tweaks",
+            unitDistanceEnabled = Config.Bind("Unit Marker Distance Indicator",
                 "Unit Marker Distance Indicator - Enabled",
                 true,
                 new ConfigDescription(
@@ -182,7 +184,7 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 2
                     }));
-            unitDistanceThreshold = Config.Bind("HMD Tweaks",
+            unitDistanceThreshold = Config.Bind("Unit Marker Distance Indicator",
                 "Unit Marker Distance Indicator - Threshold",
                 10,
                 new ConfigDescription(
@@ -191,7 +193,7 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 1
                     }));
-            unitDistanceSoundEnabled = Config.Bind("HMD Tweaks",
+            unitDistanceSoundEnabled = Config.Bind("Unit Marker Distance Indicator",
                 "Unit Marker Distance Sound - Enabled",
                 true,
                 new ConfigDescription(
@@ -360,14 +362,32 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 1
                     }));
+            slipIndicatorSmoothing = Config.Bind("Slip Indicator",
+                "Slip Indicator - Smoothing",
+                10,
+                new ConfigDescription(
+                    "Smoothing level for the Slip Indicator (1 = high responsiveness, 20 = high smoothing).",
+                    new AcceptableValueRange<int>(1, 20),
+                    new ConfigurationManagerAttributes {
+                        Order = 0
+                    }));
+            slipIndicatorSensitivity = Config.Bind("Slip Indicator",
+                "Slip Indicator - Sensitivity ratio",
+                0.5f,
+                new ConfigDescription(
+                    "Sensitivity ratio for the Slip Indicator. Defines the lateral/vertical force ratio for max ball offset (0.1 = high sensitivity, 2 = low sensitivity).",
+                    new AcceptableValueRange<float>(0.1f, 2.0f),
+                    new ConfigurationManagerAttributes {
+                        Order = -1
+                    }));
             slipIndicatorTransparency = Config.Bind("Slip Indicator",
                 "Slip Indicator - Transparency",
                 0.8f,
                 new ConfigDescription(
-                    "Transparency level for the Slip Indicator display (0.2 = almost transparent, 0.8 = fully opaque).",
+                    "Transparency level for the Slip Indicator display (0.2 = almost transparent, 0.8 = vanilla opaque).",
                     new AcceptableValueRange<float>(0.2f, 0.8f),
                     new ConfigurationManagerAttributes {
-                        Order = 0
+                        Order = -2
                     }));
             slipIndicatorPositionX = Config.Bind("Slip Indicator",
                 "Slip Indicator - Position X",
@@ -376,7 +396,7 @@ namespace NO_Tactitools.Core {
                     "X position center of the Slip Indicator in the HUD.",
                     new AcceptableValueRange<int>(-1000, 1000),
                     new ConfigurationManagerAttributes {
-                        Order = -1
+                        Order = -3
                     }));
             slipIndicatorPositionY = Config.Bind("Slip Indicator",
                 "Slip Indicator - Position Y",
@@ -385,7 +405,7 @@ namespace NO_Tactitools.Core {
                     "Y position center of the Slip Indicator in the HUD.",
                     new AcceptableValueRange<int>(-1000, 1000),
                     new ConfigurationManagerAttributes {
-                        Order = -2
+                        Order = -4
                     }));
             // Autopilot settings
             autopilotMenuEnabled = Config.Bind("Autopilot",
@@ -419,20 +439,20 @@ namespace NO_Tactitools.Core {
             resetCockpitFOV = new RewiredInputConfig(Config, "Camera Tweaks", "Camera Tweaks - Reset Cockpit FOV", "Input you want to assign for Resetting Cockpit FOV", 0);
             lookAtNearestAirbase = new RewiredInputConfig(Config, "Camera Tweaks", "Camera Tweaks - Look At Nearest Airbase", "Input for pointing the camera at the nearest Airbase.", 0);
             // ILS Screen settings
-            ILSScreenEnabled = Config.Bind("ILS Screen",
+            ILSWidgetEnabled = Config.Bind("ILS Widget",
                 "ILS Screen - Enabled",
                 true,
                 new ConfigDescription(
-                    "Enable or disable the ILS Screen feature.",
+                    "Enable or disable the LS Widget feature.",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = 2
                     }));
-            ILSIndicatorPositionX = Config.Bind("ILS Screen",
+            ILSIndicatorPositionX = Config.Bind("ILS Widget",
                 "ILS Screen - Position X",
                 430,
                 new ConfigDescription(
-                    "X position of the ILS indicator in the HUD/HMD.",
+                    "X position of the ILS Widget on the HUD.",
                     new AcceptableValueRange<int>(-1000, 1000),
                     new ConfigurationManagerAttributes {
                         Order = 1
@@ -441,7 +461,7 @@ namespace NO_Tactitools.Core {
                 "ILS Screen - Position Y",
                 10,
                 new ConfigDescription(
-                    "Y position of the ILS indicator in the HUD/HMD.",
+                    "Y position of the ILS Widget on the HUD.",
                     new AcceptableValueRange<int>(-1000, 1000),
                     new ConfigurationManagerAttributes {
                         Order = 0
@@ -450,10 +470,10 @@ namespace NO_Tactitools.Core {
                 "ILS Screen - Max Glideslope Error Angle",
                 1f,
                 new ConfigDescription(
-                    "Maximum glideslope error angle shown on the ILS indicator (Default is 1 degree).",
+                    "Maximum glideslope error angle shown on the ILS Widget (Default is 1 degree).",
                     new AcceptableValueRange<float>(0.5f, 5f),
                     new ConfigurationManagerAttributes {
-                        Order = 3
+                        Order = -1
                     }));
             // Loadout Preview settings
             loadoutPreviewEnabled = Config.Bind("Loadout Preview",
@@ -624,7 +644,7 @@ namespace NO_Tactitools.Core {
             }
             // HUD DISPLAY PATCHES
             // Patch ILS
-            if (ILSScreenEnabled.Value) {
+            if (ILSWidgetEnabled.Value) {
                 Log($"ILS is enabled, patching...");
                 harmony.PatchAll(typeof(ILSIndicatorPlugin));
             }

@@ -31,6 +31,8 @@ public class SlipIndicatorComponent {
             InternalState.lastVelocity = Vector3.zero;
             InternalState.currentX = Plugin.slipIndicatorPositionX.Value;
             InternalState.currentY = Plugin.slipIndicatorPositionY.Value;
+            InternalState.smoothingFactor = 21 - Plugin.slipIndicatorSmoothing.Value;
+            InternalState.sensitivity = InternalState.maxOffset / Plugin.slipIndicatorSensitivity.Value;
         }
 
         static public void Update() {
@@ -41,6 +43,9 @@ public class SlipIndicatorComponent {
             float dt = Time.fixedDeltaTime; 
             if (dt <= 0) return;
             if (dt>1/30f) dt = 1/30f; // to avoid issues with pausing and resuming the game, or very low framerates. This also ensures consistent behavior across different framerates.
+
+            InternalState.smoothingFactor = 21 - Plugin.slipIndicatorSmoothing.Value;
+            InternalState.sensitivity = InternalState.maxOffset / Plugin.slipIndicatorSensitivity.Value;
 
             Vector3 currentVelocity = GameBindings.Player.Aircraft.GetAircraft().rb.velocity;
             Vector3 accel = (currentVelocity - InternalState.lastVelocity) / dt;
@@ -70,10 +75,10 @@ public class SlipIndicatorComponent {
 
     public static class InternalState {
         public static Vector3 lastVelocity = Vector3.zero;
-        public static float smoothingFactor = 5f; 
+        public static float smoothingFactor; 
         public static float slipBallOffset = 0f;
-        public static float sensitivity = 50f; 
-        public static float maxOffset = 25f;
+        public static float sensitivity;
+        public static float maxOffset = 40f;
         public static int currentX;
         public static int currentY;
         public static bool needsUpdate = false;
@@ -113,7 +118,6 @@ public class SlipIndicatorComponent {
         public UIBindings.Draw.UILine leftOuterBar;
         public UIBindings.Draw.UILine rightOuterBar;
         public UIBindings.Draw.UILabel ballLabel;
-        public float maxOffset = 25f;
         public float padding = 10f;
 
         public SlipIndicatorWidget(Transform parent) {
@@ -122,6 +126,8 @@ public class SlipIndicatorComponent {
             containerTransform = containerObject.transform;
             containerTransform.SetParent(parent, false);
             containerTransform.localPosition = new Vector3(Plugin.slipIndicatorPositionX.Value, Plugin.slipIndicatorPositionY.Value, 0);
+
+            float maxOffset = InternalState.maxOffset;
 
             leftBar = new UIBindings.Draw.UILine(
                 name: "i_SI_leftBar",
