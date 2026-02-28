@@ -109,7 +109,7 @@ class CameraTweaksPlugin {
 
         float targetBase = PlayerSettings.defaultFoV;
         
-        while (Mathf.Abs(_fovAdjustmentCache.GetValue(cockpitState, true)) > 0.01f || Mathf.Abs(cam.desiredFOV - targetBase) > 0.01f) {
+        while (Mathf.Abs(_fovAdjustmentCache.GetValue(cockpitState, true)) > 0.001f || Mathf.Abs(cam.desiredFOV - targetBase) > 0.001f) {
             float currentAdj = _fovAdjustmentCache.GetValue(cockpitState, true);
             float currentBase = cam.desiredFOV;
             float resetSpeed = Plugin.resetCockpitFOVSpeed.Value * Time.unscaledDeltaTime;
