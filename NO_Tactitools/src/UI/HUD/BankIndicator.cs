@@ -101,7 +101,7 @@ public class BankIndicatorComponent {
             needle.rectTransform.localScale = new Vector3(0.66f, 0.66f, 0.66f);
             needle.rectTransform.localPosition = new Vector3(0, -radius - 10, 0);
             needle.color = new Color(needle.color.r, needle.color.g, needle.color.b, Plugin.bankIndicatorTransparency.Value);
-
+            needle.material = UIBindings.Game.GetFlightHUDFontMaterial();
             bankLabel = new UIBindings.Draw.UILabel(
                 name: "i_RBI_bankLabel",
                 position: new Vector2(0, -radius - 25),
