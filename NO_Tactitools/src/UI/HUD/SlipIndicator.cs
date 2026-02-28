@@ -57,9 +57,12 @@ public class SlipIndicatorComponent {
             float verticalForce = Vector3.Dot(
                 force, 
                 GameBindings.Player.Aircraft.GetAircraft().transform.up);
-            
-            if (Mathf.Abs(verticalForce) > 0.1f) { // to avoid division by zero and noise at very low vertical forces
-                float targetOffset = -lateralForce / Mathf.Abs(verticalForce);
+            float forwardForce = Vector3.Dot(
+                force, 
+                GameBindings.Player.Aircraft.GetAircraft().transform.forward);
+            float otherForces = Mathf.Abs(verticalForce) + Mathf.Abs(forwardForce);
+            if (otherForces > 0.1f) { // to avoid division by zero and noise at very low vertical forces
+                float targetOffset = -lateralForce / otherForces;
                 // slowly moving the ball
                 InternalState.slipBallOffset = Mathf.Lerp(InternalState.slipBallOffset, targetOffset, dt * InternalState.smoothingFactor);
             } else {
