@@ -56,13 +56,20 @@ George
 
 ### 💣 HUD delivery bar and per-shot indicators to indicate launch/detonation "delivery" status
 
-- Show icons for each launched missile/bomb on the target screen; icons persist ~2s after impact and clear on respawn
+- Show indicators on the side of the Target Screen for each launched missile/bomb; indicators persist ~2s after impact
 - Color delivery: green = armor hit, red = miss for instant outcome feedback
-- Distinct shapes: missiles are diamond-shaped, bombs are square-shaped for quick ordnance ID
+- Missiles are on the left side of the screen and bombs are on the right side of the screen
 <details>
 <summary>Screenshots :</summary>
-<IMG src="readme_content/indicator1.png"  alt="1.png"/>
-<IMG src="readme_content/indicator2.png"  alt="2.png"/>
+<IMG src="readme_content/newdeliveryindicator.png"  alt="1.png"/>
+</details>
+
+### 🟢 Per-target Ammo Conservation indicator on the Target Screen
+- Shows a green dot below the target box on the Target Screen if the target is already being tracked by a deliverable
+- Works with multiple targets, each target will have its own indicator
+<details>
+<summary>Screenshot :</summary>
+<IMG src="readme_content/ammocon.png"  alt="1.png"/>
 </details>
 
 ### 🔘 Separate, dedicated buttons for slot selection (Uses [new bindings](#how-to-setup-the-mod-to-use-your-peripherals))
@@ -116,15 +123,70 @@ George
 <IMG src="readme_content/distance.png"  alt="1.png"/>
 </details>
 
-### 🧭 Artificial Horizon for Chicane, Ibis and Tarantula (by default)
+### 🧭 Artificial Horizon on the HMD
 
 - Horizon line always shown
 - Cardinal directions are indicated and hidden when in front of the main HUD
-- You can select for which airframe you want the Artificial Horizon to display by editing an included config file
 - The transparency is configurable
+- You can select for which airframe you want the Artificial Horizon to display by editing an included config file
+  - The default airframes for this feature are:
+    - SAH-46 Chicane
+    - VL-49 Tarantula
+    - UH-80 Ibis
 <details>
 <summary>Screenshot :</summary>
 <IMG src="readme_content/horizon.png"  alt="1.png"/>
+</details>
+
+### 🛬 ILS Widget on the HUD
+- Shows an ILS widget on the HUD when you are cleared for landing at a friendly runway
+- The widget ranges from -1° to +1°, this setting is configurable
+- The widget's position is adjustable in Config Manager
+<details>
+<summary>Screenshot :</summary>
+<IMG src="readme_content/ils.png"  alt="1.png"/>
+</details>
+
+### ⚖️ Bank Indicator on the HUD
+- Shows a bank angle indicator on the HUD at all times
+- The indicator ranges from -45° to +45°, the max angle is configurable
+  - The preferred setting for the max angle is 45° since the needle will always point to the ground
+- The indicator's position is adjustable in Config Manager
+- The number of notches adapts to the max angle setting
+- The transparency is configurable
+- You can select for which airframe you want the Bank Indicator to display by editing an included config file
+  - The default airframes for this feature are:
+    - SAH-46 Chicane
+    - VL-49 Tarantula
+    - UH-80 Ibis
+    - CI-22 Cricket
+    - EW-1 Medusa
+    - SFB-81
+    - A-19 Brawler
+<details>
+<summary>Screenshot :</summary>
+<IMG src="readme_content/slipskid.png"  alt="1.png"/>
+</details>
+
+### ↗️ Slip/Skid Indicator on the HUD
+- Shows a slip/skid indicator on the HUD at all times
+- The indicator calculates the ratio between the lateral and upward acceleration to determine if you are slipping or skidding, and in which direction
+- The sensitivity of the indicator (ratio at max offset) is adjustable in Config Manager
+- The smoothing of the indicator is adjustable in Config Manager
+- The indicator's position is adjustable in Config Manager
+- The transparency is configurable
+- You can select for which airframe you want the Slip/Skid Indicator to display by editing an included config file
+  - The default airframes for this feature are:
+    - SAH-46 Chicane
+    - VL-49 Tarantula
+    - UH-80 Ibis
+    - CI-22 Cricket
+    - EW-1 Medusa
+    - SFB-81
+    - A-19 Brawler
+<details>
+<summary>Screenshot :</summary>
+<IMG src="readme_content/slipskid.png"  alt="1.png"/>
 </details>
 
 ### **Cosmetic & Enhancement Features**
@@ -145,6 +207,12 @@ George
 
 - A short booting animation is displayed on airframe start
 - The animation lasts for 2 seconds
+
+### **Camera features**
+### 📷 New cockpit camera QoL inputs (Uses [new bindings](#how-to-setup-the-mod-to-use-your-peripherals))
+- Adds an input that smoothly resets the cockpit's camera FOV to it's set default value when held
+  - The reset speed is configurable in Config Manager
+- Adds an input that focuses the cockpit's camera on the closest airbase when held
 
 ### **Mod Compatibility Features**
 
@@ -232,9 +300,9 @@ functionnality and more**
 - Disable/Enable the components you want, and edit their settings if appliable
 - **RESTART THE WHOLE GAME** (activated mod components are patched on game start)
 
-### Advanced configuration (Unit Icon Recolor and Artificial Horizon)
+### Advanced configuration (Unit Icon Recolor, Artificial Horizon, Slip Indicator, Bank Indicator)
 
-You can configure the Unit Icon Recolor and Artificial Horizon using text files located in the mod's folder.
+You can configure these modules using text files located in the mod's folder.
 As time goes on I will allow more features to be precisely configured using text files.
 
 - Open the *config* folder located in *Nuclear Option/BepInEx/plugins/NOTT*
@@ -245,7 +313,8 @@ As time goes on I will allow more features to be precisely configured using text
 - Open Configuration Manager once the main menu of Nuclear Option is loaded
 - Click on the *NOTT* tab
 - Bind the controls as you would in-game
-- **Restart the game**
+  - Press ESC to cancel the assignement
+  - Press SUPPR to clear the assignement
 - That's it !
 
 ## Compatibility
@@ -255,11 +324,12 @@ As time goes on I will allow more features to be precisely configured using text
 - **QoL** (qol_1.1.6.1b3)
 - **FQ-106** Kestrel (fq106_2.0.2)
 - **Vanilla Icons PLUS** (VanillaIconsPLUS_1.5.1)
-- **NOAutopilot** (NOAutopilot v4.13.11)
+- **NOAutopilot** (NOAutopilot v4.17.1)
+- **ThirdPersonHud** (ThirdPersonHud v1.2.2)
 
 ## Common issues
 
-### My settings haven't been applied
+### I've activated/deactivated a feature but I don't see any change ingame
 
 Restart the game, **I BEG YOU**.
 
