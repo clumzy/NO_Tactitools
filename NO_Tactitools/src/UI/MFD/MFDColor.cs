@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using NO_Tactitools.Core;
 using NO_Tactitools.Controls;
+using System.Collections.Generic;
 
 namespace NO_Tactitools.UI.MFD;
 
@@ -62,6 +63,7 @@ public static class MFDColorComponent {
     }
 
     static class DisplayEngine {
+        private static Dictionary<Image, Color> originalImagesColors = [];
         public static void Init() {
             Plugin.Log("[MFD] Resetting MFD colors");
             // Now onto the original elements
@@ -98,7 +100,16 @@ public static class MFDColorComponent {
                     } // Skip the horizon image if alternative attitude is not enabled
                 }
                 else { // IMAGES OTHER THAN GROUND AND SKY
-                    Color.RGBToHSV(image.color, out _, out float saturation, out float brightness);
+                    Color oldColor;
+                    if (!originalImagesColors.ContainsKey(image)) {
+                        originalImagesColors[image] = image.color; // store the original color for future reference
+                        oldColor = image.color;
+                    }
+                    else {
+                        oldColor = originalImagesColors[image];
+                    }
+                    
+                    Color.RGBToHSV(oldColor, out _, out float saturation, out float brightness);
                     Color newImageColor = Color.HSVToRGB(
                         InternalState.mainHue,
                         InternalState.mainSaturation * saturation, // we keep the original saturation
