@@ -258,7 +258,7 @@ George
 
 - **I recommend you switch to the excellent Vanilla Icons Plus mod for the same
 functionnality and more**
-- **Download it [here](https://discord.com/channels/909034158205059082/1452350628155228342)**
+- **Download it [here](https://discord.com/channels/909034158205059082/1465420909295697942)**
 - **Current mod users should deactivate the feature using Config Manager**
 - Enemy AA units are recolored on the main map
 - The color is configurable
@@ -314,7 +314,7 @@ As time goes on I will allow more features to be precisely configured using text
 - Click on the *NOTT* tab
 - Bind the controls as you would in-game
   - Press ESC to cancel the assignement
-  - Press SUPPR to clear the assignement
+  - Press SUPPR to clear the assignement (**I STRONGLY RECOMMEND USING THIS INSTEAD OF "Reset"**)
 - That's it !
 
 ## Compatibility
