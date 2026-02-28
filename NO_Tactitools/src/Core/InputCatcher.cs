@@ -31,7 +31,7 @@ public class InputCatcher {
         System.Action onLongPress = null
         ) {
         
-        InputRegistration reg = new InputRegistration {
+        InputRegistration reg = new() {
             config = config,
             longPressThreshold = longPressThreshold,
             onShortPress = onRelease,
@@ -111,6 +111,11 @@ public class InputCatcher {
                 Plugin.Log("[IC] Removed " + removed + " pending input(s) for config " + config.Input.Definition.Key);
             }
         }
+        // also remove from RewiredInputConfig.AllConfigs
+        RewiredInputConfig.AllConfigs.RemoveAll(c => c == config);
+        // also clear the linked entries
+        config.ControllerName.BoxedValue = "";
+        config.ButtonIndex.BoxedValue = -1;
     }
 
     private static void TryRegisterOrQueue(
