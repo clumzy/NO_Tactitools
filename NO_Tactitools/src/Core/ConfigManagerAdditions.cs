@@ -56,6 +56,9 @@ public class RewiredInputConfig {
         ButtonIndex.SettingChanged += (s, e) => OnSettingChanged();
 
         // check for reset button pressed
+        Input.SettingChanged += (s, e) => {
+            OnSettingChanged();
+        };
 
     }
 
