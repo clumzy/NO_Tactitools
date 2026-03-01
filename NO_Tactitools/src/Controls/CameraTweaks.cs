@@ -100,7 +100,7 @@ class CameraTweaksPlugin {
         if (_resetFOVCoroutine != null) return; // already resetting, do nothing
         CameraStateManager cam = UIBindings.Game.GetCameraStateManager();
         if (cam == null) return;
-        _resetFOVCoroutine = UIBindings.Game.GetTacScreenComponent()?.StartCoroutine(ResetFOVCoroutine(cam));
+        _resetFOVCoroutine = cam.StartCoroutine(ResetFOVCoroutine(cam));
     }
 
     private static IEnumerator ResetFOVCoroutine(CameraStateManager cam) {
@@ -112,10 +112,18 @@ class CameraTweaksPlugin {
         while (Mathf.Abs(_fovAdjustmentCache.GetValue(cockpitState, true)) > 0.001f || Mathf.Abs(cam.desiredFOV - targetBase) > 0.001f) {
             float currentAdj = _fovAdjustmentCache.GetValue(cockpitState, true);
             float currentBase = cam.desiredFOV;
-            float resetSpeed = Plugin.resetCockpitFOVSpeed.Value * Time.unscaledDeltaTime;
+            
+            // Use Lerp for smooth deceleration as it approaches zero/target
+            // resetSpeed here acts as a smoothing factor
+            float smoothing = Mathf.Clamp01(Plugin.resetCockpitFOVSpeed.Value * 0.1f * Time.unscaledDeltaTime);
 
-            float newAdj = Mathf.MoveTowards(currentAdj, 0f, resetSpeed);
-            float newBase = Mathf.MoveTowards(currentBase, targetBase, resetSpeed);
+            float newAdj = Mathf.Lerp(currentAdj, 0f, smoothing);
+            float newBase = Mathf.Lerp(currentBase, targetBase, smoothing);
+            
+            // Ensure we still make progress if Lerp gets too slow
+            float minStep = Plugin.resetCockpitFOVSpeed.Value * 0.1f * Time.unscaledDeltaTime;
+            newAdj = Mathf.MoveTowards(newAdj, 0f, minStep);
+            newBase = Mathf.MoveTowards(newBase, targetBase, minStep);
 
             if (newAdj != currentAdj)
                 _fovAdjustmentCache.SetValue(cockpitState, newAdj, true);
