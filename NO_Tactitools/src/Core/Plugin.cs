@@ -91,12 +91,6 @@ namespace NO_Tactitools.Core {
 
         private void Awake() {
             Instance = this;
-            GameObject mgr = Chainloader.ManagerObject;
-            if (mgr != null) {
-                mgr.hideFlags = HideFlags.HideAndDontSave;
-                DontDestroyOnLoad(mgr);
-                Log("Force Hid ManagerGameObject");
-            }
             // MFD Nav
             MFDNavEnter = new RewiredInputConfig(Config, "MFD Nav", "MFD Nav - Enter", "Input you want to assign for MFD Nav - Enter", 0);
             MFDNavUp = new RewiredInputConfig(Config, "MFD Nav", "MFD Nav - Up", "Input you want to assign for MFD Nav - Up", -1);
