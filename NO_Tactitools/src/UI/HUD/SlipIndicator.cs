@@ -39,13 +39,12 @@ public class SlipIndicatorComponent {
         }
 
         static public void Update() {
-            if (GameBindings.GameState.IsGamePaused()
-                || GameBindings.Player.Aircraft.GetAircraft() == null
+            if (GameBindings.Player.Aircraft.GetAircraft() == null
                 || !InternalState.isAuthorized) {
                 return;
             }
 
-            float dt = Time.fixedDeltaTime;
+            float dt = Time.deltaTime;
             if (dt <= 0) return;
 
             InternalState.smoothTime = Plugin.slipIndicatorDamping.Value;
@@ -110,13 +109,11 @@ public class SlipIndicatorComponent {
     static class DisplayEngine {
         static public void Init() {
             if (!InternalState.isAuthorized) return;
-            InternalState.SIWidget?.Destroy();
             InternalState.SIWidget = new SlipIndicatorWidget(UIBindings.Game.GetFlightHUDCenterTransform());
         }
 
         static public void Update() {
-            if (GameBindings.GameState.IsGamePaused()
-                || GameBindings.Player.Aircraft.GetAircraft() == null
+            if (GameBindings.Player.Aircraft.GetAircraft() == null
                 || !InternalState.isAuthorized
                 || InternalState.SIWidget == null)
                 return;
@@ -227,8 +224,7 @@ public class SlipIndicatorComponent {
         }
     }
 
-    // we use fixed hud to ensure proper timesteps
-    [HarmonyPatch(typeof(CombatHUD), "FixedUpdate")]
+    [HarmonyPatch(typeof(TacScreen), "Update")]
     public static class OnPlatformUpdate {
         static void Postfix() {
             LogicEngine.Update();
