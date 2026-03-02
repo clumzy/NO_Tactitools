@@ -67,7 +67,7 @@ public class SlipIndicatorComponent {
             // regular situation
             float targetOffset;
             if (Mathf.Abs(upForce) > 0.5f) {
-                targetOffset = -lateralForce / upForce;
+                targetOffset = -lateralForce / Mathf.Abs(upForce);
             } else {
                 // ball floats and slams
                 targetOffset = lateralForce != 0f ? -Mathf.Sign(lateralForce) : 0f;
@@ -148,8 +148,8 @@ public class SlipIndicatorComponent {
 
             leftBar = new UIBindings.Draw.UILine(
                 name: "i_SI_leftBar",
-                start: new Vector2(-10, -7),
-                end: new Vector2(-10, 7),
+                start: new Vector2(-9, -7),
+                end: new Vector2(-9, 7),
                 UIParent: containerTransform,
                 color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
                 thickness: 1f,
@@ -158,8 +158,8 @@ public class SlipIndicatorComponent {
             );
             rightBar = new UIBindings.Draw.UILine(
                 name: "i_SI_rightBar",
-                start: new Vector2(10, -7),
-                end: new Vector2(10, 7),
+                start: new Vector2(9, -7),
+                end: new Vector2(9, 7),
                 UIParent: containerTransform,
                 color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
                 thickness: 1f,
