@@ -66,7 +66,7 @@ public class SlipIndicatorComponent {
 
             // regular situation
             float targetOffset;
-            if (Mathf.Abs(upForce) > 0.5f) {
+            if (Mathf.Abs(upForce) > 0.1f) {
                 targetOffset = -lateralForce / Mathf.Abs(upForce);
             } else {
                 // ball floats and slams
