@@ -10,6 +10,7 @@ using NO_Tactitools.Controls;
 using NO_Tactitools.UI.HMD;
 using NO_Tactitools.UI.MFD;
 using NO_Tactitools.UI.HUD;
+using BepInEx.Bootstrap;
 
 namespace NO_Tactitools.Core {
     [BepInPlugin("com.george.NO_Tactitools", "NOTT", "0.7.0.2")]
@@ -90,6 +91,12 @@ namespace NO_Tactitools.Core {
 
         private void Awake() {
             Instance = this;
+            GameObject mgr = Chainloader.ManagerObject;
+            if (mgr != null) {
+                mgr.hideFlags = HideFlags.HideAndDontSave;
+                DontDestroyOnLoad(mgr);
+                Log("Force Hid ManagerGameObject");
+            }
             // MFD Nav
             MFDNavEnter = new RewiredInputConfig(Config, "MFD Nav", "MFD Nav - Enter", "Input you want to assign for MFD Nav - Enter", 0);
             MFDNavUp = new RewiredInputConfig(Config, "MFD Nav", "MFD Nav - Up", "Input you want to assign for MFD Nav - Up", -1);
@@ -97,7 +104,7 @@ namespace NO_Tactitools.Core {
             MFDNavLeft = new RewiredInputConfig(Config, "MFD Nav", "MFD Nav - Left", "Input you want to assign for MFD Nav - Left", -3);
             MFDNavRight = new RewiredInputConfig(Config, "MFD Nav", "MFD Nav - Right", "Input you want to assign for MFD Nav - Right", -4);
             MFDNavToggle = new RewiredInputConfig(Config, "MFD Nav", "MFD Nav - Toggle Screens", "Input you want to assign for toggling MFD screens", 1);
-            
+
             // Target Recall settings
             targetListControllerEnabled = Config.Bind("Target List Controller", //Category
                 "Target List Controller - Enabled", // Setting name
@@ -106,7 +113,8 @@ namespace NO_Tactitools.Core {
                     "Enable or disable the Target Recall feature.",
                     null,
                     new ConfigurationManagerAttributes {
-                        Order = 2})); // Description of the setting
+                        Order = 2
+                    })); // Description of the setting
             // Interception Vector settings
             interceptionVectorEnabled = Config.Bind("Interception Vector",
                 "Interception Vector - Enabled",
@@ -364,7 +372,7 @@ namespace NO_Tactitools.Core {
                     }));
             slipIndicatorDamping = Config.Bind("Slip/Skid Indicator",
                 "Slip/Skid Indicator - Damping",
-                0.4f,
+                0.5f,
                 new ConfigDescription(
                     "Ball damping time in seconds (0.1 = snappy, 1.0 = sluggish).",
                     new AcceptableValueRange<float>(0.1f, 1.0f),
@@ -373,7 +381,7 @@ namespace NO_Tactitools.Core {
                     }));
             slipIndicatorSensitivity = Config.Bind("Slip/Skid Indicator",
                 "Slip/Skid Indicator - Sensitivity ratio",
-                0.15f,
+                0.25f,
                 new ConfigDescription(
                     "Lateral/vertical force ratio at which the ball hits max deflection (0.05 = very sensitive, 0.5 = very dull).",
                     new AcceptableValueRange<float>(0.05f, 0.5f),
@@ -535,7 +543,7 @@ namespace NO_Tactitools.Core {
                 0,
                 new ConfigDescription(
                     "X position offset for the loadout preview when manual placement is enabled.",
-                    new AcceptableValueRange<int>(-1920/2, +1920/2),
+                    new AcceptableValueRange<int>(-1920 / 2, +1920 / 2),
                     new ConfigurationManagerAttributes {
                         Order = -2
                     }));
@@ -544,7 +552,7 @@ namespace NO_Tactitools.Core {
                 0,
                 new ConfigDescription(
                     "Y position offset for the loadout preview when manual placement is enabled.",
-                    new AcceptableValueRange<int>(-(int)1080/2, +(int)1080/2),
+                    new AcceptableValueRange<int>(-(int)1080 / 2, +(int)1080 / 2),
                     new ConfigurationManagerAttributes {
                         Order = -3
                     }));
@@ -671,7 +679,7 @@ namespace NO_Tactitools.Core {
                 harmony.PatchAll(typeof(CameraTweaksPlugin));
             }
             // MOD COMPAT PATCHES
-            if (autopilotMenuEnabled.Value){
+            if (autopilotMenuEnabled.Value) {
                 Log($"Autopilot Menu is enabled, patching...");
                 harmony.PatchAll(typeof(NOAutopilotControlPlugin));
             }
