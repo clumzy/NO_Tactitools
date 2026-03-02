@@ -592,6 +592,13 @@ public class UIBindings {
                 catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
             }
 
+            public static DynamicMap GetDynamicMapComponent() {
+                try {
+                    return SceneSingleton<DynamicMap>.i;
+                }
+                catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
+            }
+
             public static void HideWeaponPanel() {
                 CombatHUD currentCombatHUD = SceneSingleton<CombatHUD>.i;
                 GameObject topRightPanel = _topRightPanelCache.GetValue(currentCombatHUD);
