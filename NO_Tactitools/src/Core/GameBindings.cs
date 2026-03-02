@@ -48,6 +48,7 @@ public class GameBindings {
     }
 
     public class GameState {
+        private static readonly TraverseCache<MessageUI, ChatBox> _chatBoxCache = new("chat");
         public static bool IsGamePaused() {
             try {
                 return GameplayUI.GameIsPaused;
@@ -60,6 +61,13 @@ public class GameBindings {
                 return Player.Aircraft.GetAircraft().NetworkHQ;
             }
             catch (NullReferenceException e) { Plugin.Log(e.ToString()); return null; }
+        }
+
+        public static bool IsChatboxActive() {
+            try {
+                return _chatBoxCache.GetValue(SceneSingleton<MessageUI>.i).isActiveAndEnabled;
+            }
+            catch (NullReferenceException e) { Plugin.Log(e.ToString()); return false; }
         }
     }
 

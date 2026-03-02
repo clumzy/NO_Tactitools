@@ -177,11 +177,18 @@ public class PendingInput(InputRegistration registration, int inputIndex) {
 
 [HarmonyPatch(typeof(Rewired.Controller), "pBrAJYWOGkILyqjLrMpmCdajATI")]
 class ControllerInputInterceptionPatch {
-    static bool Prefix(Controller __instance) {
-        if (GameBindings.Player.Aircraft.GetAircraft(silent: true) == null) {
-            return true; // Skip the original method
+    static void Prefix(Controller __instance) {
+        if (GameBindings.Player.Aircraft.GetAircraft(silent: true) == null
+            || GameBindings.GameState.IsGamePaused()) {
+            return;
         }
         foreach (Controller controller in InputCatcher.controllerInputs.Keys) {
+            if (controller.name.Trim() == "Keyboard"
+                || controller.name.Trim() == "Mouse") {
+                if (GameBindings.GameState.IsChatboxActive()) {
+                    continue; // Don't process keyboard inputs if chatbox is active
+                }
+            }
             if (__instance == controller) {
                 foreach (ControllerInput button in InputCatcher.controllerInputs[controller].ToList()) {
                     try {
@@ -224,7 +231,7 @@ class ControllerInputInterceptionPatch {
                 }
             }
         }
-        return true;
+        return;
     }
 }
 
