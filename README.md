@@ -170,9 +170,9 @@ George
 
 ### ↗️ Slip/Skid Indicator on the HUD
 - Shows a slip/skid indicator on the HUD at all times
-- The indicator calculates the ratio between the lateral acceleration and the sum of the upwards and forwards acceleration to determine if you are slipping or skidding, and in which direction
+- The indicator calculates the ratio between the lateral acceleration and the upwards acceleration to determine if you are slipping or skidding, and in which direction
 - The sensitivity of the indicator (ratio at max offset) is adjustable in Config Manager
-- The smoothing of the indicator is adjustable in Config Manager
+- The damping of the indicator is adjustable in Config Manager
 - The indicator's position is adjustable in Config Manager
 - The transparency is configurable
 - You can select for which airframe you want the Slip/Skid Indicator to display by editing an included config file
