@@ -83,7 +83,7 @@ class InterceptionVectorTask {
         containerObject.AddComponent<RectTransform>();
         containerTransform = containerObject.transform;
         containerTransform.SetParent(parentTransform, false);
-        playerFactionHQ = GameBindings.Player.Aircraft.GetAircraft().NetworkHQ;
+        playerFactionHQ = GameBindings.GameState.GetCurrentFactionHQ();
         bearingLabel = new UIBindings.Draw.UILabel(
             "bearingLabel",
             new Vector2(0, -70),

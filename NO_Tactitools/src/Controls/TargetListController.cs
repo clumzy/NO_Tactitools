@@ -230,7 +230,7 @@ public static class TargetListControllerComponent {
         public static void Init() {
             InternalState.previousTargetList = [];
             InternalState.targetIndex = 0;
-            InternalState.playerFactionHQ = GameBindings.Player.Aircraft.GetAircraft().NetworkHQ;
+            InternalState.playerFactionHQ = GameBindings.GameState.GetCurrentFactionHQ();
         }
 
         public static void Update() {
