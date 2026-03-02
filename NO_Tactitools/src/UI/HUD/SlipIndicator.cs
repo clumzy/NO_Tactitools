@@ -23,6 +23,8 @@ class SlipIndicatorPlugin {
 public class SlipIndicatorComponent {
     static class LogicEngine {
         static public void Init() {
+            InternalState.SIWidget?.Destroy();
+            InternalState.SIWidget = null;
             InternalState.authorizedPlatforms = FileUtilities.GetListFromConfigFile("SlipIndicator_AuthorizedPlatforms.txt");
             InternalState.isAuthorized = InternalState.authorizedPlatforms.Contains(GameBindings.Player.Aircraft.GetPlatformName());
             if (!InternalState.isAuthorized) return;

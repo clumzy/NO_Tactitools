@@ -12,7 +12,7 @@ using NO_Tactitools.UI.MFD;
 using NO_Tactitools.UI.HUD;
 
 namespace NO_Tactitools.Core {
-    [BepInPlugin("com.george.NO_Tactitools", "NOTT", "0.7.0.1")]
+    [BepInPlugin("com.george.NO_Tactitools", "NOTT", "0.7.0.2")]
     public class Plugin : BaseUnityPlugin {
         public static Harmony harmony;
         public static RewiredInputConfig MFDNavEnter;
@@ -429,7 +429,7 @@ namespace NO_Tactitools.Core {
                     }));
             resetCockpitFOVSpeed = Config.Bind("Camera Tweaks",
                 "Camera Tweaks - Reset Cockpit FOV - Speed",
-                250,
+                150,
                 new ConfigDescription(
                     "Speed at which the FOV resets (50 - 300).",
                     new AcceptableValueRange<int>(50, 300),
