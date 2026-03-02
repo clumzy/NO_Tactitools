@@ -30,47 +30,61 @@ public class SlipIndicatorComponent {
             if (!InternalState.isAuthorized) return;
 
             InternalState.slipBallOffset = 0f;
+            InternalState.slipBallVelocity = 0f;
             InternalState.lastVelocity = Vector3.zero;
             InternalState.currentX = Plugin.slipIndicatorPositionX.Value;
             InternalState.currentY = Plugin.slipIndicatorPositionY.Value;
-            InternalState.smoothingFactor = 21 - Plugin.slipIndicatorSmoothing.Value;
+            InternalState.smoothTime = Plugin.slipIndicatorDamping.Value;
             InternalState.sensitivity = InternalState.maxOffset / Plugin.slipIndicatorSensitivity.Value;
         }
 
         static public void Update() {
             if (GameBindings.GameState.IsGamePaused()
                 || GameBindings.Player.Aircraft.GetAircraft() == null
-                || !InternalState.isAuthorized)
+                || !InternalState.isAuthorized) {
                 return;
-            float dt = Time.fixedDeltaTime; 
-            if (dt <= 0) return;
-            if (dt>1/30f) dt = 1/30f; // to avoid issues with pausing and resuming the game, or very low framerates. This also ensures consistent behavior across different framerates.
+            }
 
-            InternalState.smoothingFactor = 21 - Plugin.slipIndicatorSmoothing.Value;
+            float dt = Time.fixedDeltaTime;
+            if (dt <= 0) return;
+
+            InternalState.smoothTime = Plugin.slipIndicatorDamping.Value;
             InternalState.sensitivity = InternalState.maxOffset / Plugin.slipIndicatorSensitivity.Value;
 
             Vector3 currentVelocity = GameBindings.Player.Aircraft.GetAircraft().rb.velocity;
             Vector3 accel = (currentVelocity - InternalState.lastVelocity) / dt;
             InternalState.lastVelocity = currentVelocity;
-            Vector3 force = accel - Physics.gravity;
+
+            // all except gravity, we don't care for the foward velocity
+            Vector3 totalForce = accel - Physics.gravity;
+
             float lateralForce = Vector3.Dot(
-                force, 
+                totalForce,
                 GameBindings.Player.Aircraft.GetAircraft().transform.right);
-            float verticalForce = Vector3.Dot(
-                force, 
+            float upForce = Vector3.Dot(
+                totalForce,
                 GameBindings.Player.Aircraft.GetAircraft().transform.up);
-            float forwardForce = Vector3.Dot(
-                force, 
-                GameBindings.Player.Aircraft.GetAircraft().transform.forward);
-            float otherForces = Mathf.Abs(verticalForce) + Mathf.Abs(forwardForce);
-            if (otherForces > 0.1f) { // to avoid division by zero and noise at very low vertical forces
-                float targetOffset = -lateralForce / otherForces;
-                // slowly moving the ball
-                InternalState.slipBallOffset = Mathf.Lerp(InternalState.slipBallOffset, targetOffset, dt * InternalState.smoothingFactor);
+
+            // regular situation
+            float targetOffset;
+            if (Mathf.Abs(upForce) > 0.5f) {
+                targetOffset = -lateralForce / upForce;
             } else {
-                InternalState.slipBallOffset = Mathf.Lerp(InternalState.slipBallOffset, 0f, dt * InternalState.smoothingFactor);
+                // ball floats and slams
+                targetOffset = lateralForce != 0f ? -Mathf.Sign(lateralForce) : 0f;
             }
-            InternalState.needsUpdate = (InternalState.currentX != Plugin.slipIndicatorPositionX.Value || InternalState.currentY != Plugin.slipIndicatorPositionY.Value);
+
+            // second order damping, better sim of a ball in a damping fluid
+            InternalState.slipBallOffset = Mathf.SmoothDamp(
+                InternalState.slipBallOffset,
+                targetOffset,
+                ref InternalState.slipBallVelocity,
+                InternalState.smoothTime,
+                Mathf.Infinity,
+                dt);
+
+            InternalState.needsUpdate = (InternalState.currentX != Plugin.slipIndicatorPositionX.Value
+                || InternalState.currentY != Plugin.slipIndicatorPositionY.Value);
             if (InternalState.needsUpdate) {
                 InternalState.currentX = Plugin.slipIndicatorPositionX.Value;
                 InternalState.currentY = Plugin.slipIndicatorPositionY.Value;
@@ -80,8 +94,9 @@ public class SlipIndicatorComponent {
 
     public static class InternalState {
         public static Vector3 lastVelocity = Vector3.zero;
-        public static float smoothingFactor; 
+        public static float smoothTime;
         public static float slipBallOffset = 0f;
+        public static float slipBallVelocity = 0f; // used by SmoothDamp
         public static float sensitivity;
         public static float maxOffset = 40f;
         public static int currentX;

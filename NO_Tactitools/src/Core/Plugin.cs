@@ -59,7 +59,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<float> slipIndicatorTransparency;
         public static ConfigEntry<int> slipIndicatorPositionX;
         public static ConfigEntry<int> slipIndicatorPositionY;
-        public static ConfigEntry<int> slipIndicatorSmoothing;
+        public static ConfigEntry<float> slipIndicatorDamping;
         public static ConfigEntry<float> slipIndicatorSensitivity;
         public static ConfigEntry<bool> autopilotMenuEnabled;
         public static ConfigEntry<bool> loadoutPreviewEnabled;
@@ -362,21 +362,21 @@ namespace NO_Tactitools.Core {
                     new ConfigurationManagerAttributes {
                         Order = 1
                     }));
-            slipIndicatorSmoothing = Config.Bind("Slip/Skid Indicator",
-                "Slip/Skid Indicator - Smoothing",
-                10,
+            slipIndicatorDamping = Config.Bind("Slip/Skid Indicator",
+                "Slip/Skid Indicator - Damping",
+                0.4f,
                 new ConfigDescription(
-                    "Smoothing level for the Slip/Skid Indicator (1 = high responsiveness, 20 = high smoothing).",
-                    new AcceptableValueRange<int>(1, 20),
+                    "Ball damping time in seconds (0.1 = snappy, 1.0 = sluggish).",
+                    new AcceptableValueRange<float>(0.1f, 1.0f),
                     new ConfigurationManagerAttributes {
                         Order = 0
                     }));
             slipIndicatorSensitivity = Config.Bind("Slip/Skid Indicator",
                 "Slip/Skid Indicator - Sensitivity ratio",
-                0.5f,
+                0.15f,
                 new ConfigDescription(
-                    "Sensitivity ratio for the Slip/Skid Indicator. Defines the lateral/(vertical+forward) force ratio for max ball offset (0.1 = high sensitivity, 2 = low sensitivity).",
-                    new AcceptableValueRange<float>(0.1f, 2.0f),
+                    "Lateral/vertical force ratio at which the ball hits max deflection (0.05 = very sensitive, 0.5 = very dull).",
+                    new AcceptableValueRange<float>(0.05f, 0.5f),
                     new ConfigurationManagerAttributes {
                         Order = -1
                     }));
