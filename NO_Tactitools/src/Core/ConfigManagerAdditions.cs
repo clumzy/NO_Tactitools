@@ -85,6 +85,7 @@ internal sealed class RewiredConfigManager {
     private static ConfigEntryBase _targetIndexEntry = null;
     private static string _errorMessage = null;
     private static float _errorTimer = 0f;
+    private static readonly TraverseCache<Rewired.Controller, IList> _elementsCache = new("KHksquAJKcDEUkNfJQjMANjDEBFB");
 
     public static void ResetInputCatcherState() {
         _isListeningForInput = false;
@@ -106,7 +107,7 @@ internal sealed class RewiredConfigManager {
                 if (controller.GetAnyButtonDown()) {
                     for (int i = 0; i < controller.buttonCount; i++) {
                         if (controller.GetButtonDown(i)) {
-                            IList elements = Traverse.Create(controller).Field("KHksquAJKcDEUkNfJQjMANjDEBFB").GetValue<IList>();
+                            IList elements = _elementsCache.GetValue(controller, silent: true);
                             string controllerName = controller.name.Trim();
                             string buttonName = Traverse.Create(elements[i]).Property("elementIdentifier").GetValue<ControllerElementIdentifier>().name;
 

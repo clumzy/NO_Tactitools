@@ -320,11 +320,6 @@ public class UIBindings {
                     this.borderColor = borderColor;
                     this.borderThickness = borderThickness;
 
-                    topBorder = new UILine(name + "_Top", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, borderThickness, material: material);
-                    bottomBorder = new UILine(name + "_Bottom", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, borderThickness, material: material);
-                    leftBorder = new UILine(name + "_Left", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, borderThickness, material: material);
-                    rightBorder = new UILine(name + "_Right", Vector2.zero, Vector2.zero, gameObject.transform, borderColor, borderThickness, material: material);
-
                     topBorder = new UILine(
                         name + "_Top",
                         Vector2.zero,
@@ -652,23 +647,29 @@ public class UIBindings {
                 foreach (string filePath in Directory.GetFiles(soundsDirectory)) {
                     string fileName = Path.GetFileName(filePath).Split('.')[0];
                     if (!loadedClips.ContainsKey(fileName)) {
-                        using UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + filePath, AudioType.MPEG);
-                        UnityEngine.Networking.UnityWebRequestAsyncOperation operation = www.SendWebRequest();
-                        while (!operation.isDone) { } // Wait for completion
+                        loadedClips[fileName] = null; // Reserve the slot so we don't double-load
+                        Plugin.Instance.StartCoroutine(LoadSoundCoroutine(filePath, fileName));
+                    }
+                }
+            }
 
-                        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError) {
-                            Plugin.Log("[UIUtils] Error loading audio: " + www.error);
-                        }
-                        else {
-                            AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
-                            if (clip != null) {
-                                loadedClips[fileName] = clip;
-                                Plugin.Log("[UIUtils] Loaded audio clip: " + fileName);
-                            }
-                            else {
-                                Plugin.Log("[UIUtils] Loaded audio clip is null for file: " + fileName);
-                            }
-                        }
+            private static IEnumerator LoadSoundCoroutine(string filePath, string fileName) {
+                using UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + filePath, AudioType.MPEG);
+                yield return www.SendWebRequest();
+
+                if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError) {
+                    Plugin.Log("[UIUtils] Error loading audio: " + www.error);
+                    loadedClips.Remove(fileName);
+                }
+                else {
+                    AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
+                    if (clip != null) {
+                        loadedClips[fileName] = clip;
+                        Plugin.Log("[UIUtils] Loaded audio clip: " + fileName);
+                    }
+                    else {
+                        Plugin.Log("[UIUtils] Loaded audio clip is null for file: " + fileName);
+                        loadedClips.Remove(fileName);
                     }
                 }
             }

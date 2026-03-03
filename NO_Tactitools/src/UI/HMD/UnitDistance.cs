@@ -34,14 +34,14 @@ class UnitDistanceTask {
 
     public static readonly Dictionary<HUDUnitMarker, string> unitStates = [];
     public static readonly Dictionary<HUDUnitMarker, Transform> _transformCache = [];
+    private static readonly TraverseCache<HUDUnitMarker, Transform> _traverseCache = new("_transform");
 
     static void Postfix(HUDUnitMarker __instance) {
         if (__instance.unit is not Aircraft || __instance.unit.NetworkHQ == GameBindings.Player.Aircraft.GetAircraft().NetworkHQ) return; // Only apply to enemy aircraft units
         
         // Cache the transform per marker instance
         if (!_transformCache.TryGetValue(__instance, out Transform markerTransform)) {
-            TraverseCache<HUDUnitMarker, Transform> transformCache = new("_transform");
-            markerTransform = transformCache.GetValue(__instance);
+            markerTransform = _traverseCache.GetValue(__instance);
             _transformCache[__instance] = markerTransform;
         }
         if (GameBindings.Player.Aircraft.GetAircraft().NetworkHQ.IsTargetPositionAccurate(__instance.unit, 20f)) {

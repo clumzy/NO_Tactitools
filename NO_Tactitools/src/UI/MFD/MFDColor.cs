@@ -94,7 +94,7 @@ public static class MFDColorComponent {
                         Color skyColor = Color.HSVToRGB(
                             InternalState.mainHue,
                             InternalState.mainSaturation,
-                            0.7f);
+                            0.9f);
                         skyColor.a = originalAlpha;
                         image.color = skyColor;
                     } // Skip the horizon image if alternative attitude is not enabled

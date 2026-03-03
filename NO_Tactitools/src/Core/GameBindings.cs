@@ -334,7 +334,7 @@ public class GameBindings {
                     try {
                         return SceneSingleton<CombatHUD>.i.aircraft.weaponStations.Count;
                     }
-                    catch (NullReferenceException e) { Plugin.Log(e.ToString()); return 5; }
+                    catch (NullReferenceException e) { Plugin.Log(e.ToString()); return 0; }
                 }
 
                 public static void SetActiveStation(byte index) {

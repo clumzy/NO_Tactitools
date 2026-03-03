@@ -26,6 +26,7 @@ class AmmoConIndicatorComponent {
     static public class LogicEngine {
         public static void Init() {
             InternalState.activeMissiles.Clear();
+            InternalState.trackerDotCache.Clear();
         }
 
         public static void Update() {
@@ -76,6 +77,7 @@ class AmmoConIndicatorComponent {
     static public class InternalState {
         static public Dictionary<Missile, Unit> activeMissiles = [];
         public static readonly TraverseCache<TargetScreenUI, List<Image>> _targetBoxesCache = new("targetBoxes");
+        public static readonly Dictionary<RectTransform, UIBindings.Draw.UIRectangle> trackerDotCache = [];
     }
 
     static public class DisplayEngine {
@@ -101,15 +103,19 @@ class AmmoConIndicatorComponent {
             for (int i = 0; i < targets.Count; i++) {
                 bool isTracked = InternalState.activeMissiles.ContainsValue(targets[i]);
 
-                UIBindings.Draw.UIRectangle trackerDot = new(
-                    "TrackerDot",
-                    new Vector2(-5, -30),
-                    new Vector2(5, -40),
-                    fillColor: new Color(0f, 1f, 0f, 0.95f),
-                    UIParent: targetIcons[i].rectTransform
-                );
+                RectTransform parent = targetIcons[i].rectTransform;
+                if (!InternalState.trackerDotCache.TryGetValue(parent, out var trackerDot)) {
+                    trackerDot = new UIBindings.Draw.UIRectangle(
+                        "TrackerDot",
+                        new Vector2(-5, -30),
+                        new Vector2(5, -40),
+                        fillColor: new Color(0f, 1f, 0f, 0.95f),
+                        UIParent: parent
+                    );
+                    trackerDot.GetImageComponent().raycastTarget = false;
+                    InternalState.trackerDotCache[parent] = trackerDot;
+                }
                 trackerDot.GetGameObject().SetActive(isTracked);
-                trackerDot.GetImageComponent().raycastTarget = false;
             }
         }
     }
