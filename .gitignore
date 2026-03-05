@@ -11,3 +11,4 @@ bin/
 .github/
 *.zip
 *.ttf
+.continue/
