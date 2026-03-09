@@ -85,18 +85,14 @@ CHECKLIST WHEN ADDING A FEATURE :
   -> add AA to UI elements I add
   -> all settings are at minimum reset on aircraft respawn
   -> many small fixes
+  -> Make hot swapping inputs not activate them on setting
 
-TODO :
--> Make hot swapping inputs not activate them on setting
+0.8.0 : THE BIG REVAMP
 
 IN PROGRESS :
 
 TODO :
--> Add helicopter drift indicator
 -> Rename Medusa in load screen
 -> make control combos
 -> Implement container for Weapon Display
 -> Adapt sling for the wpon screen
-
-
-NICE TO HAVE :

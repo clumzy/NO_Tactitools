@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine;
-using Rewired;
 using NO_Tactitools.Controls;
 using NO_Tactitools.UI.HMD;
 using NO_Tactitools.UI.MFD;
 using NO_Tactitools.UI.HUD;
-using BepInEx.Bootstrap;
 
 namespace NO_Tactitools.Core {
     [BepInPlugin("com.george.NO_Tactitools", "NOTT", "0.7.0.3")]
