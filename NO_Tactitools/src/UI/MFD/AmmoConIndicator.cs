@@ -48,11 +48,12 @@ class AmmoConIndicatorComponent {
         }
 
         public static void OnMissileStart(Missile missile) {
-            if (UIBindings.Game.GetTargetScreenTransform(true) == null ||
-                GameBindings.Player.Aircraft.GetAircraft() == null ||
-                UIBindings.Game.GetTacScreenTransform(true) == null) {
+            if (GameBindings.Player.Aircraft.GetAircraft() == null ||
+                UIBindings.Game.GetTacScreenTransform() == null) {
                 return;
             }
+            if (UIBindings.Game.GetTargetScreenTransform() == null)
+                return;
             // no target
             if (missile.targetID == null) return;
             if (missile.targetID.TryGetUnit(out Unit unit)) {
@@ -61,11 +62,14 @@ class AmmoConIndicatorComponent {
         }
 
         public static void OnMissileSetTarget(Missile missile, Unit unit) {
-            if (UIBindings.Game.GetTargetScreenTransform(true) == null ||
-                GameBindings.Player.Aircraft.GetAircraft() == null ||
-                UIBindings.Game.GetTacScreenTransform(true) == null) {
+            if (GameBindings.Player.Aircraft.GetAircraft() == null ||
+                UIBindings.Game.GetTacScreenTransform() == null) {
                 return;
             }
+
+            if (UIBindings.Game.GetTargetScreenTransform() == null)
+                return;
+
             // make the mod update proof
             if (unit == null) // this always happens when a missile detonates
                 InternalState.activeMissiles.Remove(missile);
@@ -87,8 +91,11 @@ class AmmoConIndicatorComponent {
         public static void Update() {
             if (
                 GameBindings.GameState.IsGamePaused()
-                || GameBindings.Player.Aircraft.GetAircraft() == null
-                || UIBindings.Game.GetTargetScreenTransform(silent: true) == null) {
+                || GameBindings.Player.Aircraft.GetAircraft() == null) {
+                return;
+            }
+
+            if (UIBindings.Game.GetTargetScreenTransform() == null){
                 return;
             }
 
