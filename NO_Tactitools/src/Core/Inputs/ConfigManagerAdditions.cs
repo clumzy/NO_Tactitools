@@ -6,8 +6,9 @@ using HarmonyLib;
 using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
+using NO_Tactitools.Core.Utils;
 
-namespace NO_Tactitools.Core;
+namespace NO_Tactitools.Core.Inputs;
 
 internal sealed class ConfigurationManagerAttributes
 /// <summary>

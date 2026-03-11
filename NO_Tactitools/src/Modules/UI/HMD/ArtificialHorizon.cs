@@ -2,12 +2,12 @@ using BepInEx.Bootstrap;
 using HarmonyLib;
 using UnityEngine;
 using NO_Tactitools.Core;
+using NO_Tactitools.Core.Utils;
+using NO_Tactitools.Core.Bindings;
 using System.Collections.Generic;
 using System;
-using UnityEngine.Rendering;
-using JetBrains.Annotations;
 
-namespace NO_Tactitools.UI.HMD;
+namespace NO_Tactitools.Modules.UI.HMD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class ArtificialHorizonPlugin {

@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
 using NO_Tactitools.Core;
+using NO_Tactitools.Core.Utils;
+using NO_Tactitools.Core.Bindings;
 
-namespace NO_Tactitools.UI.HMD;
+namespace NO_Tactitools.Modules.UI.HMD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class UnitDistancePlugin {

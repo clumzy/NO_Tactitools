@@ -2,9 +2,10 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using NO_Tactitools.Core.Utils;
 using System.Collections.Generic;
 
-namespace NO_Tactitools.Core;
+namespace NO_Tactitools.Core.Bindings;
 
 public class GameBindings {
     public class Units {

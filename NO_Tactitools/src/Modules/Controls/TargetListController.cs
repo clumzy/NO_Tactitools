@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using NO_Tactitools.Core;
 using UnityEngine.UI;
 using UnityEngine;
-using NuclearOption.SceneLoading;
-using Unity.Properties;
+using NO_Tactitools.Core.Utils;
+using NO_Tactitools.Core.Bindings;
+using NO_Tactitools.Core.Inputs;
 using System.Linq;
 
-namespace NO_Tactitools.Controls;
+namespace NO_Tactitools.Modules.Controls;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class TargetListControllerPlugin {

@@ -5,8 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using NO_Tactitools.Core.Bindings;
 
-namespace NO_Tactitools.Core;
+namespace NO_Tactitools.Core.Inputs;
 
 public class InputRegistration {
     public RewiredInputConfig config;

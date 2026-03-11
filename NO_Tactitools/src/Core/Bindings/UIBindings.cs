@@ -5,8 +5,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.IO;
+using NO_Tactitools.Core.Utils;
 
-namespace NO_Tactitools.Core;
+namespace NO_Tactitools.Core.Bindings;
 
 public class UIBindings {
         private static Sprite _antialiasedSprite;

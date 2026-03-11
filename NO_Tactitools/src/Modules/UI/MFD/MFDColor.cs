@@ -2,10 +2,12 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using NO_Tactitools.Core;
-using NO_Tactitools.Controls;
+using NO_Tactitools.Core.Bindings;
+using NO_Tactitools.Modules.Other_Mods;
+using NO_Tactitools.Modules.Controls;
 using System.Collections.Generic;
 
-namespace NO_Tactitools.UI.MFD;
+namespace NO_Tactitools.Modules.UI.MFD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class MFDColorPlugin {

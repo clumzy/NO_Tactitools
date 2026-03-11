@@ -4,8 +4,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using NO_Tactitools.Core;
+using NO_Tactitools.Core.Utils;
+using NO_Tactitools.Core.Bindings;
 
-namespace NO_Tactitools.UI.MFD;
+namespace NO_Tactitools.Modules.UI.MFD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class BootScreenPlugin {

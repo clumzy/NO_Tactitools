@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-namespace NO_Tactitools.Core;
+namespace NO_Tactitools.Core.Utils;
 public static class FileUtilities
 {
     public static List<string> GetListFromConfigFile(string configFile)

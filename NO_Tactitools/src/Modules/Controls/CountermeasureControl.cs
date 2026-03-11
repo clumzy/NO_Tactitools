@@ -1,8 +1,9 @@
-using System;
 using HarmonyLib;
 using NO_Tactitools.Core;
+using NO_Tactitools.Core.Bindings;
+using NO_Tactitools.Core.Inputs;
 
-namespace NO_Tactitools.Controls;
+namespace NO_Tactitools.Modules.Controls;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class CountermeasureControlsPlugin {

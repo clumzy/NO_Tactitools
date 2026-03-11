@@ -1,10 +1,12 @@
 using HarmonyLib;
 using UnityEngine.UI;
 using NO_Tactitools.Core;
+using NO_Tactitools.Core.Utils;
+using NO_Tactitools.Core.Bindings;
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace NO_Tactitools.UI.HUD;
+namespace NO_Tactitools.Modules.UI.HUD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class BankIndicatorPlugin {

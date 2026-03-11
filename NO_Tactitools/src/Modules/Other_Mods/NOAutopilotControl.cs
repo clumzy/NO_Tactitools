@@ -3,10 +3,11 @@ using HarmonyLib;
 using UnityEngine;
 using NOAutopilot; // Reference from .csproj
 using Plugin = NO_Tactitools.Core.Plugin;
-using NO_Tactitools.Core;
+using NO_Tactitools.Core.Bindings;
+using NO_Tactitools.Core.Inputs;
 using System.Collections.Generic;
 
-namespace NO_Tactitools.Controls;
+namespace NO_Tactitools.Modules.Other_Mods;
 [HarmonyPatch(typeof(MainMenu), "Start")]
 public static class NOAutopilotControlPlugin {
     private static bool initialized = false;
@@ -504,7 +505,7 @@ public class NOAutopilotComponent {
             }
 
             // Hide menu during boot sequence
-            bool isBooting = !UI.MFD.BootScreenComponent.InternalState.hasBooted;
+            bool isBooting = !Modules.UI.MFD.BootScreenComponent.InternalState.hasBooted;
             if (isBooting) {
                 InternalState.autopilotMenu.containerObject.SetActive(false);
                 return;

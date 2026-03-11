@@ -2,8 +2,10 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using NO_Tactitools.Core;
+using NO_Tactitools.Core.Bindings;
+using NO_Tactitools.Core.Inputs;
 
-namespace NO_Tactitools.UI.MFD;
+namespace NO_Tactitools.Modules.UI.MFD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class WeaponDisplayPlugin {

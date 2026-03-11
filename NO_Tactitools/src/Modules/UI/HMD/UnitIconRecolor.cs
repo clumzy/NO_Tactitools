@@ -2,9 +2,10 @@ using UnityEngine;
 using HarmonyLib;
 using System.Collections.Generic;
 using NO_Tactitools.Core;
-using JetBrains.Annotations;
+using NO_Tactitools.Core.Utils;
+using NO_Tactitools.Core.Bindings;
 
-namespace NO_Tactitools.UI.HMD;
+namespace NO_Tactitools.Modules.UI.HMD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class UnitIconRecolorPlugin {

@@ -2,8 +2,9 @@ using HarmonyLib;
 using UnityEngine;
 using System.Collections.Generic;
 using NO_Tactitools.Core;
+using NO_Tactitools.Core.Bindings;
 
-namespace NO_Tactitools.UI.MFD;
+namespace NO_Tactitools.Modules.UI.MFD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class InterceptionVectorPlugin {

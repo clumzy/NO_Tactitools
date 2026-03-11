@@ -2,11 +2,10 @@ using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
 using NO_Tactitools.Core;
+using NO_Tactitools.Core.Bindings;
 using System.Linq;
-using System;
-using JetBrains.Annotations;
 
-namespace NO_Tactitools.UI.MFD;
+namespace NO_Tactitools.Modules.UI.MFD;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class DeliveryCheckerPlugin {

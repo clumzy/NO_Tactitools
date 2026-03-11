@@ -1,10 +1,12 @@
 using System.Collections;
-using System.Runtime.CompilerServices;
 using HarmonyLib;
 using NO_Tactitools.Core;
+using NO_Tactitools.Core.Utils;
+using NO_Tactitools.Core.Bindings;
+using NO_Tactitools.Core.Inputs;
 using UnityEngine;
 
-namespace NO_Tactitools.Controls;
+namespace NO_Tactitools.Modules.Controls;
 
 [HarmonyPatch(typeof(MainMenu), "Start")]
 class CameraTweaksPlugin {
