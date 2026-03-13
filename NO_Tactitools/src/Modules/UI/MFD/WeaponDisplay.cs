@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using NO_Tactitools.Core;
 using NO_Tactitools.Core.Bindings;
 using NO_Tactitools.Core.Inputs;
+using BepInEx.Configuration;
 
 namespace NO_Tactitools.Modules.UI.MFD;
 
@@ -41,7 +42,17 @@ class WeaponDisplayPlugin {
     }
 }
 
-public class WeaponDisplayComponent {
+public class WeaponDisplayComponent : Module {
+    public WeaponDisplayComponent( 
+        Harmony instance) 
+        : base(
+            "WeaponDisplay", 
+            ModuleInitType.TacScreen, 
+            ModuleUpdateType.TacScreen, 
+            enabledConfig, 
+            instance) {
+    }
+
     // LOGIC ENGINE, INTERNAL STATE, DISPLAY ENGINE
     static class LogicEngine {
         static public void Init() {
@@ -494,22 +505,6 @@ public class WeaponDisplayComponent {
                     child.SetActive(!child.activeSelf);
                 }
             }
-        }
-    }
-    // INIT AND REFRESH LOOP
-    [HarmonyPatch(typeof(TacScreen), "Initialize")]
-    public static class OnPlatformStart {
-        static void Postfix() {
-            LogicEngine.Init();
-            DisplayEngine.Init();
-        }
-    }
-
-    [HarmonyPatch(typeof(TacScreen), "Update")]
-    public static class OnPlatformUpdate {
-        static void Postfix() {
-            LogicEngine.Update();
-            DisplayEngine.Update();
         }
     }
 }

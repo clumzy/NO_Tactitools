@@ -9,11 +9,11 @@ public class ModEventArgs(string eventName, object data) : EventArgs {
 }
 
 public static class EventSystem {
-    // event types
+    // pointer to a function that takes an object and a ModEventArgs and returns void
     public delegate void InitEventHandler(object sender, ModEventArgs e);
-    public delegate void UpdateEventHandler(object sender, ModEventArgs e);
-    // events themselves
+    // event that is triggered when the TacScreen is initialized
     public static event InitEventHandler OnTacScreenInit;
+    public delegate void UpdateEventHandler(object sender, ModEventArgs e);
     public static event UpdateEventHandler OnTacScreenUpdate;
     public static event UpdateEventHandler OnCombatHUDFixedUpdate;
     // triggers
