@@ -3,6 +3,7 @@ using BepInEx.Configuration;
 using HarmonyLib;
 
 using NO_Tactitools.Core.Events;
+using NO_Tactitools.Core.Inputs;
 
 namespace NO_Tactitools.Core;
 
@@ -26,6 +27,7 @@ public abstract class Module {
     protected readonly string ModuleName;
     protected readonly ModuleInitType InitType;
     protected readonly ModuleUpdateType UpdateType;
+    protected List<RewiredInputConfig> InputConfigs = []; // List of input configs for this module
     protected readonly Harmony Instance;
 
     protected Module(
