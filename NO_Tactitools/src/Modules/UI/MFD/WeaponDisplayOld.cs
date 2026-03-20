@@ -48,8 +48,7 @@ public class WeaponDisplayComponentOld : Module {
             "WeaponDisplay", 
             ModuleInitType.TacScreen, 
             ModuleUpdateType.TacScreen, 
-            enabledConfig, 
-            instance) {
+            enabledConfig) {
     }
 
     // LOGIC ENGINE, INTERNAL STATE, DISPLAY ENGINE

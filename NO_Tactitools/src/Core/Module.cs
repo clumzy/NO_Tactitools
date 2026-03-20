@@ -40,7 +40,7 @@ public abstract class Module {
     private readonly Plugin pluginInstance;
     public readonly bool Enabled;
     private readonly ConfigEntry<bool> enabledConfig;
-    private readonly List<ConfigEntryBase> configEntries;
+    public List<ConfigEntryBase> configEntries;
     public readonly string ModuleName;
     private readonly ModuleInitType initType;
     private readonly ModuleUpdateType updateType;
@@ -61,35 +61,34 @@ public abstract class Module {
     protected DisplayEngine DisplayEngineInstance;
 
     // where the module stores its internal state in our paradigm
-    public abstract class InternalState;
-
-    public InternalState InternalStateInstance;
+    // data is stored raw as static variables in a child class of InternalState
+    protected abstract class InternalState;
 
     protected Module(
         Plugin pluginInstance,
         string moduleName,
         ModuleInitType initType,
-        ModuleUpdateType updateType, List<ConfigEntryBase> configEntries) {
+        ModuleUpdateType updateType) {
         // Assign the properties
         this.pluginInstance = pluginInstance;
         ModuleName = moduleName;
         this.initType = initType;
         this.updateType = updateType;
-        this.configEntries = configEntries;
+        this.configEntries = [];
         // Bind the config
         enabledConfig = this.pluginInstance.Config.Bind(
-            $"{ModuleName.ToString()}",
-            $"{ModuleName.ToString()} - Enabled",
+            $"{ModuleName}",
+            $"{ModuleName} - Enabled",
             true,
             new ConfigDescription(
-                $"Enable the {ModuleName.ToString()} module.",
+                $"Enable the {ModuleName} module.",
                 null,
                 new ConfigurationManagerAttributes { Order = -9999 }
             ));
         // Initialize events, always runs last
         if (enabledConfig.Value) {
             InitializeEvents();
-            Plugin.Logger.LogInfo($"Module {ModuleName.ToString()} events registered.");
+            Plugin.Logger.LogInfo($"Module {ModuleName} events registered.");
         }
         Enabled = true;
     }
