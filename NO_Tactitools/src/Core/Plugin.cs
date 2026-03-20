@@ -41,7 +41,7 @@ namespace NO_Tactitools.Core {
             // Patch all events
             EventSystem.PatchAll();
             // Weapon Display Module
-            Log("NO Tactitools loaded successfully !");
+            ModuleManager.TryAddModule(new WeaponDisplayModule(this));
         }
 
 

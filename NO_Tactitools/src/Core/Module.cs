@@ -1,145 +1,168 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using BepInEx.Configuration;
-using HarmonyLib;
 
-using NO_Tactitools.Core;
 using NO_Tactitools.Core.Events;
 using NO_Tactitools.Core.Inputs;
-using UnityEngine;
 
 namespace NO_Tactitools.Core;
 
 public static class ModuleManager {
-    public static List<Module> Modules = [];
-    public static bool TryAddModule(Module module) {
-        if (Modules.Contains(module)) return false;
+    private static readonly List<Module> Modules = [];
+    public static void TryAddModule(Module module) {
+        if (Modules.Contains(module)) {
+            Plugin.Log($"Module {module.ModuleName.ToString()} is already registered.");
+        }
+        if (module.Enabled == false) {
+            Plugin.Log($"Module {module.ModuleName.ToString()} is disabled.");
+        }
         Modules.Add(module);
-        return true;
+        Plugin.Log($"Module {module.ModuleName.ToString()} registered.");
     }
 }
 
-public enum ModuleInitType{
+public enum ModuleInitType {
     TacScreen,
     None
 }
 
-public enum ModuleUpdateType{
+public enum ModuleUpdateType {
     TacScreen,
     CombatHUD,
     None
 }
 
-
 /// <summary>
 /// Base class for all NOTT modules with support for different update patterns
 /// </summary>
 public abstract class Module {
-    protected readonly Plugin PluginInstance;
-    protected bool Enabled = false;
-    protected readonly ConfigEntry<bool> EnabledConfig;
-    protected readonly List<ConfigEntryBase> ConfigEntries;
-    protected readonly string ModuleName;
-    protected readonly ModuleInitType InitType;
-    protected readonly ModuleUpdateType UpdateType;
-    protected List<RewiredInputConfig> InputConfigs = []; // List of input configs for this module
+    private readonly Plugin pluginInstance;
+    public readonly bool Enabled;
+    private readonly ConfigEntry<bool> enabledConfig;
+    private readonly List<ConfigEntryBase> configEntries;
+    public readonly string ModuleName;
+    private readonly ModuleInitType initType;
+    private readonly ModuleUpdateType updateType;
+    private readonly List<RewiredInputConfig> inputConfigs = []; // List of input configs for this module
+
+    // LOGIC ENGINE
+    protected abstract class LogicEngine {
+        public abstract void Init();
+        public abstract void Update();
+    }
+    protected LogicEngine LogicEngineInstance;
+
+    // DISPLAY ENGINE
+    protected abstract class DisplayEngine {
+        public abstract void Init();
+        public abstract void Update();
+    }
+    protected DisplayEngine DisplayEngineInstance;
+
+    // where the module stores its internal state in our paradigm
+    public abstract class InternalState;
+
+    public InternalState InternalStateInstance;
 
     protected Module(
         Plugin pluginInstance,
-        string moduleName, 
-        ModuleInitType initType, 
-        ModuleUpdateType updateType) {
+        string moduleName,
+        ModuleInitType initType,
+        ModuleUpdateType updateType, List<ConfigEntryBase> configEntries) {
         // Assign the properties
-        PluginInstance = pluginInstance;
+        this.pluginInstance = pluginInstance;
         ModuleName = moduleName;
-        InitType = initType;
-        UpdateType = updateType;
+        this.initType = initType;
+        this.updateType = updateType;
+        this.configEntries = configEntries;
         // Bind the config
-        EnabledConfig = PluginInstance.Config.Bind(
-            $"{ModuleName.ToString()}", 
-            $"{ModuleName.ToString()} - Enabled", 
-            true, 
+        enabledConfig = this.pluginInstance.Config.Bind(
+            $"{ModuleName.ToString()}",
+            $"{ModuleName.ToString()} - Enabled",
+            true,
             new ConfigDescription(
-                $"Enable the {ModuleName.ToString()} module.", 
+                $"Enable the {ModuleName.ToString()} module.",
                 null,
                 new ConfigurationManagerAttributes { Order = -9999 }
             ));
-        // Add the module to the module manager if enabled
-        if (EnabledConfig.Value) {
-            ModuleManager.TryAddModule(this);
-        } else {
-            Plugin.Logger.LogInfo($"Module {ModuleName.ToString()} is disabled.");
+        // Initialize events, always runs last
+        if (enabledConfig.Value) {
+            InitializeEvents();
+            Plugin.Logger.LogInfo($"Module {ModuleName.ToString()} events registered.");
         }
-        // Initialize the module if enabled
-        if (EnabledConfig.Value) {
-            Initialize();
-            Plugin.Logger.LogInfo($"Module {ModuleName.ToString()} initialized.");
+        Enabled = true;
+    }
+
+    private void InitializeEvents() {
+        if (!enabledConfig.Value) return;
+        // Subscribe to the events based on the init type
+        switch (initType) {
+            case ModuleInitType.TacScreen:
+                EventSystem.OnTacScreenInit += OnInit;
+                break;
+            case ModuleInitType.None:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+        switch (updateType) {
+            case ModuleUpdateType.TacScreen:
+                EventSystem.OnTacScreenUpdate += OnUpdate;
+                break;
+            case ModuleUpdateType.CombatHUD:
+                EventSystem.OnCombatHUDFixedUpdate += OnUpdate;
+                break;
+            case ModuleUpdateType.None:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
-    private void Initialize() {
-        if (EnabledConfig.Value) {
-            // Subscribe to the events based on the init type
-            switch (InitType) {
-                case ModuleInitType.TacScreen:
-                    EventSystem.OnTacScreenInit += OnInit;
-                    break;
-                case ModuleInitType.None:
-                    break;
-            }
-            switch (UpdateType) {
-                case ModuleUpdateType.TacScreen:
-                    EventSystem.OnTacScreenUpdate += OnUpdate;
-                    break;
-                case ModuleUpdateType.CombatHUD:
-                    EventSystem.OnCombatHUDFixedUpdate += OnUpdate;
-                    break;
-                case ModuleUpdateType.None:
-                    break;
-            }
-            Enabled = true;
-        }
-    }
     // functions to be overridden by child classes
-    public void OnInit(object sender, ModEventArgs e) {
+    private void OnInit(object sender, ModEventArgs e) {
+        LogicEngineInstance.Init();
+        DisplayEngineInstance.Init();
     }
 
-    public void OnUpdate(object sender, ModEventArgs e) {
+    private void OnUpdate(object sender, ModEventArgs e) {
+        LogicEngineInstance.Update();
+        DisplayEngineInstance.Update();
     }
 
-    // returns ConfigEntryBase so that we can instantiante module configs as one liners
-    public ConfigEntryBase AddNewConfigEntry(ConfigEntryBase configEntry){
+    // returns ConfigEntryBase so that we can instantiate module configs as one-liners
+    public ConfigEntryBase AddNewConfigEntry(ConfigEntryBase configEntry) {
         // check if a config with the same name doesn't exist
-        if (ConfigEntries.Any(entry => entry.Definition.Key == configEntry.Definition.Key)){
+        if (configEntries.Any(entry => entry.Definition.Key == configEntry.Definition.Key)) {
             Plugin.Log($"Config entry {configEntry.Definition.Key.ToString()} already exists!");
             return null;
         }
-        PluginInstance.Config.Bind(
-            configEntry.Definition, 
-            configEntry.BoxedValue, 
+        pluginInstance.Config.Bind(
+            configEntry.Definition,
+            configEntry.BoxedValue,
             configEntry.Description);
-        ConfigEntries.Add(configEntry);
+        configEntries.Add(configEntry);
         return configEntry;
     }
 
     public RewiredInputConfig AddNewInputConfig(
         string featureName,
         string description
-    ){
+    ) {
         // check if a config with the same name doesn't exist
-        if (InputConfigs.Any(inputConfig => inputConfig.Input.Definition.Key == featureName)){
+        if (inputConfigs.Any(inputConfig => inputConfig.Input.Definition.Key == featureName)) {
             Plugin.Log($"Input config {featureName.ToString()} already exists!");
             return null;
         }
         RewiredInputConfig inputConfig = new(
-            PluginInstance.Config,
+            pluginInstance.Config,
             ModuleName,
             featureName,
             description,
-            -1000 - InputConfigs.Count // ensuring they are at the bottom in the instanciation order
+            -1000 - inputConfigs.Count // ensuring they are at the bottom in the instantiation order
         );
-        InputConfigs.Add(inputConfig);
+        inputConfigs.Add(inputConfig);
         return inputConfig;
     }
-
 }

@@ -4,7 +4,7 @@ using HarmonyLib;
 namespace NO_Tactitools.Core.Events;
 
 public class ModEventArgs(string eventName, object data) : EventArgs {
-    public string EventName { get; set; } = eventName;
+    public string EventName { get; } = eventName;
     public object Data { get; set; } = data;
 }
 
@@ -15,17 +15,21 @@ public static class EventSystem {
     public static event EventHandler OnTacScreenInit;
     public static event EventHandler OnTacScreenUpdate;
     public static event EventHandler OnCombatHUDFixedUpdate;
-    
     // triggers
     public static void TriggerInitEvent(object sender, ModEventArgs e) {
         if (e.EventName == "TacScreen_Initialize")
             OnTacScreenInit?.Invoke(sender, e);
     }
     public static void TriggerUpdateEvent(object sender, ModEventArgs e) {
-        if (e.EventName == "TacScreen_Update")
-            OnTacScreenUpdate?.Invoke(sender, e);
-        if (e.EventName == "CombatHUD_FixedUpdate")
-            OnCombatHUDFixedUpdate?.Invoke(sender, e);
+        switch (e.EventName)
+        {
+            case "TacScreen_Update":
+                OnTacScreenUpdate?.Invoke(sender, e);
+                break;
+            case "CombatHUD_FixedUpdate":
+                OnCombatHUDFixedUpdate?.Invoke(sender, e);
+                break;
+        }
     }
 
     // PATCH ALL
