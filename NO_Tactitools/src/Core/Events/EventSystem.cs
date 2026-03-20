@@ -15,6 +15,7 @@ public static class EventSystem {
     public static event EventHandler OnTacScreenInit;
     public static event EventHandler OnTacScreenUpdate;
     public static event EventHandler OnCombatHUDFixedUpdate;
+    
     // triggers
     public static void TriggerInitEvent(object sender, ModEventArgs e) {
         if (e.EventName == "TacScreen_Initialize")
@@ -25,6 +26,13 @@ public static class EventSystem {
             OnTacScreenUpdate?.Invoke(sender, e);
         if (e.EventName == "CombatHUD_FixedUpdate")
             OnCombatHUDFixedUpdate?.Invoke(sender, e);
+    }
+
+    // PATCH ALL
+    public static void PatchAll() {
+        Plugin.harmony.PatchAll(typeof(OnTacScreenInitializePatch));
+        Plugin.harmony.PatchAll(typeof(OnTacScreenUpdatePatch));
+        Plugin.harmony.PatchAll(typeof(OnCombatHUDFixedUpdatePatch));
     }
 
     // patches that trigger
