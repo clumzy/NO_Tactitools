@@ -13,8 +13,8 @@ class WeaponDisplayPluginOld {
     static void Postfix() {
         if (!initialized) {
             Plugin.Log($"[WD] Weapon Display plugin starting !");
-            Plugin.harmony.PatchAll(typeof(WeaponDisplayComponentOld.OnPlatformStart));
-            Plugin.harmony.PatchAll(typeof(WeaponDisplayComponentOld.OnPlatformUpdate));
+            Plugin.Harmony.PatchAll(typeof(WeaponDisplayComponentOld.OnPlatformStart));
+            Plugin.Harmony.PatchAll(typeof(WeaponDisplayComponentOld.OnPlatformUpdate));
             // Register the new button for toggling the weapon display
             InputCatcher.RegisterNewInput(
                 Plugin.MFDNavToggle,
@@ -380,7 +380,7 @@ public class WeaponDisplayComponentOld : Module {
             if (removeOriginalMFDContent) {
                 UIBindings.Generic.HideChildren(destination);
             }
-            UIBindings.Generic.KillLayout(destination);
+            UIBindings.Generic.KillLayoutGroup(destination);
             // rotate the destination canvas 90 degrees clockwise if Darkreach
             if (platformName == "SFB-81") {
                 destination.localRotation = Quaternion.Euler(0, 0, -90);

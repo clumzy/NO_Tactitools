@@ -609,7 +609,7 @@ public class UIBindings {
         }
 
         public class Generic {
-            public static void KillLayout(Transform target) {
+            public static void KillLayoutGroup(Transform target) {
                 UnityEngine.UI.LayoutGroup layoutGroup = target.GetComponent<UnityEngine.UI.LayoutGroup>();
                 if (layoutGroup != null) layoutGroup.enabled = false;
                 UnityEngine.UI.ContentSizeFitter contentFitter = target.GetComponent<UnityEngine.UI.ContentSizeFitter>();

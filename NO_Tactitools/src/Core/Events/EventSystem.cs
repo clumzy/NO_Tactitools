@@ -34,9 +34,9 @@ public static class EventSystem {
 
     // PATCH ALL
     public static void PatchAll() {
-        Plugin.harmony.PatchAll(typeof(OnTacScreenInitializePatch));
-        Plugin.harmony.PatchAll(typeof(OnTacScreenUpdatePatch));
-        Plugin.harmony.PatchAll(typeof(OnCombatHUDFixedUpdatePatch));
+        Plugin.Harmony.PatchAll(typeof(OnTacScreenInitializePatch));
+        Plugin.Harmony.PatchAll(typeof(OnTacScreenUpdatePatch));
+        Plugin.Harmony.PatchAll(typeof(OnCombatHUDFixedUpdatePatch));
     }
 
     // patches that trigger

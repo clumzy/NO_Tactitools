@@ -13,9 +13,9 @@ using NO_Tactitools.Modules.UI.MFD;
 namespace NO_Tactitools.Core {
     [BepInPlugin("com.george.NO_Tactitools", "NOTT", "0.7.0.3")]
     public class Plugin : BaseUnityPlugin {
-        public static Harmony harmony;
-        public static ConfigEntry<bool> debugModeEnabled;
-        internal static new ManualLogSource Logger;
+        public static Harmony Harmony;
+        private static ConfigEntry<bool> _debugModeEnabled;
+        internal new static ManualLogSource Logger;
         public static Plugin Instance;
         private void Update() {
             RewiredConfigManager.Update();
@@ -24,13 +24,13 @@ namespace NO_Tactitools.Core {
         private void Awake() {
             Instance = this;
             // Plugin startup logic
-            harmony = new Harmony("george.no_tactitools");
+            Harmony = new Harmony("george.no_tactitools");
             Logger = base.Logger;
             //Load audio assets
             Log("Loading audio assets...");
             UIBindings.Sound.LoadAllSounds();
             // Debug Mode setting
-            debugModeEnabled = Config.Bind("Debug Mode",
+            _debugModeEnabled = Config.Bind("Debug Mode",
                 "Debug Mode - Enabled",
                 true,
                 new ConfigDescription(
@@ -46,7 +46,7 @@ namespace NO_Tactitools.Core {
 
 
         public static void Log(string message) {
-            if (debugModeEnabled.Value) {
+            if (_debugModeEnabled.Value) {
                 TimeSpan timeSpan = TimeSpan.FromSeconds(Time.realtimeSinceStartup);
                 string formattedTime = string.Format("{0:D2}:{1:D2}:{2:D2}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
                 Logger.LogInfo("[" + formattedTime + "] " + message);
