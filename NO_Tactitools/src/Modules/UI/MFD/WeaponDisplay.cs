@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using NO_Tactitools.Core;
 using NO_Tactitools.Core.Bindings;
 using NO_Tactitools.Core.Events;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 
 namespace NO_Tactitools.Modules.UI.MFD;
 
+[SuppressMessage("ReSharper", "PossibleNullReferenceException")]
 internal class WeaponDisplayModule : Module {
     public WeaponDisplayModule(Plugin pluginInstance) : base(
         pluginInstance,
@@ -32,7 +34,13 @@ internal class WeaponDisplayModule : Module {
         );
     }
 
-    private static void HandleDisplayToggle() {
+    private void HandleDisplayToggle() {
+        if (this.DrawableElementInstance != null) {
+            ((WeaponDisplayDrawableElement)DrawableElementInstance).DisplayToggle();
+        }
+        else {
+            Plugin.Log("[WD] Weapon Display not initialized, cannot toggle.");
+        }
     }
 
     protected class WeaponDisplayDrawableElement : DrawableElement {
@@ -45,13 +53,16 @@ internal class WeaponDisplayModule : Module {
 
         public readonly GameObject weaponImageClone;
 
+        public static Color TextColor = new(0, 1, 0, 0.8f);
+        public static Color MainColor = new(0, 1, 0, 0.8f);
+
         // by default, we remove the original MFD content
-        public readonly bool removeOriginalContent = true;
+        private readonly bool removeOriginalContent = true;
 
         // Store original font sizes
-        public int originalFlareFontSize;
-        public int originalJammerFontSize;
-        public int originalWeaponAmmoFontSize;
+        public readonly int originalFlareFontSize;
+        public readonly int originalJammerFontSize;
+        public readonly int originalWeaponAmmoFontSize;
 
         public WeaponDisplayDrawableElement() : base(
             parentTransform: Destination(GameBindings.Player.Aircraft.GetPlatformName()),
@@ -263,11 +274,11 @@ internal class WeaponDisplayModule : Module {
 
             // Remove original content if needed
             if (removeOriginalContent) {
-                UIBindings.Generic.HideChildren(destination);
+                UIBindings.Generic.HideChildren(gameObject.transform.parent);
             }
 
             // Remove layout groups
-            UIBindings.Generic.KillLayoutGroup(destination);
+            UIBindings.Generic.KillLayoutGroup(gameObject.transform.parent);
             // Platform specific patches
             switch (platformName) {
                 // rotate the destination canvas 90 degrees clockwise if Darkreach
@@ -302,16 +313,13 @@ internal class WeaponDisplayModule : Module {
                 }
             }
 
-            // Create the two colors
-            Color textColor = new Color(r: 0, g: 1, b: 0, a: (float)0.8);
-            Color mainColor = new Color(r: 0, g: 1, b: 0, a: (float)0.8);
             // Create the labels and line for the systems MFD
             flareLabel = new(
                 "flareLabel",
                 flarePos,
                 destination,
                 FontStyle.Normal,
-                textColor,
+                TextColor,
                 flareFont,
                 0f
             );
@@ -321,7 +329,7 @@ internal class WeaponDisplayModule : Module {
                 jammerPos,
                 destination,
                 FontStyle.Normal,
-                textColor,
+                TextColor,
                 jammerFont,
                 0f
             );
@@ -331,7 +339,7 @@ internal class WeaponDisplayModule : Module {
                 lineStart,
                 lineEnd,
                 destination,
-                mainColor,
+                MainColor,
                 1f
             );
             weaponNameLabel = new(
@@ -339,7 +347,7 @@ internal class WeaponDisplayModule : Module {
                 weaponNamePos,
                 destination,
                 FontStyle.Normal,
-                textColor,
+                TextColor,
                 weaponNameFont,
                 0f
             );
@@ -349,7 +357,7 @@ internal class WeaponDisplayModule : Module {
                 weaponAmmoPos,
                 destination,
                 FontStyle.Normal,
-                textColor,
+                TextColor,
                 weaponAmmoFont,
                 0f
             );
@@ -376,27 +384,36 @@ internal class WeaponDisplayModule : Module {
                 cloneImg.rectTransform.localRotation = Quaternion.Euler(0, 0, -90);
         }
 
-        public void ToggleChildrenActiveState() {
-            if (gameObject == null) return;
-            if (GameBindings.Player.Aircraft.GetPlatformName() == "SFB-81") {
-                if (gameObject.transform.localRotation.eulerAngles.z == 0) {
-                    gameObject.transform.localRotation = Quaternion.Euler(0, 0, -90);
-                    gameObject.transform.GetComponent<Image>().enabled = false;
-                }
-                else {
-                    gameObject.transform.localRotation = Quaternion.Euler(0, 0, 0);
-                    gameObject.transform.GetComponent<Image>().enabled = true;
-                }
-            }
+        public void DisplayToggle() {
+            if (removeOriginalContent) {
+                ToggleChildrenActiveState();
 
-            LayoutGroup lg = gameObject.transform.GetComponent<LayoutGroup>();
+                UIBindings.Sound.PlaySound("beep_scroll");
+                Plugin.Log("[WD] Weapon Display toggled.");
+            }
+            LayoutGroup lg = parentTransform.GetComponent<LayoutGroup>();
             if (lg != null)
                 lg.enabled = !lg.enabled;
-            foreach (Transform childTransform in gameObject.transform) {
+            foreach (Transform childTransform in parentTransform) {
                 GameObject child = childTransform.gameObject;
                 //Specific fix for the Medusa, ThrottleGauge1 was initially hidden
                 if (child.name != "ThrottleGauge1") {
                     child.SetActive(!child.activeSelf);
+                }
+            }
+
+            return;
+
+            void ToggleChildrenActiveState() {
+                if (gameObject == null) return;
+                if (GameBindings.Player.Aircraft.GetPlatformName() != "SFB-81") return;
+                if (parentTransform.localRotation.eulerAngles.z == 0) {
+                    parentTransform.localRotation = Quaternion.Euler(0, 0, -90);
+                    parentTransform.GetComponent<Image>().enabled = false;
+                }
+                else {
+                    parentTransform.localRotation = Quaternion.Euler(0, 0, 0);
+                    parentTransform.GetComponent<Image>().enabled = true;
                 }
             }
         }
@@ -422,17 +439,91 @@ internal class WeaponDisplayModule : Module {
         }
     }
 
-    protected override void OnInit(object sender, ModEventArgs modEventArgs) {
-        // Call base method
-        base.OnInit(sender, modEventArgs);
-        // TODO - Implement Init Logic
+    private abstract class InternalState {
+        public static bool HasJammer;
+        public static bool HasStations;
+    }
+
+    protected override void OnInitInternal(object sender, ModEventArgs modEventArgs) {
         Plugin.Log("[WD] Initializing for platform "
+                   + GameBindings.Player.Aircraft.GetPlatformName());
+        InternalState.HasJammer = GameBindings.Player.Aircraft.Countermeasures.HasJammer();
+        InternalState.HasStations = GameBindings.Player.Aircraft.Weapons.GetStationCount() > 0;
+        bool vanillaUIEnabled = GetConfigValueFromKey<bool>("Vanilla UI Enabled");
+        DrawableElementInstance = new WeaponDisplayDrawableElement();
+        if (vanillaUIEnabled) UIBindings.Game.HideWeaponPanel();
+        else UIBindings.Game.ShowWeaponPanel();
+        Plugin.Log("[WD] Completed initialization for platform "
                    + GameBindings.Player.Aircraft.GetPlatformName());
     }
 
-    protected override void OnUpdate(object sender, ModEventArgs modEventArgs) {
-        // Call base method
-        base.OnUpdate(sender, modEventArgs);
-        // TODO - Implement Update Logic
+    protected override void OnUpdateInternal(object sender, ModEventArgs modEventArgs) {
+        // reference the drawable
+        WeaponDisplayDrawableElement drawable = (WeaponDisplayDrawableElement)DrawableElementInstance;
+        bool isFlareSelected = GameBindings.Player.Aircraft.Countermeasures.IsFlareSelected();
+        bool isJammerSelected = !isFlareSelected;
+        float flareAmmo01 = Mathf.Clamp01(
+            (float)GameBindings.Player.Aircraft.Countermeasures.GetIRFlareAmmo() /
+            GameBindings.Player.Aircraft.Countermeasures.GetIRFlareMaxAmmo());
+        float jammerAmmo01 = 0f;
+        if (GameBindings.Player.Aircraft.Countermeasures.HasJammer()) {
+            jammerAmmo01 = Mathf.Clamp01(
+                GameBindings.Player.Aircraft.Countermeasures.GetJammerAmmo() / 100f);
+        }
+
+        if (InternalState.HasStations) {
+            // Only show deliverable display if we have stations
+            bool isOutOfAmmo = GameBindings.Player.Aircraft.Weapons.GetActiveStationAmmo() == 0;
+            bool reduceWeaponFontSize = GameBindings.Player.Aircraft.Weapons.GetActiveStationAmmoString().Contains("/");
+            bool isReloading = GameBindings.Player.Aircraft.Weapons.GetActiveStationReloadProgress() > 0f;
+            drawable.weaponNameLabel.SetText(GameBindings.Player.Aircraft.Weapons
+                .GetActiveStationName());
+            if (isReloading)
+                drawable.weaponAmmoLabel.SetText(
+                    ((int)(100f - GameBindings.Player.Aircraft.Weapons.GetActiveStationReloadProgress() * 100f))
+                    .ToString() + "%");
+            else
+                drawable.weaponAmmoLabel.SetText(GameBindings.Player.Aircraft.Weapons
+                    .GetActiveStationAmmoString().Replace(" ", ""));
+            int fontSize =
+                drawable.originalWeaponAmmoFontSize
+                + (reduceWeaponFontSize ? -15 : 0);
+            drawable.weaponAmmoLabel.SetFontSize(fontSize);
+            drawable.weaponAmmoLabel.SetColor(isOutOfAmmo
+                ? Color.red
+                : WeaponDisplayDrawableElement.TextColor);
+
+            Image cloneImg = drawable.weaponImageClone.GetComponent<Image>();
+            Image srcImg = GameBindings.Player.Aircraft.Weapons.GetActiveStationImage();
+            cloneImg.sprite = srcImg.sprite;
+            cloneImg.color = isOutOfAmmo ? Color.red : WeaponDisplayDrawableElement.TextColor;
+            // REFRESH FLARE (ALWAYS, BECAUSE EVERYONE HAS FLARES   )
+            drawable.flareLabel.SetText("IR:" + GameBindings.Player.Aircraft.Countermeasures
+                .GetIRFlareAmmo().ToString());
+            drawable.flareLabel.SetFontStyle(isFlareSelected
+                ? FontStyle.Bold
+                : FontStyle.Normal);
+            drawable.flareLabel.SetFontSize(
+                drawable.originalFlareFontSize +
+                (isFlareSelected ? 10 : 0));
+            drawable.flareLabel.SetColor(
+                Color.Lerp(Color.red, WeaponDisplayDrawableElement.TextColor,
+                    flareAmmo01));
+            // REFRESH JAMMER
+            if (InternalState.HasJammer) {
+                drawable.jammerLabel.SetText("EW:" +
+                                             GameBindings.Player.Aircraft.Countermeasures
+                                                 .GetJammerAmmo().ToString() + "%");
+                drawable.jammerLabel.SetFontStyle(isJammerSelected
+                    ? FontStyle.Bold
+                    : FontStyle.Normal);
+                drawable.jammerLabel.SetFontSize(
+                    drawable.originalJammerFontSize
+                    + (isJammerSelected ? 10 : 0));
+                drawable.jammerLabel.SetColor(
+                    Color.Lerp(Color.red, WeaponDisplayDrawableElement.TextColor,
+                        jammerAmmo01));
+            }
+        }
     }
 }

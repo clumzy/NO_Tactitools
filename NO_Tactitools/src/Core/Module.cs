@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,12 +43,15 @@ public enum ModuleUpdateType {
 /// </summary>
 public abstract class Module {
     private readonly Plugin pluginInstance;
-    public readonly bool Enabled;
+    private readonly ConfigEntry<bool> enabledConfig;
+    public bool Enabled => enabledConfig.Value;
+    public bool hasInitialized = false;
     private readonly Dictionary<string, ConfigEntryBase> configEntries;
     public readonly string ModuleName;
     private readonly ModuleInitType initType;
     private readonly ModuleUpdateType updateType;
     private readonly List<RewiredInputConfig> inputConfigs = []; // List of input configs for this module
+    protected DrawableElement? DrawableElementInstance;
 
     // MODULE
     protected Module(
@@ -62,39 +66,33 @@ public abstract class Module {
         this.updateType = updateType;
         this.configEntries = [];
         // Bind the config
-        ConfigEntry<bool> enabledConfig = this.pluginInstance.Config.Bind(
+        enabledConfig = this.pluginInstance.Config.Bind(
             $"{ModuleName}",
             $"{ModuleName} - Enabled",
             true,
             new ConfigDescription(
                 $"Enable the {ModuleName.ToString()} module.",
                 null,
-                new ConfigurationManagerAttributes { Order = -9999 }
+                new ConfigurationManagerAttributes { Order = 9999 }
             ));
         // Initialize events, always runs last
-        if (enabledConfig.Value) {
-            InitializeEvents();
-            Plugin.Log($"Module {ModuleName.ToString()} events registered.");
-            Enabled = true;
-        }
-        else {
-            Plugin.Log($"Module {ModuleName.ToString()} is disabled.");
-            Enabled = false;
-            return; // explicit return for child elements to not run
-        }
-
+        InitializeEvents();
+        Plugin.Log($"Module {ModuleName.ToString()} events registered.");
+        Plugin.Log(enabledConfig.Value
+            ? $"Module {ModuleName.ToString()} is enabled."
+            : $"Module {moduleName.ToString()} is disabled.");
     }
-    
+
     // DRAWABLE ELEMENT
     protected abstract class DrawableElement {
-        private readonly Transform parentTransform;
+        protected readonly Transform parentTransform;
         protected readonly GameObject gameObject;
 
         protected DrawableElement(
             Transform parentTransform,
             string drawableName) {
             this.parentTransform = parentTransform;
-            gameObject = new GameObject(drawableName + "_Container");
+            gameObject = new GameObject("Container_" + drawableName);
             gameObject.AddComponent<RectTransform>();
             gameObject.transform.SetParent(this.parentTransform, false);
         }
@@ -104,12 +102,6 @@ public abstract class Module {
             UnityEngine.Object.Destroy(gameObject);
         }
     }
-
-    protected DrawableElement DrawableElementInstance;
-
-    // where the module stores its internal state in our paradigm
-    // data is stored raw as static variables in a child class of InternalState
-    protected abstract class InternalState;
     
     private void InitializeEvents() {
         // Subscribe to the events based on the init type
@@ -139,58 +131,74 @@ public abstract class Module {
 
     private bool MustSkipInit() {
         return initType switch {
-            ModuleInitType.TacScreen => false,
-            ModuleInitType.None => false,
+            ModuleInitType.TacScreen => !Enabled,
+            ModuleInitType.None => true,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
     private bool MustSkipUpdate() {
         return updateType switch {
-            ModuleUpdateType.TacScreen => GameBindings.GameState.IsGamePaused()
+            ModuleUpdateType.TacScreen => !hasInitialized
+                                          ||GameBindings.GameState.IsGamePaused()
                                           || GameBindings.Player.Aircraft.GetAircraft() == null
                                           || UIBindings.Game.GetCombatHUDTransform() == null,
-            ModuleUpdateType.CombatHUD => false,
-            ModuleUpdateType.None => false,
+            ModuleUpdateType.CombatHUD => !Enabled,
+            ModuleUpdateType.None => true,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
     // functions to be overridden by child classes
     protected virtual void OnInit(object sender, ModEventArgs e) {
+        hasInitialized = false;
         // Destroy the drawable
         DrawableElementInstance?.Destroy();
         DrawableElementInstance = null;
         // Check for return conditions
         if (MustSkipInit()) return;
-        {}
+        
+        // Proceed with the child class's logic
+        OnInitInternal(sender, e);
+        hasInitialized = true;
+    }
+    
+    protected virtual void OnInitInternal(object sender, ModEventArgs e) {
+        // This method can be overridden by child classes to provide their logic
     }
 
     protected virtual void OnUpdate(object sender, ModEventArgs e) {
         // Check for return conditions
         if (MustSkipUpdate()) return;
-        {}
+
+        // Proceed with the child class's logic
+        OnUpdateInternal(sender, e);
+    }
+
+    protected virtual void OnUpdateInternal(object sender, ModEventArgs e) {
+        // This method can be overridden by child classes to provide their logic
     }
 
     // Overriding config functions 8)
-    public ConfigEntry<T> AddNewConfigEntry<T>(
+    public ConfigEntry<T>? AddNewConfigEntry<T>(
         string key,
         T defaultValue,
         string description,
-        AcceptableValueBase acceptableValues = null,
+        AcceptableValueBase? acceptableValues = null,
         params object[] args) {
         // check if a config with the same name doesn't exist
         if (configEntries.ContainsKey(key)) {
             Plugin.Log($"Config entry {key.ToString()} already exists!");
             return null;
         }
+
         ConfigEntry<T> configEntry = pluginInstance.Config.Bind(
             ModuleName,
             ModuleName + " - " + key,
             defaultValue,
             new ConfigDescription(
-                description, 
-                acceptableValues, 
+                description,
+                acceptableValues,
                 args));
         configEntries.Add(
             key,
@@ -198,7 +206,13 @@ public abstract class Module {
         return configEntry;
     }
 
-    public RewiredInputConfig AddNewInputConfig(
+    public T? GetConfigValueFromKey<T>(string key) {
+        if (configEntries.TryGetValue(key, out ConfigEntryBase? entry)) return ((ConfigEntry<T>)entry).Value;
+        Plugin.Log($"Config entry {key.ToString()} doesn't exist!");
+        return default(T);
+    }
+
+    public RewiredInputConfig? AddNewInputConfig(
         string featureName,
         string description
     ) {

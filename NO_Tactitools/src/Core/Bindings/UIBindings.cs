@@ -618,6 +618,8 @@ public class UIBindings {
 
             public static void HideChildren(Transform target) {
                 foreach (Transform child in target) {
+                    if (child.gameObject.name.StartsWith("Container_"))
+                        continue;
                     child.gameObject.SetActive(false);
                 }
             }

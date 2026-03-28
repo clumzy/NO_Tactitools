@@ -20,15 +20,13 @@ namespace NO_Tactitools.Core {
         private void Update() {
             RewiredConfigManager.Update();
         }
+        
 
         private void Awake() {
             Instance = this;
             // Plugin startup logic
             Harmony = new Harmony("george.no_tactitools");
             Logger = base.Logger;
-            //Load audio assets
-            Log("Loading audio assets...");
-            UIBindings.Sound.LoadAllSounds();
             // Debug Mode setting
             _debugModeEnabled = Config.Bind("Debug Mode",
                 "Debug Mode - Enabled",
@@ -38,8 +36,14 @@ namespace NO_Tactitools.Core {
                     null,
                     new ConfigurationManagerAttributes { Order = 9999}
                 ));
+            //Load audio assets
+            Log("Loading audio assets...");
+            UIBindings.Sound.LoadAllSounds();
             // Patch all events
             EventSystem.PatchAll();
+            // Patch Rewired patches
+            Harmony.PatchAll(typeof(RegisterControllerPatch));
+            Harmony.PatchAll(typeof(ControllerInputInterceptionPatch));
             // Weapon Display Module
             ModuleManager.TryAddModule(new WeaponDisplayModule(this));
         }
