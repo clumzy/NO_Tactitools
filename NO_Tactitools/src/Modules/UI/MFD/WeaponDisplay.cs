@@ -27,6 +27,8 @@ internal class WeaponDisplayModule : Module {
         // Add new inputs
         InputCatcher.RegisterNewInput(
             AddNewInputConfig(
+                // TODO : make a proper register with a dictionary, like configs
+                // we need to be able to cancel the input when the module is disabled
                 "Toggle Screens",
                 "Press to toggle."
             ),
@@ -35,7 +37,7 @@ internal class WeaponDisplayModule : Module {
     }
 
     private void HandleDisplayToggle() {
-        if (this.DrawableElementInstance != null) {
+        if (DrawableElementInstance != null) {
             ((WeaponDisplayDrawableElement)DrawableElementInstance).DisplayToggle();
         }
         else {
@@ -274,39 +276,39 @@ internal class WeaponDisplayModule : Module {
 
             // Remove original content if needed
             if (removeOriginalContent) {
-                UIBindings.Generic.HideChildren(gameObject.transform.parent);
+                UIBindings.Generic.HideChildren(parentTransform);
             }
 
             // Remove layout groups
-            UIBindings.Generic.KillLayoutGroup(gameObject.transform.parent);
+            UIBindings.Generic.KillLayoutGroup(parentTransform);
             // Platform specific patches
             switch (platformName) {
                 // rotate the destination canvas 90 degrees clockwise if Darkreach
                 case "SFB-81":
-                    destination.localRotation = Quaternion.Euler(0, 0, -90);
-                    destination.GetComponent<Image>().enabled = false; // hide the background image
+                    parentTransform.localRotation = Quaternion.Euler(0, 0, -90);
+                    parentTransform.GetComponent<Image>().enabled = false; // hide the background image
                     break;
                 // move the BasicFlightInstruments higher on Chicane screen
                 case "SAH-46 Chicane": {
-                    Transform toMove = destination.Find("Heading");
+                    Transform toMove = parentTransform.Find("Heading");
                     toMove.transform.localPosition += new Vector3(-40, 40, 0);
                     toMove.transform.localScale *= 0.8f;
-                    toMove = destination.Find("Airspeed");
+                    toMove = parentTransform.Find("Airspeed");
                     toMove.transform.localPosition += new Vector3(40, 60, 0);
                     toMove.transform.localScale *= 0.8f;
-                    toMove = destination.Find("RadarAlt");
+                    toMove = parentTransform.Find("RadarAlt");
                     toMove.transform.localPosition += new Vector3(-40, 80, 0);
                     toMove.transform.localScale *= 0.8f;
-                    toMove = destination.Find("Horizon");
+                    toMove = parentTransform.Find("Horizon");
                     toMove.transform.localPosition += new Vector3(0, 60, 0);
                     toMove.transform.localScale *= 0.8f;
-                    toMove = destination.Find("ClimbRate");
+                    toMove = parentTransform.Find("ClimbRate");
                     toMove.transform.localPosition += new Vector3(40, 60, 0);
                     toMove.transform.localScale *= 0.8f;
-                    toMove = destination.Find("VerticalLadder");
+                    toMove = parentTransform.Find("VerticalLadder");
                     toMove.transform.localPosition += new Vector3(0, 55, 0);
                     toMove.transform.localScale *= 0.8f;
-                    toMove = destination.Find("AoAlLadder");
+                    toMove = parentTransform.Find("AoAlLadder");
                     toMove.transform.localPosition += new Vector3(0, 55, 0);
                     toMove.transform.localScale *= 0.8f;
                     break;
@@ -385,6 +387,9 @@ internal class WeaponDisplayModule : Module {
         }
 
         public void DisplayToggle() {
+            // Fix for the Chicane since the original content stays
+            if (GameBindings.Player.Aircraft.GetPlatformName() == "SAH-46 Chicane")
+                return;
             if (removeOriginalContent) {
                 ToggleChildrenActiveState();
 
