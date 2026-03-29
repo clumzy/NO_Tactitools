@@ -14,12 +14,15 @@ public static class ModuleManager {
     private static readonly List<Module> Modules = [];
 
     public static void TryAddModule(Module module) {
-        if (Modules.Contains(module)) {
+        // Check if a module of the same type already exists in the list
+        if (Modules.Any(m => m.GetType() == module.GetType())) {
             Plugin.Log($"Module {module.ModuleName.ToString()} is already registered.");
+            return;
         }
 
         if (!module.Enabled) {
             Plugin.Log($"Module {module.ModuleName.ToString()} is disabled.");
+            return;
         }
 
         Modules.Add(module);
@@ -102,7 +105,7 @@ public abstract class Module {
             UnityEngine.Object.Destroy(gameObject);
         }
     }
-    
+
     private void InitializeEvents() {
         // Subscribe to the events based on the init type
         switch (initType) {
@@ -140,7 +143,7 @@ public abstract class Module {
     private bool MustSkipUpdate() {
         return updateType switch {
             ModuleUpdateType.TacScreen => !hasInitialized
-                                          ||GameBindings.GameState.IsGamePaused()
+                                          || GameBindings.GameState.IsGamePaused()
                                           || GameBindings.Player.Aircraft.GetAircraft() == null
                                           || UIBindings.Game.GetCombatHUDTransform() == null,
             ModuleUpdateType.CombatHUD => !Enabled,
@@ -157,12 +160,12 @@ public abstract class Module {
         DrawableElementInstance = null;
         // Check for return conditions
         if (MustSkipInit()) return;
-        
+
         // Proceed with the child class's logic
         OnInitInternal(sender, e);
         hasInitialized = true;
     }
-    
+
     protected virtual void OnInitInternal(object sender, ModEventArgs e) {
         // This method can be overridden by child classes to provide their logic
     }
