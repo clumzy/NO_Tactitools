@@ -11,10 +11,14 @@ public class ModEventArgs(string eventName, object data) : EventArgs {
 public static class EventSystem {
     // pointer to a function that takes an object and a ModEventArgs and returns void
     public delegate void EventHandler(object sender, ModEventArgs e);
-    // event that is triggered when the TacScreen is initialized
+    // Tac Screen events
     public static event EventHandler OnTacScreenInit;
     public static event EventHandler OnTacScreenUpdate;
+    // Combat HUD events
     public static event EventHandler OnCombatHUDFixedUpdate;
+    // Missile events
+    public static event EventHandler OnMissileStartMissile;
+    public static event EventHandler OnMissileSetTarget;
     // triggers
     public static void TriggerInitEvent(object sender, ModEventArgs e) {
         if (e.EventName == "TacScreen_Initialize")
@@ -32,11 +36,24 @@ public static class EventSystem {
         }
     }
 
+    public static void TriggerMissileEvent(object sender, ModEventArgs e) {
+        switch (e.EventName) {
+            case "Missile_Start":
+                OnMissileStartMissile?.Invoke(sender, e);
+                break;
+            case "Missile_SetTarget":
+                OnMissileSetTarget?.Invoke(sender, e);
+                break;
+        }
+    }
+
     // PATCH ALL
     public static void PatchAll() {
         Plugin.Harmony.PatchAll(typeof(OnTacScreenInitializePatch));
         Plugin.Harmony.PatchAll(typeof(OnTacScreenUpdatePatch));
         Plugin.Harmony.PatchAll(typeof(OnCombatHUDFixedUpdatePatch));
+        Plugin.Harmony.PatchAll(typeof(OnMissileStartMissilePatch));
+        Plugin.Harmony.PatchAll(typeof(OnMissileSetTargetPatch));
     }
 
     // patches that trigger
@@ -71,6 +88,30 @@ public static class EventSystem {
                 sender: null,
                 e: new ModEventArgs(
                     "CombatHUD_FixedUpdate",
+                    null
+                ));
+        }
+    }
+    
+    [HarmonyPatch(typeof(Missile), "StartMissile")]
+    public static class OnMissileStartMissilePatch {
+        static void Postfix() {
+            TriggerMissileEvent(
+                sender: null,
+                e: new ModEventArgs(
+                    "Missile_StartMissile",
+                    null
+                ));
+        }
+    }
+    
+    [HarmonyPatch(typeof(Missile), "SetTarget")]
+    public static class OnMissileSetTargetPatch {
+        static void Postfix() {
+            TriggerMissileEvent(
+                sender: null,
+                e: new ModEventArgs(
+                    "Missile_SetTarget",
                     null
                 ));
         }

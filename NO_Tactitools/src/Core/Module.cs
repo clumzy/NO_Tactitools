@@ -53,6 +53,7 @@ public abstract class Module {
     public readonly string ModuleName;
     private readonly ModuleInitType initType;
     private readonly ModuleUpdateType updateType;
+    private readonly bool hasDrawableElement;
     private readonly List<RewiredInputConfig> inputConfigs = []; // List of input configs for this module
     protected DrawableElement? DrawableElementInstance;
 
@@ -61,12 +62,14 @@ public abstract class Module {
         Plugin pluginInstance,
         string moduleName,
         ModuleInitType initType,
-        ModuleUpdateType updateType) {
+        ModuleUpdateType updateType,
+        bool hasDrawableElement = false) {
         // Assign the properties
         this.pluginInstance = pluginInstance;
         ModuleName = moduleName;
         this.initType = initType;
         this.updateType = updateType;
+        this.hasDrawableElement = hasDrawableElement;
         this.configEntries = [];
         // Bind the config
         enabledConfig = this.pluginInstance.Config.Bind(
@@ -141,6 +144,8 @@ public abstract class Module {
     }
 
     private bool MustSkipUpdate() {
+        if (hasDrawableElement && DrawableElementInstance == null) 
+            return true;
         return updateType switch {
             ModuleUpdateType.TacScreen => !hasInitialized
                                           || GameBindings.GameState.IsGamePaused()
@@ -156,8 +161,10 @@ public abstract class Module {
     protected virtual void OnInit(object sender, ModEventArgs e) {
         hasInitialized = false;
         // Destroy the drawable
-        DrawableElementInstance?.Destroy();
-        DrawableElementInstance = null;
+        if (hasDrawableElement) {
+            DrawableElementInstance?.Destroy();
+            DrawableElementInstance = null;
+        }
         // Check for return conditions
         if (MustSkipInit()) return;
 

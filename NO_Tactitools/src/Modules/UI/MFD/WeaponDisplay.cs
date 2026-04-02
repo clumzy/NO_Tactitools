@@ -8,13 +8,14 @@ using UnityEngine.UI;
 
 namespace NO_Tactitools.Modules.UI.MFD;
 
-[SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+
 internal class WeaponDisplayModule : Module {
     public WeaponDisplayModule(Plugin pluginInstance) : base(
         pluginInstance,
         "Weapon Display",
-        ModuleInitType.TacScreen,
-        ModuleUpdateType.TacScreen) {
+        initType: ModuleInitType.TacScreen,
+        updateType: ModuleUpdateType.TacScreen,
+        hasDrawableElement: true) {
         // Register new configs
         // Vanilla UI Enabled
         AddNewConfigEntry(
@@ -456,7 +457,7 @@ internal class WeaponDisplayModule : Module {
         InternalState.HasStations = GameBindings.Player.Aircraft.Weapons.GetStationCount() > 0;
         bool vanillaUIEnabled = GetConfigValueFromKey<bool>("Vanilla UI Enabled");
         DrawableElementInstance = new WeaponDisplayDrawableElement();
-        if (vanillaUIEnabled) UIBindings.Game.HideWeaponPanel();
+        if (!vanillaUIEnabled) UIBindings.Game.HideWeaponPanel();
         else UIBindings.Game.ShowWeaponPanel();
         Plugin.Log("[WD] Completed initialization for platform "
                    + GameBindings.Player.Aircraft.GetPlatformName());
