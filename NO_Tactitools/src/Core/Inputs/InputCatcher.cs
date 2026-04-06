@@ -29,7 +29,7 @@ public class InputCatcher {
         float longPressThreshold = 0.2f,
         System.Action onRelease = null,
         System.Action onHold = null,
-        System.Action onLongPress = null
+        System.Action onLong = null
         ) {
         
         InputRegistration reg = new() {
@@ -37,7 +37,7 @@ public class InputCatcher {
             longPressThreshold = longPressThreshold,
             onShortPress = onRelease,
             onHold = onHold,
-            onLongPress = onLongPress
+            onLongPress = onLong
         };
         allRegistrations.Add(reg);
 
@@ -65,7 +65,7 @@ public class InputCatcher {
         }
     }
 
-    public static void RegisterInputNow(
+    private static void RegisterInputNow(
         InputRegistration registration,
         Controller controller,
         int inputIndex) {

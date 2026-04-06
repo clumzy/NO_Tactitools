@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using NO_Tactitools.Core;
 using NO_Tactitools.Core.Bindings;
 using NO_Tactitools.Core.Events;
@@ -8,7 +7,6 @@ using UnityEngine.UI;
 
 namespace NO_Tactitools.Modules.UI.MFD;
 
-
 internal class WeaponDisplayModule : Module {
     public WeaponDisplayModule(Plugin pluginInstance) : base(
         pluginInstance,
@@ -17,7 +15,6 @@ internal class WeaponDisplayModule : Module {
         updateType: ModuleUpdateType.TacScreen,
         hasDrawableElement: true) {
         // Register new configs
-        // Vanilla UI Enabled
         AddNewConfigEntry(
             key: "Vanilla UI Enabled",
             defaultValue: false,
@@ -26,14 +23,10 @@ internal class WeaponDisplayModule : Module {
             new ConfigurationManagerAttributes { Order = 0 }
         );
         // Add new inputs
-        InputCatcher.RegisterNewInput(
-            AddNewInputConfig(
-                // TODO : make a proper register with a dictionary, like configs
-                // we need to be able to cancel the input when the module is disabled
-                "Toggle Screens",
-                "Press to toggle."
-            ),
-            onLongPress: HandleDisplayToggle
+        AddNewInputConfig(
+            featureName: "Toggle Screens",
+            description: "Press to toggle.",
+            onLong: HandleDisplayToggle
         );
     }
 
@@ -397,6 +390,7 @@ internal class WeaponDisplayModule : Module {
                 UIBindings.Sound.PlaySound("beep_scroll");
                 Plugin.Log("[WD] Weapon Display toggled.");
             }
+
             LayoutGroup lg = parentTransform.GetComponent<LayoutGroup>();
             if (lg != null)
                 lg.enabled = !lg.enabled;

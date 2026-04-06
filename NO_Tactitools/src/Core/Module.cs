@@ -113,7 +113,7 @@ public abstract class Module {
         // Subscribe to the events based on the init type
         switch (initType) {
             case ModuleInitType.TacScreen:
-                EventSystem.OnTacScreenInit += OnInit;
+                EventSystem.Events.TacScreen.OnInitialize += OnInit;
                 break;
             case ModuleInitType.None:
                 break;
@@ -123,10 +123,10 @@ public abstract class Module {
 
         switch (updateType) {
             case ModuleUpdateType.TacScreen:
-                EventSystem.OnTacScreenUpdate += OnUpdate;
+                EventSystem.Events.TacScreen.OnUpdate += OnUpdate;
                 break;
             case ModuleUpdateType.CombatHUD:
-                EventSystem.OnCombatHUDFixedUpdate += OnUpdate;
+                EventSystem.Events.CombatHUD.OnFixedUpdate += OnUpdate;
                 break;
             case ModuleUpdateType.None:
                 break;
@@ -224,7 +224,11 @@ public abstract class Module {
 
     public RewiredInputConfig? AddNewInputConfig(
         string featureName,
-        string description
+        string description,
+        float longPressThreshold = 0.2f,
+        Action? onRelease = null,
+        Action? onHold = null,
+        Action? onLong = null
     ) {
         // check if a config with the same name doesn't exist
         if (inputConfigs.Any(inputConfig => inputConfig.Input.Definition.Key == featureName)) {
@@ -240,6 +244,14 @@ public abstract class Module {
             -1000 - inputConfigs.Count // ensuring they are at the bottom in the instantiation order
         );
         inputConfigs.Add(inputConfig);
+        
+        InputCatcher.RegisterNewInput(
+            config: inputConfig,
+            longPressThreshold: longPressThreshold,
+            onRelease : onRelease,
+            onHold : onHold,
+            onLong: onLong
+        );
         return inputConfig;
     }
 }

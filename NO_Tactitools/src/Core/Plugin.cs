@@ -40,12 +40,13 @@ namespace NO_Tactitools.Core {
             Log("Loading audio assets...");
             UIBindings.Sound.LoadAllSounds();
             // Patch all events
-            EventSystem.PatchAll();
+            EventSystem.Patches.PatchAll();
             // Patch Rewired patches
             Harmony.PatchAll(typeof(RegisterControllerPatch));
             Harmony.PatchAll(typeof(ControllerInputInterceptionPatch));
             // Weapon Display Module
             ModuleManager.TryAddModule(new WeaponDisplayModule(this));
+            ModuleManager.TryAddModule(new AmmoConIndicatorModule(this));
         }
 
 
