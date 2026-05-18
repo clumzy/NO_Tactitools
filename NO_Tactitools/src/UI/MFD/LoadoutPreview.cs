@@ -43,6 +43,10 @@ public class LoadoutPreviewComponent {
             InternalState.verticalOffset = Plugin.loadoutPreviewPositionY.Value;
             InternalState.backgroundTransparency = Plugin.loadoutPreviewBackgroundTransparency.Value;
             InternalState.textAndBorderTransparency = Plugin.loadoutPreviewTextAndBorderTransparency.Value;
+            
+            string platformName = GameBindings.Player.Aircraft.GetPlatformName();
+            InternalState.isAircraftRecognized = AircraftRecognition.IsAircraftRecognized(platformName);
+            
             InternalState.hasStations = GameBindings.Player.Aircraft.Weapons.GetStationCount() > 1;
             if (InternalState.hasStations) {
                 InternalState.currentWeaponStation = GameBindings.Player.Aircraft.Weapons.GetActiveStationName();
@@ -58,7 +62,7 @@ public class LoadoutPreviewComponent {
         }
 
         static public void Update() {
-            if (GameBindings.GameState.IsGamePaused() || GameBindings.Player.Aircraft.GetAircraft() == null || !InternalState.hasStations)
+            if (GameBindings.GameState.IsGamePaused() || GameBindings.Player.Aircraft.GetAircraft() == null || !InternalState.hasStations || !InternalState.isAircraftRecognized)
                 return;
             if (InternalState.onlyShowOnBoot 
                 && InternalState.neverShown 
@@ -119,14 +123,42 @@ public class LoadoutPreviewComponent {
         public static float backgroundTransparency = 0.6f;
         public static float textAndBorderTransparency = 0.9f;
         public static bool hasStations = true;
+        public static bool isAircraftRecognized = true;
         public static float displayDuration = 1f;
         public static Color mainColor = Color.green;
         public static Color textColor = Color.green;
     }
 
+    static class AircraftRecognition {
+        static public bool IsAircraftRecognized(string platformName) {
+            return platformName switch {
+                "CI-22 Cricket" or
+                "SAH-46 Chicane" or
+                "T/A-30 Compass" or
+                "FS-3 Ternion" or
+                "FS-12 Revoker" or
+                "FS-20 Vortex" or
+                "KR-67 Ifrit" or
+                "VL-49 Tarantula" or
+                "EW-1 Medusa" or
+                "SFB-81" or
+                "UH-80 Ibis" or
+                "A-19 Brawler" or
+                "Alkyon AB-4" or
+                "AB-4 Alkyon" or
+                "FastBomber1" or
+                "FQ-106 Kestrel" or
+                "MiG-15" or
+                "F-16M King Viper" or
+                "HMD" => true,
+                _ => false
+            };
+        }
+    }
+
     static class DisplayEngine {
         static public void Init() {
-            if (InternalState.hasStations) {
+            if (InternalState.hasStations && InternalState.isAircraftRecognized) {
                 if (InternalState.sendToHMD) {
                     InternalState.mainColor = Color.green;
                     InternalState.textColor = Color.green;
@@ -142,7 +174,8 @@ public class LoadoutPreviewComponent {
         static public void Update() {
             if (GameBindings.GameState.IsGamePaused() ||
                 GameBindings.Player.Aircraft.GetAircraft() == null ||
-                !InternalState.hasStations)
+                !InternalState.hasStations ||
+                !InternalState.isAircraftRecognized)
                 return;
             if (!InternalState.needsUpdate) {
                 // if loadout preview is inactive, hide it
@@ -219,6 +252,10 @@ public class LoadoutPreviewComponent {
                     verticalOffset = 80;
                     break;
                 case "FS-3 Ternion":
+                    horizontalOffset = -215;
+                    verticalOffset = 80;
+                    fontSize = 30;
+                    break;
                 case "FS-12 Revoker":
                     horizontalOffset = 0;
                     verticalOffset = 75;

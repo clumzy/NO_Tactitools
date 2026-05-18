@@ -76,6 +76,10 @@ public static class BootScreenComponent {
                     InternalState.horizontalOffset = -245;
                     InternalState.verticalOffset = 65;
                     break;
+                case "FS-3 Ternion":
+                    InternalState.horizontalOffset = -215;
+                    InternalState.verticalOffset = 80;
+                    break;
                 default:
                     break;
             }

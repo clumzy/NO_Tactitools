@@ -46,6 +46,7 @@ public class WeaponDisplayComponent {
         static public void Init() {
             string name = GameBindings.Player.Aircraft.GetPlatformName();
             Plugin.Log("[WD] Initializing Logic Engine for platform " + name);
+            InternalState.isAircraftRecognized = AircraftRecognition.IsAircraftRecognized(name);
             InternalState.hasJammer = GameBindings.Player.Aircraft.Countermeasures.HasJammer();
             InternalState.hasIRFlare = GameBindings.Player.Aircraft.Countermeasures.HasIRFlare();
             InternalState.hasStations = GameBindings.Player.Aircraft.Weapons.GetStationCount() > 0;
@@ -54,7 +55,7 @@ public class WeaponDisplayComponent {
         }
 
         static public void Update() {
-            if (GameBindings.Player.Aircraft.GetAircraft() == null) return;
+            if (GameBindings.Player.Aircraft.GetAircraft() == null || !InternalState.isAircraftRecognized) return;
             if (GameBindings.Player.Aircraft.Countermeasures.HasIRFlare()) {
                 InternalState.isFlareSelected = GameBindings.Player.Aircraft.Countermeasures.IsFlareSelected();
                 InternalState.flareAmmo01 = Mathf.Clamp01(
@@ -94,13 +95,40 @@ public class WeaponDisplayComponent {
         static public bool reduceWeaponFontSize = false;
         static public bool isReloading = false;
         static public bool vanillaUIEnabled = true; // true by default since we need to check this value elsewhere
+        static public bool isAircraftRecognized = true;
         static public Color mainColor = Color.green;
         static public Color textColor = Color.green;
     }
 
+    static class AircraftRecognition {
+        static public bool IsAircraftRecognized(string platformName) {
+            return platformName switch {
+                "CI-22 Cricket" or
+                "SAH-46 Chicane" or
+                "T/A-30 Compass" or
+                "FS-3 Ternion" or
+                "FS-12 Revoker" or
+                "FS-20 Vortex" or
+                "KR-67 Ifrit" or
+                "VL-49 Tarantula" or
+                "EW-1 Medusa" or
+                "SFB-81" or
+                "UH-80 Ibis" or
+                "A-19 Brawler" or
+                "Alkyon AB-4" or
+                "AB-4 Alkyon" or
+                "FastBomber1" or
+                "FQ-106 Kestrel" or
+                "MiG-15" or
+                "F-16M King Viper" => true,
+                _ => false
+            };
+        }
+    }
+
     static class DisplayEngine {
         static public void Init() {
-            if (InternalState.hasIRFlare) {
+            if (InternalState.hasIRFlare && InternalState.isAircraftRecognized) {
                 // In reality, this checks if the player's plane has spawned
                 InternalState.weaponDisplay = new WeaponDisplay();
                 if (!InternalState.vanillaUIEnabled) UIBindings.Game.HideWeaponPanel();
@@ -114,7 +142,8 @@ public class WeaponDisplayComponent {
         static public void Update() {
             if (GameBindings.GameState.IsGamePaused() ||
                 GameBindings.Player.Aircraft.GetAircraft() == null ||
-                UIBindings.Game.GetCombatHUDTransform() == null)
+                UIBindings.Game.GetCombatHUDTransform() == null ||
+                !InternalState.isAircraftRecognized)
                 return; // do not refresh anything if the game is paused or the player aircraft is not available
             // REFRESH WEAPON
             if (InternalState.hasStations) {
@@ -258,6 +287,20 @@ public class WeaponDisplayComponent {
                     weaponAmmoFont = 40;
                     break;
                 case "FS-3 Ternion":
+                    flarePos = new Vector2(15, -20);
+                    jammerPos = new Vector2(15, -50);
+                    lineStart = new Vector2(-50, 5);
+                    lineEnd = new Vector2(80, 5);
+                    weaponAmmoPos = new Vector2(15, 25);
+                    weaponNamePos = new Vector2(15, 50);
+                    weaponImagePos = new Vector2(-80, 0);
+                    flareFont = 30;
+                    jammerFont = 30;
+                    weaponNameFont = 20;
+                    weaponAmmoFont = 35;
+                    imageScaleFactor = 0.6f; // Scale the image for FS-12 Revoker
+                    rotateWeaponImage = true;
+                    break;
                 case "FS-12 Revoker":
                     flarePos = new Vector2(0, -40);
                     jammerPos = new Vector2(0, -80);
