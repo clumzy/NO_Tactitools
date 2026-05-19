@@ -25,6 +25,7 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<bool> targetListControllerEnabled;
         public static ConfigEntry<bool> interceptionVectorEnabled;
         public static ConfigEntry<bool> countermeasureControlsEnabled;
+        public static ConfigEntry<bool> countermeasureControlsFireOnHold;
         public static RewiredInputConfig countermeasureControlsFlare;
         public static RewiredInputConfig countermeasureControlsJammer;
         public static ConfigEntry<bool> weaponSwitcherEnabled;
@@ -128,6 +129,15 @@ namespace NO_Tactitools.Core {
                     null,
                     new ConfigurationManagerAttributes {
                         Order = 4
+                    }));
+            countermeasureControlsFireOnHold = Config.Bind("Countermeasures",
+                "Countermeasure Controls - Fire On Hold",
+                true,
+                new ConfigDescription(
+                    "When enabled, holding the flare or jammer button will also fire that countermeasure.",
+                    null,
+                    new ConfigurationManagerAttributes {
+                        Order = 2
                     }));
             countermeasureControlsFlare = new RewiredInputConfig(Config, "Countermeasures", "Countermeasure Controls - Flares", "Input you want to assign for selecting Flares", 2);
             countermeasureControlsJammer = new RewiredInputConfig(Config, "Countermeasures", "Countermeasure Controls - Jammer", "Input you want to assign for selecting Jammer", 0);

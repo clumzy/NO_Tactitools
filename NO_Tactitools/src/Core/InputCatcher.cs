@@ -14,6 +14,7 @@ public class InputRegistration {
     public System.Action onShortPress;
     public System.Action onHold;
     public System.Action onLongPress;
+    public System.Action onAnyRelease;
 }
 
 public class InputCatcher {
@@ -28,15 +29,17 @@ public class InputCatcher {
         float longPressThreshold = 0.2f,
         System.Action onRelease = null,
         System.Action onHold = null,
-        System.Action onLongPress = null
+        System.Action onLongPress = null,
+        System.Action onAnyRelease = null
         ) {
-        
+
         InputRegistration reg = new() {
             config = config,
             longPressThreshold = longPressThreshold,
             onShortPress = onRelease,
             onHold = onHold,
-            onLongPress = onLongPress
+            onLongPress = onLongPress,
+            onAnyRelease = onAnyRelease
         };
         allRegistrations.Add(reg);
 
@@ -90,7 +93,7 @@ public class InputCatcher {
             TryRegisterOrQueue(reg, controllerName, buttonIndex);
         }
     }
-    
+
     public static void ModifyInputAfterNewConfig(RewiredInputConfig config) {
         UnregisterInput(config);
         RegisterNewBinding(config);
@@ -161,7 +164,7 @@ public class ControllerInput {
         this.buttonPressTime = Time.time;
         this.longPressHandled = true; // Assume it's already handled if they're holding it down on registration
         this.holdLongHandled = true;
-        if (registration.onShortPress == null && registration.onLongPress == null && registration.onHold == null) {
+        if (registration.onShortPress == null && registration.onLongPress == null && registration.onHold == null && registration.onAnyRelease == null) {
             Plugin.Logger.LogError("[IC] No actions provided for button " + buttonNumber);
         }
         else {
@@ -215,12 +218,13 @@ class ControllerInputInterceptionPatch {
                                 button.registration.onHold?.Invoke();
                             }
                         }
-                        else if (button.previousButtonState && !button.currentButtonState && button.registration.onShortPress != null) {
+                        else if (button.previousButtonState && !button.currentButtonState) {
                             // Button just released
-                            if (!button.longPressHandled) {
+                            if (!button.longPressHandled && button.registration.onShortPress != null) {
                                 Plugin.Log($"[IC] Short press detected on button {button.buttonNumber.ToString()}");
                                 button.registration.onShortPress?.Invoke();
                             }
+                            button.registration.onAnyRelease?.Invoke();
                         }
                         button.previousButtonState = button.currentButtonState;
                     }
