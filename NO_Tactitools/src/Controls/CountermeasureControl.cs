@@ -15,14 +15,14 @@ class CountermeasureControlsPlugin {
             Plugin.Log($"[CC] Countermeasure Controls plugin starting !");
             InputCatcher.RegisterNewInput(
                 Plugin.countermeasureControlsFlare,
-                0.3f,
+                0.01f,
                 onRelease: HandleSelectFlare,
                 onLongPress: HandleLongPressFlare,
                 onAnyRelease: () => { isFiringFlare = false; }
             );
             InputCatcher.RegisterNewInput(
                 Plugin.countermeasureControlsJammer,
-                0.3f,
+                0.01f,
                 onRelease: HandleSelectJammer,
                 onLongPress: HandleLongPressJammer,
                 onAnyRelease: () => { isFiringJammer = false; }
