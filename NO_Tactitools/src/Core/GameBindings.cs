@@ -236,13 +236,6 @@ public class GameBindings {
                     catch (NullReferenceException e) { Plugin.Log(e.ToString()); }
                 }
 
-                public static void FireCountermeasure() {
-                    try {
-                        global::Aircraft aircraft = SceneSingleton<CombatHUD>.i.aircraft;
-                        aircraft.countermeasureManager.DeployCountermeasure(aircraft);
-                    }
-                    catch (NullReferenceException e) { Plugin.Log(e.ToString()); }
-                }
             }
 
             public class Weapons {
