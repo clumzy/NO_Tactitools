@@ -191,11 +191,11 @@ public class SlipIndicatorComponent {
                 position: Vector2.zero,
                 UIParent: containerTransform,
                 color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
-                fontSize: 25,
+                fontSize: 32,
                 backgroundOpacity: 0f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial()
             );
-            ballLabel.SetText("●");
+            ballLabel.SetText("•");
         }
 
         public void SetPosition(Vector2 position) {

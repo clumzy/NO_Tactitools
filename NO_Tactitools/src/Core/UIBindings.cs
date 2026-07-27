@@ -111,7 +111,6 @@ public class UIBindings {
                 string name,
                 Vector2 position,
                 Transform UIParent = null,
-                // FontStyle fontStyle = FontStyle.Normal,
                 FontStyles fontStyle = FontStyles.Normal,
                 Color? color = null,
                 int fontSize = 24,
@@ -139,8 +138,6 @@ public class UIBindings {
                 textComp.text = "";
                 textComp.overflowMode = TextOverflowModes.Overflow;
                 textComp.enableWordWrapping = false;
-                // textComp.horizontalOverflow = HorizontalWrapMode.Overflow;
-                // textComp.verticalOverflow = VerticalWrapMode.Overflow;
                 rectTransform.sizeDelta = new Vector2(textComp.preferredWidth, textComp.fontSize);
                 Transform textTransform = gameObject.transform.Find("LabelText");
                 textComponent = textTransform.GetComponent<TextMeshProUGUI>();
