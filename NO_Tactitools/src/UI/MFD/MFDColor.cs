@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using NO_Tactitools.Core;
 using NO_Tactitools.Controls;
 using System.Collections.Generic;
+using TMPro;
 
 namespace NO_Tactitools.UI.MFD;
 
@@ -68,7 +69,7 @@ public static class MFDColorComponent {
             Plugin.Log("[MFD] Resetting MFD colors");
             // Now onto the original elements
             Transform tacScreenTransform = UIBindings.Game.GetTacScreenTransform();
-            foreach (Text text in tacScreenTransform.GetComponentsInChildren<Text>(true)) { // TEXT HANDLING
+            foreach (TextMeshProUGUI text in tacScreenTransform.GetComponentsInChildren<TextMeshProUGUI>(true)) { // TEXT HANDLING
                 Color originalTextColor = text.color;
                 Color newTextColor = Color.HSVToRGB(
                     InternalState.textHue,
@@ -171,7 +172,7 @@ public static class MFDColorComponent {
     public static class OnSystemStatusRefresh {
         static void Postfix(SystemStatusDisplay __instance) {
             // Reapply the main color to system status texts and images
-            foreach (Text text in __instance.GetComponentsInChildren<Text>(true)) {
+            foreach (TextMeshProUGUI text in __instance.GetComponentsInChildren<TextMeshProUGUI>(true)) {
                 if (text.color == Color.green)
                     text.color = InternalState.otherComponentTextColor;
             }

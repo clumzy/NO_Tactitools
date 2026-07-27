@@ -175,7 +175,7 @@ public class PendingInput(InputRegistration registration, int inputIndex) {
     public int inputIndex = inputIndex;
 }
 
-[HarmonyPatch(typeof(Rewired.Controller), "pBrAJYWOGkILyqjLrMpmCdajATI")]
+[HarmonyPatch(typeof(Rewired.Controller), "IABYVXCCfipGKoUulcRWScgoDgfh")]
 class ControllerInputInterceptionPatch {
     static void Prefix(Controller __instance) {
         if (GameBindings.Player.Aircraft.GetAircraft(silent: true) == null

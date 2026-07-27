@@ -2,6 +2,7 @@ using HarmonyLib;
 using UnityEngine;
 using NO_Tactitools.Core;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine.UI;
 
 namespace NO_Tactitools.UI.MFD;
@@ -201,7 +202,7 @@ public class LoadoutPreviewComponent {
                 InternalState.loadoutPreview.stationLabels[i].SetFontSize(
                     (GameBindings.Player.Aircraft.Weapons.GetActiveStationName() == ws.stationName) ? (InternalState.loadoutPreview.fontSize + 6) : InternalState.loadoutPreview.fontSize);
                 InternalState.loadoutPreview.stationLabels[i].SetFontStyle(
-                    (GameBindings.Player.Aircraft.Weapons.GetActiveStationName() == ws.stationName) ? FontStyle.Bold : FontStyle.Normal);
+                    (GameBindings.Player.Aircraft.Weapons.GetActiveStationName() == ws.stationName) ? FontStyles.Bold : FontStyles.Normal);
             }
             InternalState.loadoutPreview.UpdateLabelPositions();
             InternalState.loadoutPreview.containerTransform.SetAsLastSibling();
@@ -342,7 +343,7 @@ public class LoadoutPreviewComponent {
                     "i_lp_Slot " + i,
                     new Vector2(0, 0),
                     containerTransform,
-                    fontStyle: FontStyle.Bold, // Default to bold; will be updated in DisplayEngine
+                    fontStyle: FontStyles.Bold, // Default to bold; will be updated in DisplayEngine
                     color: InternalState.textColor,
                     fontSize: fontSize + 6, // Default to 40; will be updated in DisplayEngine
                     backgroundOpacity: 0f

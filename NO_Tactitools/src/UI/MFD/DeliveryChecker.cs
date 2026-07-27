@@ -5,6 +5,7 @@ using NO_Tactitools.Core;
 using System.Linq;
 using System;
 using JetBrains.Annotations;
+using TMPro;
 
 namespace NO_Tactitools.UI.MFD;
 
@@ -246,7 +247,7 @@ public class DeliveryCheckerComponent {
                 borderThickness: 0f,
                 UIParent: containerTransform,
                 fillColor: new Color(0f, 0f, 0f, 0.8f),
-                fontStyle: FontStyle.Bold,
+                fontStyle: FontStyles.Bold,
                 textColor: Color.white,
                 fontSize: 20
             );
@@ -259,7 +260,7 @@ public class DeliveryCheckerComponent {
                 borderThickness: 0f,
                 UIParent: containerTransform,
                 fillColor: new Color(0f, 0f, 0f, 0.8f),
-                fontStyle: FontStyle.Bold,
+                fontStyle: FontStyles.Bold,
                 textColor: Color.white,
                 fontSize: 20
             );
@@ -272,7 +273,7 @@ public class DeliveryCheckerComponent {
                 borderThickness: 0f,
                 UIParent: containerTransform,
                 fillColor: new Color(1f, 1f, 0f, 0.8f),
-                fontStyle: FontStyle.Bold,
+                fontStyle: FontStyles.Bold,
                 textColor: Color.black,
                 fontSize: 20
             );
@@ -286,7 +287,7 @@ public class DeliveryCheckerComponent {
                 borderThickness: 0f,
                 UIParent: containerTransform,
                 fillColor: new Color(1f, 1f, 0f, 0.8f),
-                fontStyle: FontStyle.Bold,
+                fontStyle: FontStyles.Bold,
                 textColor: Color.black,
                 fontSize: 20
             );
@@ -300,7 +301,7 @@ public class DeliveryCheckerComponent {
                 borderThickness: 0f,
                 UIParent: containerTransform,
                 fillColor: new Color(0f, 1f, 0f, 0.8f),
-                fontStyle: FontStyle.Bold,
+                fontStyle: FontStyles.Bold,
                 textColor: Color.black,
                 fontSize: 20
             );
@@ -314,7 +315,7 @@ public class DeliveryCheckerComponent {
                 borderThickness: 0f,
                 UIParent: containerTransform,
                 fillColor: new Color(0f, 1f, 0f, 0.8f),
-                fontStyle: FontStyle.Bold,
+                fontStyle: FontStyles.Bold,
                 textColor: Color.black,
                 fontSize: 20
             );
@@ -328,7 +329,7 @@ public class DeliveryCheckerComponent {
                 borderThickness: 0f,
                 UIParent: containerTransform,
                 fillColor: new Color(1f, 0f, 0f, 0.8f),
-                fontStyle: FontStyle.Bold,
+                fontStyle: FontStyles.Bold,
                 textColor: Color.black,
                 fontSize: 20
             );
@@ -342,7 +343,7 @@ public class DeliveryCheckerComponent {
                 borderThickness: 0f,
                 UIParent: containerTransform,
                 fillColor: new Color(1f, 0f, 0f, 0.8f),
-                fontStyle: FontStyle.Normal,
+                fontStyle: FontStyles.Normal,
                 textColor: Color.black,
                 fontSize: 20
             );

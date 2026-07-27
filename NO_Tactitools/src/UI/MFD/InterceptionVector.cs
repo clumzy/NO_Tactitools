@@ -2,6 +2,7 @@ using HarmonyLib;
 using UnityEngine;
 using System.Collections.Generic;
 using NO_Tactitools.Core;
+using TMPro;
 
 namespace NO_Tactitools.UI.MFD;
 
@@ -88,7 +89,7 @@ class InterceptionVectorTask {
             "bearingLabel",
             new Vector2(0, -70),
             containerTransform,
-            FontStyle.Normal,
+            FontStyles.Normal,
             mainColor,
             20
         );
@@ -96,7 +97,7 @@ class InterceptionVectorTask {
             "timerLabel",
             new Vector2(0, -100),
             containerTransform,
-            FontStyle.Normal,
+            FontStyles.Normal,
             mainColor,
             20
         );

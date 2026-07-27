@@ -2,6 +2,7 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using NO_Tactitools.Core;
+using TMPro;
 
 namespace NO_Tactitools.UI.MFD;
 
@@ -175,8 +176,8 @@ public class WeaponDisplayComponent {
             InternalState.weaponDisplay.flareLabel.SetText("IR:" + GameBindings.Player.Aircraft.Countermeasures
                 .GetIRFlareAmmo().ToString());
             InternalState.weaponDisplay.flareLabel.SetFontStyle(InternalState.isFlareSelected
-                ? FontStyle.Bold
-                : FontStyle.Normal);
+                ? FontStyles.Bold
+                : FontStyles.Normal);
             InternalState.weaponDisplay.flareLabel.SetFontSize(InternalState.weaponDisplay.originalFlareFontSize +
                                                                (InternalState.isFlareSelected ? 10 : 0));
             InternalState.weaponDisplay.flareLabel.SetColor(Color.Lerp(Color.red, InternalState.textColor,
@@ -187,8 +188,8 @@ public class WeaponDisplayComponent {
                                                                 GameBindings.Player.Aircraft.Countermeasures
                                                                     .GetJammerAmmo().ToString() + "%");
                 InternalState.weaponDisplay.jammerLabel.SetFontStyle(InternalState.isJammerSelected
-                    ? FontStyle.Bold
-                    : FontStyle.Normal);
+                    ? FontStyles.Bold
+                    : FontStyles.Normal);
                 InternalState.weaponDisplay.jammerLabel.SetFontSize(InternalState.weaponDisplay.originalJammerFontSize +
                                                                     (InternalState.isJammerSelected ? 10 : 0));
                 ;
@@ -529,7 +530,7 @@ public class WeaponDisplayComponent {
                 "flareLabel",
                 flarePos,
                 destination,
-                FontStyle.Normal,
+                FontStyles.Normal,
                 InternalState.textColor,
                 flareFont,
                 0f
@@ -539,7 +540,7 @@ public class WeaponDisplayComponent {
                 "radarLabel",
                 jammerPos,
                 destination,
-                FontStyle.Normal,
+                FontStyles.Normal,
                 InternalState.textColor,
                 jammerFont,
                 0f
@@ -557,7 +558,7 @@ public class WeaponDisplayComponent {
                 "weaponNameLabel",
                 weaponNamePos,
                 destination,
-                FontStyle.Normal,
+                FontStyles.Normal,
                 InternalState.textColor,
                 weaponNameFont,
                 0f
@@ -567,7 +568,7 @@ public class WeaponDisplayComponent {
                 "weaponAmmoLabel",
                 weaponAmmoPos,
                 destination,
-                FontStyle.Normal,
+                FontStyles.Normal,
                 InternalState.textColor,
                 weaponAmmoFont,
                 0f
