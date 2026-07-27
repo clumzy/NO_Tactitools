@@ -2,6 +2,7 @@ using NO_Tactitools.Core;
 using NO_Tactitools.Core.Bindings;
 using NO_Tactitools.Core.Events;
 using NO_Tactitools.Core.Inputs;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -314,7 +315,7 @@ internal class WeaponDisplayModule : Module {
                 "flareLabel",
                 flarePos,
                 destination,
-                FontStyle.Normal,
+                FontStyles.Normal,
                 TextColor,
                 flareFont,
                 0f
@@ -324,7 +325,7 @@ internal class WeaponDisplayModule : Module {
                 "radarLabel",
                 jammerPos,
                 destination,
-                FontStyle.Normal,
+                FontStyles.Normal,
                 TextColor,
                 jammerFont,
                 0f
@@ -342,7 +343,7 @@ internal class WeaponDisplayModule : Module {
                 "weaponNameLabel",
                 weaponNamePos,
                 destination,
-                FontStyle.Normal,
+                FontStyles.Normal,
                 TextColor,
                 weaponNameFont,
                 0f
@@ -352,7 +353,7 @@ internal class WeaponDisplayModule : Module {
                 "weaponAmmoLabel",
                 weaponAmmoPos,
                 destination,
-                FontStyle.Normal,
+                FontStyles.Normal,
                 TextColor,
                 weaponAmmoFont,
                 0f
@@ -501,8 +502,8 @@ internal class WeaponDisplayModule : Module {
             drawable.flareLabel.SetText("IR:" + GameBindings.Player.Aircraft.Countermeasures
                 .GetIRFlareAmmo().ToString());
             drawable.flareLabel.SetFontStyle(isFlareSelected
-                ? FontStyle.Bold
-                : FontStyle.Normal);
+                ? FontStyles.Bold
+                : FontStyles.Normal);
             drawable.flareLabel.SetFontSize(
                 drawable.originalFlareFontSize +
                 (isFlareSelected ? 10 : 0));
@@ -515,8 +516,8 @@ internal class WeaponDisplayModule : Module {
                                              GameBindings.Player.Aircraft.Countermeasures
                                                  .GetJammerAmmo().ToString() + "%");
                 drawable.jammerLabel.SetFontStyle(isJammerSelected
-                    ? FontStyle.Bold
-                    : FontStyle.Normal);
+                    ? FontStyles.Bold
+                    : FontStyles.Normal);
                 drawable.jammerLabel.SetFontSize(
                     drawable.originalJammerFontSize
                     + (isJammerSelected ? 10 : 0));

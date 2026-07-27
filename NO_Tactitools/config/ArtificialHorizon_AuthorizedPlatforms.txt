@@ -14,3 +14,5 @@ UH-80 Ibis
 // SFB-81
 // A-19 Brawler
 // FQ-106 Kestrel
+// FastBomber1
+// VTOLTrainer1

@@ -8,9 +8,11 @@ CI-22 Cricket
 EW-1 Medusa
 SFB-81
 A-19 Brawler
-//T/A-30 Compass
-//FS-12 Revoker
-//FS-3 Ternion
-//FS-20 Vortex
-//KR-67 Ifrit
-//FQ-106 Kestrel
+// T/A-30 Compass
+// FS-12 Revoker
+// FS-3 Ternion
+// FS-20 Vortex
+// KR-67 Ifrit
+// FQ-106 Kestrel
+// FastBomber1
+// VTOLTrainer1
