@@ -41,10 +41,6 @@ namespace NO_Tactitools.Core {
         public static ConfigEntry<int> unitDistanceThreshold;
         public static ConfigEntry<bool> unitDistanceSoundEnabled;
         public static ConfigEntry<bool> deliveryCheckerEnabled;
-        public static ConfigEntry<bool> MFDColorEnabled;
-        public static ConfigEntry<Color> MFDColor;
-        public static ConfigEntry<Color> MFDTextColor;
-        public static ConfigEntry<bool> MFDAlternativeAttitudeEnabled;
         public static ConfigEntry<bool> unitIconRecolorEnabled;
         public static ConfigEntry<Color> unitIconRecolorEnemyColor;
         public static ConfigEntry<bool> bootScreenEnabled;
@@ -210,43 +206,6 @@ namespace NO_Tactitools.Core {
                 true,
                 new ConfigDescription(
                     "Enable or disable the Delivery Checker feature.",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 0
-                    }));
-            // MFD Color settings
-            MFDColorEnabled = Config.Bind("MFD Color",
-                "MFD Color - Enabled",
-                true,
-                new ConfigDescription(
-                    "Enable or disable the MFD Color feature.",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 3
-                    }));
-            MFDColor = Config.Bind("MFD Color",
-                "MFD Color - MFD Main Color",
-                new Color(0f, 1f, 0f), // Default color in RGB
-                new ConfigDescription(
-                    "Main color for the MFD elements in RGB format.",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 2
-                    }));
-            MFDTextColor = Config.Bind("MFD Color",
-                "MFD Color - MFD Text Color",
-                new Color(0f, 1f, 0f), // Default color in RGB
-                new ConfigDescription(
-                    "Color for the MFD text elements in RGB format.",
-                    null,
-                    new ConfigurationManagerAttributes {
-                        Order = 1
-                    }));
-            MFDAlternativeAttitudeEnabled = Config.Bind("MFD Color",
-                "MFD Color - MFD Alternative Attitude - Enabled",
-                true,
-                new ConfigDescription(
-                    "Enable or disable the alternative attitude indicator color on the MFD.",
                     null,
                     new ConfigurationManagerAttributes {
                         Order = 0
@@ -580,11 +539,6 @@ namespace NO_Tactitools.Core {
             harmony.PatchAll(typeof(RegisterControllerPatch));
             harmony.PatchAll(typeof(ControllerInputInterceptionPatch));
             //harmony.PatchAll(typeof(TestInput));
-            // Patch MFD Color
-            if (MFDColorEnabled.Value) {
-                Log($"MFD Color is enabled, patching...");
-                harmony.PatchAll(typeof(MFDColorPlugin));
-            }
             // CONTROL PATCHES
             // Patch Target List Controller
             if (targetListControllerEnabled.Value) {
