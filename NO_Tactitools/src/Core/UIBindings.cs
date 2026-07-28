@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.IO;
+using TMPro;
 
 namespace NO_Tactitools.Core;
 
@@ -102,7 +103,7 @@ public class UIBindings {
         }
 
         public class UILabel : UIElement {
-            private Text textComponent;
+            private TextMeshProUGUI textComponent;
             private float backgroundOpacity;
             private float textOpacity;
 
@@ -110,7 +111,7 @@ public class UIBindings {
                 string name,
                 Vector2 position,
                 Transform UIParent = null,
-                FontStyle fontStyle = FontStyle.Normal,
+                FontStyles fontStyle = FontStyles.Normal,
                 Color? color = null,
                 int fontSize = 24,
                 float backgroundOpacity = 0.8f,
@@ -126,19 +127,20 @@ public class UIBindings {
                 textRect.anchorMax = Vector2.one;
                 textRect.offsetMin = Vector2.zero;
                 textRect.offsetMax = Vector2.zero;
-                Text textComp = textObj.AddComponent<Text>();
+                TextMeshProUGUI textComp = textObj.AddComponent<TextMeshProUGUI>();
                 textComp.font = UIBindings.Draw.GetDefaultFont();
                 textComp.fontSize = fontSize;
                 textComp.fontStyle = fontStyle;
                 textComp.color = color ?? Color.white;
                 this.textOpacity = textComp.color.a;
-                textComp.alignment = TextAnchor.MiddleCenter;
+                // textComp.alignment = TextAnchor.MiddleCenter;
+                textComp.alignment = TextAlignmentOptions.Center;
                 textComp.text = "";
-                textComp.horizontalOverflow = HorizontalWrapMode.Overflow;
-                textComp.verticalOverflow = VerticalWrapMode.Overflow;
+                textComp.overflowMode = TextOverflowModes.Overflow;
+                textComp.enableWordWrapping = false;
                 rectTransform.sizeDelta = new Vector2(textComp.preferredWidth, textComp.fontSize);
                 Transform textTransform = gameObject.transform.Find("LabelText");
-                textComponent = textTransform.GetComponent<Text>();
+                textComponent = textTransform.GetComponent<TextMeshProUGUI>();
                 if (material != null) {
                     textComponent.material = material;
                 }
@@ -160,7 +162,7 @@ public class UIBindings {
                 rectTransform.sizeDelta = new Vector2(textComponent.preferredWidth, textComponent.preferredHeight);
             }
 
-            public void SetFontStyle(FontStyle style) {
+            public void SetFontStyle(FontStyles style) {
                 textComponent.fontStyle = style;
             }
 
@@ -436,7 +438,7 @@ public class UIBindings {
                 float borderThickness,
                 Transform UIParent = null,
                 Color? fillColor = null,
-                FontStyle fontStyle = FontStyle.Normal,
+                FontStyles fontStyle = FontStyles.Normal,
                 Color? textColor = null,
                 int fontSize = 24,
                 Material material = null)
@@ -457,8 +459,8 @@ public class UIBindings {
             public UILabel GetLabel() => label;
         }
 
-        public static Font GetDefaultFont() {
-            Text weaponText = UIBindings.Game.GetFlightHUDTransform().GetComponentInChildren<Text>();
+        public static TMP_FontAsset GetDefaultFont() {
+            TextMeshProUGUI weaponText = UIBindings.Game.GetFlightHUDTransform().GetComponentInChildren<TextMeshProUGUI>();
             return weaponText.font;
         }
     }
@@ -522,7 +524,7 @@ public class UIBindings {
         // using find functions, get the first material from a text
         public static Material GetFlightHUDFontMaterial() {
             try {
-                Text textComponent = SceneSingleton<FlightHud>.i.transform.GetComponentInChildren<Text>();
+                TextMeshProUGUI textComponent = SceneSingleton<FlightHud>.i.transform.GetComponentInChildren<TextMeshProUGUI>();
                 return textComponent.material;
             }
             catch (NullReferenceException e) {

@@ -5,6 +5,7 @@ using NOAutopilot.Core; // Reference from .csproj
 using Plugin = NO_Tactitools.Core.Plugin;
 using NO_Tactitools.Core;
 using System.Collections.Generic;
+using TMPro;
 
 namespace NO_Tactitools.Controls;
 [HarmonyPatch(typeof(MainMenu), "Start")]
@@ -672,7 +673,7 @@ public class NOAutopilotComponent {
                 engagedCenter + (engagedSize / 2f),
                 Color.green, 2, containerTransform,
                 Color.clear, // Transparent fill
-                FontStyle.Bold,
+                FontStyles.Bold,
                 Color.green, // Text matches border
                 fontSize - 10 // Slightly smaller for vertical bar text? Or keep font size.
             );
@@ -699,7 +700,7 @@ public class NOAutopilotComponent {
                     valCenter - (valueBoxSize / 2f), valCenter + (valueBoxSize / 2f),
                     InternalState.mainColor, 2, containerTransform,
                     Color.clear,
-                    FontStyle.Normal,
+                    FontStyles.Normal,
                     Color.white,
                     fontSize - 4 // Slightly compressed for values
                 );
@@ -715,7 +716,7 @@ public class NOAutopilotComponent {
                     cCenter - (buttonSize / 2f), cCenter + (buttonSize / 2f),
                     InternalState.mainColor, 2, containerTransform,
                     Color.clear,
-                    FontStyle.Normal,
+                    FontStyles.Normal,
                     Color.white,
                     fontSize
                 );
@@ -730,7 +731,7 @@ public class NOAutopilotComponent {
                     mCenter - (buttonSize / 2f), mCenter + (buttonSize / 2f),
                     InternalState.mainColor, 2, containerTransform,
                     Color.clear,
-                    FontStyle.Normal,
+                    FontStyles.Normal,
                     Color.white,
                     fontSize
                 );
@@ -745,7 +746,7 @@ public class NOAutopilotComponent {
                     pCenter - (buttonSize / 2f), pCenter + (buttonSize / 2f),
                     InternalState.mainColor, 2, containerTransform,
                     Color.clear,
-                    FontStyle.Normal,
+                    FontStyles.Normal,
                     Color.white,
                     fontSize
                 );
@@ -764,7 +765,7 @@ public class NOAutopilotComponent {
                 setCenter + (setSizeVisual / 2f),
                 InternalState.mainColor, 2, containerTransform,
                 Color.clear,
-                FontStyle.Normal,
+                FontStyles.Normal,
                 Color.white,
                 fontSize - 4
             );
@@ -780,7 +781,7 @@ public class NOAutopilotComponent {
                 ajCenter - (ajSize / 2f), ajCenter + (ajSize / 2f),
                 Color.red, 2, containerTransform,
                 Color.clear,
-                FontStyle.Bold,
+                FontStyles.Bold,
                 Color.red,
                 fontSize
             );
@@ -794,7 +795,7 @@ public class NOAutopilotComponent {
                 gcasCenter - (gcasSize / 2f), gcasCenter + (gcasSize / 2f),
                 Color.green, 2, containerTransform,
                 Color.clear,
-                FontStyle.Bold,
+                FontStyles.Bold,
                 Color.green,
                 fontSize
             );

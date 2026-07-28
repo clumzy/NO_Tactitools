@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine.Rendering;
 using JetBrains.Annotations;
+using TMPro;
 
 namespace NO_Tactitools.UI.HMD;
 
@@ -355,7 +356,7 @@ public class ArtificialHorizonComponent {
                 "northLabel",
                 new Vector2(0, 0),
                 destination,
-                FontStyle.Normal,
+                FontStyles.Normal,
                 cardinalLabelColor,
                 cardinalLabelFontSize,
                 cardinalLabelBgOpacity,
@@ -375,7 +376,7 @@ public class ArtificialHorizonComponent {
                 "southLabel",
                 new Vector2(0, 0),
                 destination,
-                FontStyle.Normal,
+                FontStyles.Normal,
                 cardinalLabelColor,
                 cardinalLabelFontSize,
                 cardinalLabelBgOpacity,
@@ -395,7 +396,7 @@ public class ArtificialHorizonComponent {
                 "eastLabel",
                 new Vector2(0, 0),
                 destination,
-                FontStyle.Normal,
+                FontStyles.Normal,
                 cardinalLabelColor,
                 cardinalLabelFontSize,
                 cardinalLabelBgOpacity,
@@ -415,7 +416,7 @@ public class ArtificialHorizonComponent {
                 "westLabel",
                 new Vector2(0, 0),
                 destination,
-                FontStyle.Normal,
+                FontStyles.Normal,
                 cardinalLabelColor,
                 cardinalLabelFontSize,
                 cardinalLabelBgOpacity,

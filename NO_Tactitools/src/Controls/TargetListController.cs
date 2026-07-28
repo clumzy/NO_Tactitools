@@ -6,6 +6,7 @@ using UnityEngine;
 using NuclearOption.SceneLoading;
 using Unity.Properties;
 using System.Linq;
+using TMPro;
 
 namespace NO_Tactitools.Controls;
 
@@ -269,14 +270,14 @@ public static class TargetListControllerComponent {
         public static bool resetIndex = false;
         public static int targetIndex = 0;
         public static readonly TraverseCache<TargetScreenUI, FactionHQ> _hqCache = new("hq");
-        public static readonly TraverseCache<TargetScreenUI, Text> _typeTextCache = new("typeText");
-        public static readonly TraverseCache<TargetScreenUI, Text> _headingCache = new("heading");
-        public static readonly TraverseCache<TargetScreenUI, Text> _altitudeCache = new("altitude");
-        public static readonly TraverseCache<TargetScreenUI, Text> _relAltitudeCache = new("rel_altitude");
-        public static readonly TraverseCache<TargetScreenUI, Text> _speedCache = new("speed");
-        public static readonly TraverseCache<TargetScreenUI, Text> _relSpeedCache = new("rel_speed");
-        public static readonly TraverseCache<TargetScreenUI, Text> _pilotTextCache = new("pilotText");
-        public static readonly TraverseCache<TargetScreenUI, Text> _distanceCache = new("distance");
+        public static readonly TraverseCache<TargetScreenUI, TextMeshProUGUI> _typeTextCache = new("typeText");
+        public static readonly TraverseCache<TargetScreenUI, TextMeshProUGUI> _headingCache = new("heading");
+        public static readonly TraverseCache<TargetScreenUI, TextMeshProUGUI> _altitudeCache = new("altitude");
+        public static readonly TraverseCache<TargetScreenUI, TextMeshProUGUI> _relAltitudeCache = new("rel_altitude");
+        public static readonly TraverseCache<TargetScreenUI, TextMeshProUGUI> _speedCache = new("speed");
+        public static readonly TraverseCache<TargetScreenUI, TextMeshProUGUI> _relSpeedCache = new("rel_speed");
+        public static readonly TraverseCache<TargetScreenUI, TextMeshProUGUI> _pilotTextCache = new("pilotText");
+        public static readonly TraverseCache<TargetScreenUI, TextMeshProUGUI> _distanceCache = new("distance");
         public static readonly TraverseCache<TargetScreenUI, List<Image>> _targetBoxesCache = new("targetBoxes");
     }
     static class DisplayEngine {
@@ -294,16 +295,16 @@ public static class TargetListControllerComponent {
 
                 Unit unit = targets[index];
                 FactionHQ hq = InternalState._hqCache.GetValue(targetScreen);
-
-                Text typeText = InternalState._typeTextCache.GetValue(targetScreen);
-                Text heading = InternalState._headingCache.GetValue(targetScreen);
-                Text altitude = InternalState._altitudeCache.GetValue(targetScreen);
-                Text rel_altitude = InternalState._relAltitudeCache.GetValue(targetScreen);
-                Text speed = InternalState._speedCache.GetValue(targetScreen);
-                Text rel_speed = InternalState._relSpeedCache.GetValue(targetScreen);
-                Text pilotText = InternalState._pilotTextCache.GetValue(targetScreen);
-
-                Text distance = InternalState._distanceCache.GetValue(targetScreen);
+                
+                TextMeshProUGUI typeText = InternalState._typeTextCache.GetValue(targetScreen);
+                TextMeshProUGUI heading = InternalState._headingCache.GetValue(targetScreen);
+                TextMeshProUGUI altitude = InternalState._altitudeCache.GetValue(targetScreen);
+                TextMeshProUGUI rel_altitude = InternalState._relAltitudeCache.GetValue(targetScreen);
+                TextMeshProUGUI speed = InternalState._speedCache.GetValue(targetScreen);
+                TextMeshProUGUI rel_speed = InternalState._relSpeedCache.GetValue(targetScreen);
+                TextMeshProUGUI pilotText = InternalState._pilotTextCache.GetValue(targetScreen);
+                
+                TextMeshProUGUI distance = InternalState._distanceCache.GetValue(targetScreen);
                 /* Text bearingText = traverse.Field("bearingText").GetValue<Text>();
                 Image bearingImg = traverse.Field("bearingImg").GetValue<Image>(); */
 
@@ -320,7 +321,7 @@ public static class TargetListControllerComponent {
                     Aircraft aircraft = unit as Aircraft;
                     if (aircraft != null && aircraft.pilots[0].player != null) {
                         pilotText.gameObject.SetActive(true);
-                        pilotText.text = "Pilot : " + aircraft.pilots[0].player.PlayerName;
+                        pilotText.text = "Pilot : " + aircraft.pilots[0].player.GetPlayerName();
                         pilotText.color = typeText.color;
                     }
                     else {

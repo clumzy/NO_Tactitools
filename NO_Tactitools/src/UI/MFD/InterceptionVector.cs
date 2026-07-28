@@ -2,6 +2,7 @@ using HarmonyLib;
 using UnityEngine;
 using System.Collections.Generic;
 using NO_Tactitools.Core;
+using TMPro;
 
 namespace NO_Tactitools.UI.MFD;
 
@@ -88,7 +89,7 @@ class InterceptionVectorTask {
             "bearingLabel",
             new Vector2(0, -70),
             containerTransform,
-            FontStyle.Normal,
+            FontStyles.Normal,
             mainColor,
             20
         );
@@ -96,7 +97,7 @@ class InterceptionVectorTask {
             "timerLabel",
             new Vector2(0, -100),
             containerTransform,
-            FontStyle.Normal,
+            FontStyles.Normal,
             mainColor,
             20
         );
@@ -251,14 +252,14 @@ class InterceptionVectorTask {
                         scrambled += Random.Range(0, 10).ToString();
                 }
             }
-            bearingLabel.SetText($"▸ {scrambled}° ◂");
+            bearingLabel.SetText($"» {scrambled}° «");
 
             indicatorTargetBox.GetGameObject().SetActive(false);
             indicatorTargetLine.SetThickness(0f);
         }
         else if (currentInterceptScreenVisible) {
             // Solution ready and target on screen
-            bearingLabel.SetText($"▸ {bearingStr}° ◂");
+            bearingLabel.SetText($"» {bearingStr}° «");
             timerLabel.SetText($"ETA : {interceptionTimeInSeconds.ToString()}s");
 
             if (targetUnit is not Building) { // only display the vector if the target is a unit
@@ -275,7 +276,7 @@ class InterceptionVectorTask {
         else {
             // Solution ready but target off screen
             bearingLabel.SetText("");
-            timerLabel.SetText(" ↶ ");
+            timerLabel.SetText(" <- ");
             indicatorTargetBox.GetGameObject().SetActive(false);
             indicatorTargetLine.SetThickness(0f);
         }
