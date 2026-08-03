@@ -2,10 +2,12 @@ using System;
 using System.Collections;
 using UnityEngine.Networking;
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections.Generic;
 using System.IO;
+using NuclearOption.UIStyleSystem;
 using TMPro;
+using UnityEngine.UIElements;
+using Image = UnityEngine.UI.Image;
 
 namespace NO_Tactitools.Core;
 
@@ -30,6 +32,9 @@ public class UIBindings {
     }
 
     public class Draw {
+        public static readonly Dictionary<ThemeManager.ThemeContext, Dictionary<string, StyleLabel>>
+            StyleLabels = new();
+
         public abstract class UIElement {
             protected GameObject gameObject;
             protected RectTransform rectTransform;
@@ -104,6 +109,8 @@ public class UIBindings {
 
         public class UILabel : UIElement {
             private TextMeshProUGUI textComponent;
+            private TextStyleApplier textStyleApplier;
+            private TraverseCache<TextStyleApplier, StyleLabel> _textStyleApplierCache = new("styleLabel");
             private float backgroundOpacity;
             private float textOpacity;
 
@@ -115,7 +122,9 @@ public class UIBindings {
                 Color? color = null,
                 int fontSize = 24,
                 float backgroundOpacity = 0.8f,
-                Material material = null) : base(name, UIParent) {
+                Material material = null,
+                StyleLabel styleLabel = null
+            ) : base(name, UIParent) {
                 this.backgroundOpacity = backgroundOpacity;
                 rectTransform.anchoredPosition = position;
                 rectTransform.sizeDelta = new Vector2(200, 40);
@@ -141,6 +150,15 @@ public class UIBindings {
                 rectTransform.sizeDelta = new Vector2(textComp.preferredWidth, textComp.fontSize);
                 Transform textTransform = gameObject.transform.Find("LabelText");
                 textComponent = textTransform.GetComponent<TextMeshProUGUI>();
+
+                // add styles appliers
+
+                if (styleLabel != null) {
+                    textStyleApplier = textObj.AddComponent<TextStyleApplier>();
+                    textStyleApplier.Context = ThemeManager.ThemeContext.HUD;
+                    SetStyleLabel(styleLabel);
+                }
+
                 if (material != null) {
                     textComponent.material = material;
                 }
@@ -166,6 +184,10 @@ public class UIBindings {
                 textComponent.fontStyle = style;
             }
 
+            private void SetStyleLabel(StyleLabel styleLabel) {
+                _textStyleApplierCache.SetValue(textStyleApplier, styleLabel);
+            }
+
             public void SetOpacity(float opacity) {
                 opacity = Mathf.Clamp01(opacity);
                 Color textColor = textComponent.color;
@@ -184,6 +206,8 @@ public class UIBindings {
         public class UILine : UIElement {
             private float thickness;
             private float baseOpacity;
+            private ImageStyleApplier imageStyleApplier;
+            private TraverseCache<ImageStyleApplier, StyleLabel> _imageStyleApplierCache = new("styleLabel");
 
             public UILine(
                 string name,
@@ -193,7 +217,10 @@ public class UIBindings {
                 Color? color = null,
                 float thickness = 2f,
                 Material material = null,
-                bool antialiased = false) : base(name, UIParent, material: material) {
+                bool antialiased = false,
+                StyleLabel styleLabel = null
+                ) : base(name, UIParent, material: material) 
+            {
                 this.thickness = thickness;
                 imageComponent.color = color ?? Color.white;
                 this.baseOpacity = imageComponent.color.a;
@@ -206,6 +233,14 @@ public class UIBindings {
                 float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
                 rectTransform.localRotation = Quaternion.Euler(0, 0, angle);
 
+                // add styles appliers
+
+                if (styleLabel != null) {
+                    imageStyleApplier = gameObject.AddComponent<ImageStyleApplier>();
+                    imageStyleApplier.Context = ThemeManager.ThemeContext.HUD;
+                    SetStyleLabel(styleLabel);
+                }
+                
                 if (antialiased) SetAntialiased(true);
                 return;
             }
@@ -244,12 +279,18 @@ public class UIBindings {
                 Color color = imageComponent.color;
                 imageComponent.color = new Color(color.r, color.g, color.b, baseOpacity * opacity);
             }
+
+            private void SetStyleLabel(StyleLabel styleLabel) {
+                _imageStyleApplierCache.SetValue(imageStyleApplier, styleLabel);
+            }
         }
 
         public class UIRectangle : UIElement {
             private Vector2 cornerA;
             private Vector2 cornerB;
             private Color fillColor;
+            private ImageStyleApplier imageStyleApplier;
+            private TraverseCache<ImageStyleApplier, StyleLabel> _imageStyleApplierCache = new("styleLabel");
 
             public UIRectangle(
                 string name,
@@ -257,11 +298,22 @@ public class UIBindings {
                 Vector2 cornerB,
                 Transform UIParent = null,
                 Color? fillColor = null,
-                Material material = null) : base(name, UIParent, material: material) {
+                Material material = null,
+                StyleLabel styleLabel = null
+                ) : base(name, UIParent, material: material) 
+            {
                 this.cornerA = cornerA;
                 this.cornerB = cornerB;
                 this.fillColor = fillColor ?? new Color(1, 1, 1, 0.1f);
                 imageComponent.color = this.fillColor;
+
+                // add styles appliers
+
+                if (styleLabel != null) {
+                    imageStyleApplier = gameObject.AddComponent<ImageStyleApplier>();
+                    imageStyleApplier.Context = ThemeManager.ThemeContext.HUD;
+                    SetStyleLabel(styleLabel);
+                }
 
                 UpdateRect();
                 return;
@@ -276,6 +328,10 @@ public class UIBindings {
                 rectTransform.anchoredPosition = center;
                 float padding = (imageComponent.sprite != null) ? 2f : 0f;
                 rectTransform.sizeDelta = size + new Vector2(padding, padding);
+            }
+
+            private void SetStyleLabel(StyleLabel styleLabel) {
+                _imageStyleApplierCache.SetValue(imageStyleApplier, styleLabel);
             }
 
             public virtual void SetCorners(Vector2 a, Vector2 b) {
@@ -459,8 +515,33 @@ public class UIBindings {
             public UILabel GetLabel() => label;
         }
 
+        public static void LoadAllStyleLabels() {
+            StyleLabels[ThemeManager.ThemeContext.HUD] = new Dictionary<string, StyleLabel>();
+            StyleLabels[ThemeManager.ThemeContext.Menu] = new Dictionary<string, StyleLabel>();
+            StyleLabels[ThemeManager.ThemeContext.TacScreen] = new Dictionary<string, StyleLabel>();
+
+            Plugin.Log("Loading HUD labels");
+            foreach (var styleLabel in Resources.LoadAll<StyleLabel>("StyleSystem/Labels/HUD")) {
+                Plugin.Log($"Loading style label {styleLabel.name}");
+                StyleLabels[ThemeManager.ThemeContext.HUD].Add(styleLabel.name, styleLabel);
+            }
+            
+            Plugin.Log("Loading Menu labels");
+            foreach (var styleLabel in Resources.LoadAll<StyleLabel>("StyleSystem/Labels/Menu")) {
+                Plugin.Log($"Loading style label {styleLabel.name}");
+                StyleLabels[ThemeManager.ThemeContext.Menu].Add(styleLabel.name, styleLabel);
+            }
+
+            Plugin.Log("Loading TacScreen labels");
+            foreach (var styleLabel in Resources.LoadAll<StyleLabel>("StyleSystem/Labels/TacScreen")) {
+                Plugin.Log($"Loading style label {styleLabel.name}");
+                StyleLabels[ThemeManager.ThemeContext.TacScreen].Add(styleLabel.name, styleLabel);
+            }
+        }
+
         public static TMP_FontAsset GetDefaultFont() {
-            TextMeshProUGUI weaponText = UIBindings.Game.GetFlightHUDTransform().GetComponentInChildren<TextMeshProUGUI>();
+            TextMeshProUGUI weaponText =
+                UIBindings.Game.GetFlightHUDTransform().GetComponentInChildren<TextMeshProUGUI>();
             return weaponText.font;
         }
     }
@@ -524,7 +605,8 @@ public class UIBindings {
         // using find functions, get the first material from a text
         public static Material GetFlightHUDFontMaterial() {
             try {
-                TextMeshProUGUI textComponent = SceneSingleton<FlightHud>.i.transform.GetComponentInChildren<TextMeshProUGUI>();
+                TextMeshProUGUI textComponent =
+                    SceneSingleton<FlightHud>.i.transform.GetComponentInChildren<TextMeshProUGUI>();
                 return textComponent.material;
             }
             catch (NullReferenceException e) {

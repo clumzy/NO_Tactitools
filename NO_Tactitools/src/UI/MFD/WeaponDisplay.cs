@@ -2,6 +2,7 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using NO_Tactitools.Core;
+using NuclearOption.UIStyleSystem;
 using TMPro;
 
 namespace NO_Tactitools.UI.MFD;
@@ -97,8 +98,6 @@ public class WeaponDisplayComponent {
         static public bool isReloading = false;
         static public bool vanillaUIEnabled = true; // true by default since we need to check this value elsewhere
         static public bool isAircraftRecognized = true;
-        static public Color mainColor = Color.green;
-        static public Color textColor = Color.green;
     }
 
     static class AircraftRecognition {
@@ -162,13 +161,13 @@ public class WeaponDisplayComponent {
                     InternalState.weaponDisplay.originalWeaponAmmoFontSize +
                     (InternalState.reduceWeaponFontSize ? -15 : 0));
                 InternalState.weaponDisplay.weaponAmmoLabel.SetColor(InternalState.isOutOfAmmo
-                    ? Color.red
-                    : InternalState.textColor);
+                    ? InternalState.weaponDisplay.colorGradient.Evaluate(0)
+                    : InternalState.weaponDisplay.colorGradient.Evaluate(1));
 
                 Image cloneImg = InternalState.weaponDisplay.weaponImageClone.GetComponent<Image>();
                 Image srcImg = GameBindings.Player.Aircraft.Weapons.GetActiveStationImage();
                 cloneImg.sprite = srcImg.sprite;
-                cloneImg.color = InternalState.isOutOfAmmo ? Color.red : InternalState.mainColor;
+                cloneImg.color = InternalState.isOutOfAmmo ? InternalState.weaponDisplay.colorGradient.Evaluate(0) : InternalState.weaponDisplay.colorGradient.Evaluate(1);
                 // TODO : ENCAPSULATE IMAGES IN MY OWN CODE
             }
 
@@ -180,8 +179,7 @@ public class WeaponDisplayComponent {
                 : FontStyles.Normal);
             InternalState.weaponDisplay.flareLabel.SetFontSize(InternalState.weaponDisplay.originalFlareFontSize +
                                                                (InternalState.isFlareSelected ? 10 : 0));
-            InternalState.weaponDisplay.flareLabel.SetColor(Color.Lerp(Color.red, InternalState.textColor,
-                InternalState.flareAmmo01));
+            InternalState.weaponDisplay.flareLabel.SetColor(InternalState.weaponDisplay.colorGradient.Evaluate(InternalState.flareAmmo01));
             // REFRESH JAMMER
             if (InternalState.hasJammer) {
                 InternalState.weaponDisplay.jammerLabel.SetText("EW:" +
@@ -193,8 +191,7 @@ public class WeaponDisplayComponent {
                 InternalState.weaponDisplay.jammerLabel.SetFontSize(InternalState.weaponDisplay.originalJammerFontSize +
                                                                     (InternalState.isJammerSelected ? 10 : 0));
                 ;
-                InternalState.weaponDisplay.jammerLabel.SetColor(Color.Lerp(Color.red, InternalState.textColor,
-                    InternalState.jammerAmmo01));
+                InternalState.weaponDisplay.jammerLabel.SetColor(InternalState.weaponDisplay.colorGradient.Evaluate(InternalState.jammerAmmo01));
             }
         }
     }
@@ -206,6 +203,7 @@ public class WeaponDisplayComponent {
         public UIBindings.Draw.UILine MFD_systemsLine;
         public UIBindings.Draw.UILabel weaponNameLabel;
         public UIBindings.Draw.UILabel weaponAmmoLabel;
+        public Gradient colorGradient;
 
         public GameObject weaponImageClone;
 
@@ -217,7 +215,6 @@ public class WeaponDisplayComponent {
 
         //Store the main color for the MFD, can be set by the MFDColorPlugin
         public bool removeOriginalMFDContent = true; // by default, we remove the original MFD content
-
 
         public WeaponDisplay() {
             static Transform Get(string path) {
@@ -241,6 +238,11 @@ public class WeaponDisplayComponent {
             // Default settings for the weapon display
             bool rotateWeaponImage = false;
             float imageScaleFactor = 0.6f;
+            
+            // register theme change
+            WeaponDisplay_OnThemeGroupChanged();
+            ThemeManager.ThemeGroupChanged += WeaponDisplay_OnThemeGroupChanged;
+            
             // Layout settings for each supported platform
             Vector2 flarePos, jammerPos, lineStart, lineEnd, weaponNamePos, weaponAmmoPos, weaponImagePos;
             int flareFont, jammerFont, weaponNameFont, weaponAmmoFont;
@@ -286,21 +288,6 @@ public class WeaponDisplayComponent {
                     jammerFont = 30;
                     weaponNameFont = 18;
                     weaponAmmoFont = 40;
-                    break;
-                case "FS-3 Ternion":
-                    flarePos = new Vector2(15, -20);
-                    jammerPos = new Vector2(15, -50);
-                    lineStart = new Vector2(-50, 5);
-                    lineEnd = new Vector2(80, 5);
-                    weaponAmmoPos = new Vector2(15, 25);
-                    weaponNamePos = new Vector2(15, 50);
-                    weaponImagePos = new Vector2(-80, 0);
-                    flareFont = 30;
-                    jammerFont = 30;
-                    weaponNameFont = 20;
-                    weaponAmmoFont = 35;
-                    imageScaleFactor = 0.6f; // Scale the image for FS-12 Revoker
-                    rotateWeaponImage = true;
                     break;
                 case "FS-12 Revoker":
                     flarePos = new Vector2(0, -40);
@@ -430,35 +417,6 @@ public class WeaponDisplayComponent {
                     weaponAmmoFont = 160;
                     imageScaleFactor = 2.0f;
                     break;
-                case "F-16M King Viper":
-                    flarePos = new Vector2(60, 20);
-                    jammerPos = new Vector2(60, -20);
-                    lineStart = new Vector2(5, -50);
-                    lineEnd = new Vector2(5, 50);
-                    weaponNamePos = new Vector2(-60, 10);
-                    weaponAmmoPos = new Vector2(-60, -20);
-                    weaponImagePos = new Vector2(-60, 40);
-                    flareFont = 20;
-                    jammerFont = 20;
-                    weaponNameFont = 20;
-                    weaponAmmoFont = 30;
-                    imageScaleFactor = 0.5f;
-                    break;
-                case "MiG-15":
-                    flarePos = new Vector2(80, 30);
-                    jammerPos = new Vector2(80, -40);
-                    lineStart = new Vector2(5, -70);
-                    lineEnd = new Vector2(5, 70);
-                    weaponNamePos = new Vector2(-90, 0);
-                    weaponAmmoPos = new Vector2(-90, -40);
-                    weaponImagePos = new Vector2(-90, 40);
-                    flareFont = 30;
-                    jammerFont = 30;
-                    weaponNameFont = 30;
-                    weaponAmmoFont = 40;
-                    imageScaleFactor = 0.75f;
-                    break;
-                case "FQ-106 Kestrel":
                 default:
                     flarePos = new Vector2(0, -40);
                     jammerPos = new Vector2(0, -80);
@@ -531,9 +489,8 @@ public class WeaponDisplayComponent {
                 flarePos,
                 destination,
                 FontStyles.Normal,
-                InternalState.textColor,
-                flareFont,
-                0f
+                Color.white,
+                flareFont
             );
             flareLabel.SetText("⇌");
             jammerLabel = new(
@@ -541,7 +498,7 @@ public class WeaponDisplayComponent {
                 jammerPos,
                 destination,
                 FontStyles.Normal,
-                InternalState.textColor,
+                Color.white,
                 jammerFont,
                 0f
             );
@@ -551,17 +508,19 @@ public class WeaponDisplayComponent {
                 lineStart,
                 lineEnd,
                 destination,
-                InternalState.mainColor,
-                1f
+                Color.white,
+                1f,
+                styleLabel:UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_ImageMainColor"]
             );
             weaponNameLabel = new(
                 "weaponNameLabel",
                 weaponNamePos,
                 destination,
                 FontStyles.Normal,
-                InternalState.textColor,
+                Color.white,
                 weaponNameFont,
-                0f
+                0f,
+                styleLabel:UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_TextMainColor"]
             );
             weaponNameLabel.SetText("");
             weaponAmmoLabel = new(
@@ -569,7 +528,7 @@ public class WeaponDisplayComponent {
                 weaponAmmoPos,
                 destination,
                 FontStyles.Normal,
-                InternalState.textColor,
+                Color.white,
                 weaponAmmoFont,
                 0f
             );
@@ -626,6 +585,10 @@ public class WeaponDisplayComponent {
                     child.SetActive(!child.activeSelf);
                 }
             }
+        }
+
+        private void WeaponDisplay_OnThemeGroupChanged() {
+            colorGradient = ThemeManager.Active.ColorTheme.Gradient();
         }
     }
 
