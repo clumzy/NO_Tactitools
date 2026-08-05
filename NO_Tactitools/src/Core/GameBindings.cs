@@ -338,13 +338,21 @@ public class GameBindings {
                 }
 
                 public static void SetActiveStation(byte index) {
-                    try {
-                        if (index < GetStationCount()) {
-                            SceneSingleton<CombatHUD>.i.aircraft.weaponManager.SetActiveStation(index);
-                            SceneSingleton<CombatHUD>.i.ShowWeaponStation(SceneSingleton<CombatHUD>.i.aircraft.weaponManager.currentWeaponStation);
+                    try
+                    {
+                        global::Aircraft aircraft = GetAircraft();
+                        
+                        if (aircraft == null)
+                            return;
+                        
+                        if (index >= aircraft.weaponStations.Count)
+                        {
+                            Plugin.Log($"[BD] Station index {index} out of range!");
+                            return;
                         }
-                        else
-                            Plugin.Log("[BD] Station index out of range !");
+                        
+                        aircraft.SetActiveStation(index);
+                        SceneSingleton<CombatHUD>.i.ShowWeaponStation(aircraft.weaponStations[index]);
                     }
                     catch (NullReferenceException e) { Plugin.Log(e.ToString()); }
                 }

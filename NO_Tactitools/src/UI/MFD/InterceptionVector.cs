@@ -236,7 +236,7 @@ class InterceptionVectorTask {
             float progress = (float)interceptArray.Count / interceptArraySize;
             int barLength = 12;
             int filledCount = (int)(progress * (barLength+1));
-            string bar = new string('█', filledCount).PadRight(barLength, '░');
+            string bar = new string('|', filledCount).PadRight(barLength, '.');
             timerLabel.SetText(bar);
 
             string scrambled = "";
