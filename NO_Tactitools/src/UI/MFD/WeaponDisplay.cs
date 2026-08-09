@@ -510,7 +510,8 @@ public class WeaponDisplayComponent {
                 destination,
                 Color.white,
                 1f,
-                styleLabel:UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_ImageMainColor"]
+                context: ThemeManager.ThemeContext.TacScreen,
+                styleLabel:UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.TacScreen]["TacScreen_ImageMainColor"]
             );
             weaponNameLabel = new(
                 "weaponNameLabel",
@@ -520,7 +521,8 @@ public class WeaponDisplayComponent {
                 Color.white,
                 weaponNameFont,
                 0f,
-                styleLabel:UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_TextMainColor"]
+                context: ThemeManager.ThemeContext.TacScreen,
+                styleLabel:UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.TacScreen]["TacScreen_TextMainColor"]
             );
             weaponNameLabel.SetText("");
             weaponAmmoLabel = new(

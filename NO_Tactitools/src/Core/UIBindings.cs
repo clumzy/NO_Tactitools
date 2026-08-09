@@ -123,6 +123,7 @@ public class UIBindings {
                 int fontSize = 24,
                 float backgroundOpacity = 0.8f,
                 Material material = null,
+                ThemeManager.ThemeContext context = ThemeManager.ThemeContext.HUD,
                 StyleLabel styleLabel = null
             ) : base(name, UIParent) {
                 this.backgroundOpacity = backgroundOpacity;
@@ -218,6 +219,7 @@ public class UIBindings {
                 float thickness = 2f,
                 Material material = null,
                 bool antialiased = false,
+                ThemeManager.ThemeContext context = ThemeManager.ThemeContext.HUD,
                 StyleLabel styleLabel = null
                 ) : base(name, UIParent, material: material) 
             {
