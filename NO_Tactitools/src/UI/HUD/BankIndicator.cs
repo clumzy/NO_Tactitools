@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using NO_Tactitools.Core;
 using UnityEngine;
 using System.Collections.Generic;
+using NuclearOption.UIStyleSystem;
 
 namespace NO_Tactitools.UI.HUD;
 
@@ -122,7 +123,9 @@ public class BankIndicatorComponent {
                 color: new Color(0f, 1f, 0f, Plugin.bankIndicatorTransparency.Value),
                 fontSize: 34,
                 backgroundOpacity: 0f,
-                material: UIBindings.Game.GetFlightHUDFontMaterial()
+                material: UIBindings.Game.GetFlightHUDFontMaterial(),
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_TextMainColor"]
             );
             // so that it looks like the bearing label
             bankLabel.GetRectTransform().localScale = new Vector3(0.5f, 0.5f, 0.5f);
@@ -144,7 +147,9 @@ public class BankIndicatorComponent {
                     color: new Color(0f, 1f, 0f, Plugin.bankIndicatorTransparency.Value),
                     thickness: isBigIncrement ? 1.5f : 0.75f,
                     material: UIBindings.Game.GetFlightHUDFontMaterial(),
-                    antialiased: true
+                    antialiased: true,
+                    context: ThemeManager.ThemeContext.HUD,
+                    styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_ImageMainColor"]
                 );
                 line.GetRectTransform().transform.RotateAround(containerTransform.position, Vector3.forward, -i * visualScale);
                 increments.Add(line);

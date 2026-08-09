@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine.Rendering;
 using JetBrains.Annotations;
+using NuclearOption.UIStyleSystem;
 using TMPro;
 
 namespace NO_Tactitools.UI.HMD;
@@ -340,7 +341,9 @@ public class ArtificialHorizonComponent {
                 mainColor,
                 horizonLineThickness,
                 UIBindings.Game.GetFlightHUDFontMaterial(),
-                antialiased: true
+                antialiased: true,
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_ImageMainColor"]
             );
             northLine = new UIBindings.Draw.UILine(
                 "northLine",
@@ -350,7 +353,9 @@ public class ArtificialHorizonComponent {
                 cardinalLineColor,
                 cardinalLineThickness,
                 UIBindings.Game.GetFlightHUDFontMaterial(),
-                antialiased: true
+                antialiased: true,
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_ImageMainColor"]
             );
             northLabel = new UIBindings.Draw.UILabel(
                 "northLabel",
@@ -360,7 +365,9 @@ public class ArtificialHorizonComponent {
                 cardinalLabelColor,
                 cardinalLabelFontSize,
                 cardinalLabelBgOpacity,
-                UIBindings.Game.GetFlightHUDFontMaterial()
+                UIBindings.Game.GetFlightHUDFontMaterial(),
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_TextMainColor"]
             );
             southLine = new UIBindings.Draw.UILine(
                 "southLine",
@@ -370,7 +377,9 @@ public class ArtificialHorizonComponent {
                 cardinalLineColor,
                 cardinalLineThickness,
                 UIBindings.Game.GetFlightHUDFontMaterial(),
-                antialiased: true
+                antialiased: true,
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_ImageMainColor"]
             );
             southLabel = new UIBindings.Draw.UILabel(
                 "southLabel",
@@ -380,7 +389,9 @@ public class ArtificialHorizonComponent {
                 cardinalLabelColor,
                 cardinalLabelFontSize,
                 cardinalLabelBgOpacity,
-                UIBindings.Game.GetFlightHUDFontMaterial()
+                UIBindings.Game.GetFlightHUDFontMaterial(),
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_TextMainColor"]
             );
             eastLine = new UIBindings.Draw.UILine(
                 "eastLine",
@@ -390,7 +401,9 @@ public class ArtificialHorizonComponent {
                 cardinalLineColor,
                 cardinalLineThickness,
                 UIBindings.Game.GetFlightHUDFontMaterial(),
-                antialiased: true
+                antialiased: true,
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_ImageMainColor"]
             );
             eastLabel = new UIBindings.Draw.UILabel(
                 "eastLabel",
@@ -400,7 +413,9 @@ public class ArtificialHorizonComponent {
                 cardinalLabelColor,
                 cardinalLabelFontSize,
                 cardinalLabelBgOpacity,
-                UIBindings.Game.GetFlightHUDFontMaterial()
+                UIBindings.Game.GetFlightHUDFontMaterial(),
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_TextMainColor"]
             );
             westLine = new UIBindings.Draw.UILine(
                 "westLine",
@@ -410,7 +425,9 @@ public class ArtificialHorizonComponent {
                 cardinalLineColor,
                 cardinalLineThickness,
                 UIBindings.Game.GetFlightHUDFontMaterial(),
-                antialiased: true
+                antialiased: true,
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_ImageMainColor"]
             );
             westLabel = new UIBindings.Draw.UILabel(
                 "westLabel",
@@ -420,7 +437,9 @@ public class ArtificialHorizonComponent {
                 cardinalLabelColor,
                 cardinalLabelFontSize,
                 cardinalLabelBgOpacity,
-                UIBindings.Game.GetFlightHUDFontMaterial()
+                UIBindings.Game.GetFlightHUDFontMaterial(),
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_TextMainColor"]
             );
             Plugin.Log("[AH] Artificial Horizon display created");
         }

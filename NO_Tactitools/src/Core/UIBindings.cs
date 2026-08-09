@@ -156,7 +156,7 @@ public class UIBindings {
 
                 if (styleLabel != null) {
                     textStyleApplier = textObj.AddComponent<TextStyleApplier>();
-                    textStyleApplier.Context = ThemeManager.ThemeContext.HUD;
+                    textStyleApplier.Context = context;
                     SetStyleLabel(styleLabel);
                 }
 
@@ -239,7 +239,7 @@ public class UIBindings {
 
                 if (styleLabel != null) {
                     imageStyleApplier = gameObject.AddComponent<ImageStyleApplier>();
-                    imageStyleApplier.Context = ThemeManager.ThemeContext.HUD;
+                    imageStyleApplier.Context = context;
                     SetStyleLabel(styleLabel);
                 }
                 

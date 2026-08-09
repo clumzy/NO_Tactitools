@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using NO_Tactitools.Core;
 using UnityEngine;
 using System.Collections.Generic;
+using NuclearOption.UIStyleSystem;
 
 namespace NO_Tactitools.UI.HUD;
 
@@ -154,7 +155,9 @@ public class SlipIndicatorComponent {
                 color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
                 thickness: 1f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial(),
-                antialiased: true
+                antialiased: true,
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_ImageMainColor"]
             );
             rightBar = new UIBindings.Draw.UILine(
                 name: "i_SI_rightBar",
@@ -164,7 +167,9 @@ public class SlipIndicatorComponent {
                 color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
                 thickness: 1f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial(),
-                antialiased: true
+                antialiased: true,
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_ImageMainColor"]
             );
             leftOuterBar = new UIBindings.Draw.UILine(
                 name: "i_SI_leftOuterBar",
@@ -174,7 +179,9 @@ public class SlipIndicatorComponent {
                 color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
                 thickness: 1.5f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial(),
-                antialiased: true
+                antialiased: true,
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_ImageMainColor"]
             );
             rightOuterBar = new UIBindings.Draw.UILine(
                 name: "i_SI_rightOuterBar",
@@ -184,16 +191,20 @@ public class SlipIndicatorComponent {
                 color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
                 thickness: 1.5f,
                 material: UIBindings.Game.GetFlightHUDFontMaterial(),
-                antialiased: true
+                antialiased: true,
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_ImageMainColor"]
             );
             ballLabel = new UIBindings.Draw.UILabel(
                 name: "i_SI_ballLabel",
                 position: Vector2.zero,
                 UIParent: containerTransform,
                 color: new Color(0f, 1f, 0f, Plugin.slipIndicatorTransparency.Value),
-                fontSize: 32,
+                fontSize: 35,
                 backgroundOpacity: 0f,
-                material: UIBindings.Game.GetFlightHUDFontMaterial()
+                material: UIBindings.Game.GetFlightHUDFontMaterial(),
+                context: ThemeManager.ThemeContext.HUD,
+                styleLabel: UIBindings.Draw.StyleLabels[ThemeManager.ThemeContext.HUD]["HUD_TextMainColor"]
             );
             ballLabel.SetText("•");
         }
